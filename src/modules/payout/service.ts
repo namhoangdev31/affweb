@@ -48,12 +48,11 @@ function assertTransition(from: PayoutStatus, to: PayoutStatus): void {
 function payosClient(): PayOS {
   const env = loadServerEnv();
   if (
-    !env.PAYOS_PAYOUT_ENABLED ||
     !env.PAYOS_CLIENT_ID ||
     !env.PAYOS_API_KEY ||
     !env.PAYOS_CHECKSUM_KEY
   ) {
-    throw new AppError("PAYOUT_DISABLED", "payOS Payout đang bị tắt.", 503);
+    throw new AppError("PAYOUT_DISABLED", "payOS Payout credentials chưa được cấu hình.", 503);
   }
   return new PayOS({
     clientId: env.PAYOS_CLIENT_ID,

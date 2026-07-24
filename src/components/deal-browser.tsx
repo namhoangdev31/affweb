@@ -16,19 +16,20 @@ type Deal = {
   originalPriceVnd: string | null;
 };
 
-export function DealBrowser() {
-  const [deals, setDeals] = useState<Deal[]>([]);
+export function DealBrowser({ initialDeals = [] }: { initialDeals?: Deal[] }) {
+  const [deals, setDeals] = useState<Deal[]>(initialDeals);
   const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialDeals.length === 0);
 
   useEffect(() => {
+    if (initialDeals.length > 0) return;
     const controller = new AbortController();
     void fetch("/api/v1/public/deals", { signal: controller.signal })
       .then((response) => response.json() as Promise<{ offers: Deal[] }>)
       .then((data) => setDeals(data.offers))
       .finally(() => setLoading(false));
     return () => controller.abort();
-  }, []);
+  }, [initialDeals]);
 
   const filtered = useMemo(
     () => deals.filter((deal) => deal.title.toLowerCase().includes(query.toLowerCase())),

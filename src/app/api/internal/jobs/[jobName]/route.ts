@@ -5,12 +5,12 @@ import { verifyQStashRequest } from "@/modules/jobs/qstash";
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-export async function POST(
+async function handleJob(
   request: Request,
   context: { params: Promise<{ jobName: string }> }
 ): Promise<Response> {
   try {
-    const body = await request.text();
+    const body = request.method === "POST" ? await request.text() : "";
     await verifyQStashRequest(request, body);
     const { jobName } = await context.params;
     const result = await runJob(jobName);
@@ -18,4 +18,18 @@ export async function POST(
   } catch (error) {
     return errorResponse(error);
   }
+}
+
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ jobName: string }> }
+): Promise<Response> {
+  return handleJob(request, context);
+}
+
+export async function POST(
+  request: Request,
+  context: { params: Promise<{ jobName: string }> }
+): Promise<Response> {
+  return handleJob(request, context);
 }

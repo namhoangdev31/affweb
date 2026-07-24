@@ -70,7 +70,7 @@ export class AccessTradeConnector extends ConnectorBase {
     options?: { query?: Record<string, string>; body?: Record<string, unknown> }
   ): Promise<unknown> {
     const env = loadServerEnv();
-    if (!env.ACCESSTRADE_ENABLED || !env.ACCESSTRADE_API_KEY) {
+    if (!env.ACCESSTRADE_API_KEY) {
       throw new AppError("CONNECTOR_UNAVAILABLE", "AccessTrade chưa được cấu hình.", 503);
     }
     const url = new URL(path, env.ACCESSTRADE_API_BASE_URL);

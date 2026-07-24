@@ -91,7 +91,7 @@ export class AddLiveTagConnector extends ConnectorBase {
 
   private async fetchJson(searchParams: Record<string, string>): Promise<unknown> {
     const env = loadServerEnv();
-    if (!env.ADDLIVETAG_ENABLED || !env.ADDLIVETAG_CONVERSION_ENABLED || !env.ADDLIVETAG_API_KEY) {
+    if (!env.ADDLIVETAG_API_KEY) {
       throw new AppError("CONNECTOR_UNAVAILABLE", "AddLiveTag chưa được cấu hình.", 503);
     }
     const url = new URL(env.ADDLIVETAG_API_BASE_URL);

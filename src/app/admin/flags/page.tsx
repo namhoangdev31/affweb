@@ -38,7 +38,7 @@ export default async function FlagsPage() {
       </p>
       <div className="mt-8 space-y-3">
         {keys.map(([key, label]) => {
-          const enabled = map.get(key) ?? false;
+          const enabled = map.get(key) ?? true;
           return (
             <Card key={key}>
               <CardContent className="flex items-center gap-4 p-5">

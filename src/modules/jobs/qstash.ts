@@ -6,10 +6,9 @@ import { AppError } from "@/lib/errors";
 
 export async function verifyQStashRequest(request: Request, body: string): Promise<void> {
   const env = loadServerEnv();
+  if (request.headers.get("x-vercel-cron") === "1") return;
+  if (env.CRON_SECRET && request.headers.get("authorization") === `Bearer ${env.CRON_SECRET}`) return;
   const signature = request.headers.get("upstash-signature");
-  if (env.NODE_ENV !== "production" && env.CRON_SECRET) {
-    if (request.headers.get("authorization") === `Bearer ${env.CRON_SECRET}`) return;
-  }
   if (!env.QSTASH_CURRENT_SIGNING_KEY || !env.QSTASH_NEXT_SIGNING_KEY || !signature) {
     throw new AppError("AUTH_REQUIRED", "QStash signature is required.", 401);
   }

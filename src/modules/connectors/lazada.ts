@@ -38,7 +38,6 @@ export class LazadaConnector extends ConnectorBase {
   ): Promise<T> {
     const env = loadServerEnv();
     if (
-      env.LAZADA_MODE !== "active" ||
       !env.LAZADA_API_BASE_URL ||
       !env.LAZADA_LITE_APP_KEY ||
       !env.LAZADA_LITE_APP_SECRET ||
@@ -46,7 +45,7 @@ export class LazadaConnector extends ConnectorBase {
     ) {
       throw new AppError(
         "CONNECTOR_UNAVAILABLE",
-        "Lazada đang ở credential_ready; chưa thực hiện live request.",
+        "Lazada chưa được cấu hình đầy đủ credentials.",
         503
       );
     }
