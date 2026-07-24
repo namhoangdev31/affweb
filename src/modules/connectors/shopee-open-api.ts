@@ -1,7 +1,6 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { Platform } from "@/generated/prisma/client";
-import { loadServerEnv } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 import { ConnectorBase } from "@/modules/connectors/base";
 import type {
@@ -42,17 +41,18 @@ export class ShopeeOpenApiConnector extends ConnectorBase {
     variables: Record<string, unknown>,
     schema: z.ZodType<T>
   ): Promise<T> {
-    const env = loadServerEnv();
-    if (!env.SHOPEE_OPEN_API_ENABLED || !env.SHOPEE_APP_ID || !env.SHOPEE_APP_SECRET) {
-      throw new AppError("CONNECTOR_UNAVAILABLE", "Shopee Open API chưa được cấu hình.", 503);
+    const appId = process.env.SHOPEE_APP_ID;
+    const secret = process.env.SHOPEE_APP_SECRET;
+    if (process.env.SHOPEE_OPEN_API_ENABLED !== "true" || !appId || !secret) {
+      throw new AppError("CONNECTOR_UNAVAILABLE", "Shopee Open API chưa hỗ trợ tại thị trường Việt Nam.", 503);
     }
     const timestamp = Math.floor(Date.now() / 1000);
     const payload = JSON.stringify({ query, variables });
-    const signature = shopeeSignature(env.SHOPEE_APP_ID, timestamp, payload, env.SHOPEE_APP_SECRET);
+    const signature = shopeeSignature(appId, timestamp, payload, secret);
     const response = await fetch(ENDPOINT, {
       method: "POST",
       headers: {
-        Authorization: `SHA256 Credential=${env.SHOPEE_APP_ID}, Timestamp=${timestamp}, Signature=${signature}`,
+        Authorization: `SHA256 Credential=${appId}, Timestamp=${timestamp}, Signature=${signature}`,
         "Content-Type": "application/json"
       },
       body: payload,

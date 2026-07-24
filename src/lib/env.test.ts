@@ -21,7 +21,6 @@ describe("Environment Variables Audit & Readiness Tests", () => {
   it("provides sensible defaults for optional development ENVs", () => {
     delete (process.env as Record<string, string | undefined>).NODE_ENV;
     delete process.env.APP_BASE_URL;
-    delete process.env.SHOPEE_OPEN_API_ENABLED;
     delete process.env.ADDLIVETAG_ENABLED;
     delete process.env.ACCESSTRADE_ENABLED;
     delete process.env.LAZADA_MODE;
