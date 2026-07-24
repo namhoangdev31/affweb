@@ -1,0 +1,38 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# tests and builds
+/coverage
+/playwright-report
+/test-results
+/.lighthouseci
+/.next
+/out
+/.vercel
+/.turbo
+*.tsbuildinfo
+
+# generated
+/src/generated/prisma
+
+# local databases and artifacts
+*.db
+*.db-journal
+/artifacts
+
+# environment and secrets
+.env.local
+.env.*.local
+.env.custom.bak
+
+# logs and OS/editor metadata
+*.log
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# Sentry
+.sentryclirc

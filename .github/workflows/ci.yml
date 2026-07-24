@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: affweb_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/affweb_test
+      DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/affweb_test
+      APP_BASE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_BUILD_SHA: ${{ github.sha }}
+      AUTH_SECRET: ci-only-not-a-production-secret-ci-only
+      BANK_DATA_ENCRYPTION_KEY_V1: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      LAZADA_MODE: credential_ready
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+      - run: pnpm audit --audit-level high
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm prisma validate
+      - run: pnpm prisma generate
+      - run: pnpm prisma migrate deploy
+      - run: pnpm db:seed
+      - run: pnpm test:coverage
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e --project=chromium
+      - run: pnpm exec lhci autorun
+
+  preview:
+    if: github.event_name == 'pull_request' && vars.VERCEL_PREVIEW_ENABLED == 'true'
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: preview
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_STAGING_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm dlx vercel@56.5.0 pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - run: pnpm dlx vercel@56.5.0 build --token=${{ secrets.VERCEL_TOKEN }}
+      - run: pnpm dlx vercel@56.5.0 deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}

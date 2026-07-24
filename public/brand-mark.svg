@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Hoàn Tiền">
+  <defs>
+    <linearGradient id="g" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#18392f"/>
+      <stop offset="1" stop-color="#0c211b"/>
+    </linearGradient>
+    <linearGradient id="c" x1="128" y1="128" x2="385" y2="385" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff4cf"/>
+      <stop offset="1" stop-color="#e3c36d"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#g)"/>
+  <path d="M368 158c-28-31-68-48-112-48-81 0-147 62-153 141h-31l51 61 51-61h-30c6-56 54-100 112-100 31 0 59 12 80 32l32-25Z" fill="url(#c)"/>
+  <path d="M144 354c28 31 68 48 112 48 81 0 147-62 153-141h31l-51-61-51 61h30c-6 56-54 100-112 100-31 0-59-12-80-32l-32 25Z" fill="url(#c)"/>
+  <circle cx="256" cy="256" r="61" fill="#f8f1dd"/>
+  <path d="M229 210v92m0-46h52m0-46v92" stroke="#18392f" stroke-width="24" stroke-linecap="round"/>
+</svg>

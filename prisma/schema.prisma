@@ -1,0 +1,946 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum Role {
+  USER
+  SUPPORT
+  FINANCE_REVIEWER
+  FINANCE_APPROVER
+  SUPER_ADMIN
+}
+
+enum Platform {
+  SHOPEE_MARKETPLACE
+  SHOPEE_FOOD
+  LAZADA
+  ACCESSTRADE
+}
+
+enum AffiliateTargetType {
+  PRODUCT
+  SHOP
+  CAMPAIGN
+  HOME
+  RESTAURANT
+  ITEM
+  OFFER
+}
+
+enum ConnectorType {
+  SHOPEE_DIRECT
+  SHOPEE_OPEN_API
+  ADDLIVETAG_ACCOUNT
+  ADDLIVETAG_CATALOG
+  ACCESSTRADE_API
+  LAZADA_OPEN_API
+}
+
+enum ConnectorMode {
+  DISABLED
+  CREDENTIAL_READY
+  SHADOW
+  ACTIVE
+  DEGRADED
+}
+
+enum EvidenceAuthority {
+  AUTHORITATIVE
+  PROVISIONAL_AUTHORITATIVE
+  AUXILIARY
+}
+
+enum SyncStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  PARTIAL
+  FAILED
+}
+
+enum ConversionStatus {
+  DISCOVERED
+  PENDING
+  VALIDATED
+  REJECTED
+  CORRECTED
+}
+
+enum RuleScope {
+  SYSTEM_DEFAULT
+  MERCHANT_DEFAULT
+  USER_GLOBAL
+  USER_MERCHANT
+  USER_CAMPAIGN
+}
+
+enum LedgerAccountKind {
+  ASSET
+  LIABILITY
+  REVENUE
+  EXPENSE
+  EQUITY
+}
+
+enum LedgerDirection {
+  DEBIT
+  CREDIT
+}
+
+enum LedgerTransactionType {
+  COMMISSION_PENDING
+  COMMISSION_VALIDATED
+  CASHBACK_RELEASE
+  CONVERSION_REVERSAL
+  PAYOUT_RESERVE
+  PAYOUT_RELEASE
+  PAYOUT_PAID
+  MANUAL_ADJUSTMENT
+}
+
+enum RiskHoldStatus {
+  HELD
+  RELEASED
+  CANCELLED
+  REVIEW_REQUIRED
+}
+
+enum BeneficiaryStatus {
+  PENDING
+  VERIFIED
+  BLOCKED
+  ARCHIVED
+}
+
+enum PayoutStatus {
+  DRAFT
+  RESERVED
+  REVIEWED
+  APPROVED
+  SUBMITTED
+  PROCESSING
+  PAID
+  FAILED
+  UNKNOWN
+  CANCELLED
+}
+
+enum ApprovalKind {
+  REVIEW
+  APPROVE
+  ADJUSTMENT
+}
+
+enum AdjustmentStatus {
+  DRAFT
+  REVIEWED
+  APPROVED
+  POSTED
+  REJECTED
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  PUSH
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+  SUPPRESSED
+}
+
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
+
+enum ReconciliationStatus {
+  OPEN
+  MATCHED
+  ADJUSTED
+  DISMISSED
+}
+
+model User {
+  id                  String                  @id @default(cuid())
+  name                String?
+  email               String?                 @unique
+  emailVerified       DateTime?
+  image               String?
+  status              UserStatus              @default(INVITED)
+  inviteCode          String?                 @unique
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  accounts            Account[]
+  sessions            Session[]
+  authenticators      Authenticator[]
+  roles               RoleAssignment[]
+  adminPasskeys       AdminPasskey[]
+  recoveryCodes       RecoveryCode[]
+  clicks              AffiliateClick[]
+  conversions         Conversion[]
+  commissionRules     CommissionRule[]        @relation("RuleUser")
+  createdRuleVersions CommissionRuleVersion[] @relation("RuleVersionCreator")
+  ledgerAccounts      LedgerAccount[]
+  wallet              WalletProjection?
+  riskHolds           RiskHold[]
+  beneficiaries       BankBeneficiary[]
+  beneficiaryChanges  BeneficiaryChange[]
+  payoutTickets       PayoutTicket[]          @relation("PayoutOwner")
+  payoutActions       PayoutApproval[]        @relation("PayoutActor")
+  notifications       Notification[]
+  pushSubscriptions   PushSubscription[]
+  auditEvents         AuditLog[]              @relation("AuditActor")
+  adjustmentTargets   BalanceAdjustment[]     @relation("AdjustmentTarget")
+  adjustmentCreated   BalanceAdjustment[]     @relation("AdjustmentCreator")
+  adjustmentReviewed  BalanceAdjustment[]     @relation("AdjustmentReviewer")
+  adjustmentApproved  BalanceAdjustment[]     @relation("AdjustmentApprover")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model RoleAssignment {
+  id              String   @id @default(cuid())
+  userId          String
+  role            Role
+  grantedByUserId String?
+  grantedAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@index([role])
+}
+
+model AdminPasskey {
+  id           String    @id @default(cuid())
+  userId       String
+  credentialId String    @unique
+  publicKey    Bytes
+  counter      BigInt    @default(0)
+  transports   String[]
+  backedUp     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model RecoveryCode {
+  id        String    @id @default(cuid())
+  userId    String
+  codeHash  String    @unique
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Merchant {
+  id              String                @id @default(cuid())
+  platform        Platform
+  code            String
+  slug            String                @unique
+  name            String
+  description     String?
+  logoUrl         String?
+  defaultShareBps Int                   @default(5000)
+  active          Boolean               @default(true)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  campaigns       Campaign[]
+  clicks          AffiliateClick[]
+  conversions     Conversion[]
+  rules           CommissionRule[]
+  snapshots       AttributionSnapshot[]
+
+  @@unique([platform, code])
+  @@index([platform, active])
+}
+
+model Campaign {
+  id          String                @id @default(cuid())
+  merchantId  String
+  externalId  String?
+  slug        String                @unique
+  name        String
+  startsAt    DateTime?
+  endsAt      DateTime?
+  active      Boolean               @default(true)
+  metadata    Json?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  merchant    Merchant              @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  clicks      AffiliateClick[]
+  conversions Conversion[]
+  rules       CommissionRule[]
+  snapshots   AttributionSnapshot[]
+
+  @@unique([merchantId, externalId])
+  @@index([merchantId, active])
+}
+
+model AffiliateAccount {
+  id                 String                       @id @default(cuid())
+  connectorType      ConnectorType
+  platform           Platform
+  externalAccountId  String
+  label              String
+  enabled            Boolean                      @default(true)
+  createdAt          DateTime                     @default(now())
+  updatedAt          DateTime                     @updatedAt
+  clicks             AffiliateClick[]
+  connectorConfigs   ConnectorConfig[]
+  externalIdentities ExternalConversionIdentity[]
+
+  @@unique([connectorType, platform, externalAccountId])
+}
+
+model AffiliateClick {
+  id                 String               @id @default(cuid())
+  clickToken         String               @unique
+  userId             String
+  merchantId         String
+  campaignId         String?
+  affiliateAccountId String?
+  platform           Platform
+  targetType         AffiliateTargetType
+  originUrl          String
+  outboundUrl        String?
+  subIds             Json
+  ipHash             String?
+  userAgentHash      String?
+  createdAt          DateTime             @default(now())
+  clickedAt          DateTime?
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
+  merchant           Merchant             @relation(fields: [merchantId], references: [id], onDelete: Restrict)
+  campaign           Campaign?            @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  affiliateAccount   AffiliateAccount?    @relation(fields: [affiliateAccountId], references: [id], onDelete: SetNull)
+  attribution        AttributionSnapshot?
+  conversions        Conversion[]
+
+  @@index([userId, createdAt])
+  @@index([merchantId, createdAt])
+  @@index([platform, createdAt])
+}
+
+model AttributionSnapshot {
+  id            String                 @id @default(cuid())
+  clickId       String                 @unique
+  merchantId    String
+  campaignId    String?
+  ruleVersionId String?
+  shareBps      Int
+  snapshot      Json
+  createdAt     DateTime               @default(now())
+  click         AffiliateClick         @relation(fields: [clickId], references: [id], onDelete: Cascade)
+  merchant      Merchant               @relation(fields: [merchantId], references: [id], onDelete: Restrict)
+  campaign      Campaign?              @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  ruleVersion   CommissionRuleVersion? @relation(fields: [ruleVersionId], references: [id], onDelete: SetNull)
+
+  @@index([merchantId, campaignId])
+}
+
+model OfferSnapshot {
+  id               String            @id @default(cuid())
+  platform         Platform
+  provider         ConnectorType
+  externalOfferId  String
+  merchantCode     String?
+  title            String
+  imageUrl         String?
+  originUrl        String
+  priceVnd         BigInt?
+  originalPriceVnd BigInt?
+  commissionBps    Int?
+  authority        EvidenceAuthority @default(AUXILIARY)
+  payload          Json
+  sourceUpdatedAt  DateTime?
+  fetchedAt        DateTime          @default(now())
+  expiresAt        DateTime?
+  quarantinedAt    DateTime?
+  quarantineReason String?
+
+  @@unique([provider, externalOfferId])
+  @@index([platform, fetchedAt])
+  @@index([expiresAt])
+}
+
+model ConnectorConfig {
+  id                 String            @id @default(cuid())
+  affiliateAccountId String?
+  connectorType      ConnectorType
+  platform           Platform
+  mode               ConnectorMode     @default(DISABLED)
+  enabled            Boolean           @default(false)
+  settings           Json?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  affiliateAccount   AffiliateAccount? @relation(fields: [affiliateAccountId], references: [id], onDelete: SetNull)
+  cursors            ConnectorCursor[]
+  health             ConnectorHealth?
+  syncRuns           SyncRun[]
+
+  @@unique([connectorType, platform, affiliateAccountId])
+  @@index([enabled, mode])
+}
+
+model ConnectorCursor {
+  id                String          @id @default(cuid())
+  connectorConfigId String
+  cursorKey         String
+  cursorValue       String?
+  windowEnd         DateTime?
+  updatedAt         DateTime        @updatedAt
+  connectorConfig   ConnectorConfig @relation(fields: [connectorConfigId], references: [id], onDelete: Cascade)
+
+  @@unique([connectorConfigId, cursorKey])
+}
+
+model ConnectorHealth {
+  id                String          @id @default(cuid())
+  connectorConfigId String          @unique
+  status            ConnectorMode
+  checkedAt         DateTime
+  lastSuccessAt     DateTime?
+  lagSeconds        Int?
+  failureCount      Int             @default(0)
+  message           String?
+  details           Json?
+  connectorConfig   ConnectorConfig @relation(fields: [connectorConfigId], references: [id], onDelete: Cascade)
+}
+
+model SyncRun {
+  id                String          @id @default(cuid())
+  connectorConfigId String
+  kind              String
+  status            SyncStatus      @default(QUEUED)
+  windowStart       DateTime?
+  windowEnd         DateTime?
+  cursorBefore      String?
+  cursorAfter       String?
+  receivedCount     Int             @default(0)
+  acceptedCount     Int             @default(0)
+  rejectedCount     Int             @default(0)
+  errorCode         String?
+  errorMessage      String?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime        @default(now())
+  connectorConfig   ConnectorConfig @relation(fields: [connectorConfigId], references: [id], onDelete: Restrict)
+
+  @@index([connectorConfigId, createdAt])
+  @@index([status, createdAt])
+}
+
+model RawEvidence {
+  id            String            @id @default(cuid())
+  provider      ConnectorType
+  kind          String
+  authority     EvidenceAuthority
+  sha256        String
+  objectKey     String
+  externalRef   String?
+  schemaVersion Int               @default(1)
+  metadata      Json?
+  capturedAt    DateTime          @default(now())
+  conversions   Conversion[]
+
+  @@unique([objectKey])
+  @@index([provider, externalRef])
+  @@index([sha256])
+}
+
+model ExternalConversionIdentity {
+  id                 String           @id @default(cuid())
+  source             ConnectorType
+  affiliateAccountId String
+  externalOrderId    String
+  externalItemKey    String
+  conversionId       String
+  createdAt          DateTime         @default(now())
+  affiliateAccount   AffiliateAccount @relation(fields: [affiliateAccountId], references: [id], onDelete: Restrict)
+  conversion         Conversion       @relation(fields: [conversionId], references: [id], onDelete: Cascade)
+
+  @@unique([source, affiliateAccountId, externalOrderId, externalItemKey])
+  @@index([conversionId])
+  @@index([externalOrderId])
+}
+
+model Conversion {
+  id                 String                       @id @default(cuid())
+  userId             String?
+  clickId            String?
+  merchantId         String
+  campaignId         String?
+  platform           Platform
+  status             ConversionStatus             @default(DISCOVERED)
+  sourceAuthority    EvidenceAuthority
+  grossCommissionVnd BigInt
+  netCommissionVnd   BigInt
+  cashbackVnd        BigInt
+  shareBps           Int
+  currency           String                       @default("VND")
+  purchasedAt        DateTime
+  clickedAt          DateTime?
+  validatedAt        DateTime?
+  availableAt        DateTime?
+  rejectedAt         DateTime?
+  rawEvidenceId      String
+  createdAt          DateTime                     @default(now())
+  updatedAt          DateTime                     @updatedAt
+  user               User?                        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  click              AffiliateClick?              @relation(fields: [clickId], references: [id], onDelete: SetNull)
+  merchant           Merchant                     @relation(fields: [merchantId], references: [id], onDelete: Restrict)
+  campaign           Campaign?                    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  rawEvidence        RawEvidence                  @relation(fields: [rawEvidenceId], references: [id], onDelete: Restrict)
+  externalIdentities ExternalConversionIdentity[]
+  items              ConversionItem[]
+  revisions          ConversionRevision[]
+  riskHold           RiskHold?
+
+  @@index([userId, status, purchasedAt])
+  @@index([platform, status, purchasedAt])
+  @@index([clickId])
+}
+
+model ConversionItem {
+  id             String     @id @default(cuid())
+  conversionId   String
+  externalItemId String
+  name           String?
+  quantity       Int        @default(1)
+  priceVnd       BigInt?
+  commissionVnd  BigInt
+  cashbackVnd    BigInt
+  payload        Json?
+  conversion     Conversion @relation(fields: [conversionId], references: [id], onDelete: Cascade)
+
+  @@unique([conversionId, externalItemId])
+}
+
+model ConversionRevision {
+  id                    String           @id @default(cuid())
+  conversionId          String
+  sequence              Int
+  previousStatus        ConversionStatus
+  newStatus             ConversionStatus
+  previousCommissionVnd BigInt
+  newCommissionVnd      BigInt
+  previousCashbackVnd   BigInt
+  newCashbackVnd        BigInt
+  reason                String
+  rawEvidenceId         String?
+  createdAt             DateTime         @default(now())
+  conversion            Conversion       @relation(fields: [conversionId], references: [id], onDelete: Restrict)
+
+  @@unique([conversionId, sequence])
+}
+
+model ReconciliationCase {
+  id               String               @id @default(cuid())
+  conversionId     String?
+  platform         Platform
+  externalOrderId  String?
+  status           ReconciliationStatus @default(OPEN)
+  severity         String
+  reason           String
+  sourceSummary    Json
+  resolution       String?
+  resolvedByUserId String?
+  resolvedAt       DateTime?
+  createdAt        DateTime             @default(now())
+
+  @@index([status, createdAt])
+  @@index([conversionId])
+}
+
+model CommissionRule {
+  id         String                  @id @default(cuid())
+  scope      RuleScope
+  userId     String?
+  merchantId String?
+  campaignId String?
+  active     Boolean                 @default(true)
+  createdAt  DateTime                @default(now())
+  user       User?                   @relation("RuleUser", fields: [userId], references: [id], onDelete: Cascade)
+  merchant   Merchant?               @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  campaign   Campaign?               @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  versions   CommissionRuleVersion[]
+
+  @@index([scope, active])
+  @@index([userId, merchantId, campaignId])
+}
+
+model CommissionRuleVersion {
+  id          String                @id @default(cuid())
+  ruleId      String
+  version     Int
+  shareBps    Int
+  validFrom   DateTime
+  validTo     DateTime?
+  reason      String
+  createdById String
+  createdAt   DateTime              @default(now())
+  rule        CommissionRule        @relation(fields: [ruleId], references: [id], onDelete: Restrict)
+  createdBy   User                  @relation("RuleVersionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  snapshots   AttributionSnapshot[]
+
+  @@unique([ruleId, version])
+  @@index([validFrom, validTo])
+}
+
+model LedgerAccount {
+  id        String            @id @default(cuid())
+  userId    String?
+  code      String            @unique
+  name      String
+  kind      LedgerAccountKind
+  currency  String            @default("VND")
+  active    Boolean           @default(true)
+  createdAt DateTime          @default(now())
+  user      User?             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  entries   LedgerEntry[]
+
+  @@index([userId, active])
+}
+
+model LedgerTransaction {
+  id             String                @id @default(cuid())
+  type           LedgerTransactionType
+  reference      String?
+  idempotencyKey String                @unique
+  description    String
+  metadata       Json?
+  createdById    String?
+  createdAt      DateTime              @default(now())
+  entries        LedgerEntry[]
+
+  @@index([reference])
+  @@index([createdAt])
+}
+
+model LedgerEntry {
+  id            String            @id @default(cuid())
+  transactionId String
+  accountId     String
+  direction     LedgerDirection
+  amountVnd     BigInt
+  createdAt     DateTime          @default(now())
+  transaction   LedgerTransaction @relation(fields: [transactionId], references: [id], onDelete: Restrict)
+  account       LedgerAccount     @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
+  @@index([transactionId])
+  @@index([accountId, createdAt])
+}
+
+model WalletProjection {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  pendingVnd   BigInt   @default(0)
+  availableVnd BigInt   @default(0)
+  reservedVnd  BigInt   @default(0)
+  paidVnd      BigInt   @default(0)
+  version      BigInt   @default(0)
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+}
+
+model RiskHold {
+  id           String         @id @default(cuid())
+  userId       String
+  conversionId String         @unique
+  amountVnd    BigInt
+  reason       String
+  status       RiskHoldStatus @default(HELD)
+  releaseAt    DateTime
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime       @default(now())
+  user         User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  conversion   Conversion     @relation(fields: [conversionId], references: [id], onDelete: Restrict)
+
+  @@index([status, releaseAt])
+}
+
+model BankBeneficiary {
+  id                   String              @id @default(cuid())
+  userId               String
+  bankBin              String
+  accountNumberCipher  String
+  accountNameCipher    String
+  accountLast4         String
+  encryptionKeyVersion Int
+  status               BeneficiaryStatus   @default(PENDING)
+  active               Boolean             @default(true)
+  changedAt            DateTime            @default(now())
+  verifiedAt           DateTime?
+  createdAt            DateTime            @default(now())
+  user                 User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  changes              BeneficiaryChange[]
+  payoutTickets        PayoutTicket[]
+
+  @@index([userId, active])
+}
+
+model BeneficiaryChange {
+  id            String          @id @default(cuid())
+  userId        String
+  beneficiaryId String
+  previousLast4 String?
+  newLast4      String
+  holdUntil     DateTime
+  ipHash        String?
+  createdAt     DateTime        @default(now())
+  user          User            @relation(fields: [userId], references: [id], onDelete: Restrict)
+  beneficiary   BankBeneficiary @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+}
+
+model PayoutTicket {
+  id             String           @id @default(cuid())
+  reference      String           @unique
+  userId         String
+  beneficiaryId  String
+  amountVnd      BigInt
+  status         PayoutStatus     @default(DRAFT)
+  failureCode    String?
+  failureMessage String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  submittedAt    DateTime?
+  paidAt         DateTime?
+  user           User             @relation("PayoutOwner", fields: [userId], references: [id], onDelete: Restrict)
+  beneficiary    BankBeneficiary  @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
+  approvals      PayoutApproval[]
+  attempts       PayoutAttempt[]
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+model PayoutApproval {
+  id             String       @id @default(cuid())
+  payoutTicketId String
+  actorUserId    String
+  kind           ApprovalKind
+  comment        String?
+  createdAt      DateTime     @default(now())
+  payoutTicket   PayoutTicket @relation(fields: [payoutTicketId], references: [id], onDelete: Restrict)
+  actor          User         @relation("PayoutActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@unique([payoutTicketId, kind])
+  @@index([actorUserId, createdAt])
+}
+
+model PayoutAttempt {
+  id                 String       @id @default(cuid())
+  payoutTicketId     String
+  attemptNumber      Int
+  idempotencyKey     String       @unique
+  providerPayoutId   String?
+  providerState      String?
+  requestEvidenceId  String?
+  responseEvidenceId String?
+  submittedAt        DateTime?
+  reconciledAt       DateTime?
+  createdAt          DateTime     @default(now())
+  payoutTicket       PayoutTicket @relation(fields: [payoutTicketId], references: [id], onDelete: Restrict)
+
+  @@unique([payoutTicketId, attemptNumber])
+}
+
+model Notification {
+  id         String                 @id @default(cuid())
+  userId     String
+  type       String
+  title      String
+  body       String
+  deepLink   String?
+  readAt     DateTime?
+  createdAt  DateTime               @default(now())
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries NotificationDelivery[]
+
+  @@index([userId, createdAt])
+}
+
+model NotificationDelivery {
+  id             String              @id @default(cuid())
+  notificationId String
+  channel        NotificationChannel
+  status         DeliveryStatus      @default(PENDING)
+  providerId     String?
+  errorCode      String?
+  attempts       Int                 @default(0)
+  sentAt         DateTime?
+  createdAt      DateTime            @default(now())
+  notification   Notification        @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, channel])
+  @@index([status, createdAt])
+}
+
+model PushSubscription {
+  id         String    @id @default(cuid())
+  userId     String
+  endpoint   String    @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model OutboxEvent {
+  id             String       @id @default(cuid())
+  aggregateType  String
+  aggregateId    String
+  eventType      String
+  idempotencyKey String       @unique
+  payload        Json
+  status         OutboxStatus @default(PENDING)
+  attempts       Int          @default(0)
+  availableAt    DateTime     @default(now())
+  publishedAt    DateTime?
+  lastError      String?
+  createdAt      DateTime     @default(now())
+
+  @@index([status, availableAt])
+}
+
+model IdempotencyRecord {
+  id             String   @id @default(cuid())
+  namespace      String
+  idempotencyKey String
+  requestHash    String
+  responseStatus Int?
+  responseBody   Json?
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+
+  @@unique([namespace, idempotencyKey])
+  @@index([expiresAt])
+}
+
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  enabled     Boolean  @default(false)
+  value       Json?
+  description String?
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String?
+  action      String
+  entityType  String
+  entityId    String?
+  requestId   String?
+  ipHash      String?
+  before      Json?
+  after       Json?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  actor       User?    @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt])
+  @@index([entityType, entityId])
+  @@index([requestId])
+}
+
+model BalanceAdjustment {
+  id               String           @id @default(cuid())
+  targetUserId     String
+  amountVnd        BigInt
+  reason           String
+  status           AdjustmentStatus @default(DRAFT)
+  createdByUserId  String
+  reviewedByUserId String?
+  approvedByUserId String?
+  reviewedAt       DateTime?
+  approvedAt       DateTime?
+  postedAt         DateTime?
+  createdAt        DateTime         @default(now())
+  targetUser       User             @relation("AdjustmentTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  createdBy        User             @relation("AdjustmentCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  reviewedBy       User?            @relation("AdjustmentReviewer", fields: [reviewedByUserId], references: [id], onDelete: Restrict)
+  approvedBy       User?            @relation("AdjustmentApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([targetUserId, createdAt])
+}
