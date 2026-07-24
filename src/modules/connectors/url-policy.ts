@@ -2,7 +2,7 @@ import type { AffiliateTargetType, Platform } from "@/generated/prisma/client";
 import { AppError } from "@/lib/errors";
 
 const PLATFORM_HOSTS: Record<Platform, readonly string[]> = {
-  SHOPEE_MARKETPLACE: ["shopee.vn", "s.shopee.vn"],
+  SHOPEE_MARKETPLACE: ["shopee.vn", "s.shopee.vn", "vn.shp.ee", "shp.ee", "sv.shopee.vn"],
   SHOPEE_FOOD: ["shopeefood.vn", "now.vn"],
   LAZADA: ["lazada.vn", "s.lazada.vn"],
   ACCESSTRADE: []
@@ -44,6 +44,16 @@ export function parseAllowedUrl(input: string, platform: Platform): URL {
     throw new AppError("VALIDATION_ERROR", "Tên miền không thuộc đối tác được hỗ trợ.", 400);
   }
   url.hash = "";
+  if (platform === "SHOPEE_MARKETPLACE") {
+    const matchPath = url.pathname.match(/\/(?:product\/|[^\/]+\/)?(\d+)\/(\d+)(?:\?|$)/);
+    if (matchPath) {
+      return new URL(`https://shopee.vn/product/${matchPath[1]}/${matchPath[2]}`);
+    }
+    const matchI = url.pathname.match(/i\.(\d+)\.(\d+)(?:\?|$)/);
+    if (matchI) {
+      return new URL(`https://shopee.vn/product/${matchI[1]}/${matchI[2]}`);
+    }
+  }
   return url;
 }
 

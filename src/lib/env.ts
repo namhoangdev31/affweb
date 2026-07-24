@@ -26,9 +26,6 @@ const serverEnvSchema = z.object({
   ADMIN_EMAIL_ALLOWLIST: optionalString,
 
   SHOPEE_AFFILIATE_ID: optionalString,
-  SHOPEE_APP_ID: optionalString,
-  SHOPEE_APP_SECRET: optionalString,
-  SHOPEE_OPEN_API_ENABLED: optionalBoolean.default(false),
   SHOPEE_FOOD_CASHBACK_ENABLED: optionalBoolean.default(false),
 
   ADDLIVETAG_ENABLED: optionalBoolean.default(false),

@@ -42,9 +42,12 @@ export class ShopeeDirectConnector extends ConnectorBase {
       throw new AppError("VALIDATION_ERROR", "Shopee chỉ hỗ trợ tối đa 5 SubID.", 400);
     }
     const target = parseAllowedUrl(input.target.canonicalUrl, this.platform);
-    const redirect = new URL("https://shopee.vn/an_redir");
+    const redirect = new URL("https://s.shopee.vn/an_redir");
     redirect.searchParams.set("origin_link", target.toString());
     redirect.searchParams.set("affiliate_id", affiliateId);
+    if (input.subIds[0]) {
+      redirect.searchParams.set("sub_id", input.subIds[0]);
+    }
     input.subIds.forEach((subId, index) => redirect.searchParams.set(`sub_id${index + 1}`, subId));
     return { url: redirect.toString() };
   }
@@ -81,10 +84,13 @@ export class ShopeeFoodConnector extends ConnectorBase {
       throw new AppError("CONNECTOR_UNAVAILABLE", "ShopeeFood connector chưa được cấu hình.", 503);
     }
     const target = parseAllowedUrl(input.target.canonicalUrl, this.platform);
-    const redirect = new URL("https://shopee.vn/an_redir");
+    const redirect = new URL("https://s.shopee.vn/an_redir");
     redirect.searchParams.set("origin_link", target.toString());
     redirect.searchParams.set("affiliate_id", affiliateId);
     redirect.searchParams.set("source", "food");
+    if (input.subIds[0]) {
+      redirect.searchParams.set("sub_id", input.subIds[0]);
+    }
     input.subIds.slice(0, 5).forEach((subId, index) => {
       redirect.searchParams.set(`sub_id${index + 1}`, subId);
     });
