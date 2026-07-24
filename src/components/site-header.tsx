@@ -1,4 +1,5 @@
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { Show, UserButton } from "@clerk/nextjs";
+import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu } from "lucide-react";
@@ -24,7 +25,7 @@ export function SiteHeader() {
           {links.map((link) => (
             <Link
               key={link.href}
-              href={link.href}
+              href={link.href as Route}
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
@@ -33,12 +34,12 @@ export function SiteHeader() {
         </nav>
         <div className="hidden items-center gap-2 md:flex">
           <Show when="signed-out">
-            <SignInButton mode="modal">
-              <Button variant="ghost">Đăng nhập</Button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <Button>Bắt đầu nhận tiền</Button>
-            </SignUpButton>
+            <Button variant="ghost" asChild>
+              <Link href={"/sign-in" as Route}>Đăng nhập</Link>
+            </Button>
+            <Button asChild>
+              <Link href={"/sign-up" as Route}>Bắt đầu nhận tiền</Link>
+            </Button>
           </Show>
           <Show when="signed-in">
             <Button variant="ghost" asChild>
@@ -59,14 +60,17 @@ export function SiteHeader() {
             </SheetHeader>
             <nav className="mt-8 grid gap-5" aria-label="Điều hướng di động">
               {links.map((link) => (
-                <Link key={link.href} href={link.href} className="text-lg">
+                <Link key={link.href} href={link.href as Route} className="text-lg">
                   {link.label}
                 </Link>
               ))}
               <Show when="signed-out">
-                <SignInButton mode="modal">
-                  <Button className="mt-4">Đăng nhập</Button>
-                </SignInButton>
+                <Button asChild className="mt-4">
+                  <Link href={"/sign-in" as Route}>Đăng nhập</Link>
+                </Button>
+                <Button variant="outline" asChild className="mt-2">
+                  <Link href={"/sign-up" as Route}>Tạo tài khoản</Link>
+                </Button>
               </Show>
               <Show when="signed-in">
                 <Button asChild className="mt-4">
