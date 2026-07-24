@@ -8,28 +8,12 @@
   },
   "crons": [
     {
-      "path": "/api/internal/jobs/connector-health",
-      "schedule": "*/15 * * * *"
-    },
-    {
       "path": "/api/internal/jobs/sync-conversions",
-      "schedule": "0 * * * *"
+      "schedule": "0 1 * * *"
     },
     {
-      "path": "/api/internal/jobs/payout-reconciliation",
-      "schedule": "*/30 * * * *"
-    },
-    {
-      "path": "/api/internal/jobs/sync-offers",
+      "path": "/api/internal/jobs/connector-health",
       "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/internal/jobs/release-safety-holds",
-      "schedule": "0 3 * * *"
-    },
-    {
-      "path": "/api/internal/jobs/ledger-invariant",
-      "schedule": "0 4 * * *"
     }
   ]
 }

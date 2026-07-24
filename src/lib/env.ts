@@ -65,6 +65,7 @@ const serverEnvSchema = z.object({
   QSTASH_TOKEN: optionalString,
   QSTASH_CURRENT_SIGNING_KEY: optionalString,
   QSTASH_NEXT_SIGNING_KEY: optionalString,
+  QSTASH_URL: optionalUrl.default("https://qstash-us-east-1.upstash.io"),
   CRON_SECRET: optionalString,
 
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: optionalString,

@@ -1,7 +1,6 @@
 import "server-only";
 
-import { Redis } from "@upstash/redis";
-import { loadServerEnv } from "@/lib/env";
+import { getRedis } from "@/lib/redis";
 
 type LimitResult = { allowed: boolean; remaining: number; resetAt: number };
 
@@ -28,15 +27,10 @@ export async function rateLimit(
   limit: number,
   windowSeconds: number
 ): Promise<LimitResult> {
-  const env = loadServerEnv();
-  if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
+  const redis = getRedis();
+  if (!redis) {
     return localLimit(key, limit, windowSeconds);
   }
-
-  const redis = new Redis({
-    url: env.UPSTASH_REDIS_REST_URL,
-    token: env.UPSTASH_REDIS_REST_TOKEN
-  });
   const bucket = `rate:${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
   const count = await redis.incr(bucket);
   if (count === 1) await redis.expire(bucket, windowSeconds);
