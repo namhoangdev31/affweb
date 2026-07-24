@@ -1,3 +1,4 @@
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu } from "lucide-react";
@@ -31,12 +32,20 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" asChild>
-            <Link href="/login">Đăng nhập</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/login">Bắt đầu nhận tiền</Link>
-          </Button>
+          <Show when="signed-out">
+            <SignInButton mode="modal">
+              <Button variant="ghost">Đăng nhập</Button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <Button>Bắt đầu nhận tiền</Button>
+            </SignUpButton>
+          </Show>
+          <Show when="signed-in">
+            <Button variant="ghost" asChild>
+              <Link href="/app">Dashboard</Link>
+            </Button>
+            <UserButton userProfileUrl="/app/profile" />
+          </Show>
         </div>
         <Sheet>
           <SheetTrigger asChild>
@@ -54,9 +63,16 @@ export function SiteHeader() {
                   {link.label}
                 </Link>
               ))}
-              <Button asChild className="mt-4">
-                <Link href="/login">Đăng nhập</Link>
-              </Button>
+              <Show when="signed-out">
+                <SignInButton mode="modal">
+                  <Button className="mt-4">Đăng nhập</Button>
+                </SignInButton>
+              </Show>
+              <Show when="signed-in">
+                <Button asChild className="mt-4">
+                  <Link href="/app">Mở dashboard</Link>
+                </Button>
+              </Show>
             </nav>
           </SheetContent>
         </Sheet>

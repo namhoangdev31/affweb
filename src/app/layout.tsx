@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
+import { ui } from "@clerk/ui";
 import { headers } from "next/headers";
 import "@/app/globals.css";
 import { Providers } from "@/components/providers";
@@ -41,7 +43,20 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="vi" suppressHydrationWarning>
       <body>
-        <Providers>{children}</Providers>
+        <ClerkProvider
+          dynamic
+          proxyUrl="/__clerk"
+          ui={ui}
+          appearance={{
+            variables: {
+              colorPrimary: "#102c24",
+              colorBackground: "#fffdf7",
+              borderRadius: "0.75rem"
+            }
+          }}
+        >
+          <Providers>{children}</Providers>
+        </ClerkProvider>
       </body>
     </html>
   );

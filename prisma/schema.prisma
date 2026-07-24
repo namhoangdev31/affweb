@@ -14,6 +14,32 @@ enum UserStatus {
   CLOSED
 }
 
+enum IdentityState {
+  UNLINKED
+  ACTIVE
+  BANNED
+  DELETED
+  SYNC_ERROR
+}
+
+enum IdentityInvitationStatus {
+  PENDING
+  SENT
+  ACCEPTED
+  REVOKED
+  EXPIRED
+  FAILED
+}
+
+enum AccountDeletionStatus {
+  REQUESTED
+  BLOCKED
+  APPROVED
+  EXECUTING
+  COMPLETED
+  FAILED
+}
+
 enum Role {
   USER
   SUPPORT
@@ -178,15 +204,20 @@ enum ReconciliationStatus {
 }
 
 model User {
-  id                  String                  @id @default(cuid())
+  id                  String                   @id @default(cuid())
+  clerkUserId         String?                  @unique
   name                String?
-  email               String?                 @unique
+  email               String?                  @unique
   emailVerified       DateTime?
   image               String?
-  status              UserStatus              @default(INVITED)
-  inviteCode          String?                 @unique
-  createdAt           DateTime                @default(now())
-  updatedAt           DateTime                @updatedAt
+  status              UserStatus               @default(INVITED)
+  identityState       IdentityState            @default(UNLINKED)
+  identityUpdatedAt   DateTime?
+  identityDeletedAt   DateTime?
+  anonymizedAt        DateTime?
+  inviteCode          String?                  @unique
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
   accounts            Account[]
   sessions            Session[]
   authenticators      Authenticator[]
@@ -195,22 +226,26 @@ model User {
   recoveryCodes       RecoveryCode[]
   clicks              AffiliateClick[]
   conversions         Conversion[]
-  commissionRules     CommissionRule[]        @relation("RuleUser")
-  createdRuleVersions CommissionRuleVersion[] @relation("RuleVersionCreator")
+  commissionRules     CommissionRule[]         @relation("RuleUser")
+  createdRuleVersions CommissionRuleVersion[]  @relation("RuleVersionCreator")
   ledgerAccounts      LedgerAccount[]
   wallet              WalletProjection?
   riskHolds           RiskHold[]
   beneficiaries       BankBeneficiary[]
   beneficiaryChanges  BeneficiaryChange[]
-  payoutTickets       PayoutTicket[]          @relation("PayoutOwner")
-  payoutActions       PayoutApproval[]        @relation("PayoutActor")
+  payoutTickets       PayoutTicket[]           @relation("PayoutOwner")
+  payoutActions       PayoutApproval[]         @relation("PayoutActor")
   notifications       Notification[]
   pushSubscriptions   PushSubscription[]
-  auditEvents         AuditLog[]              @relation("AuditActor")
-  adjustmentTargets   BalanceAdjustment[]     @relation("AdjustmentTarget")
-  adjustmentCreated   BalanceAdjustment[]     @relation("AdjustmentCreator")
-  adjustmentReviewed  BalanceAdjustment[]     @relation("AdjustmentReviewer")
-  adjustmentApproved  BalanceAdjustment[]     @relation("AdjustmentApprover")
+  auditEvents         AuditLog[]               @relation("AuditActor")
+  adjustmentTargets   BalanceAdjustment[]      @relation("AdjustmentTarget")
+  adjustmentCreated   BalanceAdjustment[]      @relation("AdjustmentCreator")
+  adjustmentReviewed  BalanceAdjustment[]      @relation("AdjustmentReviewer")
+  adjustmentApproved  BalanceAdjustment[]      @relation("AdjustmentApprover")
+  identityInvitations IdentityInvitation[]     @relation("InvitedIdentity")
+  invitationsCreated  IdentityInvitation[]     @relation("InvitationCreator")
+  deletionRequests    AccountDeletionRequest[] @relation("DeletionOwner")
+  deletionsApproved   AccountDeletionRequest[] @relation("DeletionApprover")
 }
 
 model Account {
@@ -300,6 +335,47 @@ model RecoveryCode {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model IdentityInvitation {
+  id                String                   @id @default(cuid())
+  clerkInvitationId String?                  @unique
+  email             String
+  status            IdentityInvitationStatus @default(PENDING)
+  userId            String?
+  createdByUserId   String
+  expiresAt         DateTime?
+  acceptedAt        DateTime?
+  revokedAt         DateTime?
+  lastError         String?
+  retryCount        Int                      @default(0)
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  user              User?                    @relation("InvitedIdentity", fields: [userId], references: [id], onDelete: SetNull)
+  createdBy         User                     @relation("InvitationCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([email, status])
+  @@index([createdByUserId, createdAt])
+}
+
+model AccountDeletionRequest {
+  id               String                @id @default(cuid())
+  userId           String
+  status           AccountDeletionStatus @default(REQUESTED)
+  reason           String?
+  blockedReason    String?
+  failureMessage   String?
+  approvedByUserId String?
+  requestedAt      DateTime              @default(now())
+  approvedAt       DateTime?
+  executedAt       DateTime?
+  completedAt      DateTime?
+  updatedAt        DateTime              @updatedAt
+  user             User                  @relation("DeletionOwner", fields: [userId], references: [id], onDelete: Restrict)
+  approvedBy       User?                 @relation("DeletionApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([userId, status])
+  @@index([status, requestedAt])
 }
 
 model Merchant {

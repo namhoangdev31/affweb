@@ -9,19 +9,19 @@ Không bật tiền thật nếu còn bất kỳ điều kiện nào sau:
 - chưa restore thử backup;
 - chưa có Terms, Privacy, Cashback Policy và quy trình khiếu nại được rà soát pháp lý/kế toán/thuế;
 - chưa có hai admin finance khác nhau với passkey;
-- chưa hoàn tất domain, Google callback, SPF/DKIM/DMARC, AddLiveTag, AccessTrade hoặc payOS production credential.
+- chưa hoàn tất Clerk production instance/domain/webhook, SPF/DKIM/DMARC, AddLiveTag, AccessTrade hoặc payOS production credential.
 
 Lazada token Pending không chặn go-live; giữ `LAZADA_MODE=credential_ready` và kill switch tắt.
 
 ## 2. Provision hai môi trường
 
-Tạo hai Vercel project độc lập: `affweb-staging` và `affweb-production`. Mỗi project có Neon database/branch, Upstash Redis, QStash, S3 bucket Object Lock, OAuth callback, Resend domain, Sentry project và provider credential riêng.
+Project đang liên kết là `aff-shop`. Production và Preview phải có Neon branch, Redis, QStash, S3 prefix/bucket, Clerk instance/domain, Resend domain, Sentry project và provider credential tách biệt. Nếu tách project staging riêng sau beta, lặp lại toàn bộ isolation này và không copy production payout key.
 
 Neon:
 
 1. Bật PITR 30 ngày.
 2. Dùng pooled URL cho `DATABASE_URL`.
-3. Dùng direct URL cho `DIRECT_URL`.
+3. Dùng direct URL cho `DIRECT_URL`; integration Marketplace có thể cấp tên `DATABASE_URL_UNPOOLED`, ứng dụng hỗ trợ cả hai.
 4. Runtime role không được cấp quyền sửa/xóa ledger. Migration đã thêm trigger append-only và deferred balance constraint.
 
 AWS:
@@ -38,10 +38,13 @@ Vercel:
 3. Production domain HTTPS; giữ HSTS.
 4. Tạo WAF/rate-limit cho `/api/v1/links`, auth, payout và admin.
 5. Env Preview không được trỏ production database hoặc payout credential.
+6. Clerk cài qua Vercel Marketplace. Không tạo thêm Clerk application; Application ID duy nhất là `app_3GxTUr7hRQ5aU7hJX2kz7DWGu6U`.
 
 ## 3. Environment
 
 Nạp toàn bộ key trong `.env.example` theo đúng target Development/Preview/Production. Không đặt secret dưới `NEXT_PUBLIC_`.
+
+Thực hiện checklist [Clerk cutover](clerk-cutover.md) trước. Marketplace có thể chỉ đồng bộ Development key cho tới khi Clerk production instance được kích hoạt; không copy `pk_test_`/`sk_test_` sang Production.
 
 ```bash
 NODE_ENV=production pnpm env:check

@@ -1,9 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { loadServerEnv, productionReadinessIssues, resetEnvCacheForTests } from "@/lib/env";
-import { ShopeeDirectConnector, ShopeeFoodConnector } from "@/modules/connectors/shopee";
+import { ShopeeDirectConnector } from "@/modules/connectors/shopee";
 import { AddLiveTagConnector } from "@/modules/connectors/addlivetag";
 import { AccessTradeConnector } from "@/modules/connectors/accesstrade";
-import { LazadaConnector } from "@/modules/connectors/lazada";
 import { connectorFor } from "@/modules/connectors/registry";
 
 describe("Environment Variables Audit & Readiness Tests", () => {
@@ -36,21 +35,43 @@ describe("Environment Variables Audit & Readiness Tests", () => {
   it("validates core required variables in production readiness check", () => {
     delete process.env.DATABASE_URL;
     delete process.env.DIRECT_URL;
-    delete process.env.AUTH_SECRET;
+    delete process.env.DATABASE_URL_UNPOOLED;
+    delete process.env.CLERK_APPLICATION_ID;
+    delete process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+    delete process.env.CLERK_SECRET_KEY;
+    delete process.env.CLERK_WEBHOOK_SIGNING_SECRET;
+    delete process.env.WEBAUTHN_CHALLENGE_SECRET;
     delete process.env.BANK_DATA_ENCRYPTION_KEY_V1;
 
     const issues = productionReadinessIssues(loadServerEnv());
     expect(issues.some((i) => i.includes("DATABASE_URL is required."))).toBe(true);
-    expect(issues.some((i) => i.includes("DIRECT_URL is required."))).toBe(true);
-    expect(issues.some((i) => i.includes("AUTH_SECRET is required."))).toBe(true);
+    expect(
+      issues.some((i) => i.includes("DIRECT_URL or DATABASE_URL_UNPOOLED is required."))
+    ).toBe(true);
+    expect(issues.some((i) => i.includes("CLERK_APPLICATION_ID is required."))).toBe(true);
+    expect(issues.some((i) => i.includes("CLERK_SECRET_KEY is required."))).toBe(true);
+    expect(issues.some((i) => i.includes("WEBAUTHN_CHALLENGE_SECRET is required."))).toBe(true);
     expect(issues.some((i) => i.includes("BANK_DATA_ENCRYPTION_KEY_V1 is required."))).toBe(true);
   });
 
-  it("validates AUTH_SECRET minimum length requirement (>= 32 bytes)", () => {
-    process.env.AUTH_SECRET = "too-short-secret";
+  it("validates WEBAUTHN_CHALLENGE_SECRET minimum length requirement (>= 32 bytes)", () => {
+    process.env.WEBAUTHN_CHALLENGE_SECRET = "too-short-secret";
 
     const issues = productionReadinessIssues(loadServerEnv());
-    expect(issues.some((i) => i.includes("AUTH_SECRET must contain at least 32 bytes."))).toBe(true);
+    expect(
+      issues.some((i) => i.includes("WEBAUTHN_CHALLENGE_SECRET must contain at least 32 bytes."))
+    ).toBe(true);
+  });
+
+  it("locks Clerk to the approved application ID", () => {
+    process.env.CLERK_APPLICATION_ID = "app_wrong";
+
+    const issues = productionReadinessIssues(loadServerEnv());
+    expect(
+      issues.some((i) =>
+        i.includes("CLERK_APPLICATION_ID must be app_3GxTUr7hRQ5aU7hJX2kz7DWGu6U.")
+      )
+    ).toBe(true);
   });
 
   it("validates BANK_DATA_ENCRYPTION_KEY_V1 base64 length requirement (32 bytes)", () => {

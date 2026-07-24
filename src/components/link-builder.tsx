@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Link2, Loader2, ShoppingBag, Sparkles, Zap, ExternalLink } from "lucide-react";
+import { Check, Copy, Link2, Loader2, ShoppingBag, Sparkles } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

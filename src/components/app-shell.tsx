@@ -1,3 +1,4 @@
+import { SignOutButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,7 +10,6 @@ import {
   ReceiptText,
   Settings
 } from "lucide-react";
-import { signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
@@ -51,21 +51,15 @@ export function AppShell({
           <Separator className="mb-4 bg-white/10" />
           <p className="truncate text-sm font-medium">{user.name ?? "Thành viên"}</p>
           <p className="truncate text-xs text-white/45">{user.email}</p>
-          <form
-            className="mt-3"
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/" });
-            }}
-          >
+          <SignOutButton redirectUrl="/">
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start text-white/60 hover:bg-white/10 hover:text-white"
+              className="mt-3 w-full justify-start text-white/60 hover:bg-white/10 hover:text-white"
             >
               <LogOut /> Đăng xuất
             </Button>
-          </form>
+          </SignOutButton>
         </div>
       </aside>
       <div className="lg:pl-64">
@@ -75,11 +69,14 @@ export function AppShell({
             <span className="font-semibold">Hoàn Tiền</span>
           </Link>
           <p className="hidden text-sm text-muted-foreground lg:block">Cashback dashboard</p>
-          <Button asChild size="sm">
-            <Link href="/app/links">
-              <Link2 /> Tạo link
-            </Link>
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button asChild size="sm">
+              <Link href="/app/links">
+                <Link2 /> Tạo link
+              </Link>
+            </Button>
+            <UserButton userProfileUrl="/app/profile" />
+          </div>
         </header>
         <main className="mx-auto max-w-7xl p-5 pb-28 lg:p-8">{children}</main>
         <nav

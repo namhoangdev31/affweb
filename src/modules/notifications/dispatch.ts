@@ -145,7 +145,7 @@ export async function dispatchNotifications(): Promise<{
   });
   let sent = 0;
   let failed = 0;
-  const resend = env.AUTH_RESEND_KEY ? new Resend(env.AUTH_RESEND_KEY) : undefined;
+  const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : undefined;
 
   for (const delivery of deliveries) {
     try {

@@ -16,11 +16,12 @@ Ledger và wallet, provider credential/cookie, bank beneficiary, payout approval
 | Rủi ro                       | Kiểm soát                                                                                             |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------- |
 | Open redirect/SSRF           | HTTPS, exact host/subdomain allowlist, no credential/port/private IP, opaque `/go` token              |
-| CSRF                         | trusted Origin check, Auth.js secure cookie, Server Action/Route Handler re-authorization             |
+| CSRF                         | trusted Origin check, Clerk secure session, Server Action/Route Handler re-authorization              |
 | IDOR                         | mọi user query gắn `userId`; admin cần RBAC                                                           |
 | Duplicate conversion/payout  | provider natural key, cross-source dedupe, DB unique, journal/idempotency key                         |
 | Ledger tampering             | append-only DB trigger, deferred balanced transaction constraint, projection không là source of truth |
 | Account takeover             | Google allowlist cho admin, passkey step-up, short admin session, rate limit/WAF                      |
+| Identity sync/replay         | Clerk webhook signature, `svix-id` idempotency, JIT reconciliation, local status fail-closed          |
 | Bank PII leak                | AES-256-GCM versioned key, last-4 UI, structured log redaction                                        |
 | Provider outage/stale cookie | circuit breaker/health, >30 phút đóng băng release, không sửa conversion cũ                           |
 | payOS ambiguous response     | `UNKNOWN`, query trạng thái trước retry, reservation atomic                                           |

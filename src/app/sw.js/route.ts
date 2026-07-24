@@ -10,7 +10,17 @@ const STATIC_CACHE = "static-" + CACHE_VERSION;
 const PUBLIC_CACHE = "public-" + CACHE_VERSION;
 const OFFLINE_URL = "/offline";
 const PRECACHE = ["/offline", "/brand-mark.svg", "/icon-192.png", "/icon-512.png"];
-const PRIVATE_PREFIXES = ["/api/", "/auth/", "/app", "/admin", "/go/"];
+const PRIVATE_PREFIXES = [
+  "/api/",
+  "/__clerk",
+  "/auth/",
+  "/sign-in",
+  "/sign-up",
+  "/login",
+  "/app",
+  "/admin",
+  "/go/"
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE)));

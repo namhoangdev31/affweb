@@ -17,11 +17,18 @@ const serverEnvSchema = z.object({
 
   DATABASE_URL: optionalString,
   DIRECT_URL: optionalString,
+  DATABASE_URL_UNPOOLED: optionalString,
 
-  AUTH_SECRET: optionalString,
-  AUTH_GOOGLE_ID: optionalString,
-  AUTH_GOOGLE_SECRET: optionalString,
-  AUTH_RESEND_KEY: optionalString,
+  CLERK_APPLICATION_ID: optionalString,
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: optionalString,
+  CLERK_SECRET_KEY: optionalString,
+  CLERK_WEBHOOK_SIGNING_SECRET: optionalString,
+  NEXT_PUBLIC_CLERK_SIGN_IN_URL: optionalString.default("/sign-in"),
+  NEXT_PUBLIC_CLERK_SIGN_UP_URL: optionalString.default("/sign-up"),
+  NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: optionalString.default("/app"),
+  NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: optionalString.default("/app"),
+  WEBAUTHN_CHALLENGE_SECRET: optionalString,
+  RESEND_API_KEY: optionalString,
   EMAIL_FROM: optionalString,
   ADMIN_EMAIL_ALLOWLIST: optionalString,
 
@@ -62,6 +69,8 @@ const serverEnvSchema = z.object({
 
   UPSTASH_REDIS_REST_URL: optionalUrl,
   UPSTASH_REDIS_REST_TOKEN: optionalString,
+  KV_REST_API_URL: optionalUrl,
+  KV_REST_API_TOKEN: optionalString,
   QSTASH_TOKEN: optionalString,
   QSTASH_CURRENT_SIGNING_KEY: optionalString,
   QSTASH_NEXT_SIGNING_KEY: optionalString,
@@ -112,19 +121,34 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
   const requiredCore: Array<[keyof ServerEnv, string]> = [
     ["APP_BASE_URL", "APP_BASE_URL"],
     ["DATABASE_URL", "DATABASE_URL"],
-    ["DIRECT_URL", "DIRECT_URL"],
-    ["AUTH_SECRET", "AUTH_SECRET"],
+    ["CLERK_APPLICATION_ID", "CLERK_APPLICATION_ID"],
+    ["NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"],
+    ["CLERK_SECRET_KEY", "CLERK_SECRET_KEY"],
+    ["CLERK_WEBHOOK_SIGNING_SECRET", "CLERK_WEBHOOK_SIGNING_SECRET"],
+    ["WEBAUTHN_CHALLENGE_SECRET", "WEBAUTHN_CHALLENGE_SECRET"],
     ["BANK_DATA_ENCRYPTION_KEY_V1", "BANK_DATA_ENCRYPTION_KEY_V1"]
   ];
 
   for (const [key, label] of requiredCore) {
     if (!env[key]) issues.push(`${label} is required.`);
   }
+  if (!env.DIRECT_URL && !env.DATABASE_URL_UNPOOLED) {
+    issues.push("DIRECT_URL or DATABASE_URL_UNPOOLED is required.");
+  }
   if (!env.NEXT_PUBLIC_BUILD_SHA || env.NEXT_PUBLIC_BUILD_SHA === "development") {
     issues.push("NEXT_PUBLIC_BUILD_SHA must identify the immutable release commit.");
   }
-  if (env.AUTH_SECRET && Buffer.byteLength(env.AUTH_SECRET) < 32) {
-    issues.push("AUTH_SECRET must contain at least 32 bytes.");
+  if (
+    env.CLERK_APPLICATION_ID &&
+    env.CLERK_APPLICATION_ID !== "app_3GxTUr7hRQ5aU7hJX2kz7DWGu6U"
+  ) {
+    issues.push("CLERK_APPLICATION_ID must be app_3GxTUr7hRQ5aU7hJX2kz7DWGu6U.");
+  }
+  if (
+    env.WEBAUTHN_CHALLENGE_SECRET &&
+    Buffer.byteLength(env.WEBAUTHN_CHALLENGE_SECRET) < 32
+  ) {
+    issues.push("WEBAUTHN_CHALLENGE_SECRET must contain at least 32 bytes.");
   }
   if (env.BANK_DATA_ENCRYPTION_KEY_V1) {
     try {
@@ -136,11 +160,8 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
     }
   }
 
-  if (!env.AUTH_GOOGLE_ID || !env.AUTH_GOOGLE_SECRET) {
-    issues.push("Google OAuth credentials are required.");
-  }
-  if (!env.AUTH_RESEND_KEY || !env.EMAIL_FROM) {
-    issues.push("Resend magic-link credentials are required.");
+  if (!env.RESEND_API_KEY || !env.EMAIL_FROM) {
+    issues.push("Resend notification credentials are required.");
   }
   if (!env.SHOPEE_AFFILIATE_ID) {
     issues.push("SHOPEE_AFFILIATE_ID is required.");
@@ -196,7 +217,10 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
   if (!env.ADMIN_EMAIL_ALLOWLIST) {
     issues.push("ADMIN_EMAIL_ALLOWLIST is required.");
   }
-  if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
+  if (
+    !(env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) &&
+    !(env.KV_REST_API_URL && env.KV_REST_API_TOKEN)
+  ) {
     issues.push("Upstash Redis credentials are required.");
   }
   if (!env.QSTASH_TOKEN || !env.QSTASH_CURRENT_SIGNING_KEY || !env.QSTASH_NEXT_SIGNING_KEY) {

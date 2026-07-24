@@ -3,17 +3,14 @@
 import { useState, useEffect } from "react";
 import {
   Search,
-  ExternalLink,
   Copy,
   Check,
   Zap,
   Sparkles,
   ShoppingBag,
   Info,
-  ShieldCheck,
   Star,
-  Flame,
-  ArrowRight
+  Flame
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +81,8 @@ export function ShopeeProductLookup({
 
   useEffect(() => {
     if (initialUrl && !initialData) {
+      // The URL comes from the server-rendered query string; this effect performs the one initial lookup.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       void lookup(initialUrl);
     }
   }, [initialUrl, initialData]);

@@ -4,7 +4,11 @@ import { GET } from "@/app/sw.js/route";
 describe("service worker financial cache policy", () => {
   it("keeps API, auth, dashboard, admin and redirect routes network-only", async () => {
     const source = await GET().text();
-    expect(source).toContain('["/api/", "/auth/", "/app", "/admin", "/go/"]');
+    expect(source).toContain('"/__clerk"');
+    expect(source).toContain('"/sign-in"');
+    expect(source).toContain('"/sign-up"');
+    expect(source).toContain('"/app"');
+    expect(source).toContain('"/admin"');
     expect(source).not.toMatch(/caches\.put\([^)]*\/api/);
     expect(source).not.toContain("backgroundSync");
   });

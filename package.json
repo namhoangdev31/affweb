@@ -23,6 +23,7 @@
     "verify": "pnpm lint && pnpm typecheck && pnpm test:run && pnpm build",
     "env:check": "tsx scripts/check-env.ts",
     "jobs:setup": "tsx scripts/setup-qstash.ts",
+    "clerk:bootstrap-admin": "tsx scripts/bootstrap-super-admin.ts",
     "pwa:screenshots": "tsx scripts/capture-pwa-screenshots.ts",
     "smoke:production": "tsx scripts/smoke-production.ts",
     "db:generate": "prisma generate",
@@ -33,9 +34,10 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "2.11.3",
     "@aws-sdk/client-s3": "3.1094.0",
     "@aws-sdk/client-sts": "3.1094.0",
+    "@clerk/nextjs": "7.6.0",
+    "@clerk/ui": "1.25.8",
     "@payos/node": "2.0.5",
     "@prisma/adapter-pg": "7.9.0",
     "@prisma/client": "7.9.0",
@@ -50,7 +52,6 @@
     "dotenv": "16.6.1",
     "lucide-react": "1.26.0",
     "next": "16.2.11",
-    "next-auth": "5.0.0-beta.32",
     "pg": "8.22.0",
     "radix-ui": "1.6.5",
     "react": "19.2.8",
@@ -62,11 +63,12 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
+    "@clerk/testing": "2.2.12",
+    "@lhci/cli": "0.15.1",
     "@playwright/test": "1.61.1",
     "@tailwindcss/postcss": "4.3.3",
     "@testing-library/react": "16.3.2",
-    "@axe-core/playwright": "4.12.1",
-    "@lhci/cli": "0.15.1",
     "@types/node": "22.20.1",
     "@types/pg": "8.20.0",
     "@types/react": "19.2.17",
