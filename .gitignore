@@ -36,3 +36,5 @@
 
 # Sentry
 .sentryclirc
+.vercel
+.env*
