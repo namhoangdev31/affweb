@@ -45,7 +45,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body>
         <ClerkProvider
           dynamic
-          proxyUrl="/__clerk"
           ui={ui}
           appearance={{
             variables: {

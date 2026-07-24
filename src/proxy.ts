@@ -14,10 +14,6 @@ export default clerkMiddleware(
     return response;
   },
   {
-    frontendApiProxy: {
-      enabled: true,
-      path: "/__clerk"
-    },
     contentSecurityPolicy: {
       strict: true,
       directives: {
@@ -56,6 +52,6 @@ export default clerkMiddleware(
 export const config = {
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|icon.svg|.*\\.(?:png|jpg|jpeg|gif|webp|avif|svg|ico|woff|woff2)$).*)",
-    "/(api|__clerk)(.*)"
+    "/(api)(.*)"
   ]
 };
