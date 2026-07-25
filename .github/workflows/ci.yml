@@ -9,8 +9,35 @@ permissions:
   contents: read
   pull-requests: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  verify:
+  lint-and-check:
+    name: Lint & Code Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+      - run: pnpm audit --audit-level high
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm db:validate
+
+  test-and-build:
+    name: Test & Build
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -46,26 +73,45 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+
+      - name: Restore Next.js cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - run: pnpm install --frozen-lockfile
-      - name: Secret scan
-        uses: gitleaks/gitleaks-action@v2
-      - run: pnpm audit --audit-level high
-      - run: pnpm format:check
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm prisma validate
-      - run: pnpm prisma generate
-      - run: pnpm prisma migrate deploy
+      - run: pnpm db:generate
+      - run: pnpm db:deploy
       - run: pnpm db:seed
       - run: pnpm test:coverage
       - run: pnpm build
-      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright Browsers & Dependencies
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            pnpm exec playwright install-deps chromium
+          else
+            pnpm exec playwright install --with-deps chromium
+          fi
+
       - run: pnpm test:e2e --project=chromium
       - run: pnpm exec lhci autorun
 
   preview:
     if: github.event_name == 'pull_request' && vars.VERCEL_PREVIEW_ENABLED == 'true'
-    needs: verify
+    needs: [lint-and-check, test-and-build]
     runs-on: ubuntu-latest
     environment: preview
     env:
