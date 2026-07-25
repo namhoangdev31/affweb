@@ -8,8 +8,12 @@ const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
 
-const connectionString =
+const rawConnectionString =
   loadServerEnv().DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:5432/affweb";
+
+const connectionString = rawConnectionString.includes("sslmode=require")
+  ? rawConnectionString.replace(/sslmode=require/g, "sslmode=verify-full")
+  : rawConnectionString;
 
 export const db =
   globalForPrisma.prisma ??

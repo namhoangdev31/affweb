@@ -1,12 +1,37 @@
 import { z } from "zod";
 
-const emptyToUndefined = (value: unknown) => (value === "" ? undefined : value);
+const emptyToUndefined = (value: unknown): string | undefined => {
+  if (typeof value !== "string") return undefined;
+  let trimmed = value.trim();
+  if (trimmed === "") return undefined;
+  if (trimmed.startsWith("${") && trimmed.endsWith("}")) {
+    const varName = trimmed.slice(2, -1);
+    const envVal = process.env[varName];
+    if (envVal && envVal !== value) {
+      trimmed = envVal.trim();
+    } else {
+      return undefined;
+    }
+  }
+  return trimmed === "" ? undefined : trimmed;
+};
+
 const optionalString = z.preprocess(emptyToUndefined, z.string().min(1).optional());
-const optionalUrl = z.preprocess(emptyToUndefined, z.url().optional());
+const optionalUrl = z.preprocess((val) => {
+  const cleaned = emptyToUndefined(val);
+  if (!cleaned) return undefined;
+  try {
+    new URL(cleaned);
+    return cleaned;
+  } catch {
+    return undefined;
+  }
+}, z.url().optional());
 const optionalBoolean = z.preprocess((value) => {
-  if (value === "" || value === undefined) return undefined;
+  const cleaned = emptyToUndefined(value);
+  if (cleaned === undefined) return undefined;
   if (typeof value === "boolean") return value;
-  return value === "true";
+  return cleaned === "true";
 }, z.boolean().optional());
 
 const serverEnvSchema = z.object({

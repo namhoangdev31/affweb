@@ -54,7 +54,9 @@ self.addEventListener("fetch", (event) => {
         const cached = await cache.match(request);
         if (cached) return cached;
         const response = await fetch(request);
-        if (response.ok) await cache.put(request, response.clone());
+        if (response.ok) {
+          cache.put(request, response.clone());
+        }
         return response;
       })
     );
@@ -66,7 +68,9 @@ self.addEventListener("fetch", (event) => {
       caches.open(PUBLIC_CACHE).then(async (cache) => {
         const cached = await cache.match(request);
         const fresh = fetch(request).then((response) => {
-          if (response.ok) cache.put(request, response.clone());
+          if (response.ok) {
+            cache.put(request, response.clone());
+          }
           return response;
         });
         return cached || fresh;
@@ -79,7 +83,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (response.ok) caches.open(PUBLIC_CACHE).then((cache) => cache.put(request, response.clone()));
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(PUBLIC_CACHE).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(async () => (await caches.match(request)) || caches.match(OFFLINE_URL))
