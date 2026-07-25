@@ -32,7 +32,8 @@ jobs:
       APP_BASE_URL: http://127.0.0.1:3000
       NEXT_PUBLIC_BUILD_SHA: ${{ github.sha }}
       CLERK_APPLICATION_ID: app_3GxTUr7hRQ5aU7hJX2kz7DWGu6U
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5kZXYk
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5kZXYk #gitleaks:allow
+      CLERK_SECRET_KEY: sk_test_ZGV2ZWxvcG1lbnQuY2xlcmsuYWNjb3VudHMuZGV2JA== #gitleaks:allow
       WEBAUTHN_CHALLENGE_SECRET: ci-only-not-a-production-secret-ci-only
       BANK_DATA_ENCRYPTION_KEY_V1: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
       LAZADA_MODE: credential_ready

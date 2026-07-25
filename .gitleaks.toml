@@ -1,0 +1,8 @@
+# Gitleaks configuration file
+title = "gitleaks config"
+
+[allowlist]
+description = "Ignore CI mock publishable key"
+regexes = [
+    '''pk_test_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5kZXYk''',
+]
