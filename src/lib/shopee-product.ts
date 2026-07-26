@@ -37,7 +37,30 @@ export async function resolveShopeeShortUrl(shortUrl: string): Promise<string> {
       },
       signal: AbortSignal.timeout(6000)
     });
-    return res.url;
+
+    const finalUrl = res.url;
+    const directExtract = extractShopeeIds(finalUrl);
+    if (directExtract.itemId) {
+      return finalUrl;
+    }
+
+    // Parse HTML body for embedded target URLs (e.g. var CONFIG = { httpUrl: "..." })
+    const html = await res.text();
+    const configMatch =
+      html.match(/httpUrl\s*:\s*["']([^"']+)["']/i) ||
+      html.match(/deepLinkUrl\s*:\s*["']([^"']+)["']/i);
+
+    if (configMatch?.[1]) {
+      return configMatch[1].replace(/\\u0026/g, "&").replace(/\\/g, "");
+    }
+
+    const idMatch =
+      html.match(/\/(?:product\/)?(\d+)\/(\d+)/) || html.match(/-i\.(\d+)\.(\d+)/);
+    if (idMatch?.[1] && idMatch?.[2]) {
+      return `https://shopee.vn/product/${idMatch[1]}/${idMatch[2]}`;
+    }
+
+    return finalUrl;
   } catch {
     return shortUrl;
   }
@@ -164,7 +187,11 @@ export async function fetchShopeeProductData(inputUrl: string): Promise<ShopeePr
 
     const response = await fetch(apiUrl.toString(), {
       next: { revalidate: 3600 },
-      headers: { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      },
       signal: AbortSignal.timeout(10_000)
     });
 
