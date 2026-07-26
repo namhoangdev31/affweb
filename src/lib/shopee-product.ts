@@ -33,9 +33,9 @@ export async function resolveShopeeShortUrl(shortUrl: string): Promise<string> {
       redirect: "follow",
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
       },
-      signal: AbortSignal.timeout(4000)
+      signal: AbortSignal.timeout(6000)
     });
     return res.url;
   } catch {
@@ -66,16 +66,92 @@ export function extractShopeeIds(input: string): { shopId?: string; itemId?: str
   return {};
 }
 
+export async function parseShopeeVideoPage(videoUrl: string): Promise<{
+  title: string;
+  shopName: string;
+  imageUrl?: string;
+} | null> {
+  try {
+    const res = await fetch(videoUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+      },
+      signal: AbortSignal.timeout(6000)
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+
+    const titleMatch =
+      html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i) ||
+      html.match(/<title>([^<]+)<\/title>/i);
+    const descMatch =
+      html.match(/<meta\s+name="description"\s+content="([^"]+)"/i) ||
+      html.match(/<meta\s+property="og:description"\s+content="([^"]+)"/i);
+    const imageMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i);
+
+    let rawTitle = descMatch?.[1] || titleMatch?.[1] || "Shopee Video";
+    rawTitle = rawTitle.replace(/\|.*$/i, "").trim();
+
+    let shopName = "Shopee Video Creator";
+    if (titleMatch?.[1] && titleMatch[1].includes(" on Shopee Video")) {
+      shopName = titleMatch[1].replace(" on Shopee Video", "").trim();
+    }
+
+    return {
+      title: rawTitle,
+      shopName,
+      ...(imageMatch?.[1] ? { imageUrl: imageMatch[1] } : {})
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchShopeeProductData(inputUrl: string): Promise<ShopeeProductResult | null> {
   let targetUrl = inputUrl.trim();
+  let expandedUrl = targetUrl;
+
   let { shopId, itemId } = extractShopeeIds(targetUrl);
 
   // Expand short URLs (e.g. s.shopee.vn/..., shp.ee/...) if IDs aren't directly in the input
   if (!itemId && (targetUrl.includes("shopee.vn") || targetUrl.includes("shp.ee"))) {
-    const expandedUrl = await resolveShopeeShortUrl(targetUrl);
+    expandedUrl = await resolveShopeeShortUrl(targetUrl);
     const extracted = extractShopeeIds(expandedUrl);
     shopId = extracted.shopId;
     itemId = extracted.itemId;
+  }
+
+  // Handle Shopee Video share links (e.g. sv.shopee.vn/share-video/...)
+  if (!itemId && (expandedUrl.includes("sv.shopee.vn") || expandedUrl.includes("share-video"))) {
+    const videoMeta = await parseShopeeVideoPage(expandedUrl);
+    if (videoMeta) {
+      return {
+        product: {
+          itemId: "video",
+          shopId: "video",
+          title: videoMeta.title,
+          shopName: videoMeta.shopName,
+          priceVnd: 0,
+          salesCount: 0,
+          ...(videoMeta.imageUrl ? { imageUrl: videoMeta.imageUrl } : {}),
+          rating: "5.0",
+          isXtra: false,
+          canonicalUrl: expandedUrl,
+          trackingUrl: targetUrl
+        },
+        commission: {
+          totalVnd: 0,
+          totalPercent: 0,
+          sellerVnd: 0,
+          sellerPercent: 0,
+          shopeeVnd: 0,
+          shopeePercent: 0,
+          capVnd: 40000,
+          isCapped: false
+        }
+      };
+    }
   }
 
   if (!itemId) return null;

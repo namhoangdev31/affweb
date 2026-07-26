@@ -9,10 +9,27 @@ export async function requestId(): Promise<string> {
 export function assertTrustedOrigin(request: Request): void {
   const origin = request.headers.get("origin");
   if (!origin) return;
-  const expected = new URL(loadServerEnv().APP_BASE_URL).origin;
-  if (origin !== expected) {
-    throw new AppError("FORBIDDEN", "Untrusted request origin.", 403);
+
+  try {
+    const originHost = new URL(origin).host;
+    const requestHost =
+      request.headers.get("x-forwarded-host") || request.headers.get("host");
+    const expectedHost = new URL(loadServerEnv().APP_BASE_URL).host;
+
+    if (
+      (requestHost && originHost === requestHost) ||
+      originHost === expectedHost ||
+      originHost.endsWith(".vercel.app") ||
+      originHost.includes("localhost") ||
+      originHost.includes("127.0.0.1")
+    ) {
+      return;
+    }
+  } catch {
+    // If origin URL parsing fails, fall through to error
   }
+
+  throw new AppError("FORBIDDEN", "Untrusted request origin.", 403);
 }
 
 export async function readJson<T>(request: Request, maxBytes = 32_768): Promise<T> {
