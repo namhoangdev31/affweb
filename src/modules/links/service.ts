@@ -9,6 +9,7 @@ import { connectorFor } from "@/modules/connectors/registry";
 import { inferPlatform, parseAllowlistedExternalUrl } from "@/modules/connectors/url-policy";
 import { resolveCommissionRate } from "@/modules/rates/service";
 import { featureEnabled } from "@/modules/flags/service";
+import { fetchShopeeProductData, type ShopeeProductResult } from "@/lib/shopee-product";
 
 function createClickToken(): string {
   return randomBytes(18).toString("base64url");
@@ -23,6 +24,8 @@ export async function createAffiliateLink(input: {
   redirectUrl: string;
   platform: Platform;
   cashbackEnabled: boolean;
+  product?: ShopeeProductResult["product"] | undefined;
+  commission?: ShopeeProductResult["commission"] | undefined;
 }> {
   const selectedCampaign = input.campaignId
     ? await db.campaign.findFirst({
@@ -105,6 +108,16 @@ export async function createAffiliateLink(input: {
     ...(campaign?.externalId ? { campaignExternalId: campaign.externalId } : {})
   });
 
+  // Try fetching Shopee product & commission breakdown automatically
+  let productData: ShopeeProductResult | null = null;
+  if (
+    platform === "SHOPEE_MARKETPLACE" ||
+    input.url.toLowerCase().includes("shopee") ||
+    input.url.toLowerCase().includes("shp.ee")
+  ) {
+    productData = await fetchShopeeProductData(input.url);
+  }
+
   await db.affiliateClick.create({
     data: {
       clickToken,
@@ -137,7 +150,8 @@ export async function createAffiliateLink(input: {
     clickToken,
     redirectUrl: `/go/${clickToken}`,
     platform,
-    cashbackEnabled
+    cashbackEnabled,
+    ...(productData ? { product: productData.product, commission: productData.commission } : {})
   };
 }
 

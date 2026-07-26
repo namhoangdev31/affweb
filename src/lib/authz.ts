@@ -78,6 +78,9 @@ export async function requireUser(): Promise<AppUser> {
     if (error instanceof AppError && error.code === "ACCOUNT_INACTIVE") {
       redirect("/sign-in?error=AccountInactive" as Route);
     }
+    if (error instanceof AppError && error.code === "FORBIDDEN") {
+      redirect("/unauthorized" as Route);
+    }
     redirect("/sign-in" as Route);
   }
 }

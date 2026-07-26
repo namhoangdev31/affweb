@@ -26,6 +26,23 @@ export interface ShopeeProductResult {
   };
 }
 
+export async function resolveShopeeShortUrl(shortUrl: string): Promise<string> {
+  try {
+    const res = await fetch(shortUrl, {
+      method: "GET",
+      redirect: "follow",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      },
+      signal: AbortSignal.timeout(4000)
+    });
+    return res.url;
+  } catch {
+    return shortUrl;
+  }
+}
+
 export function extractShopeeIds(input: string): { shopId?: string; itemId?: string } {
   const pathMatch = input.match(/\/(?:product\/)?(\d+)\/(\d+)/);
   if (pathMatch?.[1] && pathMatch?.[2]) {
@@ -50,7 +67,17 @@ export function extractShopeeIds(input: string): { shopId?: string; itemId?: str
 }
 
 export async function fetchShopeeProductData(inputUrl: string): Promise<ShopeeProductResult | null> {
-  const { shopId, itemId } = extractShopeeIds(inputUrl);
+  let targetUrl = inputUrl.trim();
+  let { shopId, itemId } = extractShopeeIds(targetUrl);
+
+  // Expand short URLs (e.g. s.shopee.vn/..., shp.ee/...) if IDs aren't directly in the input
+  if (!itemId && (targetUrl.includes("shopee.vn") || targetUrl.includes("shp.ee"))) {
+    const expandedUrl = await resolveShopeeShortUrl(targetUrl);
+    const extracted = extractShopeeIds(expandedUrl);
+    shopId = extracted.shopId;
+    itemId = extracted.itemId;
+  }
+
   if (!itemId) return null;
 
   try {
@@ -111,7 +138,13 @@ export async function fetchShopeeProductData(inputUrl: string): Promise<ShopeePr
         shopName: info.shopName ?? "Shopee Mall",
         priceVnd: price,
         salesCount: info.sales ?? 0,
-        ...(info.imageUrl ? { imageUrl: info.imageUrl } : {}),
+        ...(info.imageUrl
+          ? {
+              imageUrl: info.imageUrl.startsWith("http")
+                ? info.imageUrl
+                : `https://down-vn.img.susercontent.com/file/${info.imageUrl}`
+            }
+          : {}),
         rating: info.rating ?? "5.0",
         isXtra: info.isXtra ?? false,
         canonicalUrl: canonicalProductUrl,

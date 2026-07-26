@@ -2,7 +2,7 @@ import { z } from "zod";
 import { errorResponse } from "@/lib/errors";
 import { jsonSafe } from "@/lib/json";
 import { requestId } from "@/lib/request";
-import { fetchShopeeProductData, extractShopeeIds } from "@/lib/shopee-product";
+import { fetchShopeeProductData } from "@/lib/shopee-product";
 
 export const runtime = "nodejs";
 
@@ -16,18 +16,16 @@ export async function POST(request: Request): Promise<Response> {
     const body = (await request.json()) as { url?: string };
     const { url } = inputSchema.parse(body);
 
-    const { itemId } = extractShopeeIds(url);
-    if (!itemId) {
-      return Response.json(
-        { error: { code: "INVALID_URL", message: "Không tìm thấy Item ID trong liên kết Shopee.", requestId: id } },
-        { status: 400 }
-      );
-    }
-
     const data = await fetchShopeeProductData(url);
     if (!data) {
       return Response.json(
-        { error: { code: "NOT_FOUND", message: "Không tìm thấy thông tin sản phẩm Shopee này.", requestId: id } },
+        {
+          error: {
+            code: "NOT_FOUND",
+            message: "Không bóc tách được thông tin sản phẩm Shopee từ liên kết này. Vui lòng thử dùng liên kết gốc hoặc liên kết sản phẩm đầy đủ.",
+            requestId: id
+          }
+        },
         { status: 404 }
       );
     }

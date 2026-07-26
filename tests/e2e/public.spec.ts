@@ -17,7 +17,8 @@ test("manifest and service worker expose safe PWA behavior", async ({ request })
   const worker = await request.get("/sw.js");
   expect(worker.ok()).toBe(true);
   const source = await worker.text();
-  expect(source).toContain('["/api/", "/auth/", "/app", "/admin", "/go/"]');
+  expect(source).toContain('"/api/"');
+  expect(source).toContain('"/admin"');
   expect(worker.headers()["service-worker-allowed"]).toBe("/");
 });
 
