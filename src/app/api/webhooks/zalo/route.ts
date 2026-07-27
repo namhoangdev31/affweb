@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { handleZaloBotIncomingUpdate } from "@/lib/zalo";
+import { loadServerEnv } from "@/lib/env";
 
 export const runtime = "nodejs";
 
@@ -25,9 +26,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, message: "No actionable text message" });
     }
 
-    const host = request.headers.get("host") || "affweb.vn";
-    const protocol = host.includes("localhost") ? "http" : "https";
-    const baseUrl = `${protocol}://${host}`;
+    const envBaseUrl = loadServerEnv().APP_BASE_URL.replace(/\/$/, "");
+    const host = request.headers.get("host");
+    const protocol = host && !host.includes("localhost") ? "https" : "http";
+    const baseUrl = host ? `${protocol}://${host}` : envBaseUrl;
 
     const result = await handleZaloBotIncomingUpdate({
       chatId: String(chatId),
