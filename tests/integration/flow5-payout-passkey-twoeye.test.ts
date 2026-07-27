@@ -28,9 +28,9 @@ describe("Flow 5: Payout Ticket, Two-Eye Control & Passkey Step-Up Security", ()
   });
 
   it("enforces Separation of Duties invariants (Reviewer != Owner, Approver != Reviewer, Approver != Owner)", () => {
-    const ownerUserId = "usr-owner";
-    const reviewerUserId = "usr-reviewer";
-    const approverUserId = "usr-approver";
+    const ownerUserId: string = "usr-owner";
+    const reviewerUserId: string = "usr-reviewer";
+    const approverUserId: string = "usr-approver";
 
     // Valid setup
     const isReviewAllowed = reviewerUserId !== ownerUserId;
@@ -40,7 +40,7 @@ describe("Flow 5: Payout Ticket, Two-Eye Control & Passkey Step-Up Security", ()
     expect(isApproveAllowed).toBe(true);
 
     // Invalid setup (Same user trying to review & approve)
-    const illegalApprover = "usr-reviewer"; // Same as reviewer
+    const illegalApprover: string = "usr-reviewer"; // Same as reviewer
     const isIllegalApproveAllowed = illegalApprover !== reviewerUserId && illegalApprover !== ownerUserId;
 
     expect(isIllegalApproveAllowed).toBe(false);

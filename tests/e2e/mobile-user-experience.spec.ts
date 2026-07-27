@@ -18,7 +18,7 @@ test.describe("Mobile Responsive User Experience & PWA Flows", () => {
 
     const input = page.getByPlaceholder(/Dán link sản phẩm Shopee/i);
     await expect(input).toBeVisible();
-    await input.fill("https://shopee.vn/product/9999/8888");
+    await input.fill("https://shopee.vn/product/123456789/1234567890");
 
     const submitBtn = page.getByRole("button", { name: /Tra cứu/i });
     await expect(submitBtn).toBeVisible();

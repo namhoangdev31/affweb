@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("Desktop Multi-Tenant & End-to-End Core Flows", () => {
   test("Desktop landing page loads with primary branding and call-to-action buttons", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/Affweb/i);
+    await expect(page).toHaveTitle(/Hoàn Tiền|Cashback/i);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 

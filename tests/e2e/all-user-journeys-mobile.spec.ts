@@ -29,10 +29,12 @@ test.describe("All 7 Technical User Flow Journeys (Mobile Viewports)", () => {
     await expect(page).not.toHaveURL(/\/admin$/);
   });
 
-  test("Mobile Journey 5 & 6: Mobile Policy and Multi-Tenant Path Navigation (/t/sansale-koc)", async ({ page }) => {
+  test("Mobile Journey 5: Mobile Cashback Policy View", async ({ page }) => {
     await page.goto("/cashback-policy");
     await expect(page.getByRole("heading", { name: /Chính sách cashback/i })).toBeVisible();
+  });
 
+  test("Mobile Journey 6: Mobile Multi-Tenant Path Navigation (/t/sansale-koc)", async ({ page }) => {
     await page.goto("/t/sansale-koc");
     await expect(page.locator("body")).toBeVisible();
   });
