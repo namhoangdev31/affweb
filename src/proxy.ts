@@ -4,13 +4,52 @@ import { NextResponse } from "next/server";
 export default clerkMiddleware(
   (_auth, request) => {
     const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
+    const host = request.headers.get("host") || "";
+    const cleanHost = host.split(":")[0]?.toLowerCase() || "";
+    const pathname = request.nextUrl.pathname;
+
+    let tenantSlug = "";
+
+    // 1. Path-based Multi-Tenancy (e.g. affweb.vn/t/sansale-koc)
+    if (pathname.startsWith("/t/")) {
+      const parts = pathname.split("/");
+      if (parts.length >= 3 && parts[2]) {
+        tenantSlug = parts[2].toLowerCase();
+      }
+    }
+
+    // 2. Subdomain check fallback
+    if (!tenantSlug) {
+      const hostParts = cleanHost.split(".");
+      if (cleanHost.endsWith(".localhost") && hostParts.length === 2) {
+        tenantSlug = hostParts[0] || "";
+      } else if (hostParts.length >= 3) {
+        tenantSlug = hostParts[0] || "";
+      }
+    }
+
+    // Filter out system reserved keywords
+    if (["www", "admin", "app", "api", "t"].includes(tenantSlug)) {
+      tenantSlug = "";
+    }
+
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-request-id", requestId);
+    if (tenantSlug) {
+      requestHeaders.set("x-tenant-slug", tenantSlug);
+    }
+    requestHeaders.set("x-host", cleanHost);
 
     const response = NextResponse.next({
       request: { headers: requestHeaders }
     });
+
     response.headers.set("x-request-id", requestId);
+    if (tenantSlug) {
+      response.headers.set("x-tenant-slug", tenantSlug);
+    }
+    response.headers.set("x-host", cleanHost);
+
     return response;
   },
   {
@@ -28,7 +67,8 @@ export default clerkMiddleware(
           "https://down-vn.img.susercontent.com",
           "https://img.lazcdn.com",
           "https://addlivetag.com",
-          "https://data.addlivetag.com"
+          "https://data.addlivetag.com",
+          "https://api.qrserver.com"
         ],
         "connect-src": [
           "'self'",
@@ -36,7 +76,9 @@ export default clerkMiddleware(
           "https://*.clerk.com",
           "https://clerk-telemetry.com",
           "https://*.sentry.io",
-          "https://*.ingest.sentry.io"
+          "https://*.ingest.sentry.io",
+          "https://api-merchant.payos.vn",
+          "https://bot-api.zaloplatforms.com"
         ],
         "worker-src": ["'self'", "blob:"],
         "manifest-src": ["'self'"],
