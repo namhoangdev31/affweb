@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     });
 
     if (!invoice) {
-      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+      return NextResponse.json({ success: true, message: "Test webhook or unknown invoice acknowledged" }, { status: 200 });
     }
 
     if (invoice.status === "PAID") {
