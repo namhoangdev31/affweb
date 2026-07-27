@@ -352,7 +352,7 @@ export default function TenantSettingsPage() {
                 <CheckCircle2 className="size-4 text-emerald-500" /> <strong>Full Zalo Bot & Broadcast 🤖</strong>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-500" /> Custom Domain + SSL Tự động
+                <CheckCircle2 className="size-4 text-emerald-500" /> Định tuyến Kênh KOC Multi-Tenant Path (/t/[slug])
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-emerald-500" /> Full White-label & Custom Brand
