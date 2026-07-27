@@ -372,18 +372,18 @@ export default function TenantSettingsPage() {
         </div>
       </div>
 
-      {/* Zalo Group Bot via QR Scan (PRO & PREMIUM Tiers) */}
+      {/* 1 Central Zalo Bot System */}
       <Card className="border-blue-500/30 bg-blue-500/5">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageSquareCode className="size-5 text-blue-600" />
-              <CardTitle>Kết nối Bot Nhóm Zalo Cộng Đồng (Quét mã QR - 0 Khai báo)</CardTitle>
+              <CardTitle>Mô Hình 1 Bot Zalo Trung Tâm (0 Cấu hình - 1 Click Kích Hoạt)</CardTitle>
             </div>
             <Badge className="bg-blue-600 text-white">PRO & PREMIUM</Badge>
           </div>
           <CardDescription>
-            Chỉ cần <strong>quét mã QR bằng ứng dụng Zalo trên điện thoại</strong>, hệ thống sẽ tự động khởi tạo Bot và gắn Bot vào các Nhóm Chat Cộng Đồng của bạn để tự động đổi link tích Cashback 24/7!
+            Không cần tự đăng ký Zalo Cloud hay khai báo App rắc rối! Tất cả các Kênh KOC đều dùng chung <strong>1 Con Bot Zalo Trung Tâm duy nhất</strong> của hệ thống.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -391,27 +391,31 @@ export default function TenantSettingsPage() {
             <div className="text-center space-y-2">
               <div className="inline-block p-3 rounded-2xl bg-white shadow-md border">
                 <img
-                  src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Faffweb.vn%2Fapi%2Fsaas%2Fzalo-qr%2Fauth"
-                  alt="Zalo Login QR Code"
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fzalo.me%2Fbot-master-affweb"
+                  alt="1 Master Zalo Bot QR Code"
                   className="size-40 object-contain"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">Mã QR Zalo Auth Session</p>
+              <p className="text-xs text-muted-foreground">Mã QR Bot Zalo Trung Tâm</p>
             </div>
 
             <div className="space-y-3 flex-1">
-              <h3 className="font-semibold text-base text-foreground">📌 2 Bước kích hoạt Bot Zalo Nhóm Chat đơn giản:</h3>
-              <ol className="list-decimal list-inside space-y-1.5 text-sm text-muted-foreground">
-                <li>Mở ứng dụng <strong>Zalo trên điện thoại</strong> của bạn.</li>
-                <li>Chọn <strong>Quét mã QR</strong> trên màn hình này và bấm <strong>"Xác nhận Đăng nhập"</strong>.</li>
-                <li>Thêm tài khoản Bot Zalo vào các <strong>Nhóm Chat Cộng Đồng / Săn Sale</strong> của bạn.</li>
+              <h3 className="font-semibold text-base text-foreground">📌 2 Bước Kích Hoạt Bot Zalo Cho Nhóm Săn Sale Của Bạn:</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+                <li>Quét mã QR để <strong>Thêm Bot Zalo Trung Tâm vào Nhóm Chat Zalo</strong> của bạn.</li>
+                <li>
+                  Gõ câu lệnh kích hoạt trực tiếp trong nhóm:{" "}
+                  <code className="bg-slate-900 text-emerald-400 px-2 py-0.5 rounded font-mono text-xs">
+                    /link {tenant.slug}
+                  </code>
+                </li>
               </ol>
-              <div className="pt-2 flex items-center gap-3">
+              <div className="pt-2 flex flex-wrap items-center gap-3">
                 <Badge className="bg-emerald-600 text-white px-3 py-1 text-xs">
-                  🟢 Tự động bắt link Shopee trong Nhóm Zalo
+                  🟢 Tự động bắt link Shopee & Lazada trong Nhóm
                 </Badge>
                 <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs">
-                  ⚡️ Phản hồi bằng mẫu Mai Thùy / Ngọc Thảo Bot
+                  ⚡️ Ghi nhận 100% Hoa hồng & SubID về Kênh: {tenant.slug}
                 </Badge>
               </div>
             </div>

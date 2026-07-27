@@ -1073,6 +1073,7 @@ model Tenant {
   conversions      Conversion[]
   invoices         SaaSInvoice[]
   configs          ConnectorConfig[]
+  zaloGroupBindings ZaloGroupBinding[]
 
   @@index([slug])
   @@index([customDomain])
@@ -1109,4 +1110,20 @@ model SaaSInvoice {
 
   @@index([tenantId])
   @@index([orderCode])
+}
+
+model ZaloGroupBinding {
+  id          String   @id @default(cuid())
+  chatId      String   @unique
+  tenantId    String
+  groupName   String?
+  active      Boolean  @default(true)
+  linkedById  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@index([tenantId])
 }
