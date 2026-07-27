@@ -101,10 +101,24 @@ export async function createAffiliateLink(input: {
         source: "SHOPEE_FOOD_CASHBACK_DISABLED" as const,
         ruleVersionId: null
       };
+  const user = await db.user.findUnique({
+    where: { id: input.userId },
+    select: { tenantId: true }
+  });
+
+  const subIds = [
+    clickToken,
+    input.userId,
+    user?.tenantId ?? "main",
+    "hoantien"
+  ];
+
   const providerLink = await connector.createTrackingLink({
     target,
     clickToken,
-    subIds: [clickToken],
+    userId: input.userId,
+    tenantId: user?.tenantId ?? undefined,
+    subIds,
     ...(campaign?.externalId ? { campaignExternalId: campaign.externalId } : {})
   });
 
@@ -128,7 +142,7 @@ export async function createAffiliateLink(input: {
       targetType: target.targetType,
       originUrl: target.canonicalUrl,
       outboundUrl: providerLink.url,
-      subIds: [clickToken],
+      subIds,
       attribution: {
         create: {
           merchantId: merchant.id,

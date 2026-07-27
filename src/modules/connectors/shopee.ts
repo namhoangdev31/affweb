@@ -45,10 +45,18 @@ export class ShopeeDirectConnector extends ConnectorBase {
     const redirect = new URL("https://s.shopee.vn/an_redir");
     redirect.searchParams.set("origin_link", target.toString());
     redirect.searchParams.set("affiliate_id", affiliateId);
-    if (input.subIds[0]) {
-      redirect.searchParams.set("sub_id", input.subIds[0]);
-    }
-    input.subIds.forEach((subId, index) => redirect.searchParams.set(`sub_id${index + 1}`, subId));
+    
+    // Aggregate sub_id for Shopee Click Report table display ({clickToken}-{userId}-{tenantId}-hoantien)
+    const combinedSubId = input.subIds.filter(Boolean).join("-");
+    redirect.searchParams.set("sub_id", combinedSubId);
+
+    // Set sub_id1, sub_id2, sub_id3, sub_id4
+    input.subIds.forEach((subId, index) => {
+      if (subId) {
+        redirect.searchParams.set(`sub_id${index + 1}`, subId);
+      }
+    });
+
     return { url: redirect.toString() };
   }
 }
@@ -88,12 +96,16 @@ export class ShopeeFoodConnector extends ConnectorBase {
     redirect.searchParams.set("origin_link", target.toString());
     redirect.searchParams.set("affiliate_id", affiliateId);
     redirect.searchParams.set("source", "food");
-    if (input.subIds[0]) {
-      redirect.searchParams.set("sub_id", input.subIds[0]);
-    }
+    
+    const combinedSubId = input.subIds.filter(Boolean).join("-");
+    redirect.searchParams.set("sub_id", combinedSubId);
+
     input.subIds.slice(0, 5).forEach((subId, index) => {
-      redirect.searchParams.set(`sub_id${index + 1}`, subId);
+      if (subId) {
+        redirect.searchParams.set(`sub_id${index + 1}`, subId);
+      }
     });
+
     return { url: redirect.toString() };
   }
 }
