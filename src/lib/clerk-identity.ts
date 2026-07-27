@@ -136,6 +136,26 @@ export async function reconcileClerkUser(user: ClerkUserLike): Promise<AppUser> 
       }
     }
 
+    let initialTenantId: string | undefined = undefined;
+    if (!existing?.tenantId) {
+      try {
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        const tenantSlug = cookieStore.get("aff_tenant_slug")?.value;
+        if (tenantSlug) {
+          const tenant = await tx.tenant.findUnique({
+            where: { slug: tenantSlug.toLowerCase() },
+            select: { id: true }
+          });
+          if (tenant) {
+            initialTenantId = tenant.id;
+          }
+        }
+      } catch {
+        // Non-request context fallback
+      }
+    }
+
     const data = {
       clerkUserId: user.id,
       email,
@@ -144,7 +164,8 @@ export async function reconcileClerkUser(user: ClerkUserLike): Promise<AppUser> 
       image: user.imageUrl || null,
       status: UserStatus.ACTIVE,
       identityState: IdentityState.ACTIVE,
-      identityUpdatedAt: updatedAt
+      identityUpdatedAt: updatedAt,
+      ...(initialTenantId ? { tenantId: initialTenantId } : {})
     };
 
     const local = existing

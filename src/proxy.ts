@@ -47,6 +47,11 @@ export default clerkMiddleware(
     response.headers.set("x-request-id", requestId);
     if (tenantSlug) {
       response.headers.set("x-tenant-slug", tenantSlug);
+      response.cookies.set("aff_tenant_slug", tenantSlug, {
+        path: "/",
+        maxAge: 30 * 24 * 60 * 60,
+        sameSite: "lax"
+      });
     }
     response.headers.set("x-host", cleanHost);
 
