@@ -150,6 +150,22 @@ enum BeneficiaryStatus {
   ARCHIVED
 }
 
+enum TenantStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  SUSPENDED
+  CLOSED
+}
+
+enum SaaSInvoiceStatus {
+  PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+  FAILED
+}
+
 enum PayoutStatus {
   DRAFT
   RESERVED
@@ -216,8 +232,10 @@ model User {
   identityDeletedAt   DateTime?
   anonymizedAt        DateTime?
   inviteCode          String?                  @unique
+  tenantId            String?
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
+  tenant              Tenant?                  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   accounts            Account[]
   sessions            Session[]
   authenticators      Authenticator[]
@@ -246,6 +264,8 @@ model User {
   invitationsCreated  IdentityInvitation[]     @relation("InvitationCreator")
   deletionRequests    AccountDeletionRequest[] @relation("DeletionOwner")
   deletionsApproved   AccountDeletionRequest[] @relation("DeletionApprover")
+
+  @@index([tenantId])
 }
 
 model Account {
@@ -452,18 +472,21 @@ model AffiliateClick {
   subIds             Json
   ipHash             String?
   userAgentHash      String?
+  tenantId           String?
   createdAt          DateTime             @default(now())
   clickedAt          DateTime?
   user               User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
   merchant           Merchant             @relation(fields: [merchantId], references: [id], onDelete: Restrict)
   campaign           Campaign?            @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   affiliateAccount   AffiliateAccount?    @relation(fields: [affiliateAccountId], references: [id], onDelete: SetNull)
+  tenant             Tenant?              @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   attribution        AttributionSnapshot?
   conversions        Conversion[]
 
   @@index([userId, createdAt])
   @@index([merchantId, createdAt])
   @@index([platform, createdAt])
+  @@index([tenantId])
 }
 
 model AttributionSnapshot {
@@ -516,15 +539,18 @@ model ConnectorConfig {
   mode               ConnectorMode     @default(DISABLED)
   enabled            Boolean           @default(false)
   settings           Json?
+  tenantId           String?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   affiliateAccount   AffiliateAccount? @relation(fields: [affiliateAccountId], references: [id], onDelete: SetNull)
+  tenant             Tenant?           @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   cursors            ConnectorCursor[]
   health             ConnectorHealth?
   syncRuns           SyncRun[]
 
   @@unique([connectorType, platform, affiliateAccountId])
   @@index([enabled, mode])
+  @@index([tenantId])
 }
 
 model ConnectorCursor {
@@ -629,6 +655,7 @@ model Conversion {
   availableAt        DateTime?
   rejectedAt         DateTime?
   rawEvidenceId      String
+  tenantId           String?
   createdAt          DateTime                     @default(now())
   updatedAt          DateTime                     @updatedAt
   user               User?                        @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -636,6 +663,7 @@ model Conversion {
   merchant           Merchant                     @relation(fields: [merchantId], references: [id], onDelete: Restrict)
   campaign           Campaign?                    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   rawEvidence        RawEvidence                  @relation(fields: [rawEvidenceId], references: [id], onDelete: Restrict)
+  tenant             Tenant?                      @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   externalIdentities ExternalConversionIdentity[]
   items              ConversionItem[]
   revisions          ConversionRevision[]
@@ -644,6 +672,7 @@ model Conversion {
   @@index([userId, status, purchasedAt])
   @@index([platform, status, purchasedAt])
   @@index([clickId])
+  @@index([tenantId])
 }
 
 model ConversionItem {
@@ -1019,4 +1048,65 @@ model BalanceAdjustment {
 
   @@index([status, createdAt])
   @@index([targetUserId, createdAt])
+}
+
+model Tenant {
+  id               String            @id @default(cuid())
+  slug             String            @unique
+  name             String
+  customDomain     String?           @unique
+  logoUrl          String?
+  brandColor       String?           @default("#173b31")
+  status           TenantStatus      @default(TRIAL)
+  isTrial          Boolean           @default(true)
+  trialEndsAt      DateTime?
+  planId           String            @default("TRIAL_14D")
+  planExpiresAt    DateTime
+  ownerUserId      String?
+  zaloBotToken     String?
+  zaloOAId         String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  users            User[]
+  clicks           AffiliateClick[]
+  conversions      Conversion[]
+  invoices         SaaSInvoice[]
+  configs          ConnectorConfig[]
+
+  @@index([slug])
+  @@index([customDomain])
+  @@index([status])
+}
+
+model SubscriptionPlan {
+  id                  String   @id @default(cuid())
+  code                String   @unique
+  name                String
+  priceMonthly        Int
+  maxUsers            Int
+  maxClicksPerMonth   Int
+  allowCustomDomain   Boolean  @default(false)
+  allowApiCredentials Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model SaaSInvoice {
+  id             String            @id @default(cuid())
+  tenantId       String
+  orderCode      Int               @unique
+  amount         Int
+  description    String
+  planCode       String
+  status         SaaSInvoiceStatus @default(PENDING)
+  paymentLinkId  String?
+  paidAt         DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([orderCode])
 }
