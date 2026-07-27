@@ -8,17 +8,27 @@ import {
   Link2,
   LogOut,
   ReceiptText,
-  Settings
+  Settings,
+  Trophy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-const nav = [
+const desktopNav = [
   { href: "/app", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/app/links", label: "Tạo link", icon: Link2 },
   { href: "/app/conversions", label: "Đơn hàng", icon: ReceiptText },
   { href: "/app/wallet", label: "Ví cashback", icon: CircleDollarSign },
+  { href: "/app/leaderboard", label: "Bảng xếp hạng", icon: Trophy },
   { href: "/app/notifications", label: "Thông báo", icon: Bell },
+  { href: "/app/settings", label: "Cài đặt", icon: Settings }
+] as const;
+
+const mobileBottomNav = [
+  { href: "/app", label: "Tổng quan", icon: LayoutDashboard },
+  { href: "/app/links", label: "Tạo link", icon: Link2 },
+  { href: "/app/conversions", label: "Đơn hàng", icon: ReceiptText },
+  { href: "/app/wallet", label: "Ví cashback", icon: CircleDollarSign },
   { href: "/app/settings", label: "Cài đặt", icon: Settings }
 ] as const;
 
@@ -37,7 +47,7 @@ export function AppShell({
           <span className="font-semibold">Hoàn Tiền</span>
         </Link>
         <nav className="mt-10 grid gap-1" aria-label="Dashboard">
-          {nav.map(({ href, label, icon: Icon }) => (
+          {desktopNav.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
@@ -75,6 +85,12 @@ export function AppShell({
                 <Link2 /> Tạo link
               </Link>
             </Button>
+            <Button asChild variant="outline" size="icon" className="relative h-9 w-9 rounded-xl border-emerald-950/10">
+              <Link href="/app/notifications" title="Thông báo">
+                <Bell className="size-4 text-emerald-950" />
+                <span className="sr-only">Thông báo</span>
+              </Link>
+            </Button>
             <UserButton userProfileUrl="/app/profile" />
           </div>
         </header>
@@ -83,11 +99,11 @@ export function AppShell({
           className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card px-2 py-2 lg:hidden"
           aria-label="Điều hướng di động"
         >
-          {nav.slice(0, 5).map(({ href, label, icon: Icon }) => (
+          {mobileBottomNav.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
-              className="grid justify-items-center gap-1 py-1 text-[10px] text-muted-foreground"
+              className="grid justify-items-center gap-1 py-1 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
             >
               <Icon className="size-5" /> {label}
             </Link>
