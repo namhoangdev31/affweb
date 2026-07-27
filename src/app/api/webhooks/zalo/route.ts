@@ -3,30 +3,37 @@ import { handleZaloBotIncomingUpdate } from "@/lib/zalo";
 
 export const runtime = "nodejs";
 
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    message: "Zalo Bot Master Webhook Endpoint is active"
+  });
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Standard Zalo Bot Platform (bot.zapps.me) update object structure
-    const message = body?.message;
-    const chatId = message?.chat?.id || message?.from?.id || body?.chat_id;
+    // Standard Zalo Bot Platform update object structure
+    const message = body?.message || body?.event;
+    const chatId = message?.chat?.id || message?.from?.id || body?.chat_id || body?.recipient?.id;
     const senderName = message?.from?.name || body?.from?.name;
-    const messageText = message?.text || body?.text;
-    const tenantId = request.headers.get("x-tenant-id") || body?.tenantId || "demo-tenant-id";
+    const messageText = message?.text || body?.text || body?.message?.text;
+    const tenantId = request.headers.get("x-tenant-id") || body?.tenantId;
 
     if (!chatId || !messageText) {
-      return NextResponse.json({ success: true, message: "No actionable text message" });
+      return NextResponse.json({ ok: true, message: "No actionable text message" });
     }
 
-    const host = request.headers.get("host") || "localhost:3000";
+    const host = request.headers.get("host") || "affweb.vn";
     const protocol = host.includes("localhost") ? "http" : "https";
     const baseUrl = `${protocol}://${host}`;
 
     const result = await handleZaloBotIncomingUpdate({
-      tenantId,
       chatId: String(chatId),
       messageText: String(messageText),
       baseUrl,
+      ...(tenantId ? { tenantId } : {}),
       ...(senderName ? { senderName: String(senderName) } : {})
     });
 
