@@ -47,13 +47,13 @@ describe("1 Central Zalo Bot Integration Test Suite", () => {
       chatId,
       messageText: "Ad ơi check link này https://shopee.vn/product/123/456 giùm mình với",
       senderName: "Hoàng Nam",
-      baseUrl: "https://affweb.vn"
+      baseUrl: "http://127.0.0.1:3000"
     });
 
     expect(res.replied).toBe(true);
     expect(res.tenantId).toBe(testTenantId);
     expect(res.replyText).toContain("Kênh KOC Zalo Master");
-    expect(res.replyText).toContain("affweb.vn/go/");
+    expect(res.replyText).toContain("/go/");
   });
 
   it("supports /link command to bind Zalo Group Chat directly", async () => {
@@ -61,7 +61,7 @@ describe("1 Central Zalo Bot Integration Test Suite", () => {
     const res = await handleZaloBotIncomingUpdate({
       chatId: newChatId,
       messageText: `/link ${testSlug}`,
-      baseUrl: "https://affweb.vn"
+      baseUrl: "http://127.0.0.1:3000"
     });
 
     expect(res.replied).toBe(true);

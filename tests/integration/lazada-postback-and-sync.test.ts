@@ -52,7 +52,7 @@ describe("Lazada Postback Macros & Webhook Integration Test", () => {
 
     // Simulate Lazada S2S Postback GET query string with macros
     const orderId = `LAZ-ORDER-${Date.now()}`;
-    const postbackUrl = `https://affweb.vn/api/webhooks/lazada?order_id=${orderId}&amount=500000&payout=50000&click_id=${clickToken}&sub_id1=${clickToken}&status=fulfilled`;
+    const postbackUrl = `http://127.0.0.1:3000/api/webhooks/lazada?order_id=${orderId}&amount=500000&payout=50000&click_id=${clickToken}&sub_id1=${clickToken}&status=fulfilled`;
 
     const request = new Request(postbackUrl, { method: "GET" });
     const response = await GET(request);
@@ -75,7 +75,7 @@ describe("Lazada Postback Macros & Webhook Integration Test", () => {
   });
 
   it("handles Lazada Test Mode mock postback gracefully (Rule 5 Troubleshooting)", async () => {
-    const postbackUrl = "https://affweb.vn/api/webhooks/lazada?order_id=test_order_123&payout=10000&click_id=testclickid&status=delivered";
+    const postbackUrl = "http://127.0.0.1:3000/api/webhooks/lazada?order_id=test_order_123&payout=10000&click_id=testclickid&status=delivered";
     const request = new Request(postbackUrl, { method: "GET" });
     const response = await GET(request);
 

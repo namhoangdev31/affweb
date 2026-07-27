@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Sparkles
 } from "lucide-react";
+import { getAppHostDisplay } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -113,7 +114,7 @@ export default function TenantSettingsPage() {
           </p>
         </div>
         <Badge variant="outline" className="w-fit gap-1.5 px-3 py-1 text-sm border-primary text-primary">
-          <Building2 className="size-4" /> Tenant: affweb.vn/{tenant.slug}
+          <Building2 className="size-4" /> Tenant: {getAppHostDisplay()}/{tenant.slug}
         </Badge>
       </div>
 

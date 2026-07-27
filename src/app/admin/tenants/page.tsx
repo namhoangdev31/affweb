@@ -9,6 +9,7 @@ import {
   Plus,
   Search
 } from "lucide-react";
+import { getAppHostDisplay } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -225,7 +226,7 @@ export default function SaaSAdminTenantsPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Slug Tên miền con (`slug.affweb.vn`)</label>
+                <label className="text-sm font-medium">Slug Tên miền con (`slug.${getAppHostDisplay()}`)</label>
                 <Input
                   value={newTenantSlug}
                   onChange={(e) => setNewTenantSlug(e.target.value)}
@@ -278,7 +279,7 @@ export default function SaaSAdminTenantsPage() {
                   <TableCell className="font-medium">
                     <div>{t.name}</div>
                     <div className="text-xs text-muted-foreground font-mono">
-                      {t.slug}.affweb.vn {t.customDomain && `(${t.customDomain})`}
+                      {t.slug}.{getAppHostDisplay()} {t.customDomain && `(${t.customDomain})`}
                     </div>
                   </TableCell>
                   <TableCell>

@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { loadServerEnv } from "@/lib/env";
 import { canTenantUseZaloBot } from "@/lib/tenant";
+import { getAppHostDisplay } from "@/lib/utils";
 
 export interface ZaloQRSessionResponse {
   success: boolean;
@@ -92,7 +93,7 @@ export async function handleZaloBotIncomingUpdate(params: {
       });
       return {
         replied: true,
-        replyText: `✅ Kích hoạt thành công! Nhóm Zalo này đã được liên kết với Kênh KOC: **${tenant.name}** (affweb.vn/${tenant.slug}). Mọi link gửi vào đây sẽ tự động tích hoàn tiền về Kênh của bạn!`
+        replyText: `✅ Kích hoạt thành công! Nhóm Zalo này đã được liên kết với Kênh KOC: **${tenant.name}** (${getAppHostDisplay()}/${tenant.slug}). Mọi link gửi vào đây sẽ tự động tích hoàn tiền về Kênh của bạn!`
       };
     } else {
       return {

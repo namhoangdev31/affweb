@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTenantBySlug } from "@/lib/tenant";
+import { getAppHostDisplay } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,7 +67,7 @@ export default async function TenantDirectSlugPage({
       <section className="relative overflow-hidden py-16 px-4 text-center">
         <div className="mx-auto max-w-3xl space-y-6">
           <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-3 py-1">
-            <Sparkles className="mr-1 size-3.5" /> Kênh Đại Lý KOC Nền Tảng: affweb.vn/{tenant.slug}
+            <Sparkles className="mr-1 size-3.5" /> Kênh Đại Lý KOC Nền Tảng: {getAppHostDisplay()}/{tenant.slug}
           </Badge>
 
           <h1 className="display-type text-4xl sm:text-5xl font-extrabold tracking-tight">

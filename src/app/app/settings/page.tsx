@@ -5,6 +5,7 @@ import { PushToggle } from "@/components/push-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getAppHostDisplay } from "@/lib/utils";
 import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { loadServerEnv } from "@/lib/env";
@@ -51,7 +52,7 @@ export default async function SettingsPage() {
               <div className="space-y-1 text-sm">
                 <p className="font-semibold text-emerald-700">Kênh: {ownedTenant.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  Đường dẫn Kênh: <span className="font-mono">affweb.vn/{ownedTenant.slug}</span>
+                  Đường dẫn Kênh: <span className="font-mono">{getAppHostDisplay()}/{ownedTenant.slug}</span>
                 </p>
               </div>
             ) : (

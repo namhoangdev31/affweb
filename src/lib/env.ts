@@ -37,6 +37,7 @@ const optionalBoolean = z.preprocess((value) => {
 const serverEnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_BASE_URL: optionalUrl.default("http://localhost:3000"),
+  NEXT_PUBLIC_APP_URL: optionalUrl.default("http://localhost:3000"),
   NEXT_PUBLIC_BUILD_SHA: optionalString.default("development"),
   REGISTRATION_MODE: z.enum(["invite", "public", "closed"]).default("invite"),
 

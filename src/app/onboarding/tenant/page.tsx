@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { registerTenantWithTrial, PLAN_PRESETS } from "@/lib/tenant";
+import { getAppHostDisplay } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -124,7 +125,7 @@ export default async function TenantOnboardingPage({
                   <Label htmlFor="slug" className="text-slate-200 font-medium">Đường dẫn Trực tiếp Kênh KOC</Label>
                   <div className="flex rounded-md border border-slate-800 bg-slate-950 overflow-hidden">
                     <span className="bg-slate-900 px-3 py-2 text-xs text-slate-400 border-r border-slate-800 flex items-center">
-                      affweb.vn/
+                      {getAppHostDisplay()}/
                     </span>
                     <Input
                       id="slug"
