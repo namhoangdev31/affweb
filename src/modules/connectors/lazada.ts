@@ -104,7 +104,10 @@ export class LazadaConnector extends ConnectorBase {
       loadServerEnv().LAZADA_LINK_OPERATION,
       {
         url: input.target.canonicalUrl,
-        sub_id: input.clickToken
+        sub_id: input.clickToken,
+        sub_id1: input.clickToken,
+        sub_id2: input.userId,
+        ...(input.tenantId ? { sub_id3: input.tenantId } : {})
       },
       z.object({ data: z.object({ url: z.url() }) })
     );
