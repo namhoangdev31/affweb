@@ -1,39 +1,51 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
+import { requireApiUser } from "@/lib/authz";
+import { db } from "@/lib/db";
+import { loadServerEnv } from "@/lib/env";
+import { AppError, errorResponse } from "@/lib/errors";
+import { assertTrustedOrigin, readJson, requestId } from "@/lib/request";
 import { createTenantCheckoutSession } from "@/lib/tenant";
 
 export const runtime = "nodejs";
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const { tenantId, planCode } = body;
+const inputSchema = z.object({
+  tenantId: z.string().cuid(),
+  planCode: z.enum([
+    "STARTER_99K",
+    "STARTER_YEARLY",
+    "PRO_199K",
+    "PRO_YEARLY",
+    "PREMIUM_399K",
+    "PREMIUM_YEARLY"
+  ])
+});
 
-    if (!tenantId || !planCode) {
-      return NextResponse.json(
-        { error: "Thiếu thông tin tenantId hoặc planCode" },
-        { status: 400 }
-      );
+export async function POST(request: Request): Promise<Response> {
+  const id = await requestId();
+  try {
+    assertTrustedOrigin(request);
+    const user = await requireApiUser();
+    const input = inputSchema.parse(await readJson(request));
+    const ownedTenant = await db.tenant.findFirst({
+      where: { id: input.tenantId, ownerUserId: user.id },
+      select: { id: true }
+    });
+    if (!ownedTenant) {
+      throw new AppError("FORBIDDEN", "Bạn không sở hữu nhóm này.", 403);
     }
 
-    const host = request.headers.get("host") || "localhost:3000";
-    const protocol = host.includes("localhost") ? "http" : "https";
-    const baseUrl = `${protocol}://${host}`;
-
     const session = await createTenantCheckoutSession({
-      tenantId,
-      planCode,
-      baseUrl
+      tenantId: input.tenantId,
+      planCode: input.planCode,
+      billingCycle: input.planCode.endsWith("_YEARLY") ? "yearly" : "monthly",
+      baseUrl: loadServerEnv().APP_BASE_URL
     });
 
-    return NextResponse.json({
-      success: true,
-      data: session
-    });
-  } catch (error: any) {
-    console.error("[SaaS Checkout Error]", error);
-    return NextResponse.json(
-      { error: error?.message || "Lỗi tạo hóa đơn PayOS" },
-      { status: 500 }
+    return Response.json(
+      { success: true, data: session },
+      { headers: { "Cache-Control": "no-store", "X-Request-Id": id } }
     );
+  } catch (error) {
+    return errorResponse(error, id);
   }
 }

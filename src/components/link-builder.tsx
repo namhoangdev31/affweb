@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Check,
   Copy,
@@ -49,11 +50,15 @@ export function LinkBuilder({
   campaigns: Array<{ id: string; name: string; merchantName: string; platform: string }>;
 }) {
   const [url, setUrl] = useState("");
+  const router = useRouter();
   const [campaignId, setCampaignId] = useState("");
   const [result, setResult] = useState<{
     url: string;
     cashbackEnabled: boolean;
     platform: string;
+    cashbackRateBps: number;
+    withholdingTaxBps: number;
+    estimatedCashbackVnd?: string;
     product?: ProductPreview | null;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +83,9 @@ export function LinkBuilder({
         redirectUrl?: string;
         cashbackEnabled?: boolean;
         platform?: string;
+        cashbackRateBps?: number;
+        withholdingTaxBps?: number;
+        estimatedCashbackVnd?: string;
         product?: {
           itemId: string;
           title: string;
@@ -164,8 +172,12 @@ export function LinkBuilder({
         url: generatedUrl,
         cashbackEnabled: body.cashbackEnabled !== false,
         platform: body.platform ?? "SHOPEE_MARKETPLACE",
+        cashbackRateBps: body.cashbackRateBps ?? 0,
+        withholdingTaxBps: body.withholdingTaxBps ?? 0,
+        ...(body.estimatedCashbackVnd ? { estimatedCashbackVnd: body.estimatedCashbackVnd } : {}),
         product: productPreview
       });
+      router.refresh();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Không thể tạo link.");
     } finally {
@@ -195,7 +207,10 @@ export function LinkBuilder({
         <CardContent className="p-6 sm:p-7 space-y-5">
           <form onSubmit={submit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="product-url" className="text-sm sm:text-base font-semibold text-white/90">
+              <Label
+                htmlFor="product-url"
+                className="text-sm sm:text-base font-semibold text-white/90"
+              >
                 Dán URL sản phẩm (Shopee, ShopeeFood, AccessTrade, Lazada)
               </Label>
               <div className="relative w-full">
@@ -221,7 +236,10 @@ export function LinkBuilder({
                 ) : null}
               </div>
               <p className="text-xs text-white/50">
-                Tự động hỗ trợ link gốc, link rút gọn <code className="text-emerald-400">s.shopee.vn</code> / <code className="text-emerald-400">shp.ee</code> và tra cứu ngay hoa hồng hoàn về ví.
+                Tự động hỗ trợ link gốc, link rút gọn{" "}
+                <code className="text-emerald-400">s.shopee.vn</code> /{" "}
+                <code className="text-emerald-400">shp.ee</code> và tra cứu ngay hoa hồng hoàn về
+                ví.
               </p>
             </div>
 
@@ -267,7 +285,10 @@ export function LinkBuilder({
           </form>
 
           {error ? (
-            <Alert variant="destructive" className="border-red-500/30 bg-red-950/30 text-red-200 rounded-2xl">
+            <Alert
+              variant="destructive"
+              className="border-red-500/30 bg-red-950/30 text-red-200 rounded-2xl"
+            >
               <Info className="size-5 text-red-400 shrink-0" />
               <AlertTitle className="font-bold">Chưa tạo được link</AlertTitle>
               <AlertDescription className="text-sm">{error}</AlertDescription>
@@ -315,7 +336,11 @@ export function LinkBuilder({
                       onClick={copyToClipboard}
                       className="h-13 px-6 rounded-2xl font-bold text-white transition-all bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 shadow-lg shadow-emerald-500/20 flex-1 sm:flex-initial"
                     >
-                      {copied ? <Check className="size-5 text-white" /> : <Copy className="size-5" />}
+                      {copied ? (
+                        <Check className="size-5 text-white" />
+                      ) : (
+                        <Copy className="size-5" />
+                      )}
                       {copied ? "Đã sao chép!" : "Sao chép link"}
                     </Button>
                     <Button
@@ -342,7 +367,7 @@ export function LinkBuilder({
                 <div className="grid gap-6 md:grid-cols-[180px_1fr] items-start">
                   <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-black/40 w-full max-w-[180px] mx-auto md:mx-0">
                     {result.product.imageUrl ? (
-                      // eslint-disable-next-error
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={result.product.imageUrl}
                         alt={result.product.title}
@@ -379,16 +404,28 @@ export function LinkBuilder({
                     {/* Main Cashback Highlight Banner */}
                     <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-transparent p-4 sm:p-5">
                       <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-amber-300 uppercase tracking-wider">
-                        <Sparkles className="size-4 text-amber-400" /> Hoa hồng ước tính hoàn về ví:
+                        <Sparkles className="size-4 text-amber-400" /> Cashback ước tính bạn nhận:
                       </div>
                       <div className="mt-1 flex items-baseline gap-3 flex-wrap">
                         <span className="text-2xl font-black text-amber-400 sm:text-3xl">
-                          ≈ {formatVnd(BigInt(result.product.commission.totalVnd))}
+                          ≈{" "}
+                          {formatVnd(
+                            BigInt(
+                              result.estimatedCashbackVnd ??
+                                Math.trunc(result.product.commission.totalVnd)
+                            )
+                          )}
                         </span>
                         <span className="text-base font-bold text-emerald-400 bg-emerald-500/20 px-3 py-0.5 rounded-xl border border-emerald-500/30">
-                          {result.product.commission.totalPercent}%
+                          {result.cashbackRateBps / 100}% phần chia
                         </span>
                       </div>
+                      {result.withholdingTaxBps > 0 ? (
+                        <p className="mt-2 text-xs text-white/60">
+                          Đây là số ước tính sau thuế; admin nhóm sẽ đối soát và chi trả ngoài ví
+                          nền tảng khi đơn được Shopee duyệt.
+                        </p>
+                      ) : null}
                     </div>
 
                     {/* Price & Sales Stats Bar */}
@@ -429,10 +466,35 @@ export function LinkBuilder({
                       </span>
                     </div>
 
+                    {result.withholdingTaxBps > 0 ? (
+                      <div className="flex items-center justify-between p-4 text-sm text-white/90">
+                        <span>Thuế ước tính khấu trừ trước khi chia</span>
+                        <Badge
+                          variant="outline"
+                          className="border-amber-500/30 font-mono text-amber-300"
+                        >
+                          {result.withholdingTaxBps / 100}%
+                        </Badge>
+                      </div>
+                    ) : null}
+
+                    <div className="flex items-center justify-between p-4 text-sm text-white/90">
+                      <span>Tỷ lệ hoàn cho bạn</span>
+                      <Badge
+                        variant="outline"
+                        className="border-emerald-500/30 font-mono text-emerald-300"
+                      >
+                        {result.cashbackRateBps / 100}%
+                      </Badge>
+                    </div>
+
                     <div className="flex items-center justify-between p-4 text-sm text-white/90">
                       <div className="flex items-center gap-2">
                         <span>Hoa hồng người bán (Seller)</span>
-                        <Badge variant="outline" className="border-white/20 text-white/80 font-mono">
+                        <Badge
+                          variant="outline"
+                          className="border-white/20 text-white/80 font-mono"
+                        >
                           {result.product.commission.sellerPercent}%
                         </Badge>
                       </div>
@@ -444,7 +506,10 @@ export function LinkBuilder({
                     <div className="flex items-center justify-between p-4 text-sm text-white/90">
                       <div className="flex items-center gap-2">
                         <span>Hoa hồng sàn (Shopee / Platform)</span>
-                        <Badge variant="outline" className="border-white/20 text-white/80 font-mono">
+                        <Badge
+                          variant="outline"
+                          className="border-white/20 text-white/80 font-mono"
+                        >
                           {result.product.commission.shopeePercent}%
                         </Badge>
                       </div>
@@ -455,12 +520,20 @@ export function LinkBuilder({
 
                     <div className="flex items-center justify-between p-4 text-sm text-white/70">
                       <span>Mức thưởng tối đa mỗi đơn (Cap)</span>
-                      <span className="font-mono font-medium">{formatVnd(BigInt(result.product.commission.capVnd))}</span>
+                      <span className="font-mono font-medium">
+                        {formatVnd(BigInt(result.product.commission.capVnd))}
+                      </span>
                     </div>
 
                     <div className="flex items-center justify-between p-4 text-sm text-white/70">
                       <span>Trạng thái Cap</span>
-                      <Badge className={result.product.commission.isCapped ? "bg-red-500/20 text-red-300 border-red-500/30" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"}>
+                      <Badge
+                        className={
+                          result.product.commission.isCapped
+                            ? "bg-red-500/20 text-red-300 border-red-500/30"
+                            : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                        }
+                      >
                         {result.product.commission.isCapped ? "Chạm mốc Cap" : "Trong mốc an toàn"}
                       </Badge>
                     </div>

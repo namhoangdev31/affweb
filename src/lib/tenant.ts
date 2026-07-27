@@ -1,3 +1,4 @@
+import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
 import { createPayOSPaymentLink } from "@/lib/payos";
 import { PLAN_PRESETS } from "./tenant-config";
@@ -44,15 +45,20 @@ export async function getTenantByHost(host: string) {
 /**
  * Registers a new tenant with a 14-day free trial
  */
-export async function registerTenantWithTrial(params: {
-  slug: string;
-  name: string;
-  ownerUserId?: string;
-}) {
+export async function registerTenantWithTrial(
+  params: {
+    slug: string;
+    name: string;
+    ownerUserId: string;
+    shopeeAffiliateId: string;
+    memberShareBps: number;
+  },
+  client: Prisma.TransactionClient | typeof db = db
+) {
   const now = new Date();
   const trialEndsAt = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
 
-  const tenant = await db.tenant.create({
+  const tenant = await client.tenant.create({
     data: {
       slug: params.slug.toLowerCase().trim(),
       name: params.name,
@@ -61,7 +67,9 @@ export async function registerTenantWithTrial(params: {
       planId: "TRIAL_14D",
       trialEndsAt,
       planExpiresAt: trialEndsAt,
-      ...(params.ownerUserId ? { ownerUserId: params.ownerUserId } : {})
+      ownerUserId: params.ownerUserId,
+      shopeeAffiliateId: params.shopeeAffiliateId,
+      memberShareBps: params.memberShareBps
     }
   });
 
@@ -155,7 +163,10 @@ export async function checkTenantUserQuota(tenantId: string): Promise<{
 /**
  * Checks if tenant can use a specific Connector
  */
-export async function canTenantUseConnector(tenantId: string, connectorType: string): Promise<boolean> {
+export async function canTenantUseConnector(
+  tenantId: string,
+  connectorType: string
+): Promise<boolean> {
   const tenant = await db.tenant.findUnique({
     where: { id: tenantId }
   });

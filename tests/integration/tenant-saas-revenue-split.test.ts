@@ -1,32 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { cashbackFromCommission } from "@/lib/money";
+import { tenantCashbackFromCommission } from "@/lib/money";
 
 describe("Multi-Tenant Revenue Sharing & Commission Split Calculations", () => {
-  it("calculates exact 3-tier commission split between Platform, Tenant Owner, and Tenant User", () => {
-    const grossCommissionVnd = 100_000n;
-    const networkFeeVnd = 0n;
-    const netCommissionVnd = grossCommissionVnd - networkFeeVnd;
+  it("trừ 10% thuế rồi chia giữa tenant owner và member, không thu phí phần trăm", () => {
+    const netCommissionVnd = 100_000n;
+    const calculation = tenantCashbackFromCommission(netCommissionVnd, 7_000);
+    const tenantOwnerRemainderVnd = calculation.commissionAfterTaxVnd - calculation.cashbackVnd;
 
-    // Tenant Config: 50% cashback to Tenant User (5000 bps), 15% Platform Fee (1500 bps)
-    const tenantUserShareBps = 5000;
-    const platformFeeBps = 1500;
-
-    const tenantUserCashbackVnd = cashbackFromCommission(netCommissionVnd, tenantUserShareBps);
-    const platformShareVnd = cashbackFromCommission(netCommissionVnd, platformFeeBps);
-    const tenantOwnerProfitVnd = netCommissionVnd - tenantUserCashbackVnd - platformShareVnd;
-
-    expect(tenantUserCashbackVnd).toBe(50_000n);
-    expect(platformShareVnd).toBe(15_000n);
-    expect(tenantOwnerProfitVnd).toBe(35_000n);
-
-    // Assert total sum matches net commission
-    expect(tenantUserCashbackVnd + platformShareVnd + tenantOwnerProfitVnd).toBe(netCommissionVnd);
+    expect(calculation.withholdingTaxVnd).toBe(10_000n);
+    expect(calculation.cashbackVnd).toBe(63_000n);
+    expect(tenantOwnerRemainderVnd).toBe(27_000n);
+    expect(calculation.withholdingTaxVnd + calculation.cashbackVnd + tenantOwnerRemainderVnd).toBe(
+      netCommissionVnd
+    );
   });
 
   it("handles tenant subscription invoice billing extension days", () => {
     const isYearly = true;
     const extensionDays = isYearly ? 365 : 30;
-    const now = new Date("2026-07-27T00:00:00Z");
     const currentExpiry = new Date("2026-07-27T00:00:00Z");
     const newExpiry = new Date(currentExpiry.getTime() + extensionDays * 24 * 60 * 60 * 1000);
 

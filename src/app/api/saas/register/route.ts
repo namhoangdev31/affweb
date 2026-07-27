@@ -1,41 +1,78 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
+import { requireApiUser } from "@/lib/authz";
+import { db } from "@/lib/db";
+import { errorResponse } from "@/lib/errors";
+import { assertTrustedOrigin, readJson, requestId } from "@/lib/request";
 import { registerTenantWithTrial } from "@/lib/tenant";
 
 export const runtime = "nodejs";
 
-export async function POST(request: Request) {
+const inputSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  slug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(3)
+    .max(63)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  shopeeAffiliateId: z
+    .string()
+    .trim()
+    .regex(/^\d{5,30}$/),
+  memberSharePercent: z.number().int().min(1).max(100)
+});
+
+export async function POST(request: Request): Promise<Response> {
+  const id = await requestId();
   try {
-    const body = await request.json();
-    const { name, slug, ownerUserId } = body;
-
-    if (!name || !slug) {
-      return NextResponse.json(
-        { error: "Vui lòng nhập tên ứng dụng và slug tên miền" },
-        { status: 400 }
-      );
-    }
-
-    const tenant = await registerTenantWithTrial({
-      name,
-      slug,
-      ownerUserId
+    assertTrustedOrigin(request);
+    const user = await requireApiUser();
+    const input = inputSchema.parse(await readJson(request));
+    const existing = await db.tenant.findUnique({
+      where: { ownerUserId: user.id },
+      select: { id: true }
     });
-
-    return NextResponse.json({
-      success: true,
-      message: "Tạo không gian làm việc dùng thử 14 ngày thành công!",
-      tenant
-    });
-  } catch (error: any) {
-    if (error?.code === "P2002") {
-      return NextResponse.json(
-        { error: "Slug tên miền đã được sử dụng bởi thương hiệu khác" },
+    if (existing) {
+      return Response.json(
+        {
+          error: {
+            code: "CONFLICT",
+            message: "Bạn đã sở hữu một nhóm.",
+            requestId: id
+          }
+        },
         { status: 409 }
       );
     }
-    return NextResponse.json(
-      { error: error?.message || "Lỗi tạo Tenant" },
-      { status: 500 }
+
+    const tenant = await db.$transaction(async (tx) => {
+      const created = await registerTenantWithTrial(
+        {
+          name: input.name,
+          slug: input.slug,
+          ownerUserId: user.id,
+          shopeeAffiliateId: input.shopeeAffiliateId,
+          memberShareBps: input.memberSharePercent * 100
+        },
+        tx
+      );
+      await tx.user.update({
+        where: { id: user.id },
+        data: { tenantId: created.id }
+      });
+      return created;
+    });
+
+    return Response.json(
+      {
+        success: true,
+        message: "Tạo nhóm dùng thử 14 ngày thành công.",
+        tenant: { id: tenant.id, slug: tenant.slug, name: tenant.name }
+      },
+      { status: 201, headers: { "Cache-Control": "no-store", "X-Request-Id": id } }
     );
+  } catch (error) {
+    return errorResponse(error, id);
   }
 }

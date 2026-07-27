@@ -17,7 +17,9 @@ import { db } from "@/lib/db";
 import {
   BETA_DAILY_AVAILABLE_LIMIT_VND,
   cashbackFromCommission,
-  startOfVietnamDay
+  startOfVietnamDay,
+  TENANT_AFFILIATE_TAX_BPS,
+  tenantCashbackFromCommission
 } from "@/lib/money";
 import type { NormalizedConversion } from "@/modules/connectors/types";
 import { storeRawEvidence } from "@/modules/evidence/service";
@@ -36,6 +38,16 @@ function conversionStatus(value: NormalizedConversion["status"]): ConversionStat
   return ConversionStatus.PENDING;
 }
 
+function withholdingTaxBpsFromSnapshot(value: Prisma.JsonValue | undefined): number {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return TENANT_AFFILIATE_TAX_BPS;
+  }
+  const taxBps = (value as Prisma.JsonObject).withholdingTaxBps;
+  return typeof taxBps === "number" && Number.isInteger(taxBps) && taxBps >= 0 && taxBps <= 10_000
+    ? taxBps
+    : TENANT_AFFILIATE_TAX_BPS;
+}
+
 async function applyConversionRevision(
   tx: Prisma.TransactionClient,
   input: {
@@ -50,10 +62,23 @@ async function applyConversionRevision(
   const effectiveGross =
     nextStatus === ConversionStatus.REJECTED ? 0n : input.next.grossCommissionVnd;
   const effectiveNet = nextStatus === ConversionStatus.REJECTED ? 0n : input.next.netCommissionVnd;
+  const withholdingTaxBps = input.current.tenantId
+    ? input.current.withholdingTaxBps || TENANT_AFFILIATE_TAX_BPS
+    : 0;
+  const tenantCalculation = input.current.tenantId
+    ? tenantCashbackFromCommission(
+        input.next.netCommissionVnd,
+        input.current.shareBps,
+        withholdingTaxBps
+      )
+    : null;
+  const effectiveWithholdingTax =
+    nextStatus === ConversionStatus.REJECTED ? 0n : (tenantCalculation?.withholdingTaxVnd ?? 0n);
   const effectiveCashback =
     nextStatus === ConversionStatus.REJECTED
       ? 0n
-      : cashbackFromCommission(input.next.netCommissionVnd, input.current.shareBps);
+      : (tenantCalculation?.cashbackVnd ??
+        cashbackFromCommission(input.next.netCommissionVnd, input.current.shareBps));
   if (
     nextStatus === input.current.status &&
     effectiveGross === input.current.grossCommissionVnd &&
@@ -84,7 +109,11 @@ async function applyConversionRevision(
   const grossDelta = effectiveGross - input.current.grossCommissionVnd;
   const cashbackDelta = effectiveCashback - input.current.cashbackVnd;
   const platformDelta = grossDelta - cashbackDelta;
-  if (input.current.userId && (grossDelta !== 0n || cashbackDelta !== 0n)) {
+  if (
+    input.current.userId &&
+    !input.current.tenantId &&
+    (grossDelta !== 0n || cashbackDelta !== 0n)
+  ) {
     const bucket = input.current.availableAt ? "available" : "pending";
     const wallet = await tx.walletProjection.findUniqueOrThrow({
       where: { userId: input.current.userId }
@@ -201,7 +230,7 @@ async function applyConversionRevision(
     }
   }
 
-  if (input.current.userId) {
+  if (input.current.userId && !input.current.tenantId) {
     if (nextStatus === ConversionStatus.REJECTED) {
       await tx.riskHold.updateMany({
         where: { conversionId: input.current.id },
@@ -237,6 +266,8 @@ async function applyConversionRevision(
       grossCommissionVnd: effectiveGross,
       netCommissionVnd: effectiveNet,
       cashbackVnd: effectiveCashback,
+      withholdingTaxBps,
+      withholdingTaxVnd: effectiveWithholdingTax,
       validatedAt: nextStatus === ConversionStatus.VALIDATED ? new Date() : null,
       rejectedAt: nextStatus === ConversionStatus.REJECTED ? new Date() : null,
       rawEvidenceId: input.rawEvidenceId
@@ -360,10 +391,19 @@ export async function ingestConversion(input: {
         orderBy: { createdAt: "asc" }
       });
   const shareBps = click?.attribution?.shareBps ?? merchant.defaultShareBps;
-  const cashbackVnd = click
-    ? cashbackFromCommission(input.conversion.netCommissionVnd, shareBps)
-    : 0n;
   const status = conversionStatus(input.conversion.status);
+  const withholdingTaxBps = click?.tenantId
+    ? withholdingTaxBpsFromSnapshot(click.attribution?.snapshot)
+    : 0;
+  const tenantCalculation =
+    click?.tenantId && status !== ConversionStatus.REJECTED
+      ? tenantCashbackFromCommission(input.conversion.netCommissionVnd, shareBps, withholdingTaxBps)
+      : null;
+  const cashbackVnd = click
+    ? click.tenantId
+      ? (tenantCalculation?.cashbackVnd ?? 0n)
+      : cashbackFromCommission(input.conversion.netCommissionVnd, shareBps)
+    : 0n;
   const releaseAt =
     status === ConversionStatus.VALIDATED
       ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
@@ -384,11 +424,14 @@ export async function ingestConversion(input: {
           netCommissionVnd: input.conversion.netCommissionVnd,
           cashbackVnd,
           shareBps,
+          withholdingTaxBps,
+          withholdingTaxVnd: tenantCalculation?.withholdingTaxVnd ?? 0n,
           purchasedAt: input.conversion.purchasedAt,
           clickedAt: click?.clickedAt ?? null,
           validatedAt: status === ConversionStatus.VALIDATED ? new Date() : null,
           rejectedAt: status === ConversionStatus.REJECTED ? new Date() : null,
           rawEvidenceId: raw.id,
+          tenantId: click?.tenantId ?? null,
           externalIdentities: {
             create: {
               source: input.source,
@@ -404,11 +447,16 @@ export async function ingestConversion(input: {
               quantity: item.quantity,
               priceVnd: item.priceVnd ?? null,
               commissionVnd: item.commissionVnd,
-              cashbackVnd: cashbackFromCommission(item.commissionVnd, shareBps),
+              cashbackVnd: click?.tenantId
+                ? status === ConversionStatus.REJECTED
+                  ? 0n
+                  : tenantCashbackFromCommission(item.commissionVnd, shareBps, withholdingTaxBps)
+                      .cashbackVnd
+                : cashbackFromCommission(item.commissionVnd, shareBps),
               payload: item.payload as Prisma.InputJsonValue
             }))
           },
-          ...(click?.userId && releaseAt
+          ...(click?.userId && !click.tenantId && releaseAt
             ? {
                 riskHold: {
                   create: {
@@ -425,7 +473,12 @@ export async function ingestConversion(input: {
             : {})
         }
       });
-      if (click?.userId && cashbackVnd > 0n && status !== ConversionStatus.REJECTED) {
+      if (
+        click?.userId &&
+        !click.tenantId &&
+        cashbackVnd > 0n &&
+        status !== ConversionStatus.REJECTED
+      ) {
         await postPendingCashback(tx, {
           userId: click.userId,
           conversionId: conversion.id,

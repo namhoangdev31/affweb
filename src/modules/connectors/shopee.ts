@@ -34,7 +34,7 @@ export class ShopeeDirectConnector extends ConnectorBase {
   }
 
   async createTrackingLink(input: TrackingLinkInput): Promise<TrackingLinkResult> {
-    const affiliateId = loadServerEnv().SHOPEE_AFFILIATE_ID;
+    const affiliateId = input.affiliateId ?? loadServerEnv().SHOPEE_AFFILIATE_ID;
     if (!affiliateId) {
       throw new AppError("CONNECTOR_UNAVAILABLE", "Shopee connector chưa được cấu hình.", 503);
     }
@@ -45,7 +45,7 @@ export class ShopeeDirectConnector extends ConnectorBase {
     const redirect = new URL("https://s.shopee.vn/an_redir");
     redirect.searchParams.set("origin_link", target.toString());
     redirect.searchParams.set("affiliate_id", affiliateId);
-    
+
     // Aggregate sub_id for Shopee Click Report table display ({clickToken}-{userId}-{tenantId}-hoantien)
     const combinedSubId = input.subIds.filter(Boolean).join("-");
     redirect.searchParams.set("sub_id", combinedSubId);
@@ -87,7 +87,7 @@ export class ShopeeFoodConnector extends ConnectorBase {
   }
 
   async createTrackingLink(input: TrackingLinkInput): Promise<TrackingLinkResult> {
-    const affiliateId = loadServerEnv().SHOPEE_AFFILIATE_ID;
+    const affiliateId = input.affiliateId ?? loadServerEnv().SHOPEE_AFFILIATE_ID;
     if (!affiliateId) {
       throw new AppError("CONNECTOR_UNAVAILABLE", "ShopeeFood connector chưa được cấu hình.", 503);
     }
@@ -96,7 +96,7 @@ export class ShopeeFoodConnector extends ConnectorBase {
     redirect.searchParams.set("origin_link", target.toString());
     redirect.searchParams.set("affiliate_id", affiliateId);
     redirect.searchParams.set("source", "food");
-    
+
     const combinedSubId = input.subIds.filter(Boolean).join("-");
     redirect.searchParams.set("sub_id", combinedSubId);
 

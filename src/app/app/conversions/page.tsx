@@ -1,10 +1,12 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { formatVnd } from "@/lib/utils";
 import Link from "next/link";
 import { Building2, ShoppingBag, UserCheck } from "lucide-react";
+import { markTenantConversionPaidAction } from "./actions";
 
 export default async function ConversionsPage({
   searchParams
@@ -22,9 +24,7 @@ export default async function ConversionsPage({
 
   // Query filter based on user role and selected scope tab
   const isTenantOwnerView = Boolean(ownedTenant && scope === "all");
-  const whereClause = isTenantOwnerView
-    ? { tenantId: ownedTenant!.id }
-    : { userId: user.id };
+  const whereClause = isTenantOwnerView ? { tenantId: ownedTenant!.id } : { userId: user.id };
 
   const conversions = await db.conversion.findMany({
     where: whereClause,
@@ -39,25 +39,30 @@ export default async function ConversionsPage({
   });
 
   // Calculate stats if user is a Tenant Owner
-  let totalTenantGrossVnd = 0n;
+  let totalTenantNetVnd = 0n;
+  let totalTenantTaxVnd = 0n;
   let totalTenantUserCashbackVnd = 0n;
   let totalTenantOwnerProfitVnd = 0n;
 
   if (ownedTenant) {
     const allTenantConversions = await db.conversion.findMany({
       where: { tenantId: ownedTenant.id },
-      select: { grossCommissionVnd: true, cashbackVnd: true, status: true }
+      select: {
+        netCommissionVnd: true,
+        withholdingTaxVnd: true,
+        cashbackVnd: true,
+        status: true
+      }
     });
 
     for (const c of allTenantConversions) {
       if (c.status === "VALIDATED") {
-        totalTenantGrossVnd += c.grossCommissionVnd;
+        totalTenantNetVnd += c.netCommissionVnd;
+        totalTenantTaxVnd += c.withholdingTaxVnd;
         totalTenantUserCashbackVnd += c.cashbackVnd;
       }
     }
-    // Platform fee 15% (1500 bps), Tenant Owner profit ~35%
-    const platformFeeVnd = (totalTenantGrossVnd * 1500n) / 10000n;
-    totalTenantOwnerProfitVnd = totalTenantGrossVnd - totalTenantUserCashbackVnd - platformFeeVnd;
+    totalTenantOwnerProfitVnd = totalTenantNetVnd - totalTenantTaxVnd - totalTenantUserCashbackVnd;
     if (totalTenantOwnerProfitVnd < 0n) totalTenantOwnerProfitVnd = 0n;
   }
 
@@ -70,31 +75,43 @@ export default async function ConversionsPage({
 
       {/* Tenant Owner KPI Metrics Banner */}
       {ownedTenant ? (
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <Card className="bg-emerald-950 text-white">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-normal text-emerald-200/70">
-                Tổng hoa hồng Kênh KOC ({ownedTenant.name})
+                Hoa hồng Shopee ghi nhận ({ownedTenant.name})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-emerald-100">{formatVnd(totalTenantGrossVnd)}</p>
+              <p className="text-2xl font-bold text-emerald-100">{formatVnd(totalTenantNetVnd)}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-normal text-muted-foreground">
-                Lợi nhuận KOC Owner (Ước tính)
+                Thuế ước tính 10%
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-emerald-600">{formatVnd(totalTenantOwnerProfitVnd)}</p>
+              <p className="text-2xl font-bold text-amber-600">{formatVnd(totalTenantTaxVnd)}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-normal text-muted-foreground">
-                Tổng Cashback trả cho Thành viên
+                Phần admin giữ lại
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-emerald-600">
+                {formatVnd(totalTenantOwnerProfitVnd)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-normal text-muted-foreground">
+                Cashback cần trả member
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -133,7 +150,7 @@ export default async function ConversionsPage({
       {/* Conversion List */}
       <div className="space-y-4">
         {conversions.map((conversion) => {
-          const isUserOwnOrder = conversion.userId === user.id;
+          const isTenantConversion = Boolean(conversion.tenantId);
           return (
             <Card key={conversion.id}>
               <CardContent className="flex flex-wrap items-center gap-4 p-5">
@@ -154,8 +171,23 @@ export default async function ConversionsPage({
                       </Badge>
                     ) : null}
                     {conversion.tenant ? (
-                      <Badge variant="outline" className="border-emerald-600/30 text-xs text-emerald-700">
+                      <Badge
+                        variant="outline"
+                        className="border-emerald-600/30 text-xs text-emerald-700"
+                      >
                         Kênh: {conversion.tenant.name}
+                      </Badge>
+                    ) : null}
+                    {isTenantConversion && conversion.status === "VALIDATED" ? (
+                      <Badge
+                        variant={conversion.tenantPaidAt ? "default" : "secondary"}
+                        className={
+                          conversion.tenantPaidAt
+                            ? "bg-emerald-600 text-white"
+                            : "bg-amber-100 text-amber-800"
+                        }
+                      >
+                        {conversion.tenantPaidAt ? "Đã chi trả" : "Chờ admin chi trả"}
                       </Badge>
                     ) : null}
                   </div>
@@ -170,9 +202,29 @@ export default async function ConversionsPage({
                   <p className="font-semibold">{formatVnd(conversion.cashbackVnd)}</p>
                   <p className="text-xs text-muted-foreground">
                     {isTenantOwnerView
-                      ? `Tổng sàn trả: ${formatVnd(conversion.grossCommissionVnd)}`
-                      : `${conversion.shareBps / 100}% hoa hồng chia lại`}
+                      ? `Sau thuế: ${formatVnd(
+                          conversion.netCommissionVnd - conversion.withholdingTaxVnd
+                        )}`
+                      : isTenantConversion
+                        ? `${conversion.shareBps / 100}% hoa hồng sau thuế`
+                        : `${conversion.shareBps / 100}% hoa hồng chia lại`}
                   </p>
+                  {isTenantOwnerView &&
+                  conversion.status === "VALIDATED" &&
+                  !conversion.tenantPaidAt &&
+                  conversion.cashbackVnd > 0n ? (
+                    <form action={markTenantConversionPaidAction} className="mt-3">
+                      <input type="hidden" name="conversionId" value={conversion.id} />
+                      <Button type="submit" size="sm" className="rounded-full">
+                        Đánh dấu đã chi trả
+                      </Button>
+                    </form>
+                  ) : null}
+                  {conversion.tenantPaidAt ? (
+                    <p className="mt-1 text-xs text-emerald-600">
+                      {conversion.tenantPaidAt.toLocaleString("vi-VN")}
+                    </p>
+                  ) : null}
                 </div>
               </CardContent>
             </Card>

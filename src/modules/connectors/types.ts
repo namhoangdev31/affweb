@@ -19,6 +19,7 @@ export type TrackingLinkInput = {
   clickToken: string;
   subIds: string[];
   campaignExternalId?: string | undefined;
+  affiliateId?: string | undefined;
 };
 
 export type TrackingLinkResult = {

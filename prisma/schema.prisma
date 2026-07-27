@@ -236,6 +236,7 @@ model User {
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
   tenant              Tenant?                  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  ownedTenant         Tenant?                  @relation("TenantOwner")
   accounts            Account[]
   sessions            Session[]
   authenticators      Authenticator[]
@@ -470,6 +471,7 @@ model AffiliateClick {
   originUrl          String
   outboundUrl        String?
   subIds             Json
+  productSnapshot    Json?
   ipHash             String?
   userAgentHash      String?
   tenantId           String?
@@ -648,6 +650,9 @@ model Conversion {
   netCommissionVnd   BigInt
   cashbackVnd        BigInt
   shareBps           Int
+  withholdingTaxBps  Int                          @default(0)
+  withholdingTaxVnd  BigInt                       @default(0)
+  tenantPaidAt       DateTime?
   currency           String                       @default("VND")
   purchasedAt        DateTime
   clickedAt          DateTime?
@@ -1051,28 +1056,31 @@ model BalanceAdjustment {
 }
 
 model Tenant {
-  id               String            @id @default(cuid())
-  slug             String            @unique
-  name             String
-  customDomain     String?           @unique
-  logoUrl          String?
-  brandColor       String?           @default("#173b31")
-  status           TenantStatus      @default(TRIAL)
-  isTrial          Boolean           @default(true)
-  trialEndsAt      DateTime?
-  planId           String            @default("TRIAL_14D")
-  planExpiresAt    DateTime
-  ownerUserId      String?
-  zaloBotToken     String?
-  zaloOAId         String?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  id                String       @id @default(cuid())
+  slug              String       @unique
+  name              String
+  customDomain      String?      @unique
+  logoUrl           String?
+  brandColor        String?      @default("#173b31")
+  status            TenantStatus @default(TRIAL)
+  isTrial           Boolean      @default(true)
+  trialEndsAt       DateTime?
+  planId            String       @default("TRIAL_14D")
+  planExpiresAt     DateTime
+  ownerUserId       String?      @unique
+  shopeeAffiliateId String?
+  memberShareBps    Int?
+  zaloBotToken      String?
+  zaloOAId          String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
-  users            User[]
-  clicks           AffiliateClick[]
-  conversions      Conversion[]
-  invoices         SaaSInvoice[]
-  configs          ConnectorConfig[]
+  owner             User?              @relation("TenantOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  users             User[]
+  clicks            AffiliateClick[]
+  conversions       Conversion[]
+  invoices          SaaSInvoice[]
+  configs           ConnectorConfig[]
   zaloGroupBindings ZaloGroupBinding[]
 
   @@index([slug])
@@ -1094,35 +1102,35 @@ model SubscriptionPlan {
 }
 
 model SaaSInvoice {
-  id             String            @id @default(cuid())
-  tenantId       String
-  orderCode      Int               @unique
-  amount         Int
-  description    String
-  planCode       String
-  status         SaaSInvoiceStatus @default(PENDING)
-  paymentLinkId  String?
-  paidAt         DateTime?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  id            String            @id @default(cuid())
+  tenantId      String
+  orderCode     Int               @unique
+  amount        Int
+  description   String
+  planCode      String
+  status        SaaSInvoiceStatus @default(PENDING)
+  paymentLinkId String?
+  paidAt        DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
-  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([orderCode])
 }
 
 model ZaloGroupBinding {
-  id          String   @id @default(cuid())
-  chatId      String   @unique
-  tenantId    String
-  groupName   String?
-  active      Boolean  @default(true)
-  linkedById  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  chatId     String   @unique
+  tenantId   String
+  groupName  String?
+  active     Boolean  @default(true)
+  linkedById String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([chatId])
   @@index([tenantId])
