@@ -11,7 +11,7 @@ export default defineConfig({
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000",
     trace: "on-first-retry",
-    reducedMotion: "reduce",
+    contextOptions: { reducedMotion: "reduce" },
     navigationTimeout: 30_000,
     actionTimeout: 10_000
   },

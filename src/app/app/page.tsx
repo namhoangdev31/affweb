@@ -20,7 +20,7 @@ export default async function DashboardPage() {
     db.affiliateClick.count({ where: { userId: user.id } }),
     db.tenant.findFirst({ where: { ownerUserId: user.id } })
   ]);
-  const hasTenant = Boolean(ownedTenant || user.tenantId);
+  const hasTenant = Boolean(ownedTenant);
   const balance = wallet ?? { pendingVnd: 0n, availableVnd: 0n, reservedVnd: 0n, paidVnd: 0n };
   return (
     <div className="space-y-8">

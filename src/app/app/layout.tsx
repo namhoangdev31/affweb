@@ -11,7 +11,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const ownedTenant = await db.tenant.findFirst({
     where: { ownerUserId: user.id }
   });
-  const hasTenant = Boolean(ownedTenant || user.tenantId);
+  const hasTenant = Boolean(ownedTenant);
 
   return <AppShell user={user} hasTenant={hasTenant}>{children}</AppShell>;
 }

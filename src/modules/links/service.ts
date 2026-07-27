@@ -116,8 +116,6 @@ export async function createAffiliateLink(input: {
   const providerLink = await connector.createTrackingLink({
     target,
     clickToken,
-    userId: input.userId,
-    tenantId: user?.tenantId ?? undefined,
     subIds,
     ...(campaign?.externalId ? { campaignExternalId: campaign.externalId } : {})
   });

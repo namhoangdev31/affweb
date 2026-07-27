@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { loadServerEnv } from "@/lib/env";
 import { canTenantUseZaloBot } from "@/lib/tenant";
 
 export interface ZaloQRSessionResponse {
@@ -13,8 +14,9 @@ export interface ZaloQRSessionResponse {
  * Tenant owner simply scans this QR using Zalo app to connect 1 Central Zalo Bot!
  */
 export async function generateZaloQRLoginSession(tenantId: string): Promise<ZaloQRSessionResponse> {
+  const baseUrl = loadServerEnv().APP_BASE_URL;
   const sessionToken = `zqr_${Math.random().toString(36).substring(2, 12)}`;
-  const qrData = `https://affweb.vn/api/saas/zalo-qr/auth?session=${sessionToken}&tenant=${tenantId}`;
+  const qrData = `${baseUrl}/api/saas/zalo-qr/auth?session=${sessionToken}&tenant=${tenantId}`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}`;
 
   return {
@@ -45,8 +47,8 @@ export async function bindZaloGroupToTenant(params: {
     },
     update: {
       tenantId: params.tenantId,
-      groupName: params.groupName || undefined,
-      linkedById: params.linkedById || undefined,
+      groupName: params.groupName ?? null,
+      linkedById: params.linkedById ?? null,
       active: true
     }
   });
@@ -155,22 +157,24 @@ export async function handleZaloBotIncomingUpdate(params: {
         }
       }
 
-      const subIdUser = validUser.id;
-      const subIds = [clickToken, subIdUser, tenant.id, "hoantien"];
+      if (merchantRecord) {
+        const subIdUser = validUser.id;
+        const subIds = [clickToken, subIdUser, tenant.id, "hoantien"];
 
-      await db.affiliateClick.create({
-        data: {
-          clickToken,
-          originUrl: rawUrl,
-          outboundUrl: trackingUrl,
-          user: { connect: { id: validUser.id } },
-          tenant: { connect: { id: tenant.id } },
-          merchant: { connect: { id: merchantRecord.id } },
-          subIds,
-          platform: rawUrl.includes("lazada") ? "LAZADA" : "SHOPEE_MARKETPLACE",
-          targetType: "PRODUCT"
-        }
-      });
+        await db.affiliateClick.create({
+          data: {
+            clickToken,
+            originUrl: rawUrl,
+            outboundUrl: trackingUrl,
+            user: { connect: { id: validUser.id } },
+            tenant: { connect: { id: tenant.id } },
+            merchant: { connect: { id: merchantRecord.id } },
+            subIds,
+            platform: rawUrl.includes("lazada") ? "LAZADA" : "SHOPEE_MARKETPLACE",
+            targetType: "PRODUCT"
+          }
+        });
+      }
     }
   } catch (err) {
     console.error("[Zalo Bot Click Record Warning]", err);

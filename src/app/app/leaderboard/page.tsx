@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { formatVnd } from "@/lib/utils";
-import { Award, Flame, Medallion, ShieldCheck, Trophy, UserCheck } from "lucide-react";
+import { Award, Flame, Medal, ShieldCheck, Trophy, UserCheck } from "lucide-react";
 import Link from "next/link";
 
 export default async function LeaderboardPage({
@@ -24,7 +24,7 @@ export default async function LeaderboardPage({
 
   // Calculate actual user rankings from Ledger / Conversions
   const userWallets = await db.walletProjection.findMany({
-    orderBy: { lifetimeAvailableVnd: "desc" },
+    orderBy: { availableVnd: "desc" },
     take: 50,
     include: {
       user: {
@@ -47,8 +47,10 @@ export default async function LeaderboardPage({
     let displayName = rawName;
     if (!isCurrentUser) {
       const parts = rawName.split(" ");
-      if (parts.length > 1) {
-        displayName = `${parts[0]} ${parts[parts.length - 1].charAt(0)}.***`;
+      const first = parts[0];
+      const last = parts[parts.length - 1];
+      if (parts.length > 1 && first && last) {
+        displayName = `${first} ${last.charAt(0)}.***`;
       } else {
         displayName = `${rawName.substring(0, 3)}***`;
       }
@@ -62,7 +64,7 @@ export default async function LeaderboardPage({
       isCurrentUser,
       image: w.user.image,
       tenantName: w.user.tenant?.name,
-      lifetimeCashbackVnd: w.lifetimeAvailableVnd
+      lifetimeCashbackVnd: w.availableVnd
     };
   });
 
@@ -211,7 +213,7 @@ export default async function LeaderboardPage({
         {top3 ? (
           <Card className="relative overflow-hidden border-amber-800/20 bg-gradient-to-b from-amber-900/5 to-white shadow-md sm:order-3">
             <div className="absolute right-3 top-3 rounded-full bg-amber-800/20 p-2 text-amber-800">
-              <Medallion className="size-5" />
+              <Medal className="size-5" />
             </div>
             <CardHeader className="text-center pb-2">
               <Badge variant="secondary" className="mx-auto w-max bg-amber-900/10 text-amber-800">

@@ -106,8 +106,8 @@ export class LazadaConnector extends ConnectorBase {
         url: input.target.canonicalUrl,
         sub_id: input.clickToken,
         sub_id1: input.clickToken,
-        sub_id2: input.userId,
-        ...(input.tenantId ? { sub_id3: input.tenantId } : {})
+        sub_id2: input.subIds[1] ?? "",
+        sub_id3: input.subIds[2] ?? ""
       },
       z.object({ data: z.object({ url: z.url() }) })
     );

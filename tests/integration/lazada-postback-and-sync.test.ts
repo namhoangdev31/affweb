@@ -71,7 +71,7 @@ describe("Lazada Postback Macros & Webhook Integration Test", () => {
     expect(conversion).toBeDefined();
     expect(conversion?.userId).toBe(user.id);
     expect(conversion?.grossCommissionVnd).toBe(50_000n);
-    expect(conversion?.externalIdentities[0].externalOrderId).toBe(orderId);
+    expect(conversion?.externalIdentities[0]?.externalOrderId).toBe(orderId);
   });
 
   it("handles Lazada Test Mode mock postback gracefully (Rule 5 Troubleshooting)", async () => {

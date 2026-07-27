@@ -50,7 +50,7 @@ export default async function ConversionsPage({
     });
 
     for (const c of allTenantConversions) {
-      if (c.status === "VALIDATED" || c.status === "AVAILABLE") {
+      if (c.status === "VALIDATED") {
         totalTenantGrossVnd += c.grossCommissionVnd;
         totalTenantUserCashbackVnd += c.cashbackVnd;
       }
@@ -144,7 +144,7 @@ export default async function ConversionsPage({
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold">{conversion.merchant.name}</p>
-                    <Badge variant={conversion.status === "VALIDATED" || conversion.status === "AVAILABLE" ? "default" : "secondary"}>
+                    <Badge variant={conversion.status === "VALIDATED" ? "default" : "secondary"}>
                       {conversion.status}
                     </Badge>
                     {isTenantOwnerView ? (
@@ -160,7 +160,7 @@ export default async function ConversionsPage({
                     ) : null}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Mã đơn: <span className="font-mono">{conversion.externalOrderId}</span> ·{" "}
+                    Mã đơn: <span className="font-mono">{conversion.id}</span> ·{" "}
                     {conversion.purchasedAt.toLocaleString("vi-VN")} ·{" "}
                     {conversion.platform.replaceAll("_", " ")}
                   </p>

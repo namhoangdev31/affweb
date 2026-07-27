@@ -132,7 +132,7 @@ async function handleLazadaPostback(request: Request) {
             quantity: 1,
             priceVnd: orderPriceVnd > 0n ? orderPriceVnd : grossCommissionVnd * 10n,
             commissionVnd: grossCommissionVnd,
-            cashbackVnd: (grossCommissionVnd * 5000n) / 10000n
+            payload: params
           }
         ]
       }
