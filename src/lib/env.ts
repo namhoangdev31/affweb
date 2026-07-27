@@ -91,6 +91,7 @@ const serverEnvSchema = z.object({
   PAYOS_CLIENT_ID: optionalString,
   PAYOS_API_KEY: optionalString,
   PAYOS_CHECKSUM_KEY: optionalString,
+  PAYOS_WEBHOOK_URL: optionalUrl,
 
   UPSTASH_REDIS_REST_URL: optionalUrl,
   UPSTASH_REDIS_REST_TOKEN: optionalString,
