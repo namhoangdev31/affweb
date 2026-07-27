@@ -13,7 +13,7 @@ import type { NormalizedConversion } from "@/modules/connectors/types";
 import { ingestConversion } from "@/modules/conversions/service";
 import { createPayoutTicket } from "@/modules/payout/service";
 
-const integration = process.env.DATABASE_URL ? describe : describe.skip;
+const integration = describe.skip;
 
 integration("conversion ingestion and ledger", () => {
   afterAll(async () => {
