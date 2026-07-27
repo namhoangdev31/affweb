@@ -391,12 +391,18 @@ export default function TenantSettingsPage() {
             <div className="text-center space-y-2">
               <div className="inline-block p-3 rounded-2xl bg-white shadow-md border">
                 <img
-                  src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fzalo.me%2Fbot-master-affweb"
-                  alt="1 Master Zalo Bot QR Code"
-                  className="size-40 object-contain"
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fbot.zaloplatforms.com%2Fgroups%2Finvite%2Fbot.TvMybWYu"
+                  alt="Mã QR Thêm Bot Zalo Vào Nhóm Chat"
+                  className="size-44 object-contain"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">Mã QR Bot Zalo Trung Tâm</p>
+              <div>
+                <Button asChild variant="outline" size="sm" className="text-blue-600 border-blue-600 hover:bg-blue-50 text-xs">
+                  <a href="https://bot.zaloplatforms.com/groups/invite/bot.TvMybWYu" target="_blank" rel="noopener noreferrer">
+                    📲 Mở Zalo Thêm Bot Vào Nhóm Chat
+                  </a>
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-3 flex-1">
