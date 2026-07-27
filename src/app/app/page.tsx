@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CircleDollarSign, Clock3, Link2, ReceiptText } from "lucide-react";
+import { ArrowRight, Building2, CircleDollarSign, Clock3, Link2, ReceiptText, ShoppingBag, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { formatVnd } from "@/lib/utils";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const [wallet, conversions, clickCount] = await Promise.all([
+  const [wallet, conversions, clickCount, ownedTenant] = await Promise.all([
     db.walletProjection.findUnique({ where: { userId: user.id } }),
     db.conversion.findMany({
       where: { userId: user.id },
@@ -17,11 +17,68 @@ export default async function DashboardPage() {
       orderBy: { purchasedAt: "desc" },
       take: 5
     }),
-    db.affiliateClick.count({ where: { userId: user.id } })
+    db.affiliateClick.count({ where: { userId: user.id } }),
+    db.tenant.findFirst({ where: { ownerUserId: user.id } })
   ]);
+  const hasTenant = Boolean(ownedTenant || user.tenantId);
   const balance = wallet ?? { pendingVnd: 0n, availableVnd: 0n, reservedVnd: 0n, paidVnd: 0n };
   return (
     <div className="space-y-8">
+      {/* Onboarding Welcome Gateway for Users Without KOC Channel */}
+      {!hasTenant ? (
+        <Card className="border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-950 via-slate-900 to-teal-950 text-white shadow-2xl overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <Building2 className="size-48 text-emerald-400" />
+          </div>
+          <CardContent className="p-6 sm:p-8 space-y-6 relative z-10">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 px-3 py-1">
+                <Sparkles className="mr-1.5 size-4 text-emerald-400" /> Dành Cho Người Dùng Mới
+              </Badge>
+              <Badge variant="outline" className="text-amber-400 border-amber-500/40">
+                🎁 Dùng thử Miễn phí 14 Ngày
+              </Badge>
+            </div>
+
+            <div className="space-y-2">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                Bạn Tham Gia Hệ Thống Với Vai Trò Nào?
+              </h2>
+              <p className="text-sm text-slate-300 max-w-2xl">
+                Nếu bạn muốn kinh doanh Affiliate, tạo Kênh KOC riêng và nhận 100% hoa hồng Shopee & Lazada, hãy khởi tạo Kênh KOC Nền Tảng ngay hôm nay!
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Card className="border-emerald-500/40 bg-emerald-900/30 text-white p-5 space-y-3 hover:border-emerald-400 transition">
+                <Building2 className="size-8 text-emerald-400" />
+                <h3 className="font-bold text-lg">👑 Khởi Tạo Kênh KOC / Thương Hiệu Riêng</h3>
+                <p className="text-xs text-slate-300">
+                  Sở hữu Kênh Cashback với thương hiệu riêng, nhận 14 ngày dùng thử miễn phí đầy đủ Zalo Bot nhóm chat.
+                </p>
+                <Button asChild className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm mt-2">
+                  <Link href="/onboarding/tenant">
+                    Kích Hoạt Kênh & Chọn Gói <ArrowRight className="ml-1.5 size-4" />
+                  </Link>
+                </Button>
+              </Card>
+
+              <Card className="border-slate-800 bg-slate-900/80 text-white p-5 space-y-3">
+                <ShoppingBag className="size-8 text-amber-400" />
+                <h3 className="font-bold text-lg">🛍️ Mua Sắm & Tích Cashback Cá Nhân</h3>
+                <p className="text-xs text-slate-300">
+                  Dán link Shopee / Lazada bất kỳ để tự tạo link hoàn tiền và tích lũy tiền thưởng cá nhân vào ví.
+                </p>
+                <Button asChild variant="outline" className="w-full border-slate-700 text-slate-200 hover:bg-slate-800 text-sm mt-2">
+                  <Link href="/app/links">
+                    Tạo Link Tích Hoàn Tiền ngay
+                  </Link>
+                </Button>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-muted-foreground">

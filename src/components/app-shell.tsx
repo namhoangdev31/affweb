@@ -2,13 +2,16 @@ import { SignOutButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  ArrowRight,
   Bell,
+  Building2,
   CircleDollarSign,
   LayoutDashboard,
   Link2,
   LogOut,
   ReceiptText,
   Settings,
+  Sparkles,
   Trophy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,10 +37,12 @@ const mobileBottomNav = [
 
 export function AppShell({
   children,
-  user
+  user,
+  hasTenant
 }: {
   children: React.ReactNode;
   user: { name?: string | null; email?: string | null; image?: string | null };
+  hasTenant?: boolean;
 }) {
   return (
     <div className="min-h-screen bg-[#f5f3ec]">
@@ -73,6 +78,23 @@ export function AppShell({
         </div>
       </aside>
       <div className="lg:pl-64">
+        {/* Global Sticky Banner for Direct Users without KOC Channel */}
+        {!hasTenant ? (
+          <div className="sticky top-0 z-40 bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 px-4 py-2.5 text-white text-xs sm:text-sm font-medium flex flex-wrap items-center justify-between gap-3 shadow-lg border-b border-emerald-700/40">
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-4 text-emerald-400 shrink-0 animate-pulse" />
+              <span>
+                🚀 <strong>Bạn chưa có Kênh KOC riêng?</strong> Đăng ký Kênh KOC Nền tảng với <strong>14 ngày dùng thử miễn phí</strong> để nhận 100% hoa hồng!
+              </span>
+            </div>
+            <Button asChild size="sm" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs h-7 px-3.5 rounded-full shrink-0 shadow-md">
+              <Link href="/onboarding/tenant">
+                <Building2 className="mr-1 size-3.5" /> Tạo Kênh & Chọn Gói <ArrowRight className="ml-1 size-3.5" />
+              </Link>
+            </Button>
+          </div>
+        ) : null}
+
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-[#f5f3ec]/90 px-5 backdrop-blur lg:px-8">
           <Link href="/app" className="flex items-center gap-2 lg:hidden">
             <Image src="/brand-mark.svg" alt="" width={34} height={34} />
