@@ -2,16 +2,22 @@
 
 import { useState } from "react";
 import {
+  Bot,
   Building2,
+  Check,
   CheckCircle2,
+  Copy,
   CreditCard,
   Crown,
   Globe,
   KeyRound,
   MessageSquareCode,
   QrCode,
+  Send,
   ShieldCheck,
-  Sparkles
+  Smartphone,
+  Sparkles,
+  Terminal
 } from "lucide-react";
 import { getAppHostDisplay } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +30,7 @@ import { PLAN_PRESETS } from "@/lib/tenant-config";
 export default function TenantSettingsPage() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [isYearlyBilling, setIsYearlyBilling] = useState(false);
+  const [copiedCommand, setCopiedCommand] = useState(false);
 
   const [payosData, setPayosData] = useState<{
     checkoutUrl?: string;
@@ -101,6 +108,12 @@ export default function TenantSettingsPage() {
       setZaloSuccess(true);
       setTimeout(() => setZaloSuccess(false), 3000);
     }, 800);
+  };
+
+  const handleCopyCommand = () => {
+    navigator.clipboard.writeText(`/link ${tenant.slug}`);
+    setCopiedCommand(true);
+    setTimeout(() => setCopiedCommand(false), 2000);
   };
 
   return (
@@ -374,64 +387,158 @@ export default function TenantSettingsPage() {
       </div>
 
       {/* 1 Central Zalo Bot System */}
-      <Card className="border-blue-500/30 bg-blue-500/5">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MessageSquareCode className="size-5 text-blue-600" />
-              <CardTitle>Mô Hình 1 Bot Zalo Trung Tâm (0 Cấu hình - 1 Click Kích Hoạt)</CardTitle>
+      <Card className="border-2 border-blue-500/30 bg-gradient-to-br from-blue-950/20 via-background to-teal-950/20 shadow-xl overflow-hidden">
+        <CardHeader className="border-b bg-blue-500/5 pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="grid size-10 place-items-center rounded-xl bg-blue-600/10 text-blue-600 border border-blue-500/20 shadow-sm">
+                <Bot className="size-5" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">Hướng Dẫn & Kích Hoạt Zalo Bot Tự Động 🤖</CardTitle>
+                <CardDescription className="text-xs">
+                  0 Khai báo Cloud — Thêm Bot vào Nhóm Zalo Chat & gõ lệnh 1 Click để bắt đầu hoàn tiền!
+                </CardDescription>
+              </div>
             </div>
-            <Badge className="bg-blue-600 text-white">PRO & PREMIUM</Badge>
+            <Badge className="bg-blue-600 text-white shadow">PRO & PREMIUM</Badge>
           </div>
-          <CardDescription>
-            Không cần tự đăng ký Zalo Cloud hay khai báo App rắc rối! Tất cả các Kênh KOC đều dùng chung <strong>1 Con Bot Zalo Trung Tâm duy nhất</strong> của hệ thống.
-          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-xl bg-background border">
-            <div className="text-center space-y-2">
+
+        <CardContent className="space-y-8 pt-6">
+          {/* Step 1 & Step 2 Layout */}
+          <div className="grid gap-6 lg:grid-cols-12">
+            {/* QR Section - Left 5 cols */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-card border shadow-sm text-center space-y-4">
+              <Badge variant="outline" className="border-blue-500/40 text-blue-600 bg-blue-50/50 dark:bg-blue-950/50 font-semibold px-3 py-1">
+                <QrCode className="mr-1.5 size-3.5" /> BƯỚC 1: QUÉT MÃ QR THÊM BOT
+              </Badge>
               {(() => {
                 const inviteUrl = process.env.NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL || "https://bot.zaloplatforms.com/groups/invite/bot.TvMybWYu";
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(inviteUrl)}`;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(inviteUrl)}`;
                 return (
                   <>
-                    <div className="inline-block p-3 rounded-2xl bg-white shadow-md border">
+                    <div className="relative group p-4 rounded-2xl bg-white shadow-md border transition-transform hover:scale-105">
                       <img
                         src={qrUrl}
                         alt="Mã QR Thêm Bot Zalo Vào Nhóm Chat"
-                        className="size-44 object-contain"
+                        className="size-48 object-contain"
                       />
+                      <div className="absolute inset-0 bg-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
                     </div>
-                    <div>
-                      <Button asChild variant="outline" size="sm" className="text-blue-600 border-blue-600 hover:bg-blue-50 text-xs">
-                        <a href={inviteUrl} target="_blank" rel="noopener noreferrer">
-                          📲 Mở Zalo Thêm Bot Vào Nhóm Chat
-                        </a>
-                      </Button>
-                    </div>
+                    <Button asChild className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-md">
+                      <a href={inviteUrl} target="_blank" rel="noopener noreferrer">
+                        <Smartphone className="mr-2 size-4" /> Mở Zalo Thêm Bot Vào Nhóm
+                      </a>
+                    </Button>
                   </>
                 );
               })()}
+              <p className="text-xs text-muted-foreground">
+                Quét bằng app Zalo trên điện thoại để mời Zalo Bot Trung Tâm vào Group săn sale của bạn.
+              </p>
             </div>
 
-            <div className="space-y-3 flex-1">
-              <h3 className="font-semibold text-base text-foreground">📌 2 Bước Kích Hoạt Bot Zalo Cho Nhóm Săn Sale Của Bạn:</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
-                <li>Quét mã QR để <strong>Thêm Bot Zalo Trung Tâm vào Nhóm Chat Zalo</strong> của bạn.</li>
-                <li>
-                  Gõ câu lệnh kích hoạt trực tiếp trong nhóm:{" "}
-                  <code className="bg-slate-900 text-emerald-400 px-2 py-0.5 rounded font-mono text-xs">
-                    /link {tenant.slug}
-                  </code>
-                </li>
-              </ol>
-              <div className="pt-2 flex flex-wrap items-center gap-3">
-                <Badge className="bg-emerald-600 text-white px-3 py-1 text-xs">
-                  🟢 Tự động bắt link Shopee & Lazada trong Nhóm
+            {/* Instruction Steps & Copy Command - Right 7 cols */}
+            <div className="lg:col-span-7 space-y-5 flex flex-col justify-between">
+              <div className="space-y-4">
+                <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/50 font-semibold px-3 py-1">
+                  <Terminal className="mr-1.5 size-3.5" /> BƯỚC 2: KÍCH HOẠT VÀO NHÓM
                 </Badge>
-                <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs">
-                  ⚡️ Ghi nhận 100% Hoa hồng & SubID về Kênh: {tenant.slug}
-                </Badge>
+                
+                <h3 className="font-bold text-lg text-foreground">
+                  Gõ lệnh kích hoạt trực tiếp trong Nhóm Chat Zalo:
+                </h3>
+
+                {/* Command Copy Box */}
+                <div className="relative flex items-center justify-between p-4 rounded-xl bg-slate-950 text-slate-100 border border-slate-800 shadow-inner">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-mono text-slate-400">Lệnh:</span>
+                    <code className="font-mono text-base font-bold text-emerald-400 tracking-wide">
+                      /link {tenant.slug}
+                    </code>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleCopyCommand}
+                    className="text-slate-300 hover:text-white hover:bg-slate-800"
+                  >
+                    {copiedCommand ? (
+                      <>
+                        <Check className="mr-1.5 size-4 text-emerald-400" /> <span className="text-emerald-400 font-semibold text-xs">Đã chép!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="mr-1.5 size-4" /> <span className="text-xs">Sao chép</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p className="flex items-start gap-2">
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue-600/20 text-blue-600 font-bold text-xs">1</span>
+                    Vào nhóm Chat Zalo mà bạn vừa thêm Zalo Bot vào.
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue-600/20 text-blue-600 font-bold text-xs">2</span>
+                    Dán câu lệnh <code className="bg-slate-900 text-emerald-400 px-1.5 py-0.5 rounded font-mono text-xs">/link {tenant.slug}</code> và gửi tin nhắn.
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue-600/20 text-blue-600 font-bold text-xs">3</span>
+                    Zalo Bot sẽ phản hồi xác nhận kích hoạt thành công cho Kênh <strong className="text-foreground">{tenant.name}</strong>.
+                  </p>
+                </div>
+              </div>
+
+              {/* Simulation Demo Box */}
+              <div className="p-4 rounded-xl border bg-slate-900/90 text-white space-y-2">
+                <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
+                  <span className="flex items-center gap-1.5">
+                    <Send className="size-3 text-blue-400" /> Mô phỏng hoạt động trong Nhóm Zalo Chat
+                  </span>
+                  <Badge variant="outline" className="text-[10px] text-emerald-400 border-emerald-500/30">Live Simulation</Badge>
+                </div>
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-start gap-2">
+                    <span className="font-semibold text-slate-300">Thành viên:</span>
+                    <span className="text-slate-400 truncate">https://shopee.vn/product/123/456</span>
+                  </div>
+                  <div className="flex items-start gap-2 pl-3 border-l-2 border-emerald-500 bg-emerald-950/40 p-2 rounded-r-lg">
+                    <span className="font-bold text-emerald-400">🤖 Zalo Bot:</span>
+                    <span className="text-slate-200">
+                      Link mua sắm tích Cashback: <strong className="text-emerald-300 underline font-mono">{getAppHostDisplay()}/go/token123</strong> (Đã gắn SubID Kênh {tenant.slug})
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick FAQ Checklist */}
+          <div className="pt-4 border-t grid gap-4 sm:grid-cols-3">
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-background border">
+              <CheckCircle2 className="size-5 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="text-xs space-y-1">
+                <p className="font-semibold text-foreground">Tự động 100%</p>
+                <p className="text-muted-foreground">Bot tự động chuyển link Shopee/Lazada thành link cashback có SubID.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-background border">
+              <ShieldCheck className="size-5 text-blue-500 shrink-0 mt-0.5" />
+              <div className="text-xs space-y-1">
+                <p className="font-semibold text-foreground">Multi-Group Support</p>
+                <p className="text-muted-foreground">Thêm Bot vào không giới hạn số lượng nhóm Zalo chat cùng lúc.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-background border">
+              <Sparkles className="size-5 text-amber-500 shrink-0 mt-0.5" />
+              <div className="text-xs space-y-1">
+                <p className="font-semibold text-foreground">Doanh Thu Về Ví</p>
+                <p className="text-muted-foreground">Hoa hồng ghi nhận trực tiếp về Kênh KOC của bạn trong mục Đơn Hàng.</p>
               </div>
             </div>
           </div>

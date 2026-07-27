@@ -49,11 +49,14 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             {ownedTenant ? (
-              <div className="space-y-1 text-sm">
+              <div className="space-y-2 text-sm">
                 <p className="font-semibold text-emerald-700">Kênh: {ownedTenant.name}</p>
                 <p className="text-xs text-muted-foreground">
                   Đường dẫn Kênh: <span className="font-mono">{getAppHostDisplay()}/{ownedTenant.slug}</span>
                 </p>
+                <Button asChild variant="outline" size="sm" className="mt-1 border-emerald-600/30 text-emerald-700 hover:bg-emerald-50">
+                  <Link href={"/app/settings/tenant" as Route}>Quản lý Kênh & Cấu hình Zalo Bot 🤖</Link>
+                </Button>
               </div>
             ) : (
               <div className="flex flex-wrap items-center justify-between gap-4">
