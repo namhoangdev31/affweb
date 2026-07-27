@@ -10,11 +10,23 @@ export default clerkMiddleware(
 
     let tenantSlug = "";
 
-    // 1. Path-based Multi-Tenancy (e.g. affweb.vn/t/sansale-koc)
+    const RESERVED_SLUGS = new Set([
+      "www", "admin", "app", "api", "t", "deals", "login", "sign-in", "sign-up",
+      "privacy", "terms", "faq", "go", "shopee-lookup", "partners",
+      "cashback-policy", "offline", "onboarding", "manifest.webmanifest",
+      "robots.txt", "sitemap.xml", "sw.js"
+    ]);
+
+    // 1. Direct Path-based Multi-Tenancy (e.g. affweb.vn/sansale-koc or affweb.vn/t/sansale-koc)
     if (pathname.startsWith("/t/")) {
       const parts = pathname.split("/");
       if (parts.length >= 3 && parts[2]) {
         tenantSlug = parts[2].toLowerCase();
+      }
+    } else if (pathname.length > 1 && !pathname.includes(".")) {
+      const firstSegment = pathname.split("/")[1]?.toLowerCase();
+      if (firstSegment && !RESERVED_SLUGS.has(firstSegment)) {
+        tenantSlug = firstSegment;
       }
     }
 
@@ -29,7 +41,7 @@ export default clerkMiddleware(
     }
 
     // Filter out system reserved keywords
-    if (["www", "admin", "app", "api", "t"].includes(tenantSlug)) {
+    if (RESERVED_SLUGS.has(tenantSlug)) {
       tenantSlug = "";
     }
 

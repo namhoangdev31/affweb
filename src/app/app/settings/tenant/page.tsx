@@ -113,7 +113,7 @@ export default function TenantSettingsPage() {
           </p>
         </div>
         <Badge variant="outline" className="w-fit gap-1.5 px-3 py-1 text-sm border-primary text-primary">
-          <Building2 className="size-4" /> Tenant: affweb.vn/t/{tenant.slug}
+          <Building2 className="size-4" /> Tenant: affweb.vn/{tenant.slug}
         </Badge>
       </div>
 

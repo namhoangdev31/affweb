@@ -34,8 +34,8 @@ test.describe("All 7 Technical User Flow Journeys (Mobile Viewports)", () => {
     await expect(page.getByRole("heading", { name: /Chính sách cashback/i })).toBeVisible();
   });
 
-  test("Mobile Journey 6: Mobile Multi-Tenant Path Navigation (/t/sansale-koc)", async ({ page }) => {
-    await page.goto("/t/sansale-koc");
+  test("Mobile Journey 6: Mobile Multi-Tenant Path Navigation (/sansale-koc)", async ({ page }) => {
+    await page.goto("/sansale-koc");
     await expect(page.locator("body")).toBeVisible();
   });
 

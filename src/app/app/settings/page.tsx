@@ -51,7 +51,7 @@ export default async function SettingsPage() {
               <div className="space-y-1 text-sm">
                 <p className="font-semibold text-emerald-700">Kênh: {ownedTenant.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  Đường dẫn Kênh: <span className="font-mono">affweb.vn/t/{ownedTenant.slug}</span>
+                  Đường dẫn Kênh: <span className="font-mono">affweb.vn/{ownedTenant.slug}</span>
                 </p>
               </div>
             ) : (

@@ -115,7 +115,7 @@ export default async function TenantOnboardingPage({
                 <Label htmlFor="slug" className="text-slate-200">Đường dẫn Slug URL Kênh KOC</Label>
                 <div className="flex rounded-md border border-slate-800 bg-slate-950 overflow-hidden">
                   <span className="bg-slate-900 px-3 py-2 text-xs text-slate-400 border-r border-slate-800 flex items-center">
-                    affweb.vn/t/
+                    affweb.vn/
                   </span>
                   <Input
                     id="slug"
@@ -126,7 +126,7 @@ export default async function TenantOnboardingPage({
                   />
                 </div>
                 <p className="text-[11px] text-slate-500">
-                  Đây là link mua sắm chia sẻ cho thành viên của bạn (VD: affweb.vn/t/sansale-nam)
+                  Đây là link mua sắm chia sẻ cho thành viên của bạn (VD: affweb.vn/sansale-nam)
                 </p>
               </div>
 
