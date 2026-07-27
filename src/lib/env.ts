@@ -57,6 +57,9 @@ const serverEnvSchema = z.object({
   EMAIL_FROM: optionalString,
   ADMIN_EMAIL_ALLOWLIST: optionalString,
 
+  ZALO_BOT_TOKEN: optionalString,
+  ZALO_BOT_SECRET_TOKEN: optionalString,
+
   SHOPEE_AFFILIATE_ID: optionalString,
   SHOPEE_FOOD_CASHBACK_ENABLED: optionalBoolean.default(false),
 
