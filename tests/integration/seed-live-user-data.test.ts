@@ -410,5 +410,5 @@ describe("Live Database Seeding & Integration Test for User nguyenhoangnam310820
     });
 
     expect(saasInvoice.id).toBeDefined();
-  });
+  }, 15_000);
 });
