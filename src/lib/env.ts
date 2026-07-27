@@ -59,6 +59,10 @@ const serverEnvSchema = z.object({
 
   ZALO_BOT_TOKEN: optionalString,
   ZALO_BOT_SECRET_TOKEN: optionalString,
+  NEXT_PUBLIC_ZALO_BOT_PROFILE_URL: optionalUrl.default("https://zalo.me/1491893691361810175"),
+  NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL: optionalUrl.default(
+    "https://bot.zaloplatforms.com/groups/invite/bot.TvMybWYu"
+  ),
 
   SHOPEE_AFFILIATE_ID: optionalString,
   SHOPEE_FOOD_CASHBACK_ENABLED: optionalBoolean.default(false),

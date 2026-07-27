@@ -389,20 +389,28 @@ export default function TenantSettingsPage() {
         <CardContent className="space-y-6">
           <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-xl bg-background border">
             <div className="text-center space-y-2">
-              <div className="inline-block p-3 rounded-2xl bg-white shadow-md border">
-                <img
-                  src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fbot.zaloplatforms.com%2Fgroups%2Finvite%2Fbot.TvMybWYu"
-                  alt="Mã QR Thêm Bot Zalo Vào Nhóm Chat"
-                  className="size-44 object-contain"
-                />
-              </div>
-              <div>
-                <Button asChild variant="outline" size="sm" className="text-blue-600 border-blue-600 hover:bg-blue-50 text-xs">
-                  <a href="https://bot.zaloplatforms.com/groups/invite/bot.TvMybWYu" target="_blank" rel="noopener noreferrer">
-                    📲 Mở Zalo Thêm Bot Vào Nhóm Chat
-                  </a>
-                </Button>
-              </div>
+              {(() => {
+                const inviteUrl = process.env.NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL || "https://bot.zaloplatforms.com/groups/invite/bot.TvMybWYu";
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(inviteUrl)}`;
+                return (
+                  <>
+                    <div className="inline-block p-3 rounded-2xl bg-white shadow-md border">
+                      <img
+                        src={qrUrl}
+                        alt="Mã QR Thêm Bot Zalo Vào Nhóm Chat"
+                        className="size-44 object-contain"
+                      />
+                    </div>
+                    <div>
+                      <Button asChild variant="outline" size="sm" className="text-blue-600 border-blue-600 hover:bg-blue-50 text-xs">
+                        <a href={inviteUrl} target="_blank" rel="noopener noreferrer">
+                          📲 Mở Zalo Thêm Bot Vào Nhóm Chat
+                        </a>
+                      </Button>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             <div className="space-y-3 flex-1">
