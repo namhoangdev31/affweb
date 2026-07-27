@@ -44,9 +44,11 @@ async function handleLazadaPostback(request: Request) {
       params.click_id ||
       params.clickid ||
       params.transaction_id ||
+      params.ref_id ||
       params.sub_id1 ||
       params.subId1 ||
-      params.sub_aff_id;
+      params.sub_aff_id ||
+      params.affiliateSubId;
 
     const externalOrderId =
       params.order_id ||
@@ -56,7 +58,15 @@ async function handleLazadaPostback(request: Request) {
       params._p_offer ||
       `LAZ-${Date.now()}`;
 
-    const payoutStr = params.payout || params._p_payout || params.amount || params._p_pay_amount || "0";
+    const payoutStr =
+      params.payout ||
+      params._p_payout ||
+      params.amount ||
+      params._p_pay_amount ||
+      params.estPayout ||
+      "0";
+
+    const orderAmtStr = params.orderAmt || params.order_amt || params.order_amount || "0";
     const statusStr = (params.status || params.order_status || "validated").toLowerCase();
 
     // Rule 5 Troubleshooting: Return success for Lazada 'Run Test' mock calls
@@ -68,9 +78,11 @@ async function handleLazadaPostback(request: Request) {
       });
     }
 
-    // Convert payout to BigInt VND
+    // Convert payout & order amount to BigInt VND
     const payoutNum = parseFloat(payoutStr);
+    const orderAmtNum = parseFloat(orderAmtStr);
     const grossCommissionVnd = BigInt(Math.trunc(isNaN(payoutNum) ? 0 : payoutNum));
+    const orderPriceVnd = BigInt(Math.trunc(isNaN(orderAmtNum) ? 0 : orderAmtNum));
 
     // Map Lazada order status to system ConversionStatus
     let mappedStatus: "validated" | "pending" | "rejected" = "validated";
@@ -118,7 +130,7 @@ async function handleLazadaPostback(request: Request) {
             externalItemId: params.sku || "item_1",
             name: params.offer_name || params.sku_name || "Lazada Product",
             quantity: 1,
-            priceVnd: grossCommissionVnd * 10n,
+            priceVnd: orderPriceVnd > 0n ? orderPriceVnd : grossCommissionVnd * 10n,
             commissionVnd: grossCommissionVnd,
             cashbackVnd: (grossCommissionVnd * 5000n) / 10000n
           }
