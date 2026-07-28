@@ -4557,8 +4557,8 @@
     },
     "docs/production-readiness-audit-2026-07-28.md": {
       "category": "documentation",
-      "bytes": 67960,
-      "sha256": "1e456192737134e2cbdf7a4bd1c0137406370065530aa0a7d87438e1a468eb67",
+      "bytes": 76731,
+      "sha256": "83f9d780b8697989003eaa4180dc7e028279bbdf59d19ff2dbce14db63f75599",
       "summary": "Evidence-based snapshot of affweb development progress, production readiness, blockers, actors, current user flows, and Mermaid system diagrams as of 2026-07-28.",
       "analysis": {
         "title": "Báo cáo kiểm toán tiến độ, Production Readiness và User Flow — `affweb`",

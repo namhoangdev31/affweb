@@ -182,74 +182,75 @@ QR/config structures có tồn tại, nhưng endpoint mutation thiếu authoriza
 
 **Production Readiness: 28%**
 
-| Area            | Score | Evidence                                                         | Major Gaps                                                                                      |
+| Area            | Score | Evidence                                                         | Major Gaps (Bằng chứng trực tiếp từ Codebase) |
 | --------------- | ----: | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Core Features   |  4/10 | Link, conversion, wallet và payout có code path đáng kể          | Tenant/SaaS/Zalo chưa hoàn chỉnh; external paths chưa được chứng minh                           |
-| Backend         |  4/10 | Module/service/API separation và domain logic rõ                 | Unsafe webhook/lookup routes; failure and concurrency gaps                                      |
-| Frontend/Mobile |  5/10 | Next.js UI, dashboard/admin/PWA surfaces tồn tại                 | UI claims vượt backend; critical authenticated E2E chưa pass                                    |
-| Database        |  3/10 | Prisma schema, constraints và ledger structures tương đối giàu   | Migration lineage không dựng được schema hiện tại; production migration safety chưa chứng minh  |
-| Security        |  1/10 | Có Clerk, role, passkey, encryption và URL policy ở một số luồng | Unsigned webhook, SSRF, unauthenticated mutation, fail-open billing                             |
-| Reliability     |  2/10 | Có jobs, idempotency concepts và health state                    | Release fail-open, payout race, retry/recovery chưa đủ                                          |
-| Testing         |  3/10 | 38/38 source unit tests pass                                     | Integration test quan trọng bị skip; current E2E không pass; không có production-config test    |
-| Infrastructure  |  2/10 | Có Vercel-oriented config và env schema/checks                   | Chưa có CI/IaC/backup/restore/proven environment separation                                     |
-| Observability   |  3/10 | Có Sentry/logging/health code                                    | Thiếu metrics, tracing, alerts và verified operational dashboards                               |
-| Deployment      |  1/10 | Có build/deployment-oriented configuration                       | Env check fail; không có release/rollback gate; build production chưa được xác minh trong audit |
+| Core Features   |  4/10 | Link, conversion, wallet và payout có code path đáng kể          | Admin Tenants UI dùng 100% data cứng mock (`src/app/admin/tenants/page.tsx:46-93`); SaaS PayOS fallback fake/demo (`src/lib/payos.ts:40-55, 112-130`); Zalo QR mutation thiếu auth/ownership (`src/app/api/saas/zalo-qr/route.ts:17-44`). |
+| Backend         |  4/10 | Module/service/API separation và domain logic rõ                 | Unsigned Lazada webhook (`src/app/api/webhooks/lazada/route.ts:16-40`); Payout reconcile TOCTOU race condition (`src/modules/payout/service.ts:539-587`); Money parsing qua `parseFloat` làm sai số float (`src/app/api/webhooks/lazada/route.ts:82-85`). |
+| Frontend/Mobile |  5/10 | Next.js UI, dashboard/admin/PWA surfaces tồn tại                 | Admin Tenant List chưa nối DB; Landing page hứa Zalo/SaaS vượt quá backend; E2E chỉ là smoke test public page, thiếu authenticated E2E cho luồng tài chính. |
+| Database        |  3/10 | Prisma schema, constraints và ledger structures tương đối giàu   | 4 model (`Tenant`, `SubscriptionPlan`, `SaaSInvoice`, `ZaloGroupBinding`) không có `CREATE TABLE` trong migration lineage (`prisma/migrations`); `Tenant.planId` thiếu FK; DB connection ưu tiên `DIRECT_URL` unpooled cho runtime (`src/lib/db.ts:12-16`). |
+| Security        |  1/10 | Có Clerk, role, passkey, encryption và URL policy ở một số luồng | Unsigned Lazada webhook (`src/app/api/webhooks/lazada/route.ts`); SSRF ở Shopee product lookup do fetch URL upstream không allowlist (`src/lib/shopee-product.ts:128-145`); PayOS sig check fail-open (`src/lib/payos.ts:133-156`); CORS tin cậy mọi `*.vercel.app` (`src/lib/request.ts:22`). |
+| Reliability     |  2/10 | Có jobs, idempotency concepts và health state                    | Cashback release fail-open khi thiếu health record (`src/modules/conversions/service.ts:510-519`); Outbox event FAILED vĩnh viễn không có retry (`src/modules/notifications/dispatch.ts:80-89`); PayOS fetch thiếu timeout (`src/lib/payos.ts:97-105`). |
+| Testing         |  3/10 | 38/38 source unit tests pass                                     | Test tài chính quan trọng `conversion-ledger.test.ts` bị `describe.skip`; `seed-live-user-data.test.ts` tạo imbalanced journal (150k vs 78k) và ghi DB live không dọn dẹp; thiếu unit test cho conversion, payout, crypto & DB client. |
+| Infrastructure  |  2/10 | Có Vercel-oriented config và env schema/checks                   | Thư mục `.github/` hoàn toàn trống (không CI/CD, không nightly backup workflow); 22 production readiness check fail; không có IaC/automation cho backup/restore. |
+| Observability   |  3/10 | Có Sentry/logging/health code                                    | Readiness probe (`/api/health/ready`) chỉ `SELECT 1` DB, bỏ qua Redis/QStash/S3/PayOS/Clerk; Sentry thiếu error boundary & manual `captureException()`; logger dùng chưa nhất quán ở webhook routes. |
+| Deployment      |  1/10 | Có build/deployment-oriented configuration                       | `pnpm env:check` thất bại 22 điều kiện; Vercel cron mới có 2 job ngày, thiếu 7+ QStash micro-schedules; không có release/rollback gate tự động. |
 
 Trung bình: **2.8/10 = 28%**.
 
 ### 6.1 Application
 
-- Core business flows tồn tại nhưng chưa được kiểm chứng end-to-end với external systems.
-- Authentication/authorization tốt hơn scaffold, nhưng có route cụ thể đi vòng boundary.
-- Validation không đồng đều giữa các API.
-- Error handling có `AppError`/response abstraction nhưng external failure recovery chưa hoàn chỉnh.
-- Idempotency concepts tồn tại trong ledger/payout, nhưng concurrency protection không đầy đủ.
+- Core business flows (link, conversion, wallet, payout) đã có mã thực thi nhưng chưa được kiểm chứng end-to-end với dịch vụ thực tế.
+- Authentication/authorization đã có Clerk bridge và role checks (`src/lib/authz.ts`), nhưng vẫn tồn tại route công khai hoàn toàn đi vòng qua auth như `POST /api/saas/zalo-qr` (`src/app/api/saas/zalo-qr/route.ts:17-44`) và `GET /api/v1/shopee/product` (`src/app/api/v1/shopee/product/route.ts`).
+- Validation không đồng đều: một số route dùng Zod schema chặt chẽ, trong khi các route webhook/saas đọc body/params trực tiếp mà không qua validation.
+- Error handling: `AppError` và `errorResponse` đã được định nghĩa, nhưng một số route webhook (`src/app/api/webhooks/lazada/route.ts:151`, `src/app/api/webhooks/zalo/route.ts:48`) trả về trực tiếp `error.message` thô, gây rủi ro lộ thông tin nội bộ.
+- Idempotency: Đã có idempotency key cho ledger entry và payout attempt, nhưng thao tác wallet projection update và notification materialization chưa được bảo vệ idempotency tương ứng.
 
 ### 6.2 Database
 
-- Schema có constraints và domain maturity đáng kể.
-- Ledger/wallet rules được thể hiện tốt hơn mức trung bình của một prototype.
-- Migration chain hiện không đủ bằng chứng để bootstrap schema đang được code sử dụng.
-- Không có bằng chứng fresh-database migration test trong CI.
-- Runtime DB selection ưu tiên `DIRECT_URL` trước pooled `DATABASE_URL`, không phù hợp production connection-management invariant của repository.
+- Schema Prisma (`prisma/schema/schema.prisma`) tương đối chỉn chu với các ràng buộc `@unique`, composite keys và DB trigger append-only cho `LedgerTransaction` và `LedgerEntry` (`prisma/migrations/0_init/migration.sql:459-477`).
+- **Nghiêm trọng về Migration Lineage:** 4 model cốt lõi bao gồm `Tenant`, `SubscriptionPlan`, `SaaSInvoice`, `ZaloGroupBinding` không hề có câu lệnh `CREATE TABLE` trong bất kỳ file migration nào (`prisma/migrations/*`). File migration mới nhất `202607280001_tenant_affiliate_member_sharing/migration.sql:9` thực hiện `ALTER TABLE "Tenant"` trên bảng chưa từng được khởi tạo bằng migration, làm lệnh `prisma migrate deploy` chắc chắn thất bại trên một database trống.
+- **Ràng buộc tham chiếu (Referential Integrity):** `Tenant.planId` (`schema.prisma:1068`) và `SaaSInvoice.planCode` (`schema.prisma:1110`) chỉ là chuỗi ký tự tự do (`String`), không có `@relation` đến `SubscriptionPlan`, làm `SubscriptionPlan` trở thành một orphan model không được tham chiếu.
+- **Cấu hình DB Connection:** `src/lib/db.ts:12-16` ưu tiên `process.env.DIRECT_URL` trước `process.env.DATABASE_URL`. Khi chạy trên Vercel serverless, điều này bắt app khởi tạo kết nối trực tiếp (unpooled) tới PostgreSQL thay vì đi qua PgBouncer pooled connection, gây ra nguy cơ kiệt sức connection pool (`max_connections`) khi có traffic.
 
 ### 6.3 Infrastructure và deployment
 
-- Environment schema/check có tồn tại, nhưng production check hiện fail 22 yêu cầu.
-- Không thấy CI/CD workflow, automatic migration gate, staging promotion hoặc rollback pipeline.
-- Không có bằng chứng backup/restore automation.
-- Health endpoint tồn tại nhưng chưa đủ sâu để làm readiness gate đáng tin cậy.
+- Environment schema & verification (`src/lib/env.ts`): Có bộ quy tắc kiểm tra 22 điều kiện production (`productionReadinessIssues()`), nhưng hiện tại lệnh `pnpm env:check` (thông qua `scripts/check-env.ts`) thất bại 100% 22 yêu cầu do thiếu credentials thực tế.
+- **CI/CD & Automation:** Thư mục `.github/` hoàn toàn trống rỗng. Không có GitHub Actions workflow cho lint, typecheck, unit test, integration test, migration gate hay deployment promotion.
+- **Backup & Recovery:** Tài liệu `docs/operations/restore-drill.md:7` đề cập đến file workflow `nightly-backup.yml`, nhưng file này không hề tồn tại trong repository. Hệ thống hoàn toàn phụ thuộc vào tính năng PITR thủ công của Neon mà chưa có kịch bản tự động hóa.
+- **Vercel & Job Scheduling:** `vercel.json` mới chỉ khai báo 2 cron job chạy hàng ngày (`0 1 * * *` và `0 2 * * *`), trong khi các micro-schedule (5 phút, 10 phút, 15 phút) ghi trong runbook chưa được đưa vào infrastructure-as-code.
 
 ### 6.4 Reliability
 
-- QStash/job framework và một số retry/idempotency concepts tồn tại.
-- Connector failure state có theo dõi nhưng release guard fail-open.
-- Notification outbox chưa chứng minh retry/recovery hoàn chỉnh.
-- Payout reconcile có nguy cơ race.
-- External service timeouts/schema validation/retries không đồng đều.
+- **Cashback Release Fail-Open:** Tại `src/modules/conversions/service.ts:510-519`, logic kiểm tra connector health bị đảo ngược rủi ro: nếu không tìm thấy bản ghi `ConnectorHealth` nào (`connectorHealth === null`), hàm tự động trả về `eligible: true` (cho phép giải phóng tiền). Tương tự, nếu connector ở trạng thái `DEGRADED` dưới 24h, tiền vẫn được release. Cả hai nhánh đều là fail-open nguy hiểm cho tài chính.
+- **Payout Reconciliation Race Condition:** Tại `src/modules/payout/service.ts:539-587`, hàm `reconcilePayout()` đọc ticket từ DB mà không sử dụng row lock (`FOR UPDATE`) hay giao dịch cách ly (`Serializable`). Hai worker xử lý reconciliation đồng thời có thể cùng đọc trạng thái cũ, cùng gọi PayOS API và cùng thực thi transaction cập nhật wallet, dẫn đến nguy cơ cộng/trừ tiền hai lần.
+- **Notification Outbox Permanent Failure:** Tại `src/modules/notifications/dispatch.ts:80-89`, khi một `outboxEvent` bị lỗi xử lý, trạng thái lập tức chuyển thành `FAILED` vĩnh viễn mà không có retry counter, exponential backoff hay dead-letter queue (DLQ). Một sự cố mạng tạm thời sẽ làm mất vĩnh viễn thông báo của người dùng.
+- **Xử lý số tiền (Floating Point):** Tại `src/app/api/webhooks/lazada/route.ts:82-85`, số tiền commission và order amount được parse qua `parseFloat()` trước khi cast sang `BigInt`, vi phạm invariant hệ thống (mọi số tiền persisted phải là `bigint` VND không qua float, tránh sai số IEEE 754 đối với số tiền lớn).
+- **External Service Timeout:** Lệnh `fetch()` trong PayOS client (`src/lib/payos.ts:97-105`) không được cấu hình `signal: AbortSignal.timeout()`, làm request có thể treo vô hạn định khi PayOS gặp sự cố.
 
 ### 6.5 Security
 
-- Có Clerk, role enforcement, admin passkey và encrypted beneficiary path.
-- Có các P0 cụ thể: unsigned webhook, SSRF surface, unauthenticated tenant mutation và SaaS payment fail-open.
-- CORS/origin logic tin cậy domain `vercel.app` quá rộng trong một số path.
-- Rate limiting/body bounds không được áp dụng nhất quán.
+- **Lazada Webhook không xác thực (P0):** `src/app/api/webhooks/lazada/route.ts:16-40` tiếp nhận cả request `GET` lẫn `POST` và nạp thẳng dữ liệu vào conversion pipeline qua `ingestConversion()` với quyền `AUTHORITATIVE` mà không kiểm tra chữ ký HMAC, secret token hay IP allowlist. Bất kỳ ai biết URL endpoint đều có thể tạo conversion giả mạo.
+- **Shopee Product Lookup SSRF (P0):** Tại `src/lib/shopee-product.ts:128-145`, sau khi fetch URL ban đầu, hệ thống tiếp tục tự động `fetch()` lại `productUrl` nhận được từ phản hồi AddLiveTag upstream mà không kiểm tra URL này đối với domain allowlist hay chặn IP nội bộ (169.254.x.x, 10.x.x.x, 127.0.0.1). Endpoint public tại `src/app/api/v1/shopee/product/route.ts` biến lỗ hổng này thành remotely reachable SSRF.
+- **Zalo QR Mutation thiếu Authentication (P0):** `src/app/api/saas/zalo-qr/route.ts:17-44` cho phép bất kỳ request `POST` không xác thực nào ghi đè `zaloBotToken` và kích hoạt trạng thái `ACTIVE` của bất kỳ `tenantId` nào. Ngoài ra, session token dùng `Math.random()` (`src/lib/zalo.ts:19`), không đảm bảo an toàn sương mù mã hóa.
+- **PayOS Billing Fail-Open (P0):** Tại `src/lib/payos.ts:133-156`, nếu biến môi trường `PAYOS_CHECKSUM_KEY` chưa được thiết lập, hàm `verifyPayOSWebhookSignature()` lập tức trả về `true` (chấp nhận mọi webhook thanh toán mà không verify chữ ký). Ngoài ra khi API lỗi, `createPayOSPaymentLink()` tự động trả về thông tin ngân hàng và mã QR giả mạo thành công (`code: "00"`).
+- **Origin Trust Quá Rộng:** Tại `src/lib/request.ts:22`, logic kiểm tra trusted origin chấp nhận mọi domain kết thúc bằng `.vercel.app` (`originHost.endsWith(".vercel.app")`), mở rộng ranh giới tin cậy cho bất kỳ ứng dụng nào được deploy trên Vercel.
 
 ### 6.6 Observability
 
-- Sentry và health/logging code có tồn tại.
-- Không có đủ bằng chứng structured metrics, distributed tracing, alerting, audit dashboard hoặc operational SLO.
-- Health/readiness chưa kiểm tra đầy đủ dependency quan trọng.
+- **Readiness Probe nông:** Endpoint `/api/health/ready` (`src/app/api/health/ready/route.ts`) chỉ thực hiện kiểm tra duy nhất một câu lệnh `SELECT 1` tới PostgreSQL. Nó hoàn toàn bỏ qua kiểm tra sức khỏe của Redis, QStash, Clerk API, AWS S3, PayOS API, Resend Email và các connector sàn. Endpoint `/api/health/live` thậm chí không kiểm tra DB.
+- **Sentry Integration nông:** Cấu hình Sentry (`sentry.server.config.ts`, `src/instrumentation.ts`) mới dừng lại ở mức tự động bắt uncaught error của Next.js. Toàn bộ codebase `src/` không hề có bất kỳ cuộc gọi `Sentry.captureException()` thủ công nào, không có React Error Boundary (`error.tsx`/`global-error.tsx`), và không có breadcrumbs/custom context cho các giao dịch tài chính quan trọng.
+- **Logging không đồng nhất:** Mặc dù đã có structured logger (`src/lib/logger.ts`), mới chỉ có 4 file sử dụng nó. Các route webhook chính (`lazada`, `payos`, `zalo`) vẫn sử dụng `console.error()` thô và in trực tiếp `error.message` ra stdout.
 
 ### 6.7 Testing
 
-- Source unit tests pass 38/38.
-- TypeScript và Prisma validation pass.
-- Lint và formatting fail.
-- Critical conversion-ledger integration test bị skip.
-- Một integration test có thể ghi dữ liệu nhận dạng kiểu live vào database đang cấu hình.
-- Không có current successful E2E evidence cho authenticated financial flows.
-- Build/full integration/E2E không được chạy vì audit không được phép tạo artifact hoặc ghi vào database không chứng minh isolated.
+- **Integration Test Cốt Lõi bị Skip:** File test quan trọng nhất đối với hệ thống tài chính `tests/integration/conversion-ledger.test.ts` (kiểm tra dedup evidence, đảo ngược clawback, trigger append-only ledger, ràng buộc cân bằng journal, và chống race condition payout) hiện đang bị vô hiệu hóa hoàn toàn bằng `describe.skip` (dòng 16).
+- **Test Ghi Live Data Không An Toàn:** File `tests/integration/seed-live-user-data.test.ts` (dài 12KB) thực hiện ghi trực tiếp dữ liệu người dùng thật (`nguyenhoangnam31082000@gmail.com`), tạo wallet, ledger và payout trên database cấu hình trong `DATABASE_URL` mà không có cơ chế dọn dẹp (cleanup). Đặc biệt tại dòng 348-358, test này tự tạo một journal không cân bằng (Debit 150k vs Credit 78k), đáng lẽ phải bị DB trigger chặn.
+- **Thiếu Unit Test cho Các Module Cốt Lõi:** Bộ 38 unit tests hiện tại chỉ bao phủ một số helper nhỏ. Các module quan trọng như Conversion Ingestion Service (`src/modules/conversions/service.ts`), Payout Submission Service (`src/modules/payout/service.ts`), Crypto module (`src/lib/crypto.ts`), và DB Client (`src/lib/db.ts`) hoàn toàn chưa có unit test nào.
+- **E2E Test Nông:** Bộ test Playwright (`tests/e2e/*`) mới chỉ bao gồm các kịch bản kiểm tra giao diện public (smoke test) và PWA manifest. Chưa hề có test E2E nào bao phủ luồng người dùng đã đăng nhập, tạo link, redirect, xem wallet hay yêu cầu payout.
+
+---
+
+
 
 ---
 
