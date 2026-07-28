@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { ArrowRight, Building2, CircleDollarSign, Clock3, Link2, ReceiptText, ShoppingBag, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  CircleDollarSign,
+  Clock3,
+  Link2,
+  ReceiptText,
+  ShoppingBag,
+  Sparkles
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,7 +54,8 @@ export default async function DashboardPage() {
                 Bạn Tham Gia Hệ Thống Với Vai Trò Nào?
               </h2>
               <p className="text-sm text-slate-300 max-w-2xl">
-                Nếu bạn muốn kinh doanh Affiliate, tạo Kênh KOC riêng và nhận 100% hoa hồng Shopee & Lazada, hãy khởi tạo Kênh KOC Nền Tảng ngay hôm nay!
+                Nếu bạn có Shopee Affiliate ID riêng, hãy tạo Kênh KOC để thành viên dùng link của
+                owner và đối soát thanh toán bên ngoài nền tảng.
               </p>
             </div>
 
@@ -54,9 +64,13 @@ export default async function DashboardPage() {
                 <Building2 className="size-8 text-emerald-400" />
                 <h3 className="font-bold text-lg">👑 Khởi Tạo Kênh KOC / Thương Hiệu Riêng</h3>
                 <p className="text-xs text-slate-300">
-                  Sở hữu Kênh Cashback với thương hiệu riêng, nhận 14 ngày dùng thử miễn phí đầy đủ Zalo Bot nhóm chat.
+                  Sở hữu Kênh Cashback Shopee với thương hiệu riêng và bắt đầu bằng gói Trial 14
+                  ngày.
                 </p>
-                <Button asChild className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm mt-2">
+                <Button
+                  asChild
+                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm mt-2"
+                >
                   <Link href="/onboarding/tenant">
                     Kích Hoạt Kênh & Chọn Gói <ArrowRight className="ml-1.5 size-4" />
                   </Link>
@@ -67,12 +81,15 @@ export default async function DashboardPage() {
                 <ShoppingBag className="size-8 text-amber-400" />
                 <h3 className="font-bold text-lg">🛍️ Mua Sắm & Tích Cashback Cá Nhân</h3>
                 <p className="text-xs text-slate-300">
-                  Dán link Shopee / Lazada bất kỳ để tự tạo link hoàn tiền và tích lũy tiền thưởng cá nhân vào ví.
+                  Dán link Shopee để tạo tracking link và theo dõi cashback cá nhân trong ví nền
+                  tảng.
                 </p>
-                <Button asChild variant="outline" className="w-full border-slate-700 text-slate-200 hover:bg-slate-800 text-sm mt-2">
-                  <Link href="/app/links">
-                    Tạo Link Tích Hoàn Tiền ngay
-                  </Link>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full border-slate-700 text-slate-200 hover:bg-slate-800 text-sm mt-2"
+                >
+                  <Link href="/app/links">Tạo Link Tích Hoàn Tiền ngay</Link>
                 </Button>
               </Card>
             </div>

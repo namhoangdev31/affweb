@@ -16,7 +16,7 @@ test.describe("Public User Flows & Navigation", () => {
     await expect(page.getByRole("button", { name: /Đang tra|Tra cứu/i })).toBeVisible();
   });
 
-  test("Deals page renders deal browser with SSR data or fallback", async ({ page }) => {
+  test("Deals page renders the persisted deal browser", async ({ page }) => {
     await page.goto("/deals");
     await expect(page.getByRole("heading", { name: "Tìm món đáng mua." })).toBeVisible();
     await expect(page.getByText("Deal đang mở")).toBeVisible();
@@ -24,9 +24,11 @@ test.describe("Public User Flows & Navigation", () => {
 
   test("Partners ecosystem page displays all partners and allows drilldown", async ({ page }) => {
     await page.goto("/partners");
-    await expect(page.getByRole("heading", { name: "Những nơi bạn vẫn mua mỗi ngày." })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Những nơi bạn vẫn mua mỗi ngày." })
+    ).toBeVisible();
     await expect(page.getByRole("heading", { name: "Shopee", exact: true })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Lazada", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Lazada", exact: true })).toHaveCount(0);
 
     // Click on Shopee partner link
     await page.getByRole("heading", { name: "Shopee", exact: true }).click();

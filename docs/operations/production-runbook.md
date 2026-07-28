@@ -9,9 +9,15 @@ Không bật tiền thật nếu còn bất kỳ điều kiện nào sau:
 - chưa restore thử backup;
 - chưa có Terms, Privacy, Cashback Policy và quy trình khiếu nại được rà soát pháp lý/kế toán/thuế;
 - chưa có hai admin finance khác nhau với passkey;
-- chưa hoàn tất Clerk production instance/domain/webhook, SPF/DKIM/DMARC, AddLiveTag, AccessTrade hoặc payOS production credential.
+- chưa hoàn tất Clerk production instance/domain/webhook, SPF/DKIM/DMARC, provider contract/credential thực sự được sử dụng hoặc PayOS production credential;
+- chưa có CSV Shopee Orders thật đã redacted và contract test nếu định bật import;
+- chưa có file chi tiết Hóa đơn đối soát thật đã redacted, account identity và exact line tie-out nếu
+  định bật Shopee settlement;
+- chưa rotate credential AccessTrade từng bị lộ hoặc chưa preflight credential Lazada/AccessTrade;
+- chưa có central Zalo Bot token/webhook secret và encryption key nếu định bật Zalo.
 
-Lazada token Pending không chặn go-live; giữ `LAZADA_MODE=credential_ready` và kill switch tắt.
+Credential provider chưa sẵn sàng không chặn phần còn lại của go-live; giữ connector account ở
+`CREDENTIAL_READY` và DB kill switch tắt.
 
 ## 2. Provision hai môi trường
 
@@ -21,7 +27,7 @@ Neon:
 
 1. Bật PITR 30 ngày.
 2. Dùng pooled URL cho `DATABASE_URL`.
-3. Dùng direct URL cho `DIRECT_URL`; integration Marketplace có thể cấp tên `DATABASE_URL_UNPOOLED`, ứng dụng hỗ trợ cả hai.
+3. Dùng direct URL cho `DIRECT_URL` hoặc `DATABASE_URL_UNPOOLED` chỉ trong Prisma migration. Runtime app chỉ dùng pooled `DATABASE_URL`.
 4. Runtime role không được cấp quyền sửa/xóa ledger. Migration đã thêm trigger append-only và deferred balance constraint.
 
 AWS:
@@ -50,7 +56,9 @@ Thực hiện checklist [Clerk cutover](clerk-cutover.md) trước. Marketplace 
 NODE_ENV=production pnpm env:check
 ```
 
-AddLiveTag cookie chỉ cấu hình bằng tài khoản affiliate chuyên dụng trên portal AddLiveTag. Không gửi cookie vào app, source code, Vercel env hay ticket hỗ trợ.
+Giữ nguyên credential/connector AddLiveTag hiện có theo phạm vi đã vận hành; không thêm cookie, tool
+endpoint hoặc luồng settlement AddLiveTag mới. Clean Link/Find AFF ID chạy nội bộ trên documented URL
+parameters và exact host allowlist.
 
 Lazada để:
 
@@ -60,6 +68,46 @@ LAZADA_LITE_APP_KEY=
 LAZADA_LITE_APP_SECRET=
 LAZADA_USER_TOKEN=
 ```
+
+AccessTrade dùng credential mới sau rotation:
+
+```text
+ACCESSTRADE_ENABLED=false
+ACCESSTRADE_API_KEY=
+ACCESSTRADE_PUBLISHER_ID=
+```
+
+Tạo key mã hóa credential provider riêng:
+
+```text
+PROVIDER_CREDENTIAL_ENCRYPTION_KEY_V1=
+```
+
+Tenant Core v1 khởi đầu fail-closed:
+
+```text
+TENANT_IMPORT_ENABLED=false
+SAAS_BILLING_ENABLED=false
+ZALO_BOT_ENABLED=false
+```
+
+DB flags khởi đầu fail-closed:
+
+```text
+connector.accesstrade.enabled=false
+connector.lazada.enabled=false
+provider.credentials.enabled=false
+shopee.orders_import.enabled=false
+shopee.reconciliation_import.enabled=false
+cashback.release.enabled=false
+```
+
+Không bật `shopee.reconciliation_import.enabled` trong release này: route vẫn cố ý fail-closed cho
+tới khi parser có fixture chi tiết hóa đơn thật đã redacted.
+
+PayOS subscription dùng `PAYOS_BILLING_CLIENT_ID`, `PAYOS_BILLING_API_KEY`,
+`PAYOS_BILLING_CHECKSUM_KEY`, tách khỏi credential payout. Zalo dùng token/secret bot trung tâm và
+`ZALO_DATA_ENCRYPTION_KEY_V1`; không lưu các secret này trong `Tenant`.
 
 Không bật route webhook payout cho tới khi payOS xác nhận contract webhook dành riêng cho Payout
 trên tài khoản production. Worker polling theo payout ID hoặc `referenceId` là nguồn đối soát mặc
@@ -85,6 +133,10 @@ registration.invite_only=true
 cashback.release.enabled=false
 payout.enabled=false
 connector.lazada.enabled=false
+connector.accesstrade.enabled=false
+provider.credentials.enabled=false
+shopee.orders_import.enabled=false
+shopee.reconciliation_import.enabled=false
 connector.shopee_food_cashback=false
 ```
 
@@ -101,7 +153,9 @@ Script upsert queue concurrency 1 và các schedule:
 - health/payOS reconciliation: 5 phút;
 - AddLiveTag/Shopee: 10 phút;
 - AccessTrade/Lazada: 15 phút;
+- AccessTrade order/product/detail reconciliation: 02:30 giờ Việt Nam (`19:30 UTC`);
 - notification/release: mỗi giờ hoặc ngắn hơn;
+- Zalo outbox: 5 phút; SaaS invoice/tenant expiry: 15 phút;
 - backfill 90 ngày: 02:00 giờ Việt Nam (`19:00 UTC`);
 - ledger invariant: 03:00 giờ Việt Nam (`20:00 UTC`);
 - evidence integrity: Chủ nhật 04:00 giờ Việt Nam (`21:00 UTC` thứ Bảy).
@@ -113,10 +167,11 @@ không lưu payload callback.
 ## 6. Release
 
 1. Merge khi CI xanh và review hoàn tất.
-2. Chạy commit đó trên staging, migration + seed + full E2E.
+2. Chạy commit đó trên staging, migration + seed + full E2E. Chạy integration riêng với
+   `TEST_DATABASE_URL` disposable; test global setup tự deploy migration vào đúng URL này.
 3. Chạy live provider smoke ở shadow mode.
 4. Tạo Neon checkpoint/backup.
-5. Chạy GitHub workflow `Release production` với SHA bất biến.
+5. Chạy pipeline release bên ngoài repository với SHA bất biến; repository hiện không có GitHub workflow release.
 6. Production protected environment cần approver thủ công.
 7. Chạy:
 
@@ -128,7 +183,7 @@ APP_BASE_URL=https://your-domain.example pnpm smoke:production
 
 ## 7. Beta tiền thật
 
-1. Internal: shadow sync 7 ngày; payout/release tắt.
+1. Internal: chạy credential preflight và controlled sync; payout/release tắt.
 2. 10 user: mở release và payout sau drill, giới hạn vận hành 200.000 VND/user/ngày.
 3. 50 user: nâng 500.000 VND sau 7 ngày reconciliation sạch.
 4. 100 user: chỉ sau 14 ngày không mismatch nghiêm trọng.

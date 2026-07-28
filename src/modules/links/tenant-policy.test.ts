@@ -37,6 +37,21 @@ describe("resolveTenantLinkPolicy", () => {
     });
   });
 
+  it("dùng tenant share cho Lazada mà không giả định Shopee Affiliate ID", () => {
+    expect(
+      resolveTenantLinkPolicy({
+        userOwnsTenant: false,
+        memberTenant: { ...activeTenant, shopeeAffiliateId: null },
+        platform: "LAZADA",
+        now: new Date("2026-07-28T00:00:00.000Z")
+      })
+    ).toEqual({
+      tenantId: "tenant-1",
+      shareBps: 7_000,
+      withholdingTaxBps: 1_000
+    });
+  });
+
   it("fail-closed khi gói hết hạn hoặc tenant thiếu cấu hình", () => {
     expect(() =>
       resolveTenantLinkPolicy({
@@ -57,6 +72,6 @@ describe("resolveTenantLinkPolicy", () => {
         platform: "SHOPEE_MARKETPLACE",
         now: new Date("2026-07-28T00:00:00.000Z")
       })
-    ).toThrow("chưa hoàn tất");
+    ).toThrow("chưa cấu hình");
   });
 });

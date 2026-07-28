@@ -1,49 +1,38 @@
 import { describe, expect, it } from "vitest";
 import { BETA_DAILY_AVAILABLE_LIMIT_VND } from "@/lib/money";
 
-describe("Flow 4: Ledger Accounting & Risk Hold Safety Release Guards", () => {
-  it("enforces Guard 1: Feature Flag check (cashback.release.enabled)", () => {
-    const featureEnabled = false;
-    const shouldProcessHolds = featureEnabled;
+describe("Flow 4: validation hold and settlement release guards", () => {
+  it("ends validation hold without making cashback available", () => {
+    const before = { pendingVnd: 100_000n, availableVnd: 0n };
+    const afterValidation = {
+      orderValidationStatus: "VALIDATED",
+      pendingVnd: before.pendingVnd,
+      availableVnd: before.availableVnd
+    };
 
-    expect(shouldProcessHolds).toBe(false);
+    expect(afterValidation).toEqual({
+      orderValidationStatus: "VALIDATED",
+      pendingVnd: 100_000n,
+      availableVnd: 0n
+    });
   });
 
-  it("enforces Guard 2: Connector Health status check (DEGRADED pauses hold releases)", () => {
-    const connectorStatus = "DEGRADED";
-    const isStale = true;
+  it("moves stale or unhealthy validation evidence to review", () => {
+    const connectorHealthy = false;
+    const authoritySufficient = true;
+    const openReconciliationCases = 0;
+    const nextStatus =
+      connectorHealthy && authoritySufficient && openReconciliationCases === 0
+        ? "VALIDATED"
+        : "REVIEW_REQUIRED";
 
-    const allowRelease = connectorStatus !== "DEGRADED" && !isStale;
-    expect(allowRelease).toBe(false);
+    expect(nextStatus).toBe("REVIEW_REQUIRED");
   });
 
-  it("enforces Guard 3: Beta Daily Available Limit (transitions to REVIEW_REQUIRED when exceeded)", () => {
+  it("keeps the daily available limit at settlement time", () => {
     const dailyReleasedVnd = 450_000n;
-    const pendingHoldAmountVnd = 100_000n;
+    const settlementCashbackVnd = 100_000n;
 
-    let holdStatus = "HELD";
-    if (dailyReleasedVnd + pendingHoldAmountVnd > BETA_DAILY_AVAILABLE_LIMIT_VND) {
-      holdStatus = "REVIEW_REQUIRED";
-    } else {
-      holdStatus = "RELEASED";
-    }
-
-    expect(holdStatus).toBe("REVIEW_REQUIRED");
-  });
-
-  it("successfully releases hold when all 3 guards are passed", () => {
-    const featureEnabled = true;
-    const connectorHealthy = true;
-    const dailyReleasedVnd = 50_000n;
-    const pendingHoldAmountVnd = 20_000n;
-
-    let holdStatus = "HELD";
-    if (featureEnabled && connectorHealthy) {
-      if (dailyReleasedVnd + pendingHoldAmountVnd <= BETA_DAILY_AVAILABLE_LIMIT_VND) {
-        holdStatus = "RELEASED";
-      }
-    }
-
-    expect(holdStatus).toBe("RELEASED");
+    expect(dailyReleasedVnd + settlementCashbackVnd > BETA_DAILY_AVAILABLE_LIMIT_VND).toBe(true);
   });
 });

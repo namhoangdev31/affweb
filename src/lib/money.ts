@@ -5,6 +5,43 @@ export const BETA_MAX_PAYOUT_VND = 500_000n;
 export const BETA_DAILY_AVAILABLE_LIMIT_VND = 500_000n;
 export const DEFAULT_SYSTEM_DAILY_PAYOUT_BUDGET_VND = 5_000_000n;
 export const TENANT_AFFILIATE_TAX_BPS = 1_000;
+export const MAX_POSTGRES_BIGINT = 9_223_372_036_854_775_807n;
+
+export function parseVndAmount(value: unknown, label = "amount"): bigint {
+  if (typeof value === "bigint") {
+    assertMoney(value, label);
+    if (value > MAX_POSTGRES_BIGINT) {
+      throw new AppError("VALIDATION_ERROR", `${label} exceeds the supported range.`, 400);
+    }
+    return value;
+  }
+
+  if (typeof value === "number") {
+    if (!Number.isSafeInteger(value)) {
+      throw new AppError("VALIDATION_ERROR", `${label} must be an exact integer VND amount.`, 400);
+    }
+    return parseVndAmount(value.toString(), label);
+  }
+
+  if (typeof value !== "string") {
+    throw new AppError("VALIDATION_ERROR", `${label} must be a VND amount string.`, 400);
+  }
+
+  const normalized = value.trim();
+  const match = normalized.match(/^([0-9]+)(?:\.([0-9]+))?$/);
+  if (!match?.[1]) {
+    throw new AppError(
+      "VALIDATION_ERROR",
+      `${label} must be a non-negative decimal VND amount.`,
+      400
+    );
+  }
+  const parsed = BigInt(match[1]);
+  if (parsed > MAX_POSTGRES_BIGINT) {
+    throw new AppError("VALIDATION_ERROR", `${label} exceeds the supported range.`, 400);
+  }
+  return parsed;
+}
 
 export function startOfVietnamDay(now = new Date()): Date {
   const vietnamOffsetMs = 7 * 60 * 60 * 1000;

@@ -52,12 +52,12 @@ export async function postJournal(
     metadata?: Prisma.InputJsonValue;
     lines: JournalLine[];
   }
-): Promise<string> {
+): Promise<{ id: string; created: boolean }> {
   assertBalanced(input.lines);
   const existing = await tx.ledgerTransaction.findUnique({
     where: { idempotencyKey: input.idempotencyKey }
   });
-  if (existing) return existing.id;
+  if (existing) return { id: existing.id, created: false };
 
   const accountIds = new Map<string, string>();
   for (const line of input.lines) {
@@ -80,7 +80,7 @@ export async function postJournal(
       }
     }
   });
-  return transaction.id;
+  return { id: transaction.id, created: true };
 }
 
 export async function postPendingCashback(
@@ -119,13 +119,14 @@ export async function postPendingCashback(
       amountVnd: platformRevenue
     });
   }
-  await postJournal(tx, {
+  const journal = await postJournal(tx, {
     type: LedgerTransactionType.COMMISSION_PENDING,
     idempotencyKey: `conversion:${input.conversionId}:pending`,
     description: "Ghi nhận hoa hồng và cashback chờ duyệt.",
     reference: input.conversionId,
     lines
   });
+  if (!journal.created) return;
   await tx.walletProjection.upsert({
     where: { userId: input.userId },
     create: { userId: input.userId, pendingVnd: input.cashbackVnd },
@@ -137,7 +138,7 @@ export async function releaseCashback(
   tx: Tx,
   input: { userId: string; conversionId: string; amountVnd: bigint }
 ): Promise<void> {
-  await postJournal(tx, {
+  const journal = await postJournal(tx, {
     type: LedgerTransactionType.CASHBACK_RELEASE,
     idempotencyKey: `conversion:${input.conversionId}:release`,
     description: "Chuyển cashback từ chờ duyệt sang khả dụng.",
@@ -161,6 +162,7 @@ export async function releaseCashback(
       }
     ]
   });
+  if (!journal.created) return;
   await tx.walletProjection.update({
     where: { userId: input.userId },
     data: {

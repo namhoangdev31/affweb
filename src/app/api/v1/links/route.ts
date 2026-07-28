@@ -3,14 +3,22 @@ import { requireApiUser } from "@/lib/authz";
 import { errorResponse } from "@/lib/errors";
 import { jsonSafe } from "@/lib/json";
 import { rateLimit } from "@/lib/rate-limit";
-import { assertTrustedOrigin, readJson, requestId } from "@/lib/request";
+import {
+  assertTrustedOrigin,
+  readJson,
+  requestId,
+  requestPayloadHash,
+  requireIdempotencyKey
+} from "@/lib/request";
 import { createAffiliateLink } from "@/modules/links/service";
 
 export const runtime = "nodejs";
 
 const inputSchema = z.object({
   url: z.url(),
-  campaignId: z.string().cuid().optional()
+  campaignId: z.string().cuid().optional(),
+  affiliateAccountId: z.string().cuid().optional(),
+  provider: z.enum(["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]).optional()
 });
 
 export async function POST(request: Request): Promise<Response> {
@@ -29,7 +37,13 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
     const input = inputSchema.parse(await readJson(request));
-    const result = await createAffiliateLink({ userId: user.id, ...input });
+    const clientIdempotencyKey = requireIdempotencyKey(request);
+    const result = await createAffiliateLink({
+      userId: user.id,
+      ...input,
+      clientIdempotencyKey,
+      requestHash: requestPayloadHash(input)
+    });
     return Response.json(jsonSafe(result), {
       status: 201,
       headers: { "Cache-Control": "no-store", "X-Request-Id": id }

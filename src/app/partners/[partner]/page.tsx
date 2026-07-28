@@ -30,17 +30,6 @@ const content = {
     mode: "Live",
     description: "Ưu đãi đa ngành với transaction identity idempotent.",
     bullets: ["Incremental cursor", "Raw evidence immutable", "Circuit breaker cho 401/429"]
-  },
-  lazada: {
-    name: "Lazada",
-    mode: "Credential ready",
-    description:
-      "Toàn bộ transport/signature boundary đã sẵn sàng, live operation bị fail-closed cho tới khi có token.",
-    bullets: [
-      "Không chặn go-live chung",
-      "Shadow sync 24 giờ",
-      "Kích hoạt bằng env, không migration"
-    ]
   }
 } as const;
 

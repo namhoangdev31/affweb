@@ -1,79 +1,152 @@
-import { NextResponse } from "next/server";
+import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
-import { verifyPayOSWebhookSignature, PayOSWebhookPayload } from "@/lib/payos";
+import { AppError, errorResponse } from "@/lib/errors";
+import { verifyPayOSWebhookSignature } from "@/lib/payos";
+import { readJson, requestId, requestPayloadHash } from "@/lib/request";
+import { featureEnabled } from "@/modules/flags/service";
+import {
+  billingWebhookMismatchReasons,
+  nextSubscriptionExpiry
+} from "@/modules/tenants/billing-policy";
 
 export const runtime = "nodejs";
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<Response> {
+  const id = await requestId();
   try {
-    const payload: PayOSWebhookPayload = await request.json();
-
-    if (!verifyPayOSWebhookSignature(payload)) {
-      return NextResponse.json({ error: "Invalid PayOS Signature" }, { status: 400 });
+    if (!(await featureEnabled("saas.billing.enabled", false))) {
+      throw new AppError("CONNECTOR_DISABLED", "Thanh toán SaaS đang tạm dừng.", 503);
     }
-
-    const { orderCode, code } = payload.data;
-
-    // Check if payment was successful (code "00")
-    if (code !== "00") {
-      return NextResponse.json({ success: true, message: "Non-successful payment code ignored" });
+    const payload = await readJson<unknown>(request, 65_536);
+    const verified = await verifyPayOSWebhookSignature(payload);
+    if (verified.code !== "00") {
+      return Response.json(
+        { success: true, ignored: true },
+        { headers: { "Cache-Control": "no-store", "X-Request-Id": id } }
+      );
     }
-
-    // Find SaaS invoice by orderCode
-    const invoice = await db.saaSInvoice.findUnique({
-      where: { orderCode },
-      include: { tenant: true }
+    const webhookFingerprint = requestPayloadHash({
+      orderCode: verified.orderCode,
+      paymentLinkId: verified.paymentLinkId,
+      amount: verified.amount,
+      currency: verified.currency
     });
 
-    if (!invoice) {
-      return NextResponse.json({ success: true, message: "Test webhook or unknown invoice acknowledged" }, { status: 200 });
-    }
-
-    if (invoice.status === "PAID") {
-      return NextResponse.json({ success: true, message: "Invoice already paid" });
-    }
-
-    // Determine extension days (365 days for yearly, 30 days for monthly)
-    const isYearly = invoice.planCode.endsWith("_YEARLY");
-    const extensionDays = isYearly ? 365 : 30;
-
-    const now = new Date();
-    const currentExpiry = invoice.tenant.planExpiresAt > now ? invoice.tenant.planExpiresAt : now;
-    const newExpiry = new Date(currentExpiry.getTime() + extensionDays * 24 * 60 * 60 * 1000);
-
-    // Update invoice and tenant status atomically
-    await db.$transaction([
-      db.saaSInvoice.update({
-        where: { id: invoice.id },
-        data: {
-          status: "PAID",
-          paidAt: now
+    const result = await db.$transaction(
+      async (tx) => {
+        const found = await tx.saaSInvoice.findUnique({
+          where: { orderCode: verified.orderCode },
+          select: { id: true }
+        });
+        if (!found) {
+          await tx.outboxEvent.upsert({
+            where: {
+              idempotencyKey: `saas:unknown-payment:${webhookFingerprint}:attention`
+            },
+            create: {
+              aggregateType: "SaaSInvoice",
+              aggregateId: "unknown",
+              eventType: "saas.payment.attention_required",
+              idempotencyKey: `saas:unknown-payment:${webhookFingerprint}:attention`,
+              payload: { reason: "UNKNOWN_INVOICE" }
+            },
+            update: {}
+          });
+          return { duplicate: false, unknown: true };
         }
-      }),
-      db.tenant.update({
-        where: { id: invoice.tenantId },
-        data: {
-          status: "ACTIVE",
-          isTrial: false,
-          planId: invoice.planCode,
-          planExpiresAt: newExpiry
+        await tx.$queryRaw`
+          SELECT id FROM "SaaSInvoice" WHERE id = ${found.id} FOR UPDATE
+        `;
+        const invoice = await tx.saaSInvoice.findUnique({
+          where: { id: found.id },
+          include: { tenant: true }
+        });
+        if (!invoice) {
+          throw new AppError("NOT_FOUND", "Invoice PayOS không tồn tại.", 404);
         }
-      })
-    ]);
+        if (invoice.status === "PAID") {
+          return { duplicate: true, invoiceId: invoice.id };
+        }
+        const now = new Date();
+        const mismatchReasons = billingWebhookMismatchReasons(invoice, verified, now);
+        if (mismatchReasons.length > 0) {
+          await tx.auditLog.create({
+            data: {
+              action: "SAAS_PAYMENT_MISMATCH",
+              entityType: "SaaSInvoice",
+              entityId: invoice.id,
+              metadata: {
+                orderCode: verified.orderCode,
+                paymentLinkMatches: verified.paymentLinkId === invoice.paymentLinkId,
+                currencyMatches: verified.currency === invoice.currency,
+                amountMatches: BigInt(verified.amount) === invoice.amountVnd,
+                mismatchReasons
+              }
+            }
+          });
+          await tx.outboxEvent.upsert({
+            where: {
+              idempotencyKey: `saas:invoice:${invoice.id}:payment-mismatch:attention`
+            },
+            create: {
+              aggregateType: "SaaSInvoice",
+              aggregateId: invoice.id,
+              eventType: "saas.payment.attention_required",
+              idempotencyKey: `saas:invoice:${invoice.id}:payment-mismatch:attention`,
+              payload: { reason: "INVOICE_MISMATCH" }
+            },
+            update: {}
+          });
+          return { duplicate: false, mismatch: true, invoiceId: invoice.id };
+        }
 
-    console.log(
-      `[PayOS Webhook] Tenant ${invoice.tenant.slug} extended by ${extensionDays} days to ${newExpiry.toISOString()}`
+        const newExpiry = nextSubscriptionExpiry(
+          invoice.tenant.planExpiresAt,
+          invoice.durationDays!,
+          now
+        );
+        await tx.saaSInvoice.update({
+          where: { id: invoice.id },
+          data: { status: "PAID", paidAt: now }
+        });
+        await tx.tenant.update({
+          where: { id: invoice.tenantId },
+          data: {
+            status: "ACTIVE",
+            isTrial: false,
+            planId: invoice.planCode,
+            planCode: invoice.planCode,
+            planExpiresAt: newExpiry
+          }
+        });
+        await tx.auditLog.create({
+          data: {
+            action: "SAAS_SUBSCRIPTION_RENEWED",
+            entityType: "Tenant",
+            entityId: invoice.tenantId,
+            metadata: {
+              invoiceId: invoice.id,
+              planCode: invoice.planCode,
+              newExpiresAt: newExpiry.toISOString()
+            }
+          }
+        });
+        return { duplicate: false, mismatch: false, invoiceId: invoice.id };
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
     );
+    if ("mismatch" in result && result.mismatch) {
+      throw new AppError("CONFLICT", "Webhook PayOS không khớp invoice.", 409);
+    }
+    if ("unknown" in result && result.unknown) {
+      throw new AppError("NOT_FOUND", "Invoice PayOS không tồn tại.", 404);
+    }
 
-    return NextResponse.json({
-      success: true,
-      message: "Subscription renewed successfully",
-      tenantSlug: invoice.tenant.slug,
-      extensionDays,
-      newExpiresAt: newExpiry
-    });
-  } catch (error: any) {
-    console.error("[PayOS Webhook Error]", error);
-    return NextResponse.json({ error: error?.message || "Internal server error" }, { status: 500 });
+    return Response.json(
+      { success: true, duplicate: result.duplicate },
+      { headers: { "Cache-Control": "no-store", "X-Request-Id": id } }
+    );
+  } catch (error) {
+    return errorResponse(error, id);
   }
 }

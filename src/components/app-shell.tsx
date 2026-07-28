@@ -11,6 +11,7 @@ import {
   LogOut,
   ReceiptText,
   Settings,
+  Wrench,
   Sparkles,
   Trophy
 } from "lucide-react";
@@ -21,7 +22,9 @@ const desktopNav = [
   { href: "/app", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/app/links", label: "Tạo link", icon: Link2 },
   { href: "/app/conversions", label: "Đơn hàng", icon: ReceiptText },
+  { href: "/app/reconciliation", label: "Hóa đơn đối soát", icon: ReceiptText },
   { href: "/app/wallet", label: "Ví cashback", icon: CircleDollarSign },
+  { href: "/app/tools", label: "Công cụ", icon: Wrench },
   { href: "/app/leaderboard", label: "Bảng xếp hạng", icon: Trophy },
   { href: "/app/notifications", label: "Thông báo", icon: Bell },
   { href: "/app/settings", label: "Cài đặt", icon: Settings }
@@ -84,12 +87,18 @@ export function AppShell({
             <div className="flex items-center gap-2">
               <Sparkles className="size-4 text-emerald-400 shrink-0 animate-pulse" />
               <span>
-                🚀 <strong>Bạn chưa có Kênh KOC riêng?</strong> Đăng ký Kênh KOC Nền tảng với <strong>14 ngày dùng thử miễn phí</strong> để nhận 100% hoa hồng!
+                🚀 <strong>Bạn chưa có Kênh KOC riêng?</strong> Dùng thử 14 ngày để quản lý member,
+                link và đối soát tập trung.
               </span>
             </div>
-            <Button asChild size="sm" className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs h-7 px-3.5 rounded-full shrink-0 shadow-md">
+            <Button
+              asChild
+              size="sm"
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs h-7 px-3.5 rounded-full shrink-0 shadow-md"
+            >
               <Link href="/onboarding/tenant">
-                <Building2 className="mr-1 size-3.5" /> Tạo Kênh & Chọn Gói <ArrowRight className="ml-1 size-3.5" />
+                <Building2 className="mr-1 size-3.5" /> Tạo Kênh & Chọn Gói{" "}
+                <ArrowRight className="ml-1 size-3.5" />
               </Link>
             </Button>
           </div>
@@ -107,7 +116,12 @@ export function AppShell({
                 <Link2 /> Tạo link
               </Link>
             </Button>
-            <Button asChild variant="outline" size="icon" className="relative h-9 w-9 rounded-xl border-emerald-950/10">
+            <Button
+              asChild
+              variant="outline"
+              size="icon"
+              className="relative h-9 w-9 rounded-xl border-emerald-950/10"
+            >
               <Link href="/app/notifications" title="Thông báo">
                 <Bell className="size-4 text-emerald-950" />
                 <span className="sr-only">Thông báo</span>

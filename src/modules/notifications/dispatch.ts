@@ -5,6 +5,7 @@ import {
   DeliveryStatus,
   NotificationChannel,
   OutboxStatus,
+  Role,
   type Prisma
 } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
@@ -37,10 +38,15 @@ const payoutMessages: Record<
     deepLink: "/app/wallet"
   }
 };
+const OUTBOX_RETRY_DELAYS_MS = [60_000, 5 * 60_000, 30 * 60_000, 2 * 60 * 60_000, 6 * 60 * 60_000];
 
 async function materializeOutboxNotifications(): Promise<number> {
   const events = await db.outboxEvent.findMany({
-    where: { status: OutboxStatus.PENDING, availableAt: { lte: new Date() } },
+    where: {
+      eventType: { not: "zalo.reply.requested" },
+      status: { in: [OutboxStatus.PENDING, OutboxStatus.FAILED] },
+      availableAt: { lte: new Date() }
+    },
     orderBy: { createdAt: "asc" },
     take: 100
   });
@@ -49,7 +55,7 @@ async function materializeOutboxNotifications(): Promise<number> {
     try {
       await db.$transaction(async (tx) => {
         const claimed = await tx.outboxEvent.updateMany({
-          where: { id: event.id, status: OutboxStatus.PENDING },
+          where: { id: event.id, status: event.status, attempts: event.attempts },
           data: {
             status: OutboxStatus.PUBLISHED,
             publishedAt: new Date(),
@@ -74,15 +80,42 @@ async function materializeOutboxNotifications(): Promise<number> {
               }
             });
           }
+        } else if (
+          event.eventType === "saas.payment.attention_required" &&
+          event.aggregateType === "SaaSInvoice"
+        ) {
+          const operators = await tx.user.findMany({
+            where: {
+              status: "ACTIVE",
+              roles: { some: { role: Role.SUPER_ADMIN } }
+            },
+            select: { id: true }
+          });
+          if (operators.length > 0) {
+            await tx.notification.createMany({
+              data: operators.map((operator) => ({
+                userId: operator.id,
+                type: event.eventType,
+                title: "PayOS cần được kiểm tra",
+                body: "Một webhook thanh toán không khớp invoice. Hãy kiểm tra audit log trước khi xử lý.",
+                deepLink: "/admin/tenants"
+              }))
+            });
+          }
         }
       });
       published += 1;
     } catch (error) {
+      const attempts = event.attempts + 1;
+      const terminal = attempts > OUTBOX_RETRY_DELAYS_MS.length;
       await db.outboxEvent.update({
         where: { id: event.id },
         data: {
-          status: OutboxStatus.FAILED,
-          attempts: { increment: 1 },
+          status: terminal ? OutboxStatus.DEAD : OutboxStatus.FAILED,
+          attempts,
+          availableAt: terminal
+            ? new Date()
+            : new Date(Date.now() + OUTBOX_RETRY_DELAYS_MS[attempts - 1]!),
           lastError: error instanceof Error ? error.message.slice(0, 500) : "Unknown error"
         }
       });

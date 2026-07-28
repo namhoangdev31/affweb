@@ -108,7 +108,7 @@ export async function approveAndPostAdjustment(id: string, approverUserId: strin
       }
       const amount = adjustment.amountVnd < 0n ? -adjustment.amountVnd : adjustment.amountVnd;
       const positive = adjustment.amountVnd > 0n;
-      await postJournal(tx, {
+      const journal = await postJournal(tx, {
         type: LedgerTransactionType.MANUAL_ADJUSTMENT,
         idempotencyKey: `adjustment:${adjustment.id}:posted`,
         description: adjustment.reason,
@@ -151,6 +151,9 @@ export async function approveAndPostAdjustment(id: string, approverUserId: strin
               }
             ]
       });
+      if (!journal.created) {
+        return adjustment;
+      }
       await tx.walletProjection.upsert({
         where: { userId: adjustment.targetUserId },
         create: {

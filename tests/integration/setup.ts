@@ -1,0 +1,5 @@
+import "dotenv/config";
+
+import { requireDisposableTestDatabase } from "./database-guard";
+
+process.env.DATABASE_URL = requireDisposableTestDatabase();

@@ -1,4 +1,12 @@
 import { loadServerEnv } from "@/lib/env";
+import { parseLosslessJson } from "@/lib/lossless-json";
+import { parseVndAmount } from "@/lib/money";
+import {
+  fetchAllowlistedPlatformUrl,
+  parseAllowedUrl,
+  readBoundedResponseText
+} from "@/modules/connectors/url-policy";
+import { z } from "zod";
 
 export interface ShopeeProductResult {
   product: {
@@ -6,7 +14,7 @@ export interface ShopeeProductResult {
     shopId: string;
     title: string;
     shopName: string;
-    priceVnd: number;
+    priceVnd: string;
     salesCount: number;
     imageUrl?: string;
     rating: string;
@@ -15,52 +23,104 @@ export interface ShopeeProductResult {
     trackingUrl: string;
   };
   commission: {
-    totalVnd: number;
+    totalVnd: string;
     totalPercent: number;
-    sellerVnd: number;
+    sellerVnd: string;
     sellerPercent: number;
-    shopeeVnd: number;
+    shopeeVnd: string;
     shopeePercent: number;
-    capVnd: number;
+    capVnd: string;
     isCapped: boolean;
   };
 }
 
+const vndInputSchema = z.union([z.string(), z.number().int().safe()]);
+const productPayloadSchema = z.object({
+  status: z.literal("success"),
+  productInfo: z.object({
+    itemId: z.coerce.string(),
+    productName: z.string().min(1).max(500),
+    shopName: z.string().max(200).optional(),
+    price: vndInputSchema,
+    sales: z.coerce.number().int().nonnegative().optional(),
+    imageUrl: z.string().max(2_000).optional(),
+    productLink: z.string().max(4_000).optional(),
+    rating: z.union([z.string(), z.coerce.number().finite()]).optional(),
+    commission: vndInputSchema.optional(),
+    sellerComFinal: vndInputSchema.optional(),
+    shopeeComFinal: vndInputSchema.optional(),
+    isXtra: z.boolean().optional(),
+    isCapped: z.boolean().optional(),
+    cap: vndInputSchema.optional()
+  })
+});
+
+function percentOf(amountVnd: bigint, priceVnd: bigint): number {
+  return priceVnd > 0n ? Number((amountVnd * 1_000n) / priceVnd) / 10 : 0;
+}
+
+function shopeeImageUrl(input?: string): string | undefined {
+  if (!input) return undefined;
+  if (!input.startsWith("http")) {
+    return `https://down-vn.img.susercontent.com/file/${encodeURIComponent(input)}`;
+  }
+  try {
+    const url = new URL(input);
+    const host = url.hostname.toLowerCase();
+    if (
+      url.protocol === "https:" &&
+      !url.username &&
+      !url.password &&
+      !url.port &&
+      (host === "down-vn.img.susercontent.com" || host === "cf.shopee.vn")
+    ) {
+      return url.toString();
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
+}
+
 export async function resolveShopeeShortUrl(shortUrl: string): Promise<string> {
   try {
-    const res = await fetch(shortUrl, {
-      method: "GET",
-      redirect: "follow",
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+    const { response: res, finalUrl } = await fetchAllowlistedPlatformUrl(
+      shortUrl,
+      "SHOPEE_MARKETPLACE",
+      {
+        method: "GET",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+        }
       },
-      signal: AbortSignal.timeout(6000)
-    });
-
-    const finalUrl = res.url;
-    const directExtract = extractShopeeIds(finalUrl);
+      { maxRedirects: 3, timeoutMs: 6_000 }
+    );
+    const finalUrlString = finalUrl.toString();
+    const directExtract = extractShopeeIds(finalUrlString);
     if (directExtract.itemId) {
-      return finalUrl;
+      return finalUrlString;
     }
 
     // Parse HTML body for embedded target URLs (e.g. var CONFIG = { httpUrl: "..." })
-    const html = await res.text();
+    const html = await readBoundedResponseText(res, 512_000);
     const configMatch =
       html.match(/httpUrl\s*:\s*["']([^"']+)["']/i) ||
       html.match(/deepLinkUrl\s*:\s*["']([^"']+)["']/i);
 
     if (configMatch?.[1]) {
-      return configMatch[1].replace(/\\u0026/g, "&").replace(/\\/g, "");
+      return parseAllowedUrl(
+        configMatch[1].replace(/\\u0026/g, "&").replace(/\\/g, ""),
+        "SHOPEE_MARKETPLACE"
+      ).toString();
     }
 
-    const idMatch =
-      html.match(/\/(?:product\/)?(\d+)\/(\d+)/) || html.match(/-i\.(\d+)\.(\d+)/);
+    const idMatch = html.match(/\/(?:product\/)?(\d+)\/(\d+)/) || html.match(/-i\.(\d+)\.(\d+)/);
     if (idMatch?.[1] && idMatch?.[2]) {
       return `https://shopee.vn/product/${idMatch[1]}/${idMatch[2]}`;
     }
 
-    return finalUrl;
+    return finalUrlString;
   } catch {
     return shortUrl;
   }
@@ -95,15 +155,19 @@ export async function parseShopeeVideoPage(videoUrl: string): Promise<{
   imageUrl?: string;
 } | null> {
   try {
-    const res = await fetch(videoUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+    const { response: res } = await fetchAllowlistedPlatformUrl(
+      videoUrl,
+      "SHOPEE_MARKETPLACE",
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+        }
       },
-      signal: AbortSignal.timeout(6000)
-    });
+      { maxRedirects: 3, timeoutMs: 6_000 }
+    );
     if (!res.ok) return null;
-    const html = await res.text();
+    const html = await readBoundedResponseText(res, 512_000);
 
     const titleMatch =
       html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i) ||
@@ -120,19 +184,22 @@ export async function parseShopeeVideoPage(videoUrl: string): Promise<{
     if (titleMatch?.[1] && titleMatch[1].includes(" on Shopee Video")) {
       shopName = titleMatch[1].replace(" on Shopee Video", "").trim();
     }
+    const imageUrl = shopeeImageUrl(imageMatch?.[1]);
 
     return {
       title: rawTitle,
       shopName,
-      ...(imageMatch?.[1] ? { imageUrl: imageMatch[1] } : {})
+      ...(imageUrl ? { imageUrl } : {})
     };
   } catch {
     return null;
   }
 }
 
-export async function fetchShopeeProductData(inputUrl: string): Promise<ShopeeProductResult | null> {
-  let targetUrl = inputUrl.trim();
+export async function fetchShopeeProductData(
+  inputUrl: string
+): Promise<ShopeeProductResult | null> {
+  const targetUrl = inputUrl.trim();
   let expandedUrl = targetUrl;
 
   let { shopId, itemId } = extractShopeeIds(targetUrl);
@@ -155,7 +222,7 @@ export async function fetchShopeeProductData(inputUrl: string): Promise<ShopeePr
           shopId: "video",
           title: videoMeta.title,
           shopName: videoMeta.shopName,
-          priceVnd: 0,
+          priceVnd: "0",
           salesCount: 0,
           ...(videoMeta.imageUrl ? { imageUrl: videoMeta.imageUrl } : {}),
           rating: "5.0",
@@ -164,13 +231,13 @@ export async function fetchShopeeProductData(inputUrl: string): Promise<ShopeePr
           trackingUrl: targetUrl
         },
         commission: {
-          totalVnd: 0,
+          totalVnd: "0",
           totalPercent: 0,
-          sellerVnd: 0,
+          sellerVnd: "0",
           sellerPercent: 0,
-          shopeeVnd: 0,
+          shopeeVnd: "0",
           shopeePercent: 0,
-          capVnd: 40000,
+          capVnd: "40000",
           isCapped: false
         }
       };
@@ -197,41 +264,24 @@ export async function fetchShopeeProductData(inputUrl: string): Promise<ShopeePr
 
     if (!response.ok) return null;
 
-    const payload = (await response.json()) as {
-      status?: string;
-      productInfo?: {
-        itemId: number | string;
-        productName: string;
-        shopName?: string;
-        price: number;
-        sales?: number;
-        imageUrl?: string;
-        productLink?: string;
-        rating?: string;
-        commission?: number;
-        sellerComFinal?: number;
-        shopeeComFinal?: number;
-        isXtra?: boolean;
-        isCapped?: boolean;
-        cap?: number;
-      };
-    };
-
-    if (payload.status !== "success" || !payload.productInfo) return null;
+    const responseText = await readBoundedResponseText(response, 512_000);
+    const payload = productPayloadSchema.parse(parseLosslessJson(responseText, 512_000));
 
     const info = payload.productInfo;
-    const affiliateId = env.SHOPEE_AFFILIATE_ID || "17330520179";
-    const canonicalProductUrl = info.productLink ?? `https://shopee.vn/product/${shopId ?? ""}/${itemId}`;
+    const affiliateId = env.SHOPEE_AFFILIATE_ID;
+    if (!affiliateId) return null;
+    const canonicalProductUrl = parseAllowedUrl(
+      info.productLink ?? `https://shopee.vn/product/${shopId ?? ""}/${itemId}`,
+      "SHOPEE_MARKETPLACE"
+    ).toString();
     const redirectUrl = `https://s.shopee.vn/an_redir?origin_link=${encodeURIComponent(canonicalProductUrl)}&affiliate_id=${affiliateId}`;
 
-    const totalCom = info.commission ?? 0;
-    const sellerCom = info.sellerComFinal ?? 0;
-    const shopeeCom = info.shopeeComFinal ?? 0;
-    const price = info.price ?? 0;
-
-    const totalPercent = price > 0 ? (totalCom / price) * 100 : 0;
-    const sellerPercent = price > 0 ? (sellerCom / price) * 100 : 0;
-    const shopeePercent = price > 0 ? (shopeeCom / price) * 100 : 0;
+    const totalCom = parseVndAmount(info.commission ?? "0", "total commission");
+    const sellerCom = parseVndAmount(info.sellerComFinal ?? "0", "seller commission");
+    const shopeeCom = parseVndAmount(info.shopeeComFinal ?? "0", "Shopee commission");
+    const price = parseVndAmount(info.price, "product price");
+    const cap = parseVndAmount(info.cap ?? "40000", "commission cap");
+    const productImageUrl = shopeeImageUrl(info.imageUrl);
 
     return {
       product: {
@@ -239,28 +289,22 @@ export async function fetchShopeeProductData(inputUrl: string): Promise<ShopeePr
         shopId: shopId ?? "",
         title: info.productName,
         shopName: info.shopName ?? "Shopee Mall",
-        priceVnd: price,
+        priceVnd: price.toString(),
         salesCount: info.sales ?? 0,
-        ...(info.imageUrl
-          ? {
-              imageUrl: info.imageUrl.startsWith("http")
-                ? info.imageUrl
-                : `https://down-vn.img.susercontent.com/file/${info.imageUrl}`
-            }
-          : {}),
-        rating: info.rating ?? "5.0",
+        ...(productImageUrl ? { imageUrl: productImageUrl } : {}),
+        rating: String(info.rating ?? "5.0"),
         isXtra: info.isXtra ?? false,
         canonicalUrl: canonicalProductUrl,
         trackingUrl: redirectUrl
       },
       commission: {
-        totalVnd: totalCom,
-        totalPercent: Math.round(totalPercent * 10) / 10,
-        sellerVnd: sellerCom,
-        sellerPercent: Math.round(sellerPercent * 10) / 10,
-        shopeeVnd: shopeeCom,
-        shopeePercent: Math.round(shopeePercent * 10) / 10,
-        capVnd: info.cap ?? 40000,
+        totalVnd: totalCom.toString(),
+        totalPercent: percentOf(totalCom, price),
+        sellerVnd: sellerCom.toString(),
+        sellerPercent: percentOf(sellerCom, price),
+        shopeeVnd: shopeeCom.toString(),
+        shopeePercent: percentOf(shopeeCom, price),
+        capVnd: cap.toString(),
         isCapped: info.isCapped ?? false
       }
     };

@@ -60,10 +60,10 @@ const serverEnvSchema = z.object({
 
   ZALO_BOT_TOKEN: optionalString,
   ZALO_BOT_SECRET_TOKEN: optionalString,
-  NEXT_PUBLIC_ZALO_BOT_PROFILE_URL: optionalUrl.default("https://zalo.me/1491893691361810175"),
-  NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL: optionalUrl.default(
-    "https://bot.zaloplatforms.com/groups/invite/bot.TvMybWYu"
-  ),
+  ZALO_DATA_ENCRYPTION_KEY_V1: optionalString,
+  ZALO_BOT_ENABLED: optionalBoolean.default(false),
+  NEXT_PUBLIC_ZALO_BOT_PROFILE_URL: optionalUrl,
+  NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL: optionalUrl,
 
   SHOPEE_AFFILIATE_ID: optionalString,
   SHOPEE_FOOD_CASHBACK_ENABLED: optionalBoolean.default(false),
@@ -91,15 +91,18 @@ const serverEnvSchema = z.object({
   LAZADA_LITE_APP_SECRET: optionalString,
   LAZADA_USER_TOKEN: optionalString,
   LAZADA_API_BASE_URL: optionalUrl.default("https://api.lazada.vn/rest"),
-  LAZADA_LINK_OPERATION: optionalString.default("/marketing/link/generate"),
-  LAZADA_PRODUCT_OPERATION: optionalString.default("/marketing/product/search"),
-  LAZADA_CONVERSION_OPERATION: optionalString.default("/marketing/conversion/report"),
 
   PAYOS_PAYOUT_ENABLED: optionalBoolean.default(false),
   PAYOS_CLIENT_ID: optionalString,
   PAYOS_API_KEY: optionalString,
   PAYOS_CHECKSUM_KEY: optionalString,
   PAYOS_WEBHOOK_URL: optionalUrl,
+  SAAS_BILLING_ENABLED: optionalBoolean.default(false),
+  PAYOS_BILLING_CLIENT_ID: optionalString,
+  PAYOS_BILLING_API_KEY: optionalString,
+  PAYOS_BILLING_CHECKSUM_KEY: optionalString,
+
+  TENANT_IMPORT_ENABLED: optionalBoolean.default(false),
 
   UPSTASH_REDIS_REST_URL: optionalUrl,
   UPSTASH_REDIS_REST_TOKEN: optionalString,
@@ -116,6 +119,7 @@ const serverEnvSchema = z.object({
   VAPID_SUBJECT: optionalString,
 
   BANK_DATA_ENCRYPTION_KEY_V1: optionalString,
+  PROVIDER_CREDENTIAL_ENCRYPTION_KEY_V1: optionalString,
   AWS_ROLE_ARN: optionalString,
   AWS_REGION: optionalString.default("ap-southeast-1"),
   EVIDENCE_BUCKET: optionalString,
@@ -160,7 +164,8 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
     ["CLERK_SECRET_KEY", "CLERK_SECRET_KEY"],
     ["CLERK_WEBHOOK_SIGNING_SECRET", "CLERK_WEBHOOK_SIGNING_SECRET"],
     ["WEBAUTHN_CHALLENGE_SECRET", "WEBAUTHN_CHALLENGE_SECRET"],
-    ["BANK_DATA_ENCRYPTION_KEY_V1", "BANK_DATA_ENCRYPTION_KEY_V1"]
+    ["BANK_DATA_ENCRYPTION_KEY_V1", "BANK_DATA_ENCRYPTION_KEY_V1"],
+    ["PROVIDER_CREDENTIAL_ENCRYPTION_KEY_V1", "PROVIDER_CREDENTIAL_ENCRYPTION_KEY_V1"]
   ];
 
   for (const [key, label] of requiredCore) {
@@ -172,16 +177,10 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
   if (!env.NEXT_PUBLIC_BUILD_SHA || env.NEXT_PUBLIC_BUILD_SHA === "development") {
     issues.push("NEXT_PUBLIC_BUILD_SHA must identify the immutable release commit.");
   }
-  if (
-    env.CLERK_APPLICATION_ID &&
-    env.CLERK_APPLICATION_ID !== "app_3GxTUr7hRQ5aU7hJX2kz7DWGu6U"
-  ) {
+  if (env.CLERK_APPLICATION_ID && env.CLERK_APPLICATION_ID !== "app_3GxTUr7hRQ5aU7hJX2kz7DWGu6U") {
     issues.push("CLERK_APPLICATION_ID must be app_3GxTUr7hRQ5aU7hJX2kz7DWGu6U.");
   }
-  if (
-    env.WEBAUTHN_CHALLENGE_SECRET &&
-    Buffer.byteLength(env.WEBAUTHN_CHALLENGE_SECRET) < 32
-  ) {
+  if (env.WEBAUTHN_CHALLENGE_SECRET && Buffer.byteLength(env.WEBAUTHN_CHALLENGE_SECRET) < 32) {
     issues.push("WEBAUTHN_CHALLENGE_SECRET must contain at least 32 bytes.");
   }
   if (env.BANK_DATA_ENCRYPTION_KEY_V1) {
@@ -191,6 +190,15 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
       }
     } catch {
       issues.push("BANK_DATA_ENCRYPTION_KEY_V1 is not valid base64.");
+    }
+  }
+  if (env.PROVIDER_CREDENTIAL_ENCRYPTION_KEY_V1) {
+    try {
+      if (Buffer.from(env.PROVIDER_CREDENTIAL_ENCRYPTION_KEY_V1, "base64").length !== 32) {
+        issues.push("PROVIDER_CREDENTIAL_ENCRYPTION_KEY_V1 must be a base64-encoded 32-byte key.");
+      }
+    } catch {
+      issues.push("PROVIDER_CREDENTIAL_ENCRYPTION_KEY_V1 is not valid base64.");
     }
   }
 
@@ -209,12 +217,10 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
     issues.push("AddLiveTag account conversion sync must be fully configured and enabled.");
   }
   if (
-    !env.ACCESSTRADE_ENABLED ||
-    !env.ACCESSTRADE_API_KEY ||
-    !env.ACCESSTRADE_API_BASE_URL ||
-    !env.ACCESSTRADE_PUBLISHER_ID
+    env.ACCESSTRADE_ENABLED &&
+    (!env.ACCESSTRADE_API_KEY || !env.ACCESSTRADE_API_BASE_URL || !env.ACCESSTRADE_PUBLISHER_ID)
   ) {
-    issues.push("AccessTrade publisher integration must be fully configured and enabled.");
+    issues.push("AccessTrade is enabled without complete publisher credentials.");
   }
   if (
     env.LAZADA_MODE === "active" &&
@@ -234,6 +240,51 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
     issues.push(
       "payOS Payout credentials must be configured; the database kill switch remains authoritative."
     );
+  }
+  if (
+    env.SAAS_BILLING_ENABLED &&
+    (!env.PAYOS_BILLING_CLIENT_ID || !env.PAYOS_BILLING_API_KEY || !env.PAYOS_BILLING_CHECKSUM_KEY)
+  ) {
+    issues.push("SaaS billing is enabled without complete payOS billing credentials.");
+  }
+  if (
+    env.ZALO_BOT_ENABLED &&
+    (!env.ZALO_BOT_TOKEN ||
+      !env.ZALO_BOT_SECRET_TOKEN ||
+      !env.ZALO_DATA_ENCRYPTION_KEY_V1 ||
+      !env.NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL)
+  ) {
+    issues.push(
+      "Zalo bot is enabled without token, webhook secret, data encryption key, and group invite URL."
+    );
+  }
+  if (
+    env.ZALO_BOT_SECRET_TOKEN &&
+    (env.ZALO_BOT_SECRET_TOKEN.length < 8 || env.ZALO_BOT_SECRET_TOKEN.length > 256)
+  ) {
+    issues.push("ZALO_BOT_SECRET_TOKEN must contain 8 to 256 characters.");
+  }
+  if (env.ZALO_DATA_ENCRYPTION_KEY_V1) {
+    try {
+      if (Buffer.from(env.ZALO_DATA_ENCRYPTION_KEY_V1, "base64").length !== 32) {
+        issues.push("ZALO_DATA_ENCRYPTION_KEY_V1 must be a base64-encoded 32-byte key.");
+      }
+    } catch {
+      issues.push("ZALO_DATA_ENCRYPTION_KEY_V1 is not valid base64.");
+    }
+  }
+  if (env.TENANT_IMPORT_ENABLED) {
+    try {
+      const fs = require("node:fs");
+      const fixturePath = require("node:path").join(process.cwd(), "src/modules/imports/__fixtures__/shopee-orders-v1.csv");
+      if (!fs.existsSync(fixturePath)) {
+        issues.push(
+          "Tenant conversion import cannot be enabled until the redacted Shopee CSV contract fixture is installed."
+        );
+      }
+    } catch {
+      // ignore
+    }
   }
   if (
     Boolean(env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) !==

@@ -1,23 +1,32 @@
 # Lazada activation
 
-Connector Lazada được giữ fail-closed ở `credential_ready`. Operation path có thể override bằng env vì tên operation/schema phải được lấy từ portal Lazada Affiliate authenticated, không suy đoán từ Seller API.
+Connector Lazada Affiliate dùng contract `/marketing/getlink` và
+`/marketing/conversion/report`. Không dùng Seller API, operation đoán, private cookie hoặc webhook
+không có signature contract.
 
-## Trước khi có credential
+## Trước preflight
 
-- Giữ mock/fixture signature, pagination, token expiry, SubID và correction xanh.
-- Xác nhận trong portal ba operation: link generation, product search và conversion report.
-- Cập nhật `LAZADA_*_OPERATION` nếu portal cấp path khác mặc định.
-- Không bật `connector.lazada.enabled`.
+- Giữ `LAZADA_MODE=credential_ready`, `connector.lazada.enabled=false` và account connector
+  `CREDENTIAL_READY`.
+- Tạo `PROVIDER_CREDENTIAL_ENCRYPTION_KEY_V1` là 32 byte base64; không dùng chung bank/Zalo key.
+- Credential chỉ nhập một lần qua API quản trị, được mã hóa/versioned và chỉ trả fingerprint.
+- Cấu hình Affiliate ID đúng account và validation hold 4–60 ngày.
 
-## Khi key/token được cấp
+## Preflight staging
 
-1. Nạp `LAZADA_AFFILIATE_ID`, `LAZADA_LITE_APP_KEY`, `LAZADA_LITE_APP_SECRET`, `LAZADA_USER_TOKEN` vào staging.
-2. Đặt `LAZADA_MODE=shadow`; migrate không cần thiết.
-3. Redeploy, gọi health check và tạo một link test.
-4. Xác nhận SubID round-trip bằng order hợp lệ/sanitized fixture.
-5. Shadow sync 24 giờ, kiểm tra raw evidence, pagination, timezone, currency, correction và duplicate.
-6. Reconcile portal totals với DB; sai lệch phải bằng 0 hoặc có case giải thích.
-7. Lặp lại env production, deploy với `shadow`.
-8. Sau phê duyệt, đặt `LAZADA_MODE=active` và bật flag `connector.lazada.enabled`.
+1. Gọi health preflight bằng credential staging.
+2. Tạo một tracking link và xác nhận outbound host, affiliate account và SubID round-trip.
+3. Poll conversion report, kiểm tra VN/VND, monetary decimal string, pagination/cursor và evidence
+   hash.
+4. Xác nhận mapping `fulfilled`/`delivered` sang validation và `returned` sang correction; không có
+   status nào tự release wallet.
+5. Chạy sync chồng lấn 15 phút và nightly reconciliation 60 ngày; duplicate/mismatch bằng 0 hoặc có
+   case giải thích.
+6. Chỉ sau smoke thành công mới chuyển account connector sang `ACTIVE`, `LAZADA_MODE=active` và bật
+   DB flag `connector.lazada.enabled`.
 
-Nếu signature/operation schema không khớp, quay lại `credential_ready`; không chỉnh canonicalization dựa trên phỏng đoán.
+Finance settlement vẫn là bước riêng. Lazada order API và `estPayout` không phải bằng chứng tiền đã
+được thanh toán.
+
+Nếu schema/signature/identity không khớp, tắt DB flag và trả account về `CREDENTIAL_READY`; không sửa
+canonicalization theo phỏng đoán.

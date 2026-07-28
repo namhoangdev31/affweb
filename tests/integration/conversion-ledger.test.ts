@@ -13,9 +13,7 @@ import type { NormalizedConversion } from "@/modules/connectors/types";
 import { ingestConversion } from "@/modules/conversions/service";
 import { createPayoutTicket } from "@/modules/payout/service";
 
-const integration = describe.skip;
-
-integration("conversion ingestion and ledger", () => {
+describe("conversion ingestion and ledger", () => {
   afterAll(async () => {
     await db.$disconnect();
   });
@@ -193,12 +191,16 @@ integration("conversion ingestion and ledger", () => {
       createPayoutTicket({
         userId: user.id,
         beneficiaryId: beneficiary.id,
-        amountVnd: 300_000n
+        amountVnd: 300_000n,
+        idempotencyKey: "integration-payout-concurrency-a",
+        requestHash: "hash-a"
       }),
       createPayoutTicket({
         userId: user.id,
         beneficiaryId: beneficiary.id,
-        amountVnd: 300_000n
+        amountVnd: 300_000n,
+        idempotencyKey: "integration-payout-concurrency-b",
+        requestHash: "hash-b"
       })
     ]);
     expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
@@ -212,5 +214,56 @@ integration("conversion ingestion and ledger", () => {
     expect(wallet.reservedVnd).toBe(300_000n);
     expect(tickets).toHaveLength(1);
     expect(tickets[0]?.status).toBe("RESERVED");
+  });
+
+  it("returns one payout ticket for concurrent requests with the same idempotency key", async () => {
+    const suffix = randomUUID();
+    const user = await db.user.create({
+      data: {
+        email: `payout-idempotency-${suffix}@example.test`,
+        status: UserStatus.ACTIVE,
+        wallet: { create: { availableVnd: 500_000n } }
+      }
+    });
+    const beneficiary = await db.bankBeneficiary.create({
+      data: {
+        userId: user.id,
+        bankBin: "970422",
+        accountNumberCipher: "integration-test-not-decrypted",
+        accountNameCipher: "integration-test-not-decrypted",
+        accountLast4: "1234",
+        encryptionKeyVersion: 1,
+        status: "VERIFIED",
+        verifiedAt: new Date(),
+        changes: {
+          create: {
+            userId: user.id,
+            newLast4: "1234",
+            holdUntil: new Date(Date.now() - 1_000)
+          }
+        }
+      }
+    });
+    const request = {
+      userId: user.id,
+      beneficiaryId: beneficiary.id,
+      amountVnd: 300_000n,
+      idempotencyKey: `integration-payout-same-${suffix}`,
+      requestHash: "same-request-hash"
+    };
+
+    const [first, second] = await Promise.all([
+      createPayoutTicket(request),
+      createPayoutTicket(request)
+    ]);
+
+    expect(second.id).toBe(first.id);
+    expect(await db.payoutTicket.count({ where: { userId: user.id } })).toBe(1);
+    await expect(
+      db.walletProjection.findUniqueOrThrow({ where: { userId: user.id } })
+    ).resolves.toMatchObject({
+      availableVnd: 200_000n,
+      reservedVnd: 300_000n
+    });
   });
 });

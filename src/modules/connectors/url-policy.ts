@@ -1,15 +1,37 @@
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
 import type { AffiliateTargetType, Platform } from "@/generated/prisma/client";
 import { AppError } from "@/lib/errors";
 
 const PLATFORM_HOSTS: Record<Platform, readonly string[]> = {
   SHOPEE_MARKETPLACE: ["shopee.vn", "s.shopee.vn", "vn.shp.ee", "shp.ee", "sv.shopee.vn"],
   SHOPEE_FOOD: ["shopeefood.vn", "now.vn"],
-  LAZADA: ["lazada.vn", "s.lazada.vn"],
+  LAZADA: ["lazada.vn", "s.lazada.vn", "c.lazada.vn"],
   ACCESSTRADE: []
 };
 
 const BLOCKED_IPV4 =
   /^(?:0\.|10\.|127\.|169\.254\.|172\.(?:1[6-9]|2\d|3[01])\.|192\.168\.|224\.|240\.)/;
+
+function isPrivateAddress(address: string): boolean {
+  const normalized = address.toLowerCase();
+  if (isIP(normalized) === 4) return BLOCKED_IPV4.test(normalized);
+  if (isIP(normalized) !== 6) return true;
+  if (
+    normalized === "::" ||
+    normalized === "::1" ||
+    normalized.startsWith("fc") ||
+    normalized.startsWith("fd") ||
+    normalized.startsWith("fe8") ||
+    normalized.startsWith("fe9") ||
+    normalized.startsWith("fea") ||
+    normalized.startsWith("feb")
+  ) {
+    return true;
+  }
+  const mappedIpv4 = normalized.match(/::ffff:(\d+\.\d+\.\d+\.\d+)$/)?.[1];
+  return mappedIpv4 ? BLOCKED_IPV4.test(mappedIpv4) : false;
+}
 
 function normalizeHost(hostname: string): string {
   return hostname.toLowerCase().replace(/\.$/, "");
@@ -18,6 +40,76 @@ function normalizeHost(hostname: string): string {
 function isAllowedHost(hostname: string, roots: readonly string[]): boolean {
   const host = normalizeHost(hostname);
   return roots.some((root) => host === root || host.endsWith(`.${root}`));
+}
+
+async function assertPublicDns(hostname: string): Promise<void> {
+  let addresses: Array<{ address: string; family: number }>;
+  try {
+    addresses = await lookup(hostname, { all: true, verbatim: true });
+  } catch {
+    throw new AppError("VALIDATION_ERROR", "Không phân giải được tên miền đối tác.", 400);
+  }
+  if (addresses.length === 0 || addresses.some(({ address }) => isPrivateAddress(address))) {
+    throw new AppError("VALIDATION_ERROR", "Tên miền đối tác trỏ tới địa chỉ không an toàn.", 400);
+  }
+}
+
+export async function fetchAllowlistedPlatformUrl(
+  input: string,
+  platform: Platform,
+  init: RequestInit = {},
+  options: { maxRedirects?: number; timeoutMs?: number } = {}
+): Promise<{ response: Response; finalUrl: URL }> {
+  const maxRedirects = options.maxRedirects ?? 3;
+  let current = parseAllowedUrl(input, platform);
+  for (let hop = 0; hop <= maxRedirects; hop += 1) {
+    await assertPublicDns(current.hostname);
+    const response = await fetch(current, {
+      ...init,
+      redirect: "manual",
+      signal: AbortSignal.timeout(options.timeoutMs ?? 6_000)
+    });
+    if (![301, 302, 303, 307, 308].includes(response.status)) {
+      return { response, finalUrl: current };
+    }
+    const location = response.headers.get("location");
+    if (!location || hop === maxRedirects) {
+      throw new AppError("VALIDATION_ERROR", "Redirect đối tác không hợp lệ.", 400);
+    }
+    current = parseAllowedUrl(new URL(location, current).toString(), platform);
+  }
+  throw new AppError("VALIDATION_ERROR", "Quá nhiều redirect đối tác.", 400);
+}
+
+export async function readBoundedResponseText(
+  response: Response,
+  maxBytes: number
+): Promise<string> {
+  const declaredLength = Number(response.headers.get("content-length") ?? "0");
+  if (declaredLength > maxBytes) {
+    throw new AppError("VALIDATION_ERROR", "Phản hồi đối tác vượt giới hạn.", 400);
+  }
+  if (!response.body) return "";
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      await reader.cancel();
+      throw new AppError("VALIDATION_ERROR", "Phản hồi đối tác vượt giới hạn.", 400);
+    }
+    chunks.push(value);
+  }
+  const body = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(body);
 }
 
 export function parseAllowedUrl(input: string, platform: Platform): URL {

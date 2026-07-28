@@ -8,11 +8,15 @@ Tài liệu này là bản đồ tư duy cấp cao của dự án. Đọc cùng 
 
 Các nền tảng hiện có:
 
-- Shopee Marketplace: direct `an_redir`; có adapter Shopee Affiliate Open API nhưng bị khóa bằng cấu hình.
+- Shopee Marketplace: direct link; Orders dùng CSV `Báo cáo chuyển đổi`, còn settlement chỉ được mở
+  khi có file chi tiết **Hóa đơn đối soát** đã đóng và exact line tie-out.
 - ShopeeFood: direct `an_redir` với `source=food`; cashback có kill switch riêng.
-- AddLiveTag: catalog, click và conversion cho Shopee/ShopeeFood.
-- AccessTrade: product link, offers và transaction sync.
-- Lazada: signing/link/product/conversion contract; mặc định chưa active.
+- AddLiveTag: connector/catalog hiện có vẫn được giữ; Clean Link, Find AFF ID và thuế 2026 được
+  triển khai nội bộ sau đăng nhập, không tạo thêm phụ thuộc endpoint tool riêng.
+- AccessTrade: `/v1/product_link/create`, transaction/order/product/detail sync; `approved` chỉ
+  validate, Finance settlement mới release.
+- Lazada: `/marketing/getlink` và `/marketing/conversion/report`; order API chỉ validate, Finance
+  settlement mới release.
 
 Stack chính:
 
@@ -20,9 +24,11 @@ Stack chính:
 - PostgreSQL/Neon, Prisma 7 và `@prisma/adapter-pg`.
 - Clerk cho identity; role và trạng thái nghiệp vụ nằm trong PostgreSQL.
 - Upstash Redis + QStash cho cache/rate limit/job.
-- payOS cho payout; Resend cho email; Web Push cho PWA.
+- payOS cho payout; PayOS SDK với credential billing riêng cho subscription; Resend cho email; Web Push cho PWA.
 - AWS S3 Object Lock cho raw evidence production; Sentry cho observability.
-- Tenant/KOC SaaS mới dùng path/slug, gói dùng thử, PayOS subscription invoice và một Zalo Bot trung tâm; phần này đang ở trạng thái triển khai chưa khép kín end-to-end.
+- Tenant/KOC SaaS dùng path/slug, plan catalog trong PostgreSQL, PayOS subscription invoice và một
+  Zalo Bot trung tâm. Business có thể dùng tenant-managed Lazada/AccessTrade credential sau preflight;
+  tiền và nghĩa vụ member vẫn nằm ngoài ledger nền tảng.
 - Vercel là runtime/deployment target. Workflow GitHub Actions đã bị xóa khỏi repository trong code vừa pull; kiểm định hiện phải được chạy chủ động hoặc do pipeline ngoài repository đảm nhiệm.
 
 ## 2. Kiến trúc
@@ -70,6 +76,10 @@ Ranh giới phụ thuộc mong muốn:
 - Nguồn mạnh hơn có thể thay nguồn yếu hơn; chênh lệch tiền/trạng thái phải được reconciliation.
 - Raw payload luôn được SHA-256; production lưu S3 Object Lock.
 - Không được coi private browser endpoint/cookie scraping là provider contract production.
+- Validation và settlement là hai state machine độc lập. Hết hold 4–60 ngày chỉ chuyển conversion
+  sang `VALIDATED`, không release wallet.
+- Settlement evidence đã tác động tài chính là append-only. Correction sau release tạo compensating
+  journal.
 
 ### Payout
 
@@ -108,9 +118,11 @@ Ranh giới phụ thuộc mong muốn:
 3. Raw payload được hash/lưu evidence.
 4. `ingestConversion` dedupe natural identity và hợp nhất nhiều nguồn.
 5. Conversion hợp lệ ghi provider receivable, user pending liability và platform revenue.
-6. Conversion validated tạo safety hold.
-7. Job release chỉ chạy khi kill switch bật, connector còn fresh và không vượt beta daily limit.
-8. Release chuyển pending → available trong cả ledger và wallet.
+6. `deliveredAt + holdDays` chỉ kết thúc validation; job hết hold chuyển sang `VALIDATED` khi
+   authority/health còn hợp lệ và không thay đổi wallet.
+7. Shopee cần Hóa đơn đối soát chi tiết đã đóng; Lazada/AccessTrade cần Finance settlement evidence.
+8. Settlement exact-match, idempotent mới chuyển pending → available trong cùng transaction
+   journal/wallet. Correction dùng compensating journal.
 
 ### Withdrawal → payOS
 
@@ -129,32 +141,47 @@ Ranh giới phụ thuộc mong muốn:
 4. Clerk webhook dùng Svix signature + idempotency record.
 5. Account deletion kiểm tra financial blockers trước khi gọi Clerk delete.
 
-### Tenant/KOC SaaS hiện tại
+### Tenant/KOC SaaS Core v1
 
 1. Mọi tài khoản là member nền tảng. Một member có thể mua gói để sở hữu tối đa một `Tenant`; `Tenant.ownerUserId` là admin nhóm, không phải role quản trị hệ thống.
 2. Onboarding bắt buộc Shopee Affiliate ID và tỷ lệ hoàn member từ 1–100%; tenant bắt đầu trial 14 ngày và owner được gắn `tenantId`.
-3. Public channel dùng `/<slug>`; proxy nhận diện slug và lưu cookie `aff_tenant_slug` để Clerk reconciliation có thể gắn user mới vào tenant.
+3. Public channel dùng `/<slug>`. Join explicit đi qua `POST /api/v1/tenants/{slug}/join`; Clerk cookie onboarding gọi cùng domain service, khóa tenant và kiểm tra subscription/config/quota. User đã thuộc tenant khác không bị chuyển âm thầm.
 4. Owner tạo link mua cá nhân luôn đi theo Affiliate ID/rate nền tảng để tránh tự mua bằng Affiliate ID của chính mình. Member tenant chỉ tạo link Shopee bằng Affiliate ID của owner khi gói còn hiệu lực và cấu hình đầy đủ; không fallback âm thầm về ID nền tảng.
-5. Packet SubID là `[clickToken, userId, tenantId | "main", "hoantien"]`; `AffiliateClick.tenantId`, product snapshot, rate và thuế được persist tại link time.
-6. Conversion tenant propagate `tenantId`, trừ 10% thuế ước tính rồi chia theo immutable `shareBps`. Không tạo risk hold, ledger posting hay wallet projection của nền tảng cho khoản này.
+5. Packet SubID là `[clickToken, userId, tenantId | "main", "hoantien"]`; principal `PLATFORM_USER`, `TENANT_MEMBER`, `TENANT_CHANNEL`, idempotency key, product snapshot, rate và thuế được persist tại link time. Entitlement và click quota được kiểm tra lại trong transaction ghi click.
+6. Conversion tenant propagate `tenantId`, trừ 10% thuế ước tính rồi chia theo immutable
+   `shareBps`. Không tạo ledger posting hay wallet projection của nền tảng; owner đánh dấu external
+   payment bằng endpoint idempotent có audit.
 7. Tenant owner xem các conversion của nhóm tại `/app/conversions?scope=all` và chỉ được đánh dấu đơn `VALIDATED` là đã chi trả ngoài hệ thống; thao tác được audit và không có chức năng hoàn tác tùy tiện.
-8. Subscription tạo `SaaSInvoice`; PayOS webhook hợp lệ chuyển invoice sang `PAID` và gia hạn tenant 30/365 ngày.
-9. Zalo group dự kiến bind với tenant bằng `/link <slug>`, sau đó bot nhận URL mua sắm và trả link `/go/<clickToken>`.
+8. Subscription lấy giá/duration/capability từ `SubscriptionPlan`, tạo `SaaSInvoice` idempotent và gọi PayOS SDK bằng credential billing riêng. Chỉ webhook có chữ ký, invoice `PENDING` và mọi snapshot khớp mới gia hạn từ `max(now, currentExpiry)`; invoice không tồn tại hoặc snapshot mismatch không mutate subscription và tạo outbox alert idempotent cho `SUPER_ADMIN`.
+9. Zalo owner tạo binding code dùng một lần, TTL 10 phút. `/link CODE` bind group bằng chat hash +
+   ciphertext. Routing là `DIRECT` cho Shopee/Lazada hoặc `ACCESSTRADE_CAMPAIGN` explicit; không
+   fallback ngầm. Link là `TENANT_CHANNEL`, không map sender sang Clerk và không có cashback member.
+10. Admin tenant dùng dữ liệu PostgreSQL thật, `SUPER_ADMIN`, fresh Clerk session, recent passkey, reason và audit. Manual plan/expiry adjustment append-only, không tạo doanh thu invoice.
 
-Phần tenant chưa được coi là production-ready:
+Các release blocker còn mở:
 
-- Quota/connector entitlement mới chủ yếu là helper; chưa được enforce trong flow tạo link/member.
-- Settings Affiliate và checkout đã kiểm tra owner/origin/schema; các SaaS/Zalo API còn lại chưa áp dụng đầy đủ auth, ownership, origin, schema validation và webhook verification.
-- Zalo click hiện lưu `outboundUrl` trỏ lại chính `/go/<clickToken>`, nên chưa tạo provider tracking URL thật.
-- Shopee công khai cách xuất báo cáo conversion CSV nhưng không công bố schema cột ổn định. Chưa xây importer tenant cho đến khi có file mẫu thật; Affiliate ID đơn lẻ không cho phép tự động đọc đơn/hoa hồng.
-- Database hiện có tenant tables/fields từ thay đổi ngoài migration lineage của repository. Migration mới chỉ thêm affiliate sharing/product snapshot/tax/payment marker trên baseline DB đang có; fresh database chưa thể tái tạo toàn bộ tenant schema chỉ từ các migration trong repo.
+- Shopee Orders parser đã chốt theo fixture 47 cột đã redacted; dòng thiếu/sai SubID hoặc schema bị
+  quarantine. Import chỉ cập nhật conversion/validation/evidence, không settle.
+- Shopee reconciliation endpoint vẫn chủ động fail-closed dù flag bị bật cho tới khi có export chi
+  tiết “Xem chi tiết/Bảng kê thanh toán” thật đã redacted, AFF ID/account identity và exact line
+  tie-out. Không dùng ảnh chụp, tổng invoice hoặc Payment History để release.
+- PayOS billing và Zalo cần credential sandbox/staging thật để chạy contract smoke. Return/cancel URL không thay đổi subscription.
+- Authenticated Chromium E2E cần Clerk staging storage state, disposable DB fixtures và provider stubs/credentials; repository hiện chỉ chứng minh unit/build và public/auth-boundary E2E.
+- Migration baseline tenant/SaaS/Zalo và migration expand Core v1 đã được thêm, nhưng vẫn phải chứng minh `prisma migrate deploy` trên PostgreSQL disposable trống và clone trạng thái hiện tại trước deploy.
+- Migration hiện là expand-only: cột legacy `planId`, `isTrial`, invoice `amount` và Zalo scaffold chưa bị xóa. Contract migration chỉ được tạo sau dual-read/backfill consistency sạch.
+- Lazada/AccessTrade code path dùng contract chính thức và mặc định tắt. Chỉ active sau credential
+  preflight, identity match, fixture/round-trip và controlled staging smoke. AccessTrade credential
+  từng lộ phải được rotate.
 
 ## 5. Model dữ liệu theo domain
 
-- Identity/tenant: `User`, `RoleAssignment`, `AdminPasskey`, `IdentityInvitation`, `AccountDeletionRequest`, `Tenant`, `SubscriptionPlan`, `SaaSInvoice`, `ZaloGroupBinding`; các bảng Auth.js cũ còn giữ cho rollback.
+- Identity/tenant: `User`, `RoleAssignment`, `AdminPasskey`, `IdentityInvitation`, `AccountDeletionRequest`, `Tenant`, `SubscriptionPlan`, `SaaSInvoice`, `TenantSubscriptionAdjustment`, `TenantConversionImport`, `ZaloGroupBinding`, `ZaloBindingCode`; các bảng Auth.js cũ còn giữ cho rollback.
 - Catalog/attribution: `Merchant`, `Campaign`, `AffiliateAccount`, `AffiliateClick`, `AttributionSnapshot`, `OfferSnapshot`; user/click/conversion có tenant scoping field.
-- Connector/evidence: `ConnectorConfig`, `ConnectorCursor`, `ConnectorHealth`, `SyncRun`, `RawEvidence`.
-- Conversion/reconciliation: `ExternalConversionIdentity`, `Conversion`, `ConversionItem`, `ConversionRevision`, `ReconciliationCase`, `RiskHold`.
+- Connector/evidence: `ConnectorConfig`, `ConnectorCursor`, `ConnectorHealth`, `SyncRun`,
+  `RawEvidence`, `ProviderCredential`.
+- Conversion/reconciliation: `ExternalConversionIdentity`, `Conversion`, `ConversionItem`,
+  `ConversionRevision`, `ReconciliationCase`, `RiskHold`, `SettlementEvidence`, `SettlementBatch`,
+  `SettlementLine`.
 - Rate/finance: `CommissionRule`, `CommissionRuleVersion`, `LedgerAccount`, `LedgerTransaction`, `LedgerEntry`, `WalletProjection`.
 - Payout: `BankBeneficiary`, `BeneficiaryChange`, `PayoutTicket`, `PayoutApproval`, `PayoutAttempt`, `BalanceAdjustment`.
 - Messaging/operations: `Notification`, `NotificationDelivery`, `PushSubscription`, `OutboxEvent`, `IdempotencyRecord`, `FeatureFlag`, `AuditLog`.
@@ -201,7 +228,7 @@ Database trong file hiện trỏ tới một Neon database tên chung `neondb`. 
 
 - Có thể chạy app local để debug với DB remote, nhưng các thao tác UI/API có thể ghi trực tiếp vào DB đó.
 - Không chạy `db:seed`, migration mới hoặc integration test trước khi xác nhận đây là branch dev riêng.
-- Integration test tự chạy khi process có `DATABASE_URL`; test tạo dữ liệu và chưa cleanup.
+- Integration test chỉ chạy qua `pnpm test:integration`, bắt buộc `TEST_DATABASE_URL` khác mọi runtime/migration URL và tên database có marker test/ci/tmp/disposable.
 - `prisma migrate status` ngày 2026-07-28 xác nhận hai migration cũ đã được ghi nhận và migration `202607280001_tenant_affiliate_member_sharing` đang pending. Read-only diff xác nhận DB đã có tenant tables/fields nền dù repository không có migration tạo baseline tenant; phải xử lý migration lineage trước khi dựng database mới từ đầu.
 - Không chạy `db:deploy` cho đến khi xác nhận Neon hiện tại là branch dev/staging phù hợp và đã review dữ liệu owner trùng lặp/constraint compatibility.
 - An toàn nhất: tạo Neon branch/database riêng cho mỗi developer/test, sau đó đặt `DATABASE_URL` và `DIRECT_URL` của branch đó trong `.env`.
@@ -239,11 +266,18 @@ pnpm format:check
 pnpm lint
 pnpm typecheck
 pnpm db:validate
-pnpm exec vitest run src
+pnpm test:unit
 pnpm build
 ```
 
-`pnpm test:run` còn bao gồm `tests/integration` và sẽ dùng `DATABASE_URL` trong `.env`; chỉ chạy full test trên database disposable/isolated.
+`pnpm test:run` là alias an toàn của unit suite. Integration DB chạy riêng:
+
+```powershell
+TEST_DATABASE_URL=postgresql://.../affweb_test pnpm test:integration
+```
+
+Database phải là disposable; global setup kiểm tra URL rồi chạy `prisma migrate deploy` đúng vào
+`TEST_DATABASE_URL`. Setup từ chối URL trùng runtime/migration URL.
 
 E2E public:
 
@@ -298,8 +332,12 @@ Cập nhật thủ công `context.md` khi thay đổi kiến trúc, business inv
 ## 12. Những điểm cần nhớ khi phát triển tiếp
 
 - Shopee Open API là adapter gated, không phải connector mặc định cho Shopee Việt Nam.
-- Cashback release, Lazada, ShopeeFood cashback và payout đều có kill switch độc lập.
+- Cashback release, Shopee Orders, Lazada, AccessTrade, provider credential, ShopeeFood cashback và
+  payout đều có kill switch độc lập. Shopee reconciliation còn có hard contract gate.
 - Production build/test được thiết kế để không cần credential thật; tính năng tiền thật fail-closed.
-- Public product lookup có thể gọi AddLiveTag; link cashback chính vẫn phải đi qua `createAffiliateLink` để có attribution.
-- Tenant/KOC là feature đang phát triển: link routing, snapshot, phép tính sau thuế và external payment marker đã có; importer báo cáo Shopee, Zalo flow, quota đầy đủ và migration baseline tenant vẫn chưa hoàn thiện.
+- Không thêm endpoint/cookie AddLiveTag mới. Link cashback chính luôn đi qua
+  `createAffiliateLink` để có attribution; connector/catalog AddLiveTag hiện có vẫn được giữ.
+- Tenant/KOC Core v1 có principal/link policy, quota, external settlement, plan catalog, PayOS
+  billing, admin và Zalo central bot. Shopee Orders import khả dụng sau flag; Shopee reconciliation
+  vẫn fail-closed do thiếu file chi tiết hóa đơn thật đã redacted.
 - Khi thêm provider mới: định nghĩa authority, natural key, URL policy, Zod response schema, timeout, pagination/overlap, evidence, health check và fixture test trước khi active.

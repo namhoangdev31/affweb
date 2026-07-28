@@ -5,14 +5,31 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Building2, CheckCircle2, Link2, ShoppingBag, Sparkles, Store } from "lucide-react";
+import { Building2, Link2, ShoppingBag, Sparkles, Store } from "lucide-react";
 import Link from "next/link";
 
 const SYSTEM_RESERVED_SLUGS = new Set([
-  "admin", "app", "api", "t", "deals", "login", "sign-in", "sign-up",
-  "privacy", "terms", "faq", "go", "shopee-lookup", "partners",
-  "cashback-policy", "offline", "onboarding", "manifest.webmanifest",
-  "robots.txt", "sitemap.xml", "sw.js"
+  "admin",
+  "app",
+  "api",
+  "t",
+  "deals",
+  "login",
+  "sign-in",
+  "sign-up",
+  "privacy",
+  "terms",
+  "faq",
+  "go",
+  "shopee-lookup",
+  "partners",
+  "cashback-policy",
+  "offline",
+  "onboarding",
+  "manifest.webmanifest",
+  "robots.txt",
+  "sitemap.xml",
+  "sw.js"
 ]);
 
 export default async function TenantDirectSlugPage({
@@ -33,6 +50,24 @@ export default async function TenantDirectSlugPage({
   }
 
   const brandColor = tenant.brandColor || "#173b31";
+  const active =
+    (tenant.status === "TRIAL" || tenant.status === "ACTIVE") && tenant.planExpiresAt > new Date();
+
+  if (!active) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-slate-950 p-6 text-white">
+        <Card className="max-w-lg border-slate-800 bg-slate-900 text-white">
+          <CardHeader>
+            <CardTitle>Kênh {tenant.name} đang tạm dừng</CardTitle>
+            <CardDescription>
+              Tenant đã hết hạn hoặc bị đình chỉ. Hệ thống không tạo link và không tự fallback sang
+              Affiliate ID nền tảng.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -53,10 +88,19 @@ export default async function TenantDirectSlugPage({
           </div>
 
           <div className="flex items-center gap-3">
-            <Button asChild variant="outline" size="sm" className="border-slate-700 text-slate-200 hover:bg-slate-800">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="border-slate-700 text-slate-200 hover:bg-slate-800"
+            >
               <Link href="/sign-in">Đăng nhập</Link>
             </Button>
-            <Button asChild size="sm" className="bg-emerald-600 font-semibold text-white hover:bg-emerald-500">
+            <Button
+              asChild
+              size="sm"
+              className="bg-emerald-600 font-semibold text-white hover:bg-emerald-500"
+            >
               <Link href="/sign-up">Đăng ký thành viên</Link>
             </Button>
           </div>
@@ -67,35 +111,40 @@ export default async function TenantDirectSlugPage({
       <section className="relative overflow-hidden py-16 px-4 text-center">
         <div className="mx-auto max-w-3xl space-y-6">
           <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-3 py-1">
-            <Sparkles className="mr-1 size-3.5" /> Kênh Đại Lý KOC Nền Tảng: {getAppHostDisplay()}/{tenant.slug}
+            <Sparkles className="mr-1 size-3.5" /> Kênh Đại Lý KOC Nền Tảng: {getAppHostDisplay()}/
+            {tenant.slug}
           </Badge>
 
           <h1 className="display-type text-4xl sm:text-5xl font-extrabold tracking-tight">
-            Mua sắm Shopee & Lazada. <br />
+            Tạo link mua sắm Shopee. <br />
             <span style={{ color: brandColor === "#173b31" ? "#10b981" : brandColor }}>
-              Nhận lại tiền Cashback cực lớn.
+              Tỷ lệ chia được snapshot minh bạch.
             </span>
           </h1>
 
           <p className="text-base text-slate-300 max-w-xl mx-auto">
-            Chào mừng bạn đến với kênh săn sale của <strong>{tenant.name}</strong>. Dán link sản phẩm bất kỳ để tự động kích hoạt mã giảm giá và hoàn tiền cashback vào ví!
+            Chào mừng bạn đến với kênh của <strong>{tenant.name}</strong>. Cashback của member được
+            owner đối soát từ report Shopee và thanh toán bên ngoài nền tảng.
           </p>
 
           {/* Quick Link Converter Form */}
           <Card className="border-slate-800 bg-slate-900/90 text-left shadow-2xl backdrop-blur">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-                <Link2 className="size-4 text-emerald-400" /> Dán link sản phẩm Shopee / Lazada
+                <Link2 className="size-4 text-emerald-400" /> Dán link sản phẩm Shopee
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form action="/app/links" method="GET" className="flex flex-col sm:flex-row gap-3">
                 <Input
                   name="url"
-                  placeholder="Dán đường dẫn sản phẩm Shopee hoặc Lazada tại đây..."
+                  placeholder="Dán đường dẫn sản phẩm Shopee tại đây..."
                   className="flex-1 border-slate-800 bg-slate-950 text-white placeholder:text-slate-500 focus:border-emerald-500"
                 />
-                <Button type="submit" className="bg-emerald-600 font-semibold text-white hover:bg-emerald-500">
+                <Button
+                  type="submit"
+                  className="bg-emerald-600 font-semibold text-white hover:bg-emerald-500"
+                >
                   Tạo Link Hoàn Tiền
                 </Button>
               </form>
@@ -110,10 +159,11 @@ export default async function TenantDirectSlugPage({
           <Card className="border-slate-800 bg-slate-900 text-white">
             <CardHeader className="pb-2">
               <ShoppingBag className="size-8 text-emerald-400 mb-2" />
-              <CardTitle className="text-lg">Hoàn tiền 100% minh bạch</CardTitle>
+              <CardTitle className="text-lg">Đối soát bằng report</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-slate-400">
-              Tự động cộng tiền hoàn vào ví khả dụng ngay khi Shopee xác nhận đơn hàng thành công.
+              Conversion chỉ được ghi nhận sau khi owner nhập report Shopee hợp lệ; không cộng vào
+              ví nền tảng.
             </CardContent>
           </Card>
 
@@ -123,17 +173,18 @@ export default async function TenantDirectSlugPage({
               <CardTitle className="text-lg">Độc quyền Kênh {tenant.name}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-slate-400">
-              Nhận voucher độc quyền và các chương trình thưởng Top Cashback dành riêng cho thành viên kênh.
+              Tỷ lệ chia của member được snapshot tại thời điểm tạo link và không thay đổi theo cấu
+              hình về sau.
             </CardContent>
           </Card>
 
           <Card className="border-slate-800 bg-slate-900 text-white">
             <CardHeader className="pb-2">
               <Building2 className="size-8 text-blue-400 mb-2" />
-              <CardTitle className="text-lg">Rút tiền về ATM 24/7</CardTitle>
+              <CardTitle className="text-lg">Owner thanh toán bên ngoài</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-slate-400">
-              Rút tiền tự động về tài khoản ngân hàng cá nhân thông qua mã QR VietQR Napas247.
+              Owner chịu trách nhiệm xác nhận và thanh toán cashback cho member ngoài hệ thống.
             </CardContent>
           </Card>
         </div>

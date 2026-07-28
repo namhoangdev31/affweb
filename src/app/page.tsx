@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-const partners = ["Shopee", "ShopeeFood", "Lazada", "AccessTrade"];
+const partners = ["Shopee", "ShopeeFood", "AccessTrade"];
 
 export default function HomePage() {
   return (
@@ -84,7 +84,7 @@ export default function HomePage() {
                     {[
                       ["Shopee", "Tai nghe không dây", "+ 48.600 ₫", "Đã duyệt"],
                       ["ShopeeFood", "Bữa trưa thứ Sáu", "+ 21.350 ₫", "Đang chờ"],
-                      ["AccessTrade", "Đặt phòng cuối tuần", "+ 116.250 ₫", "Khả dụng"]
+                      ["Shopee", "Đồ gia dụng", "+ 116.250 ₫", "Khả dụng"]
                     ].map(([brand, name, amount, status]) => (
                       <div
                         key={name}

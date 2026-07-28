@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Đối tác",
-  description: "Shopee, ShopeeFood, Lazada và AccessTrade trên Hoàn Tiền."
+  description: "Các connector đang được công bố trên Hoàn Tiền."
 };
 
 const partners = [
@@ -34,14 +34,6 @@ const partners = [
     icon: "A",
     description: "Ưu đãi đa ngành với conversion incremental và đối soát.",
     active: true
-  },
-  {
-    name: "Lazada",
-    slug: "lazada",
-    status: "Chờ credential",
-    icon: "L",
-    description: "Connector đã credential-ready, sẽ shadow sync khi token được cấp.",
-    active: false
   }
 ];
 

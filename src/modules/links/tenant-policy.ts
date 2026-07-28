@@ -17,7 +17,7 @@ export function resolveTenantLinkPolicy(input: {
   now?: Date;
 }): {
   tenantId: string;
-  affiliateId: string;
+  affiliateId?: string;
   shareBps: number;
   withholdingTaxBps: number;
 } | null {
@@ -30,24 +30,24 @@ export function resolveTenantLinkPolicy(input: {
   if (!subscriptionActive) {
     throw new AppError("FORBIDDEN", "Gói dịch vụ của nhóm đã hết hạn hoặc đang tạm dừng.", 403);
   }
-  if (input.platform !== "SHOPEE_MARKETPLACE") {
+  if (tenant.memberShareBps === null) {
     throw new AppError(
       "CONNECTOR_UNAVAILABLE",
-      "Nhóm hiện chỉ hỗ trợ tạo link bằng Shopee Affiliate ID của admin.",
+      "Admin nhóm chưa cấu hình tỷ lệ hoàn cho member.",
       503
     );
   }
-  if (!tenant.shopeeAffiliateId || tenant.memberShareBps === null) {
+  if (input.platform === "SHOPEE_MARKETPLACE" && !tenant.shopeeAffiliateId) {
     throw new AppError(
       "CONNECTOR_UNAVAILABLE",
-      "Admin nhóm chưa hoàn tất Affiliate ID hoặc tỷ lệ hoàn cho member.",
+      "Admin nhóm chưa cấu hình Shopee Affiliate ID.",
       503
     );
   }
 
   return {
     tenantId: tenant.id,
-    affiliateId: tenant.shopeeAffiliateId,
+    ...(tenant.shopeeAffiliateId ? { affiliateId: tenant.shopeeAffiliateId } : {}),
     shareBps: tenant.memberShareBps,
     withholdingTaxBps: TENANT_AFFILIATE_TAX_BPS
   };

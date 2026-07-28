@@ -47,11 +47,7 @@ function assertTransition(from: PayoutStatus, to: PayoutStatus): void {
 
 function payosClient(): PayOS {
   const env = loadServerEnv();
-  if (
-    !env.PAYOS_CLIENT_ID ||
-    !env.PAYOS_API_KEY ||
-    !env.PAYOS_CHECKSUM_KEY
-  ) {
+  if (!env.PAYOS_CLIENT_ID || !env.PAYOS_API_KEY || !env.PAYOS_CHECKSUM_KEY) {
     throw new AppError("PAYOUT_DISABLED", "payOS Payout credentials chưa được cấu hình.", 503);
   }
   return new PayOS({
@@ -67,6 +63,8 @@ export async function createPayoutTicket(input: {
   userId: string;
   beneficiaryId: string;
   amountVnd: bigint;
+  idempotencyKey: string;
+  requestHash: string;
 }) {
   if (input.amountVnd < MIN_PAYOUT_VND || input.amountVnd > BETA_MAX_PAYOUT_VND) {
     throw new AppError(
@@ -76,134 +74,177 @@ export async function createPayoutTicket(input: {
     );
   }
   const reference = `PO-${Date.now()}-${randomUUID().slice(0, 8).toUpperCase()}`;
-  return db.$transaction(
-    async (tx) => {
-      await tx.$queryRaw`
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await db.$transaction(
+        async (tx) => {
+          const existing = await tx.payoutTicket.findFirst({
+            where: {
+              userId: input.userId,
+              clientIdempotencyKey: input.idempotencyKey
+            }
+          });
+          if (existing) {
+            if (existing.requestHash !== input.requestHash) {
+              throw new AppError("CONFLICT", "Idempotency-Key đã được dùng với dữ liệu khác.", 409);
+            }
+            return existing;
+          }
+          await tx.$queryRaw`
         SELECT id FROM "WalletProjection" WHERE "userId" = ${input.userId} FOR UPDATE
       `;
-      const dayStart = startOfVietnamDay();
-      const wallet = await tx.walletProjection.findUnique({ where: { userId: input.userId } });
-      const beneficiary = await tx.bankBeneficiary.findFirst({
-        where: {
-          id: input.beneficiaryId,
-          userId: input.userId,
-          active: true,
-          status: "VERIFIED"
-        }
-      });
-      const lastChange = await tx.beneficiaryChange.findFirst({
-        where: { beneficiaryId: input.beneficiaryId },
-        orderBy: { createdAt: "desc" }
-      });
-      const spentToday = await tx.payoutTicket.aggregate({
-        where: {
-          userId: input.userId,
-          createdAt: { gte: dayStart },
-          status: { notIn: ["FAILED", "CANCELLED"] }
-        },
-        _sum: { amountVnd: true }
-      });
-      const systemSpentToday = await tx.payoutTicket.aggregate({
-        where: {
-          createdAt: { gte: dayStart },
-          status: { notIn: ["FAILED", "CANCELLED"] }
-        },
-        _sum: { amountVnd: true }
-      });
-      const budgetFlag = await tx.featureFlag.findUnique({
-        where: { key: "payout.daily_budget_vnd" },
-        select: { value: true }
-      });
-      if (!wallet || wallet.availableVnd < input.amountVnd) {
-        throw new AppError("INSUFFICIENT_BALANCE", "Số dư khả dụng không đủ.", 409);
-      }
-      if (!beneficiary) {
-        throw new AppError("VALIDATION_ERROR", "Người thụ hưởng không hợp lệ.", 400);
-      }
-      if (!lastChange || lastChange.holdUntil > new Date()) {
-        throw new AppError(
-          "BENEFICIARY_HOLD",
-          "Tài khoản ngân hàng đang trong thời gian khóa 72 giờ.",
-          409
-        );
-      }
-      if ((spentToday._sum.amountVnd ?? 0n) + input.amountVnd > DAILY_PAYOUT_LIMIT_VND) {
-        throw new AppError("PAYOUT_LIMIT", "Đã vượt hạn mức payout trong ngày.", 409);
-      }
-      if (
-        (systemSpentToday._sum.amountVnd ?? 0n) + input.amountVnd >
-        systemDailyBudget(budgetFlag?.value)
-      ) {
-        throw new AppError("PAYOUT_LIMIT", "Ngân sách payout toàn hệ thống hôm nay đã hết.", 409);
-      }
-
-      const draft = await tx.payoutTicket.create({
-        data: {
-          reference,
-          userId: input.userId,
-          beneficiaryId: beneficiary.id,
-          amountVnd: input.amountVnd,
-          status: PayoutStatus.DRAFT
-        }
-      });
-      assertTransition(draft.status, PayoutStatus.RESERVED);
-      await postJournal(tx, {
-        type: LedgerTransactionType.PAYOUT_RESERVE,
-        idempotencyKey: `payout:${draft.id}:reserve`,
-        description: "Khóa số dư cho yêu cầu hoàn tiền.",
-        reference: draft.id,
-        lines: [
-          {
-            accountCode: `liability:user:${input.userId}:available`,
-            accountName: "User available cashback",
-            accountKind: LedgerAccountKind.LIABILITY,
-            userId: input.userId,
-            direction: LedgerDirection.DEBIT,
-            amountVnd: input.amountVnd
-          },
-          {
-            accountCode: `liability:user:${input.userId}:reserved`,
-            accountName: "User reserved cashback",
-            accountKind: LedgerAccountKind.LIABILITY,
-            userId: input.userId,
-            direction: LedgerDirection.CREDIT,
-            amountVnd: input.amountVnd
+          const dayStart = startOfVietnamDay();
+          const wallet = await tx.walletProjection.findUnique({ where: { userId: input.userId } });
+          const beneficiary = await tx.bankBeneficiary.findFirst({
+            where: {
+              id: input.beneficiaryId,
+              userId: input.userId,
+              active: true,
+              status: "VERIFIED"
+            }
+          });
+          const lastChange = await tx.beneficiaryChange.findFirst({
+            where: { beneficiaryId: input.beneficiaryId },
+            orderBy: { createdAt: "desc" }
+          });
+          const spentToday = await tx.payoutTicket.aggregate({
+            where: {
+              userId: input.userId,
+              createdAt: { gte: dayStart },
+              status: { notIn: ["FAILED", "CANCELLED"] }
+            },
+            _sum: { amountVnd: true }
+          });
+          const systemSpentToday = await tx.payoutTicket.aggregate({
+            where: {
+              createdAt: { gte: dayStart },
+              status: { notIn: ["FAILED", "CANCELLED"] }
+            },
+            _sum: { amountVnd: true }
+          });
+          const budgetFlag = await tx.featureFlag.findUnique({
+            where: { key: "payout.daily_budget_vnd" },
+            select: { value: true }
+          });
+          if (!wallet || wallet.availableVnd < input.amountVnd) {
+            throw new AppError("INSUFFICIENT_BALANCE", "Số dư khả dụng không đủ.", 409);
           }
-        ]
-      });
-      await tx.walletProjection.update({
-        where: { userId: input.userId },
-        data: {
-          availableVnd: { decrement: input.amountVnd },
-          reservedVnd: { increment: input.amountVnd },
-          version: { increment: 1 }
+          if (!beneficiary) {
+            throw new AppError("VALIDATION_ERROR", "Người thụ hưởng không hợp lệ.", 400);
+          }
+          if (!lastChange || lastChange.holdUntil > new Date()) {
+            throw new AppError(
+              "BENEFICIARY_HOLD",
+              "Tài khoản ngân hàng đang trong thời gian khóa 72 giờ.",
+              409
+            );
+          }
+          if ((spentToday._sum.amountVnd ?? 0n) + input.amountVnd > DAILY_PAYOUT_LIMIT_VND) {
+            throw new AppError("PAYOUT_LIMIT", "Đã vượt hạn mức payout trong ngày.", 409);
+          }
+          if (
+            (systemSpentToday._sum.amountVnd ?? 0n) + input.amountVnd >
+            systemDailyBudget(budgetFlag?.value)
+          ) {
+            throw new AppError(
+              "PAYOUT_LIMIT",
+              "Ngân sách payout toàn hệ thống hôm nay đã hết.",
+              409
+            );
+          }
+
+          const draft = await tx.payoutTicket.create({
+            data: {
+              reference,
+              userId: input.userId,
+              beneficiaryId: beneficiary.id,
+              amountVnd: input.amountVnd,
+              status: PayoutStatus.DRAFT,
+              clientIdempotencyKey: input.idempotencyKey,
+              requestHash: input.requestHash
+            }
+          });
+          assertTransition(draft.status, PayoutStatus.RESERVED);
+          const reserveJournal = await postJournal(tx, {
+            type: LedgerTransactionType.PAYOUT_RESERVE,
+            idempotencyKey: `payout:${draft.id}:reserve`,
+            description: "Khóa số dư cho yêu cầu hoàn tiền.",
+            reference: draft.id,
+            lines: [
+              {
+                accountCode: `liability:user:${input.userId}:available`,
+                accountName: "User available cashback",
+                accountKind: LedgerAccountKind.LIABILITY,
+                userId: input.userId,
+                direction: LedgerDirection.DEBIT,
+                amountVnd: input.amountVnd
+              },
+              {
+                accountCode: `liability:user:${input.userId}:reserved`,
+                accountName: "User reserved cashback",
+                accountKind: LedgerAccountKind.LIABILITY,
+                userId: input.userId,
+                direction: LedgerDirection.CREDIT,
+                amountVnd: input.amountVnd
+              }
+            ]
+          });
+          if (reserveJournal.created) {
+            await tx.walletProjection.update({
+              where: { userId: input.userId },
+              data: {
+                availableVnd: { decrement: input.amountVnd },
+                reservedVnd: { increment: input.amountVnd },
+                version: { increment: 1 }
+              }
+            });
+          }
+          await tx.outboxEvent.create({
+            data: {
+              aggregateType: "PayoutTicket",
+              aggregateId: draft.id,
+              eventType: "payout.reserved",
+              idempotencyKey: `payout:${draft.id}:reserved:event`,
+              payload: { payoutTicketId: draft.id }
+            }
+          });
+          await tx.auditLog.create({
+            data: {
+              actorUserId: input.userId,
+              action: "payout.created",
+              entityType: "PayoutTicket",
+              entityId: draft.id,
+              after: { amountVnd: input.amountVnd.toString(), status: PayoutStatus.RESERVED }
+            }
+          });
+          return tx.payoutTicket.update({
+            where: { id: draft.id },
+            data: { status: PayoutStatus.RESERVED }
+          });
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+      );
+    } catch (error) {
+      const retryable =
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        (error.code === "P2002" || error.code === "P2034");
+      if (!retryable) throw error;
+      const existing = await db.payoutTicket.findFirst({
+        where: {
+          userId: input.userId,
+          clientIdempotencyKey: input.idempotencyKey
         }
       });
-      await tx.outboxEvent.create({
-        data: {
-          aggregateType: "PayoutTicket",
-          aggregateId: draft.id,
-          eventType: "payout.reserved",
-          idempotencyKey: `payout:${draft.id}:reserved:event`,
-          payload: { payoutTicketId: draft.id }
+      if (existing) {
+        if (existing.requestHash !== input.requestHash) {
+          throw new AppError("CONFLICT", "Idempotency-Key đã được dùng với dữ liệu khác.", 409);
         }
-      });
-      await tx.auditLog.create({
-        data: {
-          actorUserId: input.userId,
-          action: "payout.created",
-          entityType: "PayoutTicket",
-          entityId: draft.id,
-          after: { amountVnd: input.amountVnd.toString(), status: PayoutStatus.RESERVED }
-        }
-      });
-      return tx.payoutTicket.update({
-        where: { id: draft.id },
-        data: { status: PayoutStatus.RESERVED }
-      });
-    },
-    { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
-  );
+        return existing;
+      }
+      if (attempt === 2) throw error;
+    }
+  }
+  throw new AppError("INTERNAL_ERROR", "Không thể tạo payout ticket.", 500);
 }
 
 export async function reviewPayout(input: {
@@ -339,7 +380,7 @@ async function applyTerminalPayoutOutcome(
     return;
   }
   if (nextStatus === PayoutStatus.PAID) {
-    await postJournal(tx, {
+    const journal = await postJournal(tx, {
       type: LedgerTransactionType.PAYOUT_PAID,
       idempotencyKey: `payout:${ticket.id}:paid`,
       description: "payOS xác nhận payout thành công.",
@@ -362,16 +403,17 @@ async function applyTerminalPayoutOutcome(
         }
       ]
     });
-    await tx.walletProjection.update({
-      where: { userId: ticket.userId },
-      data: {
-        reservedVnd: { decrement: ticket.amountVnd },
-        paidVnd: { increment: ticket.amountVnd },
-        version: { increment: 1 }
-      }
-    });
+    if (journal.created)
+      await tx.walletProjection.update({
+        where: { userId: ticket.userId },
+        data: {
+          reservedVnd: { decrement: ticket.amountVnd },
+          paidVnd: { increment: ticket.amountVnd },
+          version: { increment: 1 }
+        }
+      });
   } else {
-    await postJournal(tx, {
+    const journal = await postJournal(tx, {
       type: LedgerTransactionType.PAYOUT_RELEASE,
       idempotencyKey: `payout:${ticket.id}:release`,
       description: "Giải phóng số dư sau khi payOS xác nhận payout thất bại.",
@@ -395,14 +437,15 @@ async function applyTerminalPayoutOutcome(
         }
       ]
     });
-    await tx.walletProjection.update({
-      where: { userId: ticket.userId },
-      data: {
-        reservedVnd: { decrement: ticket.amountVnd },
-        availableVnd: { increment: ticket.amountVnd },
-        version: { increment: 1 }
-      }
-    });
+    if (journal.created)
+      await tx.walletProjection.update({
+        where: { userId: ticket.userId },
+        data: {
+          reservedVnd: { decrement: ticket.amountVnd },
+          availableVnd: { increment: ticket.amountVnd },
+          version: { increment: 1 }
+        }
+      });
   }
   await tx.outboxEvent.upsert({
     where: { idempotencyKey: `payout:${ticket.id}:${nextStatus.toLowerCase()}:event` },
@@ -562,27 +605,49 @@ export async function reconcilePayout(payoutTicketId: string) {
   }
   const resolvedPayout = payout;
   const mappedStatus = mapPayosState(resolvedPayout);
-  const nextStatus =
-    ticket.status === PayoutStatus.UNKNOWN && mappedStatus === PayoutStatus.SUBMITTED
-      ? PayoutStatus.PROCESSING
-      : mappedStatus;
-  if (nextStatus !== ticket.status) assertTransition(ticket.status, nextStatus);
-  return db.$transaction(async (tx) => {
-    await tx.payoutAttempt.update({
-      where: { id: attempt.id },
-      data: {
-        providerPayoutId: resolvedPayout.id,
-        providerState: resolvedPayout.approvalState,
-        reconciledAt: new Date()
+  return db.$transaction(
+    async (tx) => {
+      await tx.$queryRaw`
+        SELECT id FROM "PayoutTicket" WHERE id = ${ticket.id} FOR UPDATE
+      `;
+      const current = await tx.payoutTicket.findUniqueOrThrow({
+        where: { id: ticket.id },
+        include: { attempts: { orderBy: { attemptNumber: "desc" }, take: 1 } }
+      });
+      const currentAttempt = current.attempts[0];
+      if (!currentAttempt || currentAttempt.id !== attempt.id) {
+        throw new AppError("PAYOUT_STATE", "Payout attempt đã thay đổi khi đối soát.", 409);
       }
-    });
-    await applyTerminalPayoutOutcome(tx, ticket, nextStatus);
-    return tx.payoutTicket.update({
-      where: { id: ticket.id },
-      data: {
-        status: nextStatus,
-        paidAt: nextStatus === PayoutStatus.PAID ? new Date() : ticket.paidAt
+      if (current.status === PayoutStatus.PAID || current.status === PayoutStatus.FAILED) {
+        return current;
       }
-    });
-  });
+      const nextStatus =
+        current.status === PayoutStatus.UNKNOWN && mappedStatus === PayoutStatus.SUBMITTED
+          ? PayoutStatus.PROCESSING
+          : mappedStatus;
+      if (nextStatus !== current.status) assertTransition(current.status, nextStatus);
+      await tx.payoutAttempt.update({
+        where: { id: currentAttempt.id },
+        data: {
+          providerPayoutId: resolvedPayout.id,
+          providerState: resolvedPayout.approvalState,
+          reconciledAt: new Date()
+        }
+      });
+      if (nextStatus === PayoutStatus.PAID || nextStatus === PayoutStatus.FAILED) {
+        await tx.$queryRaw`
+          SELECT id FROM "WalletProjection" WHERE "userId" = ${current.userId} FOR UPDATE
+        `;
+      }
+      await applyTerminalPayoutOutcome(tx, current, nextStatus);
+      return tx.payoutTicket.update({
+        where: { id: current.id },
+        data: {
+          status: nextStatus,
+          paidAt: nextStatus === PayoutStatus.PAID ? new Date() : current.paidAt
+        }
+      });
+    },
+    { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+  );
 }

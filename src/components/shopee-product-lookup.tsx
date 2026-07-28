@@ -1,17 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Search,
-  Copy,
-  Check,
-  Zap,
-  Sparkles,
-  ShoppingBag,
-  Info,
-  Star,
-  Flame
-} from "lucide-react";
+import { Search, Copy, Check, Zap, Sparkles, ShoppingBag, Info, Star, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,7 +14,7 @@ interface ProductData {
     shopId: string;
     title: string;
     shopName: string;
-    priceVnd: number;
+    priceVnd: string;
     salesCount: number;
     imageUrl?: string;
     rating: string;
@@ -33,13 +23,13 @@ interface ProductData {
     trackingUrl: string;
   };
   commission: {
-    totalVnd: number;
+    totalVnd: string;
     totalPercent: number;
-    sellerVnd: number;
+    sellerVnd: string;
     sellerPercent: number;
-    shopeeVnd: number;
+    shopeeVnd: string;
     shopeePercent: number;
-    capVnd: number;
+    capVnd: string;
     isCapped: boolean;
   };
 }
@@ -157,8 +147,9 @@ export function ShopeeProductLookup({
           </form>
 
           <p className="text-xs text-white/50">
-            Hỗ trợ link <code className="text-amber-400/90">shopee.vn/product/...</code>, link rút gọn{" "}
-            <code className="text-amber-400/90">shp.ee/...</code>, hoặc nhập trực tiếp <code className="text-amber-400/90">item_id</code>.
+            Hỗ trợ link <code className="text-amber-400/90">shopee.vn/product/...</code>, link rút
+            gọn <code className="text-amber-400/90">shp.ee/...</code>, hoặc nhập trực tiếp{" "}
+            <code className="text-amber-400/90">item_id</code>.
           </p>
         </div>
       </div>
@@ -265,7 +256,11 @@ export function ShopeeProductLookup({
                       onClick={() => handleCopy(data.product.trackingUrl)}
                       className="h-12 border-white/20 bg-white/10 px-5 text-white hover:bg-white/20"
                     >
-                      {copied ? <Check className="size-5 text-emerald-400" /> : <Copy className="size-5" />}
+                      {copied ? (
+                        <Check className="size-5 text-emerald-400" />
+                      ) : (
+                        <Copy className="size-5" />
+                      )}
                       {copied ? "Đã chép link!" : "Copy link affiliate"}
                     </Button>
                   </div>
@@ -333,7 +328,8 @@ export function ShopeeProductLookup({
 
               <p className="flex items-center gap-2 text-xs text-white/50">
                 <Info className="size-4 shrink-0 text-amber-400" />
-                Số liệu mang tính tham khảo dựa trên giá niêm yết hiện tại. Tỷ lệ thực tế khi ra đơn có thể thay đổi tùy kênh (App/Web) và khuyến mãi của Shopee.
+                Số liệu mang tính tham khảo dựa trên giá niêm yết hiện tại. Tỷ lệ thực tế khi ra đơn
+                có thể thay đổi tùy kênh (App/Web) và khuyến mãi của Shopee.
               </p>
             </CardContent>
           </Card>

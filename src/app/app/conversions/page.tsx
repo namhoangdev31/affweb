@@ -32,7 +32,8 @@ export default async function ConversionsPage({
       merchant: true,
       items: true,
       user: { select: { name: true, email: true } },
-      tenant: { select: { name: true, slug: true } }
+      tenant: { select: { name: true, slug: true } },
+      click: { select: { attributionMode: true } }
     },
     orderBy: { purchasedAt: "desc" },
     take: 100
@@ -151,6 +152,7 @@ export default async function ConversionsPage({
       <div className="space-y-4">
         {conversions.map((conversion) => {
           const isTenantConversion = Boolean(conversion.tenantId);
+          const isTenantChannel = conversion.click?.attributionMode === "TENANT_CHANNEL";
           return (
             <Card key={conversion.id}>
               <CardContent className="flex flex-wrap items-center gap-4 p-5">
@@ -182,12 +184,18 @@ export default async function ConversionsPage({
                       <Badge
                         variant={conversion.tenantPaidAt ? "default" : "secondary"}
                         className={
-                          conversion.tenantPaidAt
-                            ? "bg-emerald-600 text-white"
-                            : "bg-amber-100 text-amber-800"
+                          isTenantChannel
+                            ? "border-blue-500/30 bg-blue-50 text-blue-800"
+                            : conversion.tenantPaidAt
+                              ? "bg-emerald-600 text-white"
+                              : "bg-amber-100 text-amber-800"
                         }
                       >
-                        {conversion.tenantPaidAt ? "Đã chi trả" : "Chờ admin chi trả"}
+                        {isTenantChannel
+                          ? "Không cần chi member"
+                          : conversion.tenantPaidAt
+                            ? "Đã chi trả"
+                            : "Chờ admin chi trả"}
                       </Badge>
                     ) : null}
                   </div>
@@ -205,9 +213,11 @@ export default async function ConversionsPage({
                       ? `Sau thuế: ${formatVnd(
                           conversion.netCommissionVnd - conversion.withholdingTaxVnd
                         )}`
-                      : isTenantConversion
-                        ? `${conversion.shareBps / 100}% hoa hồng sau thuế`
-                        : `${conversion.shareBps / 100}% hoa hồng chia lại`}
+                      : isTenantChannel
+                        ? "Link cấp tenant, cashback member bằng 0"
+                        : isTenantConversion
+                          ? `${conversion.shareBps / 100}% hoa hồng sau thuế`
+                          : `${conversion.shareBps / 100}% hoa hồng chia lại`}
                   </p>
                   {isTenantOwnerView &&
                   conversion.status === "VALIDATED" &&

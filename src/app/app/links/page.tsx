@@ -12,7 +12,7 @@ function productFromSnapshot(value: unknown): LinkHistoryItem["product"] {
     title: record.title,
     shopName: typeof record.shopName === "string" ? record.shopName : null,
     imageUrl: typeof record.imageUrl === "string" ? record.imageUrl : null,
-    priceVnd: typeof record.priceVnd === "number" ? record.priceVnd : null
+    priceVnd: typeof record.priceVnd === "string" ? record.priceVnd : null
   };
 }
 

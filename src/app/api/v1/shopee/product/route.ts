@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { errorResponse } from "@/lib/errors";
 import { jsonSafe } from "@/lib/json";
-import { requestId } from "@/lib/request";
+import { readJson, requestId } from "@/lib/request";
 import { fetchShopeeProductData } from "@/lib/shopee-product";
 
 export const runtime = "nodejs";
@@ -13,7 +13,7 @@ const inputSchema = z.object({
 export async function POST(request: Request): Promise<Response> {
   const id = await requestId();
   try {
-    const body = (await request.json()) as { url?: string };
+    const body = await readJson<unknown>(request, 16_384);
     const { url } = inputSchema.parse(body);
 
     const data = await fetchShopeeProductData(url);
@@ -22,7 +22,8 @@ export async function POST(request: Request): Promise<Response> {
         {
           error: {
             code: "NOT_FOUND",
-            message: "Không bóc tách được thông tin sản phẩm Shopee từ liên kết này. Vui lòng thử dùng liên kết gốc hoặc liên kết sản phẩm đầy đủ.",
+            message:
+              "Không bóc tách được thông tin sản phẩm Shopee từ liên kết này. Vui lòng thử dùng liên kết gốc hoặc liên kết sản phẩm đầy đủ.",
             requestId: id
           }
         },

@@ -11,7 +11,6 @@ import {
   Crown,
   KeyRound,
   QrCode,
-  Send,
   ShieldCheck,
   Smartphone,
   Sparkles,
@@ -23,13 +22,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PLAN_PRESETS } from "@/lib/tenant-config";
+import {
+  TenantProviderCredentials,
+  type TenantProviderAccountView
+} from "@/components/tenant-provider-credentials";
+import { formatVnd } from "@/lib/utils";
 
 type TenantSettingsProps = {
   id: string;
   name: string;
   slug: string;
-  customDomain: string | null;
   status: string;
   isTrial: boolean;
   trialEndsAtLabel: string | null;
@@ -38,15 +40,32 @@ type TenantSettingsProps = {
   memberSharePercent: number | null;
 };
 
-export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantSettingsProps }) {
+export function TenantSettingsClient({
+  initialTenant,
+  zaloAvailable,
+  zaloInviteUrl,
+  planAllowsCredentials,
+  credentialFeatureEnabled,
+  providerAccounts
+}: {
+  initialTenant: TenantSettingsProps;
+  zaloAvailable: boolean;
+  zaloInviteUrl?: string;
+  planAllowsCredentials: boolean;
+  credentialFeatureEnabled: boolean;
+  providerAccounts: TenantProviderAccountView[];
+}) {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [isYearlyBilling, setIsYearlyBilling] = useState(false);
   const [copiedCommand, setCopiedCommand] = useState(false);
+  const [zaloBindingCode, setZaloBindingCode] = useState<string | null>(null);
+  const [zaloBindingError, setZaloBindingError] = useState<string | null>(null);
+  const [loadingZaloCode, setLoadingZaloCode] = useState(false);
 
   const [payosData, setPayosData] = useState<{
     checkoutUrl?: string;
     qrCode?: string;
-    amount?: number;
+    amountVnd?: string;
     planCode?: string;
   } | null>(null);
 
@@ -65,7 +84,10 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
     try {
       const res = await fetch("/api/saas/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": crypto.randomUUID()
+        },
         body: JSON.stringify({
           tenantId: tenant.id,
           planCode
@@ -76,7 +98,7 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
         setPayosData({
           checkoutUrl: data.data.checkoutUrl,
           qrCode: data.data.qrCode,
-          amount: PLAN_PRESETS[planCode]?.priceMonthly ?? 0,
+          amountVnd: data.data.invoice.amountVnd,
           planCode
         });
       }
@@ -117,8 +139,33 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
     }
   };
 
+  const handleGenerateZaloCode = async () => {
+    setLoadingZaloCode(true);
+    setZaloBindingError(null);
+    try {
+      const response = await fetch("/api/v1/tenant/zalo/group-link-codes", {
+        method: "POST"
+      });
+      const body = (await response.json()) as {
+        code?: string;
+        error?: { message?: string };
+      };
+      if (!response.ok || !body.code) {
+        throw new Error(body.error?.message ?? "Không thể tạo mã liên kết Zalo.");
+      }
+      setZaloBindingCode(body.code);
+    } catch (error) {
+      setZaloBindingError(
+        error instanceof Error ? error.message : "Không thể tạo mã liên kết Zalo."
+      );
+    } finally {
+      setLoadingZaloCode(false);
+    }
+  };
+
   const handleCopyCommand = () => {
-    navigator.clipboard.writeText(`/link ${tenant.slug}`);
+    if (!zaloBindingCode) return;
+    navigator.clipboard.writeText(`/link ${zaloBindingCode}`);
     setCopiedCommand(true);
     setTimeout(() => setCopiedCommand(false), 2000);
   };
@@ -132,7 +179,7 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
             Quản lý Không gian làm việc (SaaS Tenant)
           </h1>
           <p className="text-muted-foreground">
-            Cấu hình chìa khóa Affiliate riêng, Zalo Bot tự động và gói cước SaaS.
+            Cấu hình Shopee Affiliate ID, Zalo Bot theo entitlement và gói cước SaaS.
           </p>
         </div>
         <Badge
@@ -176,12 +223,12 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
           <ShieldCheck className="size-6 text-emerald-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="font-semibold text-emerald-900 dark:text-emerald-300">
-              Cam kết 100% Hoa hồng thuộc về Bạn
+              Hoa hồng Shopee về tài khoản Affiliate của owner
             </p>
             <p className="text-sm text-emerald-800/80 dark:text-emerald-400">
-              Mọi khoản hoa hồng phát sinh từ Shopee & AccessTrade sẽ chuyển trực tiếp về tài khoản
-              Affiliate cá nhân của bạn. Chủ hệ thống SaaS chỉ thu phí thuê nền tảng cố định
-              (99k/199k/399k) và <strong>không thu bất kỳ % chiết khấu nào</strong>.
+              Hoa hồng tenant phát sinh từ Shopee được thanh toán vào tài khoản Affiliate của bạn.
+              Bạn tự đối soát report và thanh toán phần của member bên ngoài nền tảng; conversion
+              tenant không đi qua ví hoặc payout của nền tảng.
             </p>
           </div>
         </CardContent>
@@ -200,7 +247,8 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
             </div>
             <CardDescription>
               Quét mã QR bằng ứng dụng ngân hàng bất kỳ để tự động gia hạn gói{" "}
-              <strong>{payosData.planCode}</strong> ({payosData.amount?.toLocaleString("vi-VN")} ₫)
+              <strong>{payosData.planCode}</strong> (
+              {payosData.amountVnd ? formatVnd(BigInt(payosData.amountVnd)) : "—"})
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6 flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:justify-around">
@@ -209,7 +257,7 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
                 {/* QR is generated by the external payment service URL. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(payosData.checkoutUrl || "")}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(payosData.qrCode || "")}`}
                   alt="VietQR PayOS"
                   className="size-48 object-contain"
                 />
@@ -221,7 +269,7 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Số tiền thanh toán:</span>
                   <span className="font-bold text-primary text-base">
-                    {payosData.amount?.toLocaleString("vi-VN")} ₫
+                    {payosData.amountVnd ? formatVnd(BigInt(payosData.amountVnd)) : "—"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -352,17 +400,16 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-primary" />{" "}
-                <strong>Shopee + AccessTrade API</strong>
+                <strong>Shopee Direct Link / CSV Import</strong>
               </div>
+              {zaloAvailable ? (
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="size-4 text-primary" />{" "}
+                  <strong>Hỗ trợ Zalo Bot tự tạo link 🤖</strong>
+                </div>
+              ) : null}
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-primary" />{" "}
-                <strong>Hỗ trợ Zalo Bot tự tạo link 🤖</strong>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-primary" /> Hỗ trợ Custom Domain riêng
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-primary" /> 100% Hoa hồng về ví bạn
+                <CheckCircle2 className="size-4 text-primary" /> Owner tự đối soát và chi member
               </div>
             </CardContent>
             <div className="p-6 pt-0">
@@ -398,19 +445,20 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
                 <strong>20,000+ Thành viên</strong>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-500" /> Full Open API (Shopee, AT,
-                TikTok)
+                <CheckCircle2 className="size-4 text-emerald-500" /> Shopee Direct Link / CSV Import
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-500" />{" "}
-                <strong>Full Zalo Bot & Broadcast 🤖</strong>
-              </div>
+              {zaloAvailable ? (
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="size-4 text-emerald-500" />{" "}
+                  <strong>Zalo Bot tạo link Shopee 🤖</strong>
+                </div>
+              ) : null}
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-emerald-500" /> Định tuyến Kênh KOC
                 Multi-Tenant Path (/t/[slug])
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-500" /> Full White-label & Custom Brand
+                <CheckCircle2 className="size-4 text-emerald-500" /> Màu sắc và tên thương hiệu
               </div>
             </CardContent>
             <div className="p-6 pt-0">
@@ -432,208 +480,187 @@ export function TenantSettingsClient({ initialTenant }: { initialTenant: TenantS
       </div>
 
       {/* 1 Central Zalo Bot System */}
-      <Card className="border-2 border-blue-500/30 bg-gradient-to-br from-blue-950/20 via-background to-teal-950/20 shadow-xl overflow-hidden">
-        <CardHeader className="border-b bg-blue-500/5 pb-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="grid size-10 place-items-center rounded-xl bg-blue-600/10 text-blue-600 border border-blue-500/20 shadow-sm">
-                <Bot className="size-5" />
+      {zaloAvailable && zaloInviteUrl ? (
+        <Card className="border-2 border-blue-500/30 bg-gradient-to-br from-blue-950/20 via-background to-teal-950/20 shadow-xl overflow-hidden">
+          <CardHeader className="border-b bg-blue-500/5 pb-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="grid size-10 place-items-center rounded-xl bg-blue-600/10 text-blue-600 border border-blue-500/20 shadow-sm">
+                  <Bot className="size-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">
+                    Hướng Dẫn & Kích Hoạt Zalo Bot Tự Động 🤖
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    0 Khai báo Cloud — Thêm Bot vào Nhóm Zalo Chat & gõ lệnh 1 Click để bắt đầu hoàn
+                    tiền!
+                  </CardDescription>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-xl">Hướng Dẫn & Kích Hoạt Zalo Bot Tự Động 🤖</CardTitle>
-                <CardDescription className="text-xs">
-                  0 Khai báo Cloud — Thêm Bot vào Nhóm Zalo Chat & gõ lệnh 1 Click để bắt đầu hoàn
-                  tiền!
-                </CardDescription>
-              </div>
+              <Badge className="bg-blue-600 text-white shadow">PRO & PREMIUM</Badge>
             </div>
-            <Badge className="bg-blue-600 text-white shadow">PRO & PREMIUM</Badge>
-          </div>
-        </CardHeader>
+          </CardHeader>
 
-        <CardContent className="space-y-8 pt-6">
-          {/* Step 1 & Step 2 Layout */}
-          <div className="grid gap-6 lg:grid-cols-12">
-            {/* QR Section - Left 5 cols */}
-            <div className="lg:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-card border shadow-sm text-center space-y-4">
-              <Badge
-                variant="outline"
-                className="border-blue-500/40 text-blue-600 bg-blue-50/50 dark:bg-blue-950/50 font-semibold px-3 py-1"
-              >
-                <QrCode className="mr-1.5 size-3.5" /> BƯỚC 1: QUÉT MÃ QR THÊM BOT
-              </Badge>
-              {(() => {
-                const inviteUrl =
-                  process.env.NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL ||
-                  "https://bot.zaloplatforms.com/groups/invite/bot.TvMybWYu";
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(inviteUrl)}`;
-                return (
-                  <>
-                    <div className="relative group p-4 rounded-2xl bg-white shadow-md border transition-transform hover:scale-105">
-                      {/* QR is generated from the tenant-specific invite URL. */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={qrUrl}
-                        alt="Mã QR Thêm Bot Zalo Vào Nhóm Chat"
-                        className="size-48 object-contain"
-                      />
-                      <div className="absolute inset-0 bg-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
-                    </div>
-                    <Button
-                      asChild
-                      className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-md"
-                    >
-                      <a href={inviteUrl} target="_blank" rel="noopener noreferrer">
-                        <Smartphone className="mr-2 size-4" /> Mở Zalo Thêm Bot Vào Nhóm
-                      </a>
-                    </Button>
-                  </>
-                );
-              })()}
-              <p className="text-xs text-muted-foreground">
-                Quét bằng app Zalo trên điện thoại để mời Zalo Bot Trung Tâm vào Group săn sale của
-                bạn.
-              </p>
-            </div>
-
-            {/* Instruction Steps & Copy Command - Right 7 cols */}
-            <div className="lg:col-span-7 space-y-5 flex flex-col justify-between">
-              <div className="space-y-4">
+          <CardContent className="space-y-8 pt-6">
+            {/* Step 1 & Step 2 Layout */}
+            <div className="grid gap-6 lg:grid-cols-12">
+              {/* QR Section - Left 5 cols */}
+              <div className="lg:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-card border shadow-sm text-center space-y-4">
                 <Badge
                   variant="outline"
-                  className="border-emerald-500/40 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/50 font-semibold px-3 py-1"
+                  className="border-blue-500/40 text-blue-600 bg-blue-50/50 dark:bg-blue-950/50 font-semibold px-3 py-1"
                 >
-                  <Terminal className="mr-1.5 size-3.5" /> BƯỚC 2: KÍCH HOẠT VÀO NHÓM
+                  <QrCode className="mr-1.5 size-3.5" /> BƯỚC 1: QUÉT MÃ QR THÊM BOT
                 </Badge>
-
-                <h3 className="font-bold text-lg text-foreground">
-                  Gõ lệnh kích hoạt trực tiếp trong Nhóm Chat Zalo:
-                </h3>
-
-                {/* Command Copy Box */}
-                <div className="relative flex items-center justify-between p-4 rounded-xl bg-slate-950 text-slate-100 border border-slate-800 shadow-inner">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono text-slate-400">Lệnh:</span>
-                    <code className="font-mono text-base font-bold text-emerald-400 tracking-wide">
-                      /link {tenant.slug}
-                    </code>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleCopyCommand}
-                    className="text-slate-300 hover:text-white hover:bg-slate-800"
-                  >
-                    {copiedCommand ? (
-                      <>
-                        <Check className="mr-1.5 size-4 text-emerald-400" />{" "}
-                        <span className="text-emerald-400 font-semibold text-xs">Đã chép!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="mr-1.5 size-4" /> <span className="text-xs">Sao chép</span>
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p className="flex items-start gap-2">
-                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue-600/20 text-blue-600 font-bold text-xs">
-                      1
-                    </span>
-                    Vào nhóm Chat Zalo mà bạn vừa thêm Zalo Bot vào.
-                  </p>
-                  <p className="flex items-start gap-2">
-                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue-600/20 text-blue-600 font-bold text-xs">
-                      2
-                    </span>
-                    Dán câu lệnh{" "}
-                    <code className="bg-slate-900 text-emerald-400 px-1.5 py-0.5 rounded font-mono text-xs">
-                      /link {tenant.slug}
-                    </code>{" "}
-                    và gửi tin nhắn.
-                  </p>
-                  <p className="flex items-start gap-2">
-                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue-600/20 text-blue-600 font-bold text-xs">
-                      3
-                    </span>
-                    Zalo Bot sẽ phản hồi xác nhận kích hoạt thành công cho Kênh{" "}
-                    <strong className="text-foreground">{tenant.name}</strong>.
-                  </p>
-                </div>
+                {(() => {
+                  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(zaloInviteUrl)}`;
+                  return (
+                    <>
+                      <div className="relative group p-4 rounded-2xl bg-white shadow-md border transition-transform hover:scale-105">
+                        {/* QR is generated from the tenant-specific invite URL. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={qrUrl}
+                          alt="Mã QR Thêm Bot Zalo Vào Nhóm Chat"
+                          className="size-48 object-contain"
+                        />
+                        <div className="absolute inset-0 bg-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+                      </div>
+                      <Button
+                        asChild
+                        className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-md"
+                      >
+                        <a href={zaloInviteUrl} target="_blank" rel="noopener noreferrer">
+                          <Smartphone className="mr-2 size-4" /> Mở Zalo Thêm Bot Vào Nhóm
+                        </a>
+                      </Button>
+                    </>
+                  );
+                })()}
+                <p className="text-xs text-muted-foreground">
+                  Quét bằng app Zalo trên điện thoại để mời Zalo Bot Trung Tâm vào Group săn sale
+                  của bạn.
+                </p>
               </div>
 
-              {/* Simulation Demo Box */}
-              <div className="p-4 rounded-xl border bg-slate-900/90 text-white space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
-                  <span className="flex items-center gap-1.5">
-                    <Send className="size-3 text-blue-400" /> Mô phỏng hoạt động trong Nhóm Zalo
-                    Chat
-                  </span>
+              {/* Instruction Steps & Copy Command - Right 7 cols */}
+              <div className="lg:col-span-7 space-y-5 flex flex-col justify-between">
+                <div className="space-y-4">
                   <Badge
                     variant="outline"
-                    className="text-[10px] text-emerald-400 border-emerald-500/30"
+                    className="border-emerald-500/40 text-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/50 font-semibold px-3 py-1"
                   >
-                    Live Simulation
+                    <Terminal className="mr-1.5 size-3.5" /> BƯỚC 2: KÍCH HOẠT VÀO NHÓM
                   </Badge>
-                </div>
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-start gap-2">
-                    <span className="font-semibold text-slate-300">Thành viên:</span>
-                    <span className="text-slate-400 truncate">
-                      https://shopee.vn/product/123/456
-                    </span>
+
+                  <h3 className="font-bold text-lg text-foreground">
+                    Gõ lệnh kích hoạt trực tiếp trong Nhóm Chat Zalo:
+                  </h3>
+
+                  {/* Command Copy Box */}
+                  <div className="relative flex items-center justify-between p-4 rounded-xl bg-slate-950 text-slate-100 border border-slate-800 shadow-inner">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono text-slate-400">Lệnh:</span>
+                      <code className="font-mono text-base font-bold text-emerald-400 tracking-wide">
+                        {zaloBindingCode ? `/link ${zaloBindingCode}` : "Tạo mã liên kết trước"}
+                      </code>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={zaloBindingCode ? handleCopyCommand : handleGenerateZaloCode}
+                      disabled={loadingZaloCode}
+                      className="text-slate-300 hover:text-white hover:bg-slate-800"
+                    >
+                      {copiedCommand ? (
+                        <>
+                          <Check className="mr-1.5 size-4 text-emerald-400" />{" "}
+                          <span className="text-emerald-400 font-semibold text-xs">Đã chép!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="mr-1.5 size-4" />{" "}
+                          <span className="text-xs">Sao chép</span>
+                        </>
+                      )}
+                    </Button>
                   </div>
-                  <div className="flex items-start gap-2 pl-3 border-l-2 border-emerald-500 bg-emerald-950/40 p-2 rounded-r-lg">
-                    <span className="font-bold text-emerald-400">🤖 Zalo Bot:</span>
-                    <span className="text-slate-200">
-                      Link mua sắm tích Cashback:{" "}
-                      <strong className="text-emerald-300 underline font-mono">
-                        {getAppHostDisplay()}/go/token123
-                      </strong>{" "}
-                      (Đã gắn SubID Kênh {tenant.slug})
-                    </span>
+
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <p className="flex items-start gap-2">
+                      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue-600/20 text-blue-600 font-bold text-xs">
+                        1
+                      </span>
+                      Vào nhóm Chat Zalo mà bạn vừa thêm Zalo Bot vào.
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue-600/20 text-blue-600 font-bold text-xs">
+                        2
+                      </span>
+                      Dán câu lệnh{" "}
+                      <code className="bg-slate-900 text-emerald-400 px-1.5 py-0.5 rounded font-mono text-xs">
+                        {zaloBindingCode ? `/link ${zaloBindingCode}` : "/link ZL-..."}
+                      </code>{" "}
+                      và gửi tin nhắn.
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue-600/20 text-blue-600 font-bold text-xs">
+                        3
+                      </span>
+                      Zalo Bot sẽ phản hồi xác nhận kích hoạt thành công cho Kênh{" "}
+                      <strong className="text-foreground">{tenant.name}</strong>.
+                    </p>
                   </div>
+                  {zaloBindingError && (
+                    <p className="text-sm text-destructive">{zaloBindingError}</p>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Quick FAQ Checklist */}
-          <div className="pt-4 border-t grid gap-4 sm:grid-cols-3">
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-background border">
-              <CheckCircle2 className="size-5 text-emerald-500 shrink-0 mt-0.5" />
-              <div className="text-xs space-y-1">
-                <p className="font-semibold text-foreground">Tự động 100%</p>
-                <p className="text-muted-foreground">
-                  Bot tự động chuyển link Shopee/Lazada thành link cashback có SubID.
-                </p>
+            {/* Quick FAQ Checklist */}
+            <div className="pt-4 border-t grid gap-4 sm:grid-cols-3">
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-background border">
+                <CheckCircle2 className="size-5 text-emerald-500 shrink-0 mt-0.5" />
+                <div className="text-xs space-y-1">
+                  <p className="font-semibold text-foreground">Tự động 100%</p>
+                  <p className="text-muted-foreground">
+                    Bot chuyển link Shopee thành tracking link cấp tenant, không tạo cashback
+                    member.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-background border">
+                <ShieldCheck className="size-5 text-blue-500 shrink-0 mt-0.5" />
+                <div className="text-xs space-y-1">
+                  <p className="font-semibold text-foreground">Binding có kiểm soát</p>
+                  <p className="text-muted-foreground">
+                    Mỗi group được liên kết bằng mã dùng một lần có thời hạn 10 phút.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-background border">
+                <Sparkles className="size-5 text-amber-500 shrink-0 mt-0.5" />
+                <div className="text-xs space-y-1">
+                  <p className="font-semibold text-foreground">Đối soát bên ngoài</p>
+                  <p className="text-muted-foreground">
+                    Hoa hồng về Affiliate owner; tenant conversion không đi qua ví nền tảng.
+                  </p>
+                </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-background border">
-              <ShieldCheck className="size-5 text-blue-500 shrink-0 mt-0.5" />
-              <div className="text-xs space-y-1">
-                <p className="font-semibold text-foreground">Multi-Group Support</p>
-                <p className="text-muted-foreground">
-                  Thêm Bot vào không giới hạn số lượng nhóm Zalo chat cùng lúc.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-background border">
-              <Sparkles className="size-5 text-amber-500 shrink-0 mt-0.5" />
-              <div className="text-xs space-y-1">
-                <p className="font-semibold text-foreground">Doanh Thu Về Ví</p>
-                <p className="text-muted-foreground">
-                  Hoa hồng ghi nhận trực tiếp về Kênh KOC của bạn trong mục Đơn Hàng.
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <TenantProviderCredentials
+        planAllowsCredentials={planAllowsCredentials}
+        credentialFeatureEnabled={credentialFeatureEnabled}
+        initialAccounts={providerAccounts}
+      />
 
       {/* Affiliate ID and member cashback settings */}
       <Card>

@@ -45,14 +45,7 @@ async function createTenantAction(formData: FormData) {
   if (!parsed.success) {
     redirect("/onboarding/tenant?error=missing_fields" as Route);
   }
-  const {
-    name,
-    slug,
-    shopeeAffiliateId,
-    memberSharePercent,
-    brandColor,
-    planCode: selectedPlan
-  } = parsed.data;
+  const { name, slug, shopeeAffiliateId, memberSharePercent, brandColor } = parsed.data;
 
   const [existingSlug, existingOwner] = await Promise.all([
     db.tenant.findUnique({ where: { slug } }),
@@ -77,8 +70,7 @@ async function createTenantAction(formData: FormData) {
     await tx.tenant.update({
       where: { id: tenant.id },
       data: {
-        brandColor,
-        planId: selectedPlan
+        brandColor
       }
     });
     await tx.user.update({
@@ -119,9 +111,7 @@ export default async function TenantOnboardingPage({
             Khởi Tạo Kênh KOC Đại Lý.
           </h1>
           <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto">
-            Sở hữu thương hiệu Cashback & Affiliate riêng với{" "}
-            <strong>14 ngày dùng thử miễn phí đầy đủ tính năng</strong> (bao gồm Bot Zalo tự động
-            nhóm chat).
+            Sở hữu kênh Shopee Affiliate riêng với <strong>14 ngày dùng thử miễn phí</strong>.
           </p>
         </div>
 
@@ -255,8 +245,8 @@ export default async function TenantOnboardingPage({
                 14 Ngày Đầu)
               </CardTitle>
               <CardDescription className="text-slate-400">
-                Tất cả các gói đều nhận 14 ngày dùng thử miễn phí full tính năng. Không mất phí đăng
-                ký ban đầu.
+                Tenant mới bắt đầu bằng gói Trial 14 ngày. Quyền sử dụng sau gia hạn phụ thuộc đúng
+                vào gói được chọn.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -309,20 +299,15 @@ export default async function TenantOnboardingPage({
                     <p className="text-2xl font-bold text-emerald-400">
                       199.000 ₫ <span className="text-xs font-normal text-slate-400">/tháng</span>
                     </p>
-                    <p className="text-xs text-slate-300">
-                      Gói phổ biến nhất có tích hợp Bot Zalo nhóm chat tự động.
-                    </p>
+                    <p className="text-xs text-slate-300">Gói phổ biến cho cộng đồng săn sale.</p>
                   </div>
                   <ul className="mt-4 text-xs text-slate-200 space-y-1.5 border-t border-emerald-900/50 pt-3">
                     <li className="flex items-center gap-1.5">
                       <CheckCircle2 className="size-3.5 text-emerald-400" /> Tối đa 3.000 thành viên
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <CheckCircle2 className="size-3.5 text-emerald-400" /> Full Bot Zalo Nhóm Chat
-                    </li>
-                    <li className="flex items-center gap-1.5">
-                      <CheckCircle2 className="size-3.5 text-emerald-400" /> Shopee & AccessTrade
-                      API
+                      <CheckCircle2 className="size-3.5 text-emerald-400" /> Shopee Direct Link và
+                      nhập CSV
                     </li>
                   </ul>
                 </label>
@@ -352,8 +337,8 @@ export default async function TenantOnboardingPage({
                       <CheckCircle2 className="size-3.5 text-purple-400" /> Tối đa 20.000 thành viên
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <CheckCircle2 className="size-3.5 text-purple-400" /> Không giới hạn lượt
-                      click
+                      <CheckCircle2 className="size-3.5 text-purple-400" /> Tối đa 500.000 lượt
+                      click/tháng
                     </li>
                   </ul>
                 </label>

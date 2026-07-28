@@ -4,16 +4,14 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { Role } from "@/generated/prisma/client";
-import {
-  resolveAppUser,
-  type AppUser
-} from "@/lib/clerk-identity";
+import { resolveAppUser, type AppUser } from "@/lib/clerk-identity";
 import { hasVerifiedGoogleConnection } from "@/lib/clerk-identity-mapping";
 import { AppError } from "@/lib/errors";
 import { adminEmailAllowlist, loadServerEnv } from "@/lib/env";
 import { getRedis } from "@/lib/redis";
 
 const ADMIN_SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;
+const SENSITIVE_SESSION_MAX_AGE_MS = 30 * 60 * 1000;
 const ADMIN_CHECK_CACHE_SECONDS = 5 * 60;
 
 async function currentClerkIdentity(): Promise<{ userId: string; sessionId: string | null }> {
@@ -87,6 +85,28 @@ export async function requireUser(): Promise<AppUser> {
 
 export async function requireApiUser(): Promise<AppUser> {
   return (await apiUserWithIdentity()).user;
+}
+
+export async function requireApiRecentUser(): Promise<AppUser> {
+  const { user, sessionId } = await apiUserWithIdentity();
+  if (!sessionId) {
+    throw new AppError("ADMIN_SESSION_EXPIRED", "Recent authentication is required.", 401);
+  }
+  try {
+    const client = await clerkClient();
+    const session = await client.sessions.getSession(sessionId);
+    if (
+      session.userId !== user.clerkUserId ||
+      session.status !== "active" ||
+      Date.now() - session.createdAt > SENSITIVE_SESSION_MAX_AGE_MS
+    ) {
+      throw new AppError("ADMIN_SESSION_EXPIRED", "Recent authentication is required.", 401);
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError("ADMIN_SESSION_EXPIRED", "Recent authentication is required.", 401);
+  }
+  return user;
 }
 
 export async function requireRole(allowed: readonly Role[]): Promise<AppUser> {

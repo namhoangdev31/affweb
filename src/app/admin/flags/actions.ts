@@ -7,17 +7,23 @@ import { requireRole } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { requireRecentFinancePasskey } from "@/modules/admin/passkey";
 
+const mutableFlagSchema = z.enum([
+  "connector.shopee.enabled",
+  "connector.shopee_food.enabled",
+  "connector.shopee_food_cashback",
+  "connector.accesstrade.enabled",
+  "connector.lazada.enabled",
+  "provider.credentials.enabled",
+  "shopee.orders_import.enabled",
+  "cashback.release.enabled",
+  "payout.enabled"
+]);
+
 export async function toggleFlagAction(formData: FormData) {
   const user = await requireRole([Role.SUPER_ADMIN]);
-  const key = String(formData.get("key"));
+  const key = mutableFlagSchema.parse(formData.get("key"));
   const enabled = String(formData.get("enabled")) === "true";
-  if (
-    key === "payout.enabled" ||
-    key === "cashback.release.enabled" ||
-    key === "connector.shopee_food_cashback"
-  ) {
-    await requireRecentFinancePasskey(user.id);
-  }
+  await requireRecentFinancePasskey(user.id);
   await db.$transaction([
     db.featureFlag.upsert({
       where: { key },

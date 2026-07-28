@@ -7,7 +7,9 @@ import {
   LedgerAccountKind,
   LedgerDirection,
   LedgerTransactionType,
+  OrderValidationStatus,
   RiskHoldStatus,
+  SettlementStatus,
   type AffiliateAccount,
   type Conversion,
   type Platform,
@@ -15,16 +17,13 @@ import {
 } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
 import {
-  BETA_DAILY_AVAILABLE_LIMIT_VND,
   cashbackFromCommission,
-  startOfVietnamDay,
   TENANT_AFFILIATE_TAX_BPS,
   tenantCashbackFromCommission
 } from "@/lib/money";
-import type { NormalizedConversion } from "@/modules/connectors/types";
+import type { NormalizedConversion, NormalizedValidation } from "@/modules/connectors/types";
 import { storeRawEvidence } from "@/modules/evidence/service";
-import { postJournal, postPendingCashback, releaseCashback } from "@/modules/ledger/service";
-import { featureEnabled } from "@/modules/flags/service";
+import { postJournal, postPendingCashback } from "@/modules/ledger/service";
 
 const AUTHORITY_WEIGHT: Record<EvidenceAuthority, number> = {
   AUXILIARY: 1,
@@ -34,8 +33,51 @@ const AUTHORITY_WEIGHT: Record<EvidenceAuthority, number> = {
 
 function conversionStatus(value: NormalizedConversion["status"]): ConversionStatus {
   if (value === "validated") return ConversionStatus.VALIDATED;
-  if (value === "rejected") return ConversionStatus.REJECTED;
+  if (value === "rejected" || value === "returned" || value === "cancelled") {
+    return ConversionStatus.REJECTED;
+  }
   return ConversionStatus.PENDING;
+}
+
+function validationStatus(
+  conversion: NormalizedConversion,
+  holdDays: number | null
+): OrderValidationStatus {
+  if (conversion.status === "validated") return OrderValidationStatus.VALIDATED;
+  if (conversion.status === "returned") return OrderValidationStatus.RETURNED;
+  if (conversion.status === "cancelled") return OrderValidationStatus.CANCELLED;
+  if (conversion.status === "rejected") return OrderValidationStatus.REJECTED;
+  if (conversion.status === "review_required") return OrderValidationStatus.REVIEW_REQUIRED;
+  if (conversion.status !== "delivered") return OrderValidationStatus.TRACKED;
+  if (!conversion.deliveredAt || holdDays === null || holdDays < 4 || holdDays > 60) {
+    return OrderValidationStatus.REVIEW_REQUIRED;
+  }
+  return OrderValidationStatus.VALIDATION_HOLD;
+}
+
+function validationDueAt(conversion: NormalizedConversion, holdDays: number | null): Date | null {
+  if (conversion.status !== "delivered" || !conversion.deliveredAt || holdDays === null) {
+    return null;
+  }
+  return new Date(conversion.deliveredAt.getTime() + holdDays * 24 * 60 * 60 * 1_000);
+}
+
+function correctedSettlementStatus(
+  current: Conversion,
+  nextStatus: ConversionStatus
+): SettlementStatus {
+  if (nextStatus !== ConversionStatus.REJECTED) return current.settlementStatus;
+  if (current.settlementStatus === SettlementStatus.RELEASED || current.availableAt) {
+    return SettlementStatus.REVERSED;
+  }
+  if (
+    current.settlementStatus === SettlementStatus.INCLUDED_IN_RECONCILIATION ||
+    current.settlementStatus === SettlementStatus.RECONCILIATION_CLOSED ||
+    current.settlementStatus === SettlementStatus.FINANCE_CONFIRMED
+  ) {
+    return SettlementStatus.REVIEW_REQUIRED;
+  }
+  return current.settlementStatus;
 }
 
 function withholdingTaxBpsFromSnapshot(value: Prisma.JsonValue | undefined): number {
@@ -59,6 +101,8 @@ async function applyConversionRevision(
   }
 ): Promise<void> {
   const nextStatus = conversionStatus(input.next.status);
+  const nextValidationStatus = validationStatus(input.next, input.current.validationHoldDays);
+  const nextValidationDueAt = validationDueAt(input.next, input.current.validationHoldDays);
   const effectiveGross =
     nextStatus === ConversionStatus.REJECTED ? 0n : input.next.grossCommissionVnd;
   const effectiveNet = nextStatus === ConversionStatus.REJECTED ? 0n : input.next.netCommissionVnd;
@@ -84,8 +128,18 @@ async function applyConversionRevision(
     effectiveGross === input.current.grossCommissionVnd &&
     effectiveNet === input.current.netCommissionVnd &&
     effectiveCashback === input.current.cashbackVnd &&
-    input.nextAuthority === input.current.sourceAuthority
+    input.nextAuthority === input.current.sourceAuthority &&
+    nextValidationStatus === input.current.orderValidationStatus &&
+    (input.next.rawOrderStatus ?? null) === input.current.rawOrderStatus &&
+    (input.next.deliveredAt?.getTime() ?? null) === (input.current.deliveredAt?.getTime() ?? null)
   ) {
+    await tx.conversion.update({
+      where: { id: input.current.id },
+      data: {
+        rawEvidenceId: input.rawEvidenceId,
+        orderStatusUpdatedAt: input.next.orderStatusUpdatedAt ?? new Date()
+      }
+    });
     return;
   }
 
@@ -180,7 +234,7 @@ async function applyConversionRevision(
       });
     }
     if (lines.length > 0) {
-      await postJournal(tx, {
+      const journal = await postJournal(tx, {
         type: LedgerTransactionType.CONVERSION_REVERSAL,
         idempotencyKey: `conversion:${input.current.id}:revision:${sequence}`,
         description: input.reason,
@@ -192,6 +246,7 @@ async function applyConversionRevision(
         },
         lines
       });
+      if (!journal.created) return;
     }
     if (cashbackDelta !== 0n) {
       await tx.walletProjection.update({
@@ -230,6 +285,29 @@ async function applyConversionRevision(
     }
   }
 
+  if (
+    nextStatus === ConversionStatus.REJECTED &&
+    (input.current.settlementStatus === SettlementStatus.RELEASED || input.current.availableAt)
+  ) {
+    const settlementLine = await tx.settlementLine.findUnique({
+      where: { conversionId: input.current.id }
+    });
+    if (settlementLine) {
+      const reversedAt = new Date();
+      await tx.settlementLine.update({
+        where: { id: settlementLine.id },
+        data: { status: "REVERSED" }
+      });
+      await tx.settlementBatch.update({
+        where: { id: settlementLine.settlementBatchId },
+        data: {
+          status: "REVERSED",
+          reversedAt
+        }
+      });
+    }
+  }
+
   if (input.current.userId && !input.current.tenantId) {
     if (nextStatus === ConversionStatus.REJECTED) {
       await tx.riskHold.updateMany({
@@ -237,7 +315,7 @@ async function applyConversionRevision(
         data: { status: RiskHoldStatus.CANCELLED }
       });
     } else if (
-      nextStatus === ConversionStatus.VALIDATED &&
+      nextValidationStatus === OrderValidationStatus.VALIDATION_HOLD &&
       !input.current.availableAt &&
       effectiveCashback > 0n
     ) {
@@ -247,13 +325,13 @@ async function applyConversionRevision(
           conversionId: input.current.id,
           userId: input.current.userId,
           amountVnd: effectiveCashback,
-          reason: "Validation safety hold 7 ngày.",
-          releaseAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          reason: `Validation hold ${input.current.validationHoldDays} ngày.`,
+          releaseAt: nextValidationDueAt!
         },
         update: {
           amountVnd: effectiveCashback,
           status: RiskHoldStatus.HELD,
-          releaseAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          releaseAt: nextValidationDueAt!
         }
       });
     }
@@ -262,6 +340,8 @@ async function applyConversionRevision(
     where: { id: input.current.id },
     data: {
       status: nextStatus,
+      orderValidationStatus: nextValidationStatus,
+      settlementStatus: correctedSettlementStatus(input.current, nextStatus),
       sourceAuthority: input.nextAuthority,
       grossCommissionVnd: effectiveGross,
       netCommissionVnd: effectiveNet,
@@ -269,6 +349,10 @@ async function applyConversionRevision(
       withholdingTaxBps,
       withholdingTaxVnd: effectiveWithholdingTax,
       validatedAt: nextStatus === ConversionStatus.VALIDATED ? new Date() : null,
+      deliveredAt: input.next.deliveredAt ?? input.current.deliveredAt,
+      validationDueAt: nextValidationDueAt,
+      rawOrderStatus: input.next.rawOrderStatus ?? input.current.rawOrderStatus,
+      orderStatusUpdatedAt: input.next.orderStatusUpdatedAt ?? new Date(),
       rejectedAt: nextStatus === ConversionStatus.REJECTED ? new Date() : null,
       rawEvidenceId: input.rawEvidenceId
     }
@@ -324,7 +408,15 @@ export async function ingestConversion(input: {
     where: {
       externalOrderId: input.conversion.externalOrderId,
       externalItemKey: input.conversion.externalItemKey,
-      affiliateAccount: { platform: input.platform }
+      ...(input.platform === "SHOPEE_MARKETPLACE"
+        ? {
+            affiliateAccount: {
+              platform: input.platform,
+              scope: input.affiliateAccount.scope,
+              tenantId: input.affiliateAccount.tenantId
+            }
+          }
+        : { affiliateAccountId: input.affiliateAccount.id })
     },
     include: { conversion: true }
   });
@@ -379,8 +471,11 @@ export async function ingestConversion(input: {
   }
 
   const click = input.conversion.clickToken
-    ? await db.affiliateClick.findUnique({
-        where: { clickToken: input.conversion.clickToken },
+    ? await db.affiliateClick.findFirst({
+        where: {
+          clickToken: input.conversion.clickToken,
+          affiliateAccountId: input.affiliateAccount.id
+        },
         include: { attribution: true }
       })
     : null;
@@ -392,6 +487,11 @@ export async function ingestConversion(input: {
       });
   const shareBps = click?.attribution?.shareBps ?? merchant.defaultShareBps;
   const status = conversionStatus(input.conversion.status);
+  const orderValidationStatus = validationStatus(
+    input.conversion,
+    input.affiliateAccount.validationHoldDays
+  );
+  const dueAt = validationDueAt(input.conversion, input.affiliateAccount.validationHoldDays);
   const withholdingTaxBps = click?.tenantId
     ? withholdingTaxBpsFromSnapshot(click.attribution?.snapshot)
     : 0;
@@ -404,11 +504,6 @@ export async function ingestConversion(input: {
       ? (tenantCalculation?.cashbackVnd ?? 0n)
       : cashbackFromCommission(input.conversion.netCommissionVnd, shareBps)
     : 0n;
-  const releaseAt =
-    status === ConversionStatus.VALIDATED
-      ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      : undefined;
-
   return db.$transaction(
     async (tx) => {
       const conversion = await tx.conversion.create({
@@ -419,6 +514,8 @@ export async function ingestConversion(input: {
           campaignId: click?.campaignId ?? null,
           platform: input.platform,
           status,
+          orderValidationStatus,
+          settlementStatus: SettlementStatus.UNBILLED,
           sourceAuthority: input.authority,
           grossCommissionVnd: input.conversion.grossCommissionVnd,
           netCommissionVnd: input.conversion.netCommissionVnd,
@@ -429,6 +526,11 @@ export async function ingestConversion(input: {
           purchasedAt: input.conversion.purchasedAt,
           clickedAt: click?.clickedAt ?? null,
           validatedAt: status === ConversionStatus.VALIDATED ? new Date() : null,
+          deliveredAt: input.conversion.deliveredAt ?? null,
+          validationDueAt: dueAt,
+          validationHoldDays: input.affiliateAccount.validationHoldDays,
+          rawOrderStatus: input.conversion.rawOrderStatus ?? null,
+          orderStatusUpdatedAt: input.conversion.orderStatusUpdatedAt ?? new Date(),
           rejectedAt: status === ConversionStatus.REJECTED ? new Date() : null,
           rawEvidenceId: raw.id,
           tenantId: click?.tenantId ?? null,
@@ -456,17 +558,17 @@ export async function ingestConversion(input: {
               payload: item.payload as Prisma.InputJsonValue
             }))
           },
-          ...(click?.userId && !click.tenantId && releaseAt
+          ...(click?.userId &&
+          !click.tenantId &&
+          dueAt &&
+          orderValidationStatus === OrderValidationStatus.VALIDATION_HOLD
             ? {
                 riskHold: {
                   create: {
                     userId: click.userId,
                     amountVnd: cashbackVnd,
-                    reason:
-                      input.authority === EvidenceAuthority.PROVISIONAL_AUTHORITATIVE
-                        ? "AddLiveTag safety hold 7 ngày."
-                        : "Validation safety hold.",
-                    releaseAt
+                    reason: `Validation hold ${input.affiliateAccount.validationHoldDays} ngày.`,
+                    releaseAt: dueAt
                   }
                 }
               }
@@ -492,74 +594,172 @@ export async function ingestConversion(input: {
   );
 }
 
-export async function releaseDueSafetyHolds(): Promise<{
-  released: number;
-  reviewRequired: number;
-}> {
-  if (!(await featureEnabled("cashback.release.enabled", false))) {
-    return { released: 0, reviewRequired: 0 };
-  }
-  const now = new Date();
-  const holds = await db.riskHold.findMany({
-    where: { status: RiskHoldStatus.HELD, releaseAt: { lte: now } },
-    include: { conversion: true }
+export async function ingestValidation(input: {
+  source: ConnectorType;
+  authority: EvidenceAuthority;
+  platform: Platform;
+  affiliateAccount: AffiliateAccount;
+  validation: NormalizedValidation;
+}): Promise<{ conversionId: string | null; matched: boolean }> {
+  const raw = await storeRawEvidence({
+    provider: input.source,
+    kind: "order-validation",
+    authority: input.authority,
+    externalRef: input.validation.externalOrderId,
+    payload: input.validation.payload
   });
-  let released = 0;
-  let reviewRequired = 0;
-  for (const hold of holds) {
-    const staleConnector = await db.connectorHealth.findFirst({
-      where: {
-        connectorConfig: { platform: hold.conversion.platform },
-        OR: [
-          { lastSuccessAt: null },
-          { lastSuccessAt: { lt: new Date(Date.now() - 30 * 60 * 1000) } }
-        ]
+  const identity = await db.externalConversionIdentity.findUnique({
+    where: {
+      source_affiliateAccountId_externalOrderId_externalItemKey: {
+        source: input.source,
+        affiliateAccountId: input.affiliateAccount.id,
+        externalOrderId: input.validation.externalOrderId,
+        externalItemKey: input.validation.externalItemKey
+      }
+    }
+  });
+  if (!identity) {
+    await db.reconciliationCase.create({
+      data: {
+        platform: input.platform,
+        externalOrderId: input.validation.externalOrderId,
+        severity: "UNMATCHED_ORDER_VALIDATION",
+        reason: "Provider order validation does not match a canonical conversion.",
+        sourceSummary: {
+          affiliateAccountId: input.affiliateAccount.id,
+          externalItemKey: input.validation.externalItemKey,
+          rawEvidenceId: raw.id
+        }
       }
     });
-    if (staleConnector) continue;
-    const dailyReleased = await db.conversion.aggregate({
-      where: {
-        userId: hold.userId,
-        availableAt: { gte: startOfVietnamDay() }
-      },
-      _sum: { cashbackVnd: true }
-    });
-    if ((dailyReleased._sum.cashbackVnd ?? 0n) + hold.amountVnd > BETA_DAILY_AVAILABLE_LIMIT_VND) {
-      await db.riskHold.update({
-        where: { id: hold.id },
-        data: { status: RiskHoldStatus.REVIEW_REQUIRED }
+    return { conversionId: null, matched: false };
+  }
+  await db.$transaction(
+    async (tx) => {
+      await tx.$queryRaw`
+        SELECT id FROM "Conversion" WHERE id = ${identity.conversionId} FOR UPDATE
+      `;
+      const current = await tx.conversion.findUniqueOrThrow({
+        where: { id: identity.conversionId }
       });
+      await applyConversionRevision(tx, {
+        current,
+        next: {
+          externalOrderId: input.validation.externalOrderId,
+          externalItemKey: input.validation.externalItemKey,
+          purchasedAt: current.purchasedAt,
+          orderStatusUpdatedAt: input.validation.validatedAt,
+          rawOrderStatus: input.validation.rawOrderStatus,
+          grossCommissionVnd: input.validation.commissionVnd,
+          netCommissionVnd: input.validation.commissionVnd,
+          status: input.validation.status,
+          items: [],
+          payload: input.validation.payload
+        },
+        nextAuthority: input.authority,
+        rawEvidenceId: raw.id,
+        reason: "Provider order reconciliation updated validation state."
+      });
+    },
+    { isolationLevel: "Serializable" }
+  );
+  return { conversionId: identity.conversionId, matched: true };
+}
+
+export async function releaseDueSafetyHolds(): Promise<{
+  validated: number;
+  reviewRequired: number;
+}> {
+  const now = new Date();
+  const conversions = await db.conversion.findMany({
+    where: {
+      orderValidationStatus: OrderValidationStatus.VALIDATION_HOLD,
+      validationDueAt: { lte: now }
+    },
+    include: {
+      rawEvidence: true,
+      riskHold: true,
+      externalIdentities: { select: { affiliateAccountId: true } }
+    }
+  });
+  let validated = 0;
+  let reviewRequired = 0;
+  for (const conversion of conversions) {
+    const affiliateAccountId = conversion.externalIdentities[0]?.affiliateAccountId;
+    const connector = await db.connectorConfig.findFirst({
+      where: {
+        ...(affiliateAccountId ? { affiliateAccountId } : {}),
+        platform: conversion.platform,
+        connectorType: conversion.rawEvidence.provider,
+        enabled: true,
+        mode: { in: ["ACTIVE", "SHADOW"] }
+      },
+      include: { health: true }
+    });
+    const isManualShopee = conversion.rawEvidence.provider === ConnectorType.SHOPEE_DIRECT;
+    const freshnessMs = isManualShopee ? 36 * 60 * 60 * 1_000 : 30 * 60 * 1_000;
+    const graceMs = isManualShopee ? 36 * 60 * 60 * 1_000 : 2 * 60 * 60 * 1_000;
+    const connectorHealthy =
+      connector?.health?.status === "ACTIVE" &&
+      connector.health.lastSuccessAt !== null &&
+      connector.health.lastSuccessAt >= new Date(Date.now() - freshnessMs);
+    const observedAfterDue =
+      conversion.validationDueAt !== null &&
+      conversion.rawEvidence.capturedAt >= conversion.validationDueAt;
+    const authoritySufficient =
+      conversion.sourceAuthority === EvidenceAuthority.AUTHORITATIVE ||
+      conversion.sourceAuthority === EvidenceAuthority.PROVISIONAL_AUTHORITATIVE;
+    const openReconciliation = await db.reconciliationCase.count({
+      where: { conversionId: conversion.id, status: "OPEN" }
+    });
+    if (
+      (!connectorHealthy || !observedAfterDue) &&
+      conversion.validationDueAt !== null &&
+      now < new Date(conversion.validationDueAt.getTime() + graceMs)
+    ) {
+      continue;
+    }
+    if (!connectorHealthy || !observedAfterDue || !authoritySufficient || openReconciliation > 0) {
+      await db.$transaction([
+        db.conversion.update({
+          where: { id: conversion.id },
+          data: { orderValidationStatus: OrderValidationStatus.REVIEW_REQUIRED }
+        }),
+        ...(conversion.riskHold
+          ? [
+              db.riskHold.update({
+                where: { id: conversion.riskHold.id },
+                data: { status: RiskHoldStatus.REVIEW_REQUIRED }
+              })
+            ]
+          : [])
+      ]);
       reviewRequired += 1;
       continue;
     }
-    await db.$transaction(async (tx) => {
-      await tx.$queryRaw`SELECT id FROM "RiskHold" WHERE id = ${hold.id} FOR UPDATE`;
-      const current = await tx.riskHold.findUniqueOrThrow({ where: { id: hold.id } });
-      if (current.status !== RiskHoldStatus.HELD) return;
-      await releaseCashback(tx, {
-        userId: hold.userId,
-        conversionId: hold.conversionId,
-        amountVnd: hold.amountVnd
-      });
-      await tx.riskHold.update({
-        where: { id: hold.id },
-        data: { status: RiskHoldStatus.RELEASED }
-      });
-      await tx.conversion.update({
-        where: { id: hold.conversionId },
-        data: { availableAt: now }
-      });
-      await tx.notification.create({
-        data: {
-          userId: hold.userId,
-          type: "cashback.available",
-          title: "Cashback đã khả dụng",
-          body: "Một khoản cashback đã được xác minh và chuyển vào số dư khả dụng.",
-          deepLink: "/app/wallet"
+    await db.$transaction(
+      async (tx) => {
+        await tx.$queryRaw`SELECT id FROM "Conversion" WHERE id = ${conversion.id} FOR UPDATE`;
+        const current = await tx.conversion.findUniqueOrThrow({ where: { id: conversion.id } });
+        if (current.orderValidationStatus !== OrderValidationStatus.VALIDATION_HOLD) return;
+        await tx.conversion.update({
+          where: { id: conversion.id },
+          data: {
+            status: ConversionStatus.VALIDATED,
+            orderValidationStatus: OrderValidationStatus.VALIDATED,
+            validatedAt: now
+          }
+        });
+        if (conversion.riskHold) {
+          await tx.riskHold.update({
+            where: { id: conversion.riskHold.id },
+            data: { status: RiskHoldStatus.RELEASED }
+          });
         }
-      });
-    });
-    released += 1;
+      },
+      { isolationLevel: "Serializable" }
+    );
+    validated += 1;
   }
-  return { released, reviewRequired };
+  return { validated, reviewRequired };
 }

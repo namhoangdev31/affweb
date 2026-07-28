@@ -3,6 +3,10 @@ import { redirect } from "next/navigation";
 import { TenantSettingsClient } from "@/app/app/settings/tenant/tenant-settings-client";
 import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
+import { loadServerEnv } from "@/lib/env";
+import { canTenantUseZaloBot } from "@/lib/tenant";
+import { featureEnabled } from "@/modules/flags/service";
+import { requireTenantPlan } from "@/modules/tenants/plans";
 
 export default async function TenantSettingsPage() {
   const user = await requireUser();
@@ -10,14 +14,50 @@ export default async function TenantSettingsPage() {
     where: { ownerUserId: user.id }
   });
   if (!tenant) redirect("/onboarding/tenant" as Route);
+  const env = loadServerEnv();
+  const [plan, credentialFeatureEnabled, providerAccounts] = await Promise.all([
+    requireTenantPlan(tenant.planCode ?? tenant.planId),
+    featureEnabled("provider.credentials.enabled", false),
+    db.affiliateAccount.findMany({
+      where: {
+        tenantId: tenant.id,
+        connectorType: { in: ["LAZADA_OPEN_API", "ACCESSTRADE_API"] }
+      },
+      orderBy: { createdAt: "asc" }
+    })
+  ]);
+  const zaloAvailable =
+    env.ZALO_BOT_ENABLED &&
+    Boolean(
+      env.ZALO_BOT_TOKEN &&
+      env.ZALO_BOT_SECRET_TOKEN &&
+      env.ZALO_DATA_ENCRYPTION_KEY_V1 &&
+      env.NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL
+    ) &&
+    (await featureEnabled("zalo.bot.enabled", false)) &&
+    (await canTenantUseZaloBot(tenant.id));
 
   return (
     <TenantSettingsClient
+      zaloAvailable={zaloAvailable}
+      planAllowsCredentials={plan.allowApiCredentials}
+      credentialFeatureEnabled={credentialFeatureEnabled}
+      providerAccounts={providerAccounts.map((account) => ({
+        id: account.id,
+        provider: account.connectorType as "LAZADA_OPEN_API" | "ACCESSTRADE_API",
+        label: account.label,
+        externalAccountId: account.externalAccountId,
+        fingerprint: account.fingerprint,
+        status: account.verifiedAt ? ("ACTIVE" as const) : ("CREDENTIAL_REQUIRED" as const),
+        validationHoldDays: account.validationHoldDays
+      }))}
+      {...(zaloAvailable && env.NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL
+        ? { zaloInviteUrl: env.NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL }
+        : {})}
       initialTenant={{
         id: tenant.id,
         name: tenant.name,
         slug: tenant.slug,
-        customDomain: tenant.customDomain,
         status: tenant.status,
         isTrial: tenant.isTrial,
         trialEndsAtLabel:

@@ -12,6 +12,8 @@ const keys = [
   ["connector.shopee_food_cashback", "ShopeeFood cashback release"],
   ["connector.accesstrade.enabled", "AccessTrade connector"],
   ["connector.lazada.enabled", "Lazada connector"],
+  ["provider.credentials.enabled", "Provider credential management"],
+  ["shopee.orders_import.enabled", "Shopee Orders CSV import"],
   ["cashback.release.enabled", "Cashback release"],
   ["payout.enabled", "payOS payout"]
 ] as const;
@@ -38,7 +40,9 @@ export default async function FlagsPage() {
       </p>
       <div className="mt-8 space-y-3">
         {keys.map(([key, label]) => {
-          const enabled = map.get(key) ?? true;
+          const enabled =
+            map.get(key) ??
+            (key === "connector.shopee.enabled" || key === "connector.shopee_food.enabled");
           return (
             <Card key={key}>
               <CardContent className="flex items-center gap-4 p-5">

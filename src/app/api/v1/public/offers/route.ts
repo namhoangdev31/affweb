@@ -10,10 +10,13 @@ export async function GET(request: Request): Promise<Response> {
     where: {
       quarantinedAt: null,
       OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-      ...(platform &&
-      ["SHOPEE_MARKETPLACE", "SHOPEE_FOOD", "LAZADA", "ACCESSTRADE"].includes(platform)
+      ...(platform && ["SHOPEE_MARKETPLACE", "SHOPEE_FOOD", "ACCESSTRADE"].includes(platform)
         ? { platform: platform as never }
-        : {})
+        : {
+            platform: {
+              in: ["SHOPEE_MARKETPLACE", "SHOPEE_FOOD", "ACCESSTRADE"] as const
+            }
+          })
     },
     select: {
       id: true,

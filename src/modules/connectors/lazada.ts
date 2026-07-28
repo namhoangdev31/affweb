@@ -3,12 +3,13 @@ import { z } from "zod";
 import { Platform } from "@/generated/prisma/client";
 import { AppError } from "@/lib/errors";
 import { loadServerEnv } from "@/lib/env";
+import { parseVndAmount } from "@/lib/money";
 import { ConnectorBase } from "@/modules/connectors/base";
+import type { ProviderCredentialPayload } from "@/modules/connectors/provider-credentials";
+import { requestProviderJson } from "@/modules/connectors/provider-http";
 import type {
   ConnectorHealth,
   NormalizedAffiliateTarget,
-  OfferPage,
-  OfferQuery,
   NormalizedConversion,
   SyncWindow,
   TrackingLinkInput,
@@ -28,8 +29,46 @@ export function canonicalLazadaSignature(
   return createHmac("sha256", secret).update(`${apiPath}${canonical}`).digest("hex").toUpperCase();
 }
 
+type LazadaCredential = Extract<ProviderCredentialPayload, { provider: "LAZADA_OPEN_API" }>;
+
+export function lazadaOrderStatus(value: string): NormalizedConversion["status"] {
+  const status = value.trim().toLowerCase();
+  if (status === "fulfilled" || status === "delivered") return "delivered";
+  if (status === "returned") return "returned";
+  return "review_required";
+}
+
+export function parseLazadaVietnamDate(value: string): Date {
+  const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)
+    ? `${value.replace(" ", "T")}+07:00`
+    : value;
+  const parsed = new Date(normalized);
+  if (!Number.isFinite(parsed.getTime())) {
+    throw new AppError("CONNECTOR_UNAVAILABLE", "Lazada trả về ngày giờ không hợp lệ.", 503);
+  }
+  return parsed;
+}
+
+function safeLazadaTrackingUrl(value: string): string {
+  const url = new URL(value);
+  const host = url.hostname.toLowerCase();
+  if (
+    url.protocol !== "https:" ||
+    url.username ||
+    url.password ||
+    (host !== "lazada.vn" && !host.endsWith(".lazada.vn"))
+  ) {
+    throw new AppError("CONNECTOR_UNAVAILABLE", "Lazada trả về tracking URL không an toàn.", 502);
+  }
+  return url.toString();
+}
+
 export class LazadaConnector extends ConnectorBase {
   readonly platform = Platform.LAZADA;
+
+  constructor(private readonly credential?: LazadaCredential) {
+    super();
+  }
 
   private async call<T>(
     operation: string,
@@ -37,12 +76,10 @@ export class LazadaConnector extends ConnectorBase {
     schema: z.ZodType<T>
   ): Promise<T> {
     const env = loadServerEnv();
-    if (
-      !env.LAZADA_API_BASE_URL ||
-      !env.LAZADA_LITE_APP_KEY ||
-      !env.LAZADA_LITE_APP_SECRET ||
-      !env.LAZADA_USER_TOKEN
-    ) {
+    const appKey = this.credential?.appKey ?? env.LAZADA_LITE_APP_KEY;
+    const appSecret = this.credential?.appSecret ?? env.LAZADA_LITE_APP_SECRET;
+    const userToken = this.credential?.userToken ?? env.LAZADA_USER_TOKEN;
+    if (!env.LAZADA_API_BASE_URL || !appKey || !appSecret || !userToken) {
       throw new AppError(
         "CONNECTOR_UNAVAILABLE",
         "Lazada chưa được cấu hình đầy đủ credentials.",
@@ -51,43 +88,68 @@ export class LazadaConnector extends ConnectorBase {
     }
     const apiPath = operation.startsWith("/") ? operation : `/${operation}`;
     const signed = {
-      app_key: env.LAZADA_LITE_APP_KEY,
-      userToken: env.LAZADA_USER_TOKEN,
+      app_key: appKey,
+      userToken,
       sign_method: "sha256",
       timestamp: String(Date.now()),
       ...parameters
     };
-    const url = new URL(`${env.LAZADA_API_BASE_URL.replace(/\/$/, "")}${apiPath}`);
+    const baseUrl = new URL(env.LAZADA_API_BASE_URL);
+    if (baseUrl.protocol !== "https:" || baseUrl.hostname !== "api.lazada.vn") {
+      throw new AppError("CONNECTOR_UNAVAILABLE", "Lazada API base URL không hợp lệ.", 503);
+    }
+    const url = new URL(`${baseUrl.toString().replace(/\/$/, "")}${apiPath}`);
     Object.entries({
       ...signed,
-      sign: canonicalLazadaSignature(apiPath, signed, env.LAZADA_LITE_APP_SECRET)
+      sign: canonicalLazadaSignature(apiPath, signed, appSecret)
     }).forEach(([key, value]) => url.searchParams.set(key, value));
-    const response = await fetch(url, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(20_000)
+    const payload = await requestProviderJson({
+      provider: "Lazada",
+      url,
+      maxAttempts: 2
     });
-    if (!response.ok) {
-      throw new AppError("CONNECTOR_UNAVAILABLE", `Lazada trả về HTTP ${response.status}.`, 503);
+    const envelope = z
+      .object({
+        success: z.union([z.boolean(), z.string()]).optional(),
+        error_code: z.unknown().optional(),
+        error_msg: z.unknown().optional()
+      })
+      .passthrough()
+      .parse(payload);
+    if (
+      envelope.success === false ||
+      envelope.success === "false" ||
+      (envelope.error_code !== undefined &&
+        envelope.error_code !== null &&
+        envelope.error_code !== "")
+    ) {
+      throw new AppError("CONNECTOR_UNAVAILABLE", "Lazada từ chối yêu cầu.", 503);
     }
-    return schema.parse(await response.json());
+    return schema.parse(payload);
   }
 
   async healthCheck(): Promise<ConnectorHealth> {
-    const env = loadServerEnv();
-    const configured = Boolean(
-      env.LAZADA_LITE_APP_KEY && env.LAZADA_LITE_APP_SECRET && env.LAZADA_USER_TOKEN
-    );
-    return {
-      ok: env.LAZADA_MODE !== "active" || configured,
-      checkedAt: new Date(),
-      latencyMs: 0,
-      message:
-        env.LAZADA_MODE === "active"
-          ? configured
-            ? "Lazada active."
-            : "Lazada active nhưng thiếu credential."
-          : `Lazada mode: ${env.LAZADA_MODE}.`
-    };
+    const startedAt = Date.now();
+    try {
+      await this.call(
+        "/marketing/conversion/report",
+        {
+          dateStart: new Date().toISOString().slice(0, 10),
+          dateEnd: new Date().toISOString().slice(0, 10),
+          page: "1",
+          limit: "1"
+        },
+        z.object({}).passthrough()
+      );
+      return { ok: true, checkedAt: new Date(), latencyMs: Date.now() - startedAt };
+    } catch (error) {
+      return {
+        ok: false,
+        checkedAt: new Date(),
+        latencyMs: Date.now() - startedAt,
+        message: error instanceof Error ? error.message : "Lazada health check failed."
+      };
+    }
   }
 
   async normalizeUrl(input: string): Promise<NormalizedAffiliateTarget> {
@@ -101,77 +163,69 @@ export class LazadaConnector extends ConnectorBase {
 
   async createTrackingLink(input: TrackingLinkInput): Promise<TrackingLinkResult> {
     const payload = await this.call(
-      loadServerEnv().LAZADA_LINK_OPERATION,
+      "/marketing/getlink",
       {
-        url: input.target.canonicalUrl,
-        sub_id: input.clickToken,
-        sub_id1: input.clickToken,
-        sub_id2: input.subIds[1] ?? "",
-        sub_id3: input.subIds[2] ?? ""
-      },
-      z.object({ data: z.object({ url: z.url() }) })
-    );
-    return { url: payload.data.url };
-  }
-
-  async listOffers(input: OfferQuery): Promise<OfferPage> {
-    const itemSchema = z
-      .object({
-        productId: z.coerce.string(),
-        productName: z.string(),
-        productUrl: z.url(),
-        imageUrl: z.url().optional(),
-        price: z.coerce.number().nonnegative().optional(),
-        originalPrice: z.coerce.number().nonnegative().optional(),
-        commissionRate: z.coerce.number().nonnegative().optional()
-      })
-      .passthrough();
-    const payload = await this.call(
-      loadServerEnv().LAZADA_PRODUCT_OPERATION,
-      {
-        keyword: input.keyword ?? "",
-        limit: String(input.limit ?? 20),
-        ...(input.cursor ? { cursor: input.cursor } : {})
+        inputType: "url",
+        inputValue: input.target.canonicalUrl,
+        subAffId: input.clickToken,
+        subId1: input.clickToken,
+        subId2: input.subIds[1] ?? "",
+        subId3: input.subIds[2] ?? "",
+        subId4: input.subIds[3] ?? ""
       },
       z.object({
-        data: z.object({ items: z.array(itemSchema), next_cursor: z.string().optional() })
+        success: z.boolean(),
+        data: z.object({
+          urlBatchGetLinkInfoList: z.array(
+            z
+              .object({
+                originalUrl: z.url(),
+                regularPromotionLink: z.url()
+              })
+              .passthrough()
+          )
+        })
       })
     );
-    return {
-      offers: payload.data.items.map((item) => ({
-        externalId: item.productId,
-        title: item.productName,
-        originUrl: parseAllowedUrl(item.productUrl, this.platform).toString(),
-        imageUrl: item.imageUrl,
-        ...(item.price === undefined ? {} : { priceVnd: BigInt(Math.trunc(item.price)) }),
-        ...(item.originalPrice === undefined
-          ? {}
-          : { originalPriceVnd: BigInt(Math.trunc(item.originalPrice)) }),
-        ...(item.commissionRate === undefined
-          ? {}
-          : { commissionBps: Math.min(10_000, Math.round(item.commissionRate * 100)) }),
-        payload: item
-      })),
-      ...(payload.data.next_cursor ? { nextCursor: payload.data.next_cursor } : {})
-    };
+    const link = payload.data.urlBatchGetLinkInfoList[0];
+    if (!payload.success || !link) {
+      throw new AppError("CONNECTOR_UNAVAILABLE", "Lazada không trả về tracking URL.", 502);
+    }
+    return { url: safeLazadaTrackingUrl(link.regularPromotionLink) };
   }
 
   async *syncConversions(window: SyncWindow): AsyncIterable<NormalizedConversion> {
     let page = Number(window.cursor ?? "1");
     let hasNextPage = true;
+    let pages = 0;
     const rowSchema = z
       .object({
         orderId: z.coerce.string(),
-        offerId: z.coerce.string().default("order"),
-        subId: z.string().optional(),
+        subOrderId: z.coerce.string(),
+        offerId: z.coerce.string().optional(),
+        affiliateSubId: z.string().optional(),
+        subId1: z.string().optional(),
         conversionTime: z.string(),
-        payout: z.coerce.number().nonnegative(),
-        status: z.string().default("pending")
+        estPayout: z.string(),
+        currency: z.string(),
+        country: z.string(),
+        fulfilledTime: z.string().nullish(),
+        deliveredTime: z.string().nullish(),
+        returnedTime: z.string().nullish(),
+        status: z.string()
       })
       .passthrough();
     while (hasNextPage) {
+      pages += 1;
+      if (pages > 100) {
+        throw new AppError(
+          "CONNECTOR_UNAVAILABLE",
+          "Lazada pagination vượt giới hạn an toàn.",
+          503
+        );
+      }
       const payload = await this.call(
-        loadServerEnv().LAZADA_CONVERSION_OPERATION,
+        "/marketing/conversion/report",
         {
           dateStart: window.start.toISOString().slice(0, 10),
           dateEnd: window.end.toISOString().slice(0, 10),
@@ -181,35 +235,48 @@ export class LazadaConnector extends ConnectorBase {
         z
           .object({
             data: z
-              .object({
-                items: z.array(rowSchema).default([]),
-                total: z.coerce.number().default(0)
-              })
+              .union([
+                z.array(rowSchema),
+                z.object({
+                  items: z.array(rowSchema).default([]),
+                  total: z.coerce.number().default(0)
+                })
+              ])
               .optional(),
             result: z.array(rowSchema).optional()
           })
           .passthrough()
       );
-      const rows = payload.data?.items ?? payload.result ?? [];
+      const rows = Array.isArray(payload.data)
+        ? payload.data
+        : (payload.data?.items ?? payload.result ?? []);
       for (const row of rows) {
-        const commission = BigInt(Math.trunc(row.payout));
+        if (row.currency.toUpperCase() !== "VND" || row.country.toUpperCase() !== "VN") {
+          throw new AppError(
+            "CONNECTOR_UNAVAILABLE",
+            "Lazada conversion không thuộc thị trường VN/VND.",
+            503
+          );
+        }
+        const commission = parseVndAmount(row.estPayout, "estimated payout");
+        const rawStatus = row.status.toLowerCase();
+        const deliveredAtValue = row.deliveredTime ?? row.fulfilledTime;
         yield {
           externalOrderId: row.orderId,
-          externalItemKey: row.offerId,
-          clickToken: row.subId,
-          purchasedAt: new Date(row.conversionTime),
+          externalItemKey: row.subOrderId,
+          clickToken: row.subId1 ?? row.affiliateSubId,
+          purchasedAt: parseLazadaVietnamDate(row.conversionTime),
+          ...(deliveredAtValue ? { deliveredAt: parseLazadaVietnamDate(deliveredAtValue) } : {}),
+          rawOrderStatus: row.status,
           grossCommissionVnd: commission,
           netCommissionVnd: commission,
-          status: /approved|success|validated/i.test(row.status)
-            ? "validated"
-            : /reject|cancel|invalid/i.test(row.status)
-              ? "rejected"
-              : "pending",
+          status: lazadaOrderStatus(rawStatus),
           items: [],
           payload: row
         };
       }
-      hasNextPage = rows.length === 100 && (payload.data?.total ?? page * 100 + 1) > page * 100;
+      const total = Array.isArray(payload.data) ? undefined : payload.data?.total;
+      hasNextPage = rows.length === 100 && (total ?? page * 100 + 1) > page * 100;
       page += 1;
     }
   }

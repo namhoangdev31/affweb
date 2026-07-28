@@ -45,9 +45,9 @@ describe("Environment Variables Audit & Readiness Tests", () => {
 
     const issues = productionReadinessIssues(loadServerEnv());
     expect(issues.some((i) => i.includes("DATABASE_URL is required."))).toBe(true);
-    expect(
-      issues.some((i) => i.includes("DIRECT_URL or DATABASE_URL_UNPOOLED is required."))
-    ).toBe(true);
+    expect(issues.some((i) => i.includes("DIRECT_URL or DATABASE_URL_UNPOOLED is required."))).toBe(
+      true
+    );
     expect(issues.some((i) => i.includes("CLERK_APPLICATION_ID is required."))).toBe(true);
     expect(issues.some((i) => i.includes("CLERK_SECRET_KEY is required."))).toBe(true);
     expect(issues.some((i) => i.includes("WEBAUTHN_CHALLENGE_SECRET is required."))).toBe(true);
@@ -79,7 +79,9 @@ describe("Environment Variables Audit & Readiness Tests", () => {
 
     const issues = productionReadinessIssues(loadServerEnv());
     expect(
-      issues.some((i) => i.includes("BANK_DATA_ENCRYPTION_KEY_V1 must be a base64-encoded 32-byte key."))
+      issues.some((i) =>
+        i.includes("BANK_DATA_ENCRYPTION_KEY_V1 must be a base64-encoded 32-byte key.")
+      )
     ).toBe(true);
   });
 
@@ -93,7 +95,11 @@ describe("Environment Variables Audit & Readiness Tests", () => {
 
     await expect(
       connector.createTrackingLink({
-        target: { platform: "SHOPEE_MARKETPLACE", targetType: "PRODUCT", canonicalUrl: "https://shopee.vn/product/1/2" },
+        target: {
+          platform: "SHOPEE_MARKETPLACE",
+          targetType: "PRODUCT",
+          canonicalUrl: "https://shopee.vn/product/1/2"
+        },
         clickToken: "clk_test",
         subIds: ["clk_test"]
       })
@@ -130,6 +136,8 @@ describe("Environment Variables Audit & Readiness Tests", () => {
     delete process.env.LAZADA_AFFILIATE_ID;
 
     const issues = productionReadinessIssues(loadServerEnv());
-    expect(issues.some((i) => i.includes("All Lazada credentials are required in active mode."))).toBe(true);
+    expect(
+      issues.some((i) => i.includes("All Lazada credentials are required in active mode."))
+    ).toBe(true);
   });
 });

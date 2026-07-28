@@ -1,76 +1,46 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { db } from "@/lib/db";
-import { bindZaloGroupToTenant, handleZaloBotIncomingUpdate } from "@/lib/zalo";
+import { describe, expect, it } from "vitest";
+import { GET as legacyGet, POST as legacyPost } from "@/app/api/saas/zalo-qr/route";
+import { POST as webhookPost } from "@/app/api/webhooks/zalo/route";
 
-describe("1 Central Zalo Bot Integration Test Suite", () => {
-  let testTenantId: string;
-  let testSlug: string;
-
-  beforeAll(async () => {
-    testSlug = `zalo-tenant-${Date.now()}`;
-    const tenant = await db.tenant.create({
-      data: {
-        slug: testSlug,
-        name: "Kênh KOC Zalo Master",
-        status: "ACTIVE",
-        isTrial: false,
-        planId: "PRO_199K",
-        planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      }
-    });
-    testTenantId = tenant.id;
+describe("Zalo security boundaries", () => {
+  it("retires both legacy QR mutation methods", async () => {
+    expect((await legacyGet()).status).toBe(410);
+    expect((await legacyPost()).status).toBe(410);
   });
 
-  afterAll(async () => {
-    await db.zaloGroupBinding.deleteMany({ where: { tenantId: testTenantId } });
-    await db.affiliateClick.deleteMany({ where: { tenantId: testTenantId } });
-    await db.tenant.deleteMany({ where: { id: testTenantId } });
-    await db.$disconnect();
+  it("rejects webhook payloads without the provider secret", async () => {
+    const response = await webhookPost(
+      new Request("http://127.0.0.1/api/webhooks/zalo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ok: true })
+      })
+    );
+    expect(response.status).toBe(403);
   });
 
-  it("binds a Zalo Group Chat ID to a Tenant using bindZaloGroupToTenant", async () => {
-    const chatId = "zalo_group_999";
-    const binding = await bindZaloGroupToTenant({
-      chatId,
-      tenantId: testTenantId,
-      groupName: "Hội Săn Sale KOC VIP"
-    });
-
-    expect(binding.id).toBeDefined();
-    expect(binding.chatId).toBe(chatId);
-    expect(binding.tenantId).toBe(testTenantId);
-  });
-
-  it("handles incoming Shopee link from bound Zalo group and attributes to correct Tenant", async () => {
-    const chatId = "zalo_group_999";
-    const res = await handleZaloBotIncomingUpdate({
-      chatId,
-      messageText: "Ad ơi check link này https://shopee.vn/product/123/456 giùm mình với",
-      senderName: "Hoàng Nam",
-      baseUrl: "http://127.0.0.1:3000"
-    });
-
-    expect(res.replied).toBe(true);
-    expect(res.tenantId).toBe(testTenantId);
-    expect(res.replyText).toContain("Kênh KOC Zalo Master");
-    expect(res.replyText).toContain("/go/");
-  });
-
-  it("supports /link command to bind Zalo Group Chat directly", async () => {
-    const newChatId = "zalo_group_888";
-    const res = await handleZaloBotIncomingUpdate({
-      chatId: newChatId,
-      messageText: `/link ${testSlug}`,
-      baseUrl: "http://127.0.0.1:3000"
-    });
-
-    expect(res.replied).toBe(true);
-    expect(res.replyText).toContain("Kích hoạt thành công");
-
-    // Verify binding in database
-    const bound = await db.zaloGroupBinding.findUnique({
-      where: { chatId: newChatId }
-    });
-    expect(bound?.tenantId).toBe(testTenantId);
+  it("acknowledges unsupported events without processing them", async () => {
+    const previousSecret = process.env.ZALO_BOT_SECRET_TOKEN;
+    process.env.ZALO_BOT_SECRET_TOKEN = "integration-secret";
+    try {
+      const response = await webhookPost(
+        new Request("http://127.0.0.1/api/webhooks/zalo", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Bot-Api-Secret-Token": "integration-secret"
+          },
+          body: JSON.stringify({
+            ok: true,
+            result: { event_name: "message.unsupported.received" }
+          })
+        })
+      );
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toMatchObject({ ok: true, ignored: true });
+    } finally {
+      if (previousSecret === undefined) delete process.env.ZALO_BOT_SECRET_TOKEN;
+      else process.env.ZALO_BOT_SECRET_TOKEN = previousSecret;
+    }
   });
 });

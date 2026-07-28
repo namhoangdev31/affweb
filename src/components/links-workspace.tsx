@@ -22,7 +22,7 @@ export type LinkHistoryItem = {
     title: string;
     shopName: string | null;
     imageUrl: string | null;
-    priceVnd: number | null;
+    priceVnd: string | null;
   } | null;
 };
 
@@ -104,7 +104,7 @@ export function LinksWorkspace({
                     {item.clickedAt ? "Đã mở link" : "Chưa mở link"}
                   </span>
                   {item.product?.priceVnd !== null && item.product?.priceVnd !== undefined ? (
-                    <span>{formatVnd(BigInt(Math.trunc(item.product.priceVnd)))}</span>
+                    <span>{formatVnd(BigInt(item.product.priceVnd))}</span>
                   ) : null}
                 </div>
               </div>

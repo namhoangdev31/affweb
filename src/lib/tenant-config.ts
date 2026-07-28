@@ -20,9 +20,9 @@ export const PLAN_PRESETS: Record<string, TenantPlanDetails> = {
     maxUsers: 100,
     maxClicksPerMonth: 2000,
     allowCustomDomain: false,
-    allowApiCredentials: true,
+    allowApiCredentials: false,
     allowZaloBot: true,
-    allowedConnectors: ["SHOPEE_DIRECT", "ACCESSTRADE_API", "SHOPEE_OPEN_API", "LAZADA_OPEN_API"]
+    allowedConnectors: ["SHOPEE_DIRECT"]
   },
   STARTER_99K: {
     code: "STARTER_99K",
@@ -56,9 +56,9 @@ export const PLAN_PRESETS: Record<string, TenantPlanDetails> = {
     maxUsers: 3000,
     maxClicksPerMonth: 50000,
     allowCustomDomain: false,
-    allowApiCredentials: true,
+    allowApiCredentials: false,
     allowZaloBot: true,
-    allowedConnectors: ["SHOPEE_DIRECT", "ACCESSTRADE_API"]
+    allowedConnectors: ["SHOPEE_DIRECT"]
   },
   PRO_YEARLY: {
     code: "PRO_YEARLY",
@@ -68,9 +68,9 @@ export const PLAN_PRESETS: Record<string, TenantPlanDetails> = {
     maxUsers: 3000,
     maxClicksPerMonth: 50000,
     allowCustomDomain: false,
-    allowApiCredentials: true,
+    allowApiCredentials: false,
     allowZaloBot: true,
-    allowedConnectors: ["SHOPEE_DIRECT", "ACCESSTRADE_API"]
+    allowedConnectors: ["SHOPEE_DIRECT"]
   },
   PREMIUM_399K: {
     code: "PREMIUM_399K",
@@ -82,7 +82,7 @@ export const PLAN_PRESETS: Record<string, TenantPlanDetails> = {
     allowCustomDomain: false,
     allowApiCredentials: true,
     allowZaloBot: true,
-    allowedConnectors: ["SHOPEE_DIRECT", "ACCESSTRADE_API", "SHOPEE_OPEN_API", "LAZADA_OPEN_API"]
+    allowedConnectors: ["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]
   },
   PREMIUM_YEARLY: {
     code: "PREMIUM_YEARLY",
@@ -91,9 +91,9 @@ export const PLAN_PRESETS: Record<string, TenantPlanDetails> = {
     priceYearly: 3990000,
     maxUsers: 20000,
     maxClicksPerMonth: 500000,
-    allowCustomDomain: true,
+    allowCustomDomain: false,
     allowApiCredentials: true,
     allowZaloBot: true,
-    allowedConnectors: ["SHOPEE_DIRECT", "ACCESSTRADE_API", "SHOPEE_OPEN_API", "LAZADA_OPEN_API"]
+    allowedConnectors: ["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]
   }
 };

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
 import { HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import {
   AssumeRoleWithWebIdentityCommand,
@@ -58,10 +59,14 @@ export async function storeRawEvidence(input: {
   authority: EvidenceAuthority;
   externalRef?: string;
   payload: unknown;
+  rawBody?: string;
+  contentType?: string;
+  extension?: string;
+  metadata?: Record<string, string | number | boolean | null>;
   schemaVersion?: number;
 }) {
   const env = loadServerEnv();
-  const body = JSON.stringify(input.payload);
+  const body = input.rawBody ?? JSON.stringify(input.payload);
   const sha256 = stableHash(body);
   const date = new Date();
   const objectKey = [
@@ -69,7 +74,7 @@ export async function storeRawEvidence(input: {
     input.provider.toLowerCase(),
     String(date.getUTCFullYear()),
     String(date.getUTCMonth() + 1).padStart(2, "0"),
-    `${date.toISOString()}-${sha256.slice(0, 16)}.json`
+    `${date.toISOString()}-${sha256.slice(0, 16)}-${randomUUID()}.${input.extension ?? "json"}`
   ].join("/");
 
   if (env.NODE_ENV === "production") {
@@ -79,7 +84,7 @@ export async function storeRawEvidence(input: {
         Bucket: bucket,
         Key: objectKey,
         Body: body,
-        ContentType: "application/json",
+        ContentType: input.contentType ?? "application/json",
         ChecksumSHA256: Buffer.from(sha256, "hex").toString("base64"),
         ObjectLockMode: "COMPLIANCE",
         ObjectLockRetainUntilDate: new Date(
@@ -102,7 +107,8 @@ export async function storeRawEvidence(input: {
       schemaVersion: input.schemaVersion ?? 1,
       metadata: {
         bytes: Buffer.byteLength(body),
-        uploaded: env.NODE_ENV === "production"
+        uploaded: env.NODE_ENV === "production",
+        ...(input.metadata ?? {})
       }
     }
   });

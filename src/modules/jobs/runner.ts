@@ -11,32 +11,68 @@ import { db } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { AddLiveTagConnector } from "@/modules/connectors/addlivetag";
+import { activeProviderCredential } from "@/modules/connectors/provider-credentials";
 import { connectorFor } from "@/modules/connectors/registry";
 import type { AffiliateConnector } from "@/modules/connectors/types";
-import { ingestConversion, releaseDueSafetyHolds } from "@/modules/conversions/service";
+import {
+  ingestConversion,
+  ingestValidation,
+  releaseDueSafetyHolds
+} from "@/modules/conversions/service";
 import { storeRawEvidence, verifyEvidenceIntegrity } from "@/modules/evidence/service";
 import { verifyLedgerBalance } from "@/modules/ledger/service";
 import { dispatchNotifications } from "@/modules/notifications/dispatch";
 import { reconcilePayout } from "@/modules/payout/service";
+import { expireSaaSInvoicesAndTenants } from "@/lib/tenant";
+import { dispatchZaloOutbox } from "@/lib/zalo";
+import { featureEnabled } from "@/modules/flags/service";
 
-function syncConnector(
+async function connectorKillSwitchEnabled(input: {
+  connectorType: ConnectorType;
+  platform: Parameters<typeof connectorFor>[0];
+}): Promise<boolean> {
+  if (input.connectorType === ConnectorType.LAZADA_OPEN_API) {
+    return featureEnabled("connector.lazada.enabled", false);
+  }
+  if (input.connectorType === ConnectorType.ACCESSTRADE_API) {
+    return featureEnabled("connector.accesstrade.enabled", false);
+  }
+  if (input.platform === "SHOPEE_FOOD") {
+    return featureEnabled("connector.shopee_food.enabled", true);
+  }
+  return featureEnabled("connector.shopee.enabled", true);
+}
+
+async function syncConnector(
   connectorType: ConnectorType,
-  platform: Parameters<typeof connectorFor>[0]
-): AffiliateConnector {
+  platform: Parameters<typeof connectorFor>[0],
+  affiliateAccountId?: string
+): Promise<AffiliateConnector> {
   if (connectorType === ConnectorType.ADDLIVETAG_ACCOUNT) {
     if (platform !== "SHOPEE_MARKETPLACE" && platform !== "SHOPEE_FOOD") {
       throw new AppError("VALIDATION_ERROR", "Invalid AddLiveTag platform.", 400);
     }
     return new AddLiveTagConnector(platform);
   }
-  return connectorFor(platform);
+  const credential =
+    connectorType === ConnectorType.ACCESSTRADE_API ||
+    connectorType === ConnectorType.LAZADA_OPEN_API
+      ? affiliateAccountId
+        ? await activeProviderCredential(affiliateAccountId)
+        : null
+      : null;
+  return connectorFor(platform, credential ?? undefined);
 }
 
 function authorityOf(type: ConnectorType): EvidenceAuthority {
-  if (type === ConnectorType.SHOPEE_OPEN_API || type === ConnectorType.LAZADA_OPEN_API) {
+  if (
+    type === ConnectorType.SHOPEE_OPEN_API ||
+    type === ConnectorType.LAZADA_OPEN_API ||
+    type === ConnectorType.ACCESSTRADE_API
+  ) {
     return EvidenceAuthority.AUTHORITATIVE;
   }
-  if (type === ConnectorType.ADDLIVETAG_ACCOUNT || type === ConnectorType.ACCESSTRADE_API) {
+  if (type === ConnectorType.ADDLIVETAG_ACCOUNT) {
     return EvidenceAuthority.PROVISIONAL_AUTHORITATIVE;
   }
   return EvidenceAuthority.AUXILIARY;
@@ -58,8 +94,23 @@ export async function syncConversionsJob(options?: {
   let accepted = 0;
   let failed = 0;
   for (const config of configs) {
+    if (!(await connectorKillSwitchEnabled(config))) continue;
     if (!config.affiliateAccount) continue;
-    const connector = syncConnector(config.connectorType, config.platform);
+    if (
+      (config.connectorType === ConnectorType.LAZADA_OPEN_API ||
+        config.connectorType === ConnectorType.ACCESSTRADE_API) &&
+      (config.affiliateAccount.validationHoldDays === null ||
+        config.affiliateAccount.validationHoldDays < 4 ||
+        config.affiliateAccount.validationHoldDays > 60)
+    ) {
+      failed += 1;
+      continue;
+    }
+    const connector = await syncConnector(
+      config.connectorType,
+      config.platform,
+      config.affiliateAccount.id
+    );
     const cursor = await db.connectorCursor.findUnique({
       where: {
         connectorConfigId_cursorKey: {
@@ -70,10 +121,10 @@ export async function syncConversionsJob(options?: {
     });
     const end = new Date();
     const start = options?.backfill
-      ? new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+      ? new Date(Date.now() - 60 * 24 * 60 * 60 * 1000)
       : cursor?.windowEnd
         ? new Date(cursor.windowEnd.getTime() - 48 * 60 * 60 * 1000)
-        : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+        : new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
     const run = await db.syncRun.create({
       data: {
         connectorConfigId: config.id,
@@ -199,6 +250,7 @@ export async function syncAddLiveTagClicksJob(): Promise<{ accepted: number; fai
   let accepted = 0;
   let failed = 0;
   for (const config of configs) {
+    if (!(await connectorKillSwitchEnabled(config))) continue;
     const cursor = await db.connectorCursor.findUnique({
       where: {
         connectorConfigId_cursorKey: {
@@ -290,6 +342,137 @@ export async function syncAddLiveTagClicksJob(): Promise<{ accepted: number; fai
   return { accepted, failed };
 }
 
+export async function reconcileAccessTradeOrdersJob(): Promise<{
+  matched: number;
+  unmatched: number;
+  failed: number;
+}> {
+  const configs = await db.connectorConfig.findMany({
+    where: {
+      connectorType: ConnectorType.ACCESSTRADE_API,
+      platform: "ACCESSTRADE",
+      enabled: true,
+      mode: ConnectorMode.ACTIVE,
+      affiliateAccountId: { not: null }
+    },
+    include: { affiliateAccount: true }
+  });
+  let matched = 0;
+  let unmatched = 0;
+  let failed = 0;
+  for (const config of configs) {
+    if (
+      !(await connectorKillSwitchEnabled(config)) ||
+      !config.affiliateAccount ||
+      config.affiliateAccount.validationHoldDays === null
+    ) {
+      continue;
+    }
+    const cursor = await db.connectorCursor.findUnique({
+      where: {
+        connectorConfigId_cursorKey: {
+          connectorConfigId: config.id,
+          cursorKey: "order-reconciliation"
+        }
+      }
+    });
+    const page = Math.max(1, Number.parseInt(cursor?.cursorValue ?? "1", 10) || 1);
+    const end = new Date();
+    const start = new Date(end.getTime() - 60 * 24 * 60 * 60 * 1_000);
+    const run = await db.syncRun.create({
+      data: {
+        connectorConfigId: config.id,
+        kind: "order-reconciliation",
+        status: SyncStatus.RUNNING,
+        windowStart: start,
+        windowEnd: end,
+        cursorBefore: String(page),
+        startedAt: new Date()
+      }
+    });
+    let received = 0;
+    let runMatched = 0;
+    let runUnmatched = 0;
+    try {
+      const connector = await syncConnector(
+        config.connectorType,
+        config.platform,
+        config.affiliateAccount.id
+      );
+      for await (const validation of connector.syncValidations({
+        start,
+        end,
+        cursor: String(page)
+      })) {
+        received += 1;
+        const result = await ingestValidation({
+          source: ConnectorType.ACCESSTRADE_API,
+          authority: EvidenceAuthority.AUTHORITATIVE,
+          platform: "ACCESSTRADE",
+          affiliateAccount: config.affiliateAccount,
+          validation
+        });
+        if (result.matched) runMatched += 1;
+        else runUnmatched += 1;
+      }
+      const nextPage = received > 0 ? page + 1 : 1;
+      await db.$transaction([
+        db.syncRun.update({
+          where: { id: run.id },
+          data: {
+            status:
+              runUnmatched > 0
+                ? runMatched > 0
+                  ? SyncStatus.PARTIAL
+                  : SyncStatus.FAILED
+                : SyncStatus.SUCCEEDED,
+            receivedCount: received,
+            acceptedCount: runMatched,
+            rejectedCount: runUnmatched,
+            cursorAfter: String(nextPage),
+            completedAt: new Date()
+          }
+        }),
+        db.connectorCursor.upsert({
+          where: {
+            connectorConfigId_cursorKey: {
+              connectorConfigId: config.id,
+              cursorKey: "order-reconciliation"
+            }
+          },
+          create: {
+            connectorConfigId: config.id,
+            cursorKey: "order-reconciliation",
+            cursorValue: String(nextPage),
+            windowEnd: end
+          },
+          update: {
+            cursorValue: String(nextPage),
+            windowEnd: end
+          }
+        })
+      ]);
+      matched += runMatched;
+      unmatched += runUnmatched;
+    } catch (error) {
+      failed += 1;
+      await db.syncRun.update({
+        where: { id: run.id },
+        data: {
+          status: SyncStatus.FAILED,
+          receivedCount: received,
+          acceptedCount: runMatched,
+          rejectedCount: runUnmatched,
+          errorCode: "ACCESSTRADE_RECONCILIATION_FAILED",
+          errorMessage: error instanceof Error ? error.message.slice(0, 500) : "Unknown error",
+          completedAt: new Date()
+        }
+      });
+    }
+  }
+  return { matched, unmatched, failed };
+}
+
 async function syncAddLiveTagJob() {
   const clicks = await syncAddLiveTagClicksJob();
   const conversions = await syncConversionsJob({
@@ -302,7 +485,14 @@ export async function healthCheckJob() {
   const configs = await db.connectorConfig.findMany({ where: { enabled: true } });
   const results = [];
   for (const config of configs) {
-    const result = await syncConnector(config.connectorType, config.platform).healthCheck();
+    if (!(await connectorKillSwitchEnabled(config))) continue;
+    const result = await (
+      await syncConnector(
+        config.connectorType,
+        config.platform,
+        config.affiliateAccountId ?? undefined
+      )
+    ).healthCheck();
     await db.connectorHealth.upsert({
       where: { connectorConfigId: config.id },
       create: {
@@ -345,6 +535,7 @@ export async function syncOffersJob() {
   let synced = 0;
   let failed = 0;
   for (const config of configs) {
+    if (!(await connectorKillSwitchEnabled(config))) continue;
     if (
       config.connectorType === ConnectorType.ADDLIVETAG_ACCOUNT &&
       config.platform !== "SHOPEE_MARKETPLACE"
@@ -352,7 +543,11 @@ export async function syncOffersJob() {
       continue;
     }
     try {
-      const connector = syncConnector(config.connectorType, config.platform);
+      const connector = await syncConnector(
+        config.connectorType,
+        config.platform,
+        config.affiliateAccountId ?? undefined
+      );
       let cursor: string | undefined;
       let pages = 0;
       do {
@@ -439,6 +634,8 @@ export async function runJob(name: string) {
       return syncAddLiveTagJob();
     case "sync-accesstrade":
       return syncConversionsJob({ connectorTypes: [ConnectorType.ACCESSTRADE_API] });
+    case "reconcile-accesstrade-orders":
+      return reconcileAccessTradeOrdersJob();
     case "sync-lazada":
       return syncConversionsJob({ connectorTypes: [ConnectorType.LAZADA_OPEN_API] });
     case "backfill-conversions":
@@ -453,6 +650,10 @@ export async function runJob(name: string) {
       return verifyLedgerBalance();
     case "notification-dispatch":
       return dispatchNotifications();
+    case "zalo-dispatch":
+      return dispatchZaloOutbox();
+    case "saas-lifecycle":
+      return expireSaaSInvoicesAndTenants();
     case "evidence-integrity":
       return verifyEvidenceIntegrity();
     default:

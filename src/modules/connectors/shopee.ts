@@ -15,7 +15,8 @@ export class ShopeeDirectConnector extends ConnectorBase {
 
   async healthCheck(): Promise<ConnectorHealth> {
     const startedAt = Date.now();
-    const configured = Boolean(loadServerEnv().SHOPEE_AFFILIATE_ID);
+    const configured =
+      loadServerEnv().ADDLIVETAG_ENABLED && Boolean(loadServerEnv().ADDLIVETAG_API_KEY);
     return {
       ok: configured,
       checkedAt: new Date(),
@@ -65,8 +66,7 @@ export class ShopeeFoodConnector extends ConnectorBase {
   readonly platform = Platform.SHOPEE_FOOD;
 
   async healthCheck(): Promise<ConnectorHealth> {
-    const configured =
-      loadServerEnv().ADDLIVETAG_ENABLED && Boolean(loadServerEnv().ADDLIVETAG_API_KEY);
+    const configured = Boolean(loadServerEnv().SHOPEE_AFFILIATE_ID);
     return {
       ok: configured,
       checkedAt: new Date(),

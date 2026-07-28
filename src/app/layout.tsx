@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     template: "%s | Hoàn Tiền"
   },
   description:
-    "Tạo liên kết mua sắm, theo dõi đơn và nhận lại một phần hoa hồng từ Shopee, ShopeeFood, Lazada và AccessTrade.",
+    "Tạo liên kết mua sắm Shopee, theo dõi đơn và nhận lại một phần hoa hồng khi conversion được xác minh.",
   applicationName: "Hoàn Tiền",
   alternates: { canonical: "/" },
   openGraph: {

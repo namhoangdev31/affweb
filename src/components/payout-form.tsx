@@ -24,7 +24,10 @@ export function PayoutForm({
     setLoading(true);
     const response = await fetch("/api/v1/payout-tickets", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": crypto.randomUUID()
+      },
       body: JSON.stringify({ beneficiaryId, amountVnd: amount })
     });
     const body = (await response.json()) as {

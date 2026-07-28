@@ -76,9 +76,19 @@ export type NormalizedConversion = {
   externalItemKey: string;
   clickToken?: string | undefined;
   purchasedAt: Date;
+  deliveredAt?: Date | undefined;
+  orderStatusUpdatedAt?: Date | undefined;
+  rawOrderStatus?: string | undefined;
   grossCommissionVnd: bigint;
   netCommissionVnd: bigint;
-  status: "pending" | "validated" | "rejected";
+  status:
+    | "pending"
+    | "delivered"
+    | "validated"
+    | "rejected"
+    | "returned"
+    | "cancelled"
+    | "review_required";
   items: NormalizedConversionItem[];
   payload: unknown;
 };
@@ -86,9 +96,10 @@ export type NormalizedConversion = {
 export type NormalizedValidation = {
   externalOrderId: string;
   externalItemKey: string;
-  status: "validated" | "rejected";
+  status: "validated" | "rejected" | "review_required";
   commissionVnd: bigint;
   validatedAt: Date;
+  rawOrderStatus?: string | undefined;
   payload: unknown;
 };
 

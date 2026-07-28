@@ -14,6 +14,14 @@
     {
       "path": "/api/internal/jobs/connector-health",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/internal/jobs/saas-lifecycle",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/internal/jobs/zalo-dispatch",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

@@ -2,7 +2,9 @@ import { z } from "zod";
 import { Platform } from "@/generated/prisma/client";
 import { AppError } from "@/lib/errors";
 import { loadServerEnv } from "@/lib/env";
+import { parseVndAmount } from "@/lib/money";
 import { ConnectorBase } from "@/modules/connectors/base";
+import { requestProviderJson } from "@/modules/connectors/provider-http";
 import type {
   ConnectorHealth,
   NormalizedClick,
@@ -22,12 +24,12 @@ const conversionRowSchema = z
     sub_id1: z.string().optional(),
     utm: z.string().optional(),
     purchase_time: z.union([z.string(), z.number()]),
-    commission: z.coerce.number().nonnegative(),
-    net_commission: z.coerce.number().nonnegative().optional(),
+    commission: z.union([z.string(), z.number().int().safe().nonnegative()]),
+    net_commission: z.union([z.string(), z.number().int().safe().nonnegative()]).optional(),
     status: z.union([z.string(), z.number()]).default(0),
     item_name: z.string().optional(),
-    price: z.coerce.number().nonnegative().optional(),
-    item_price: z.coerce.number().nonnegative().optional(),
+    price: z.union([z.string(), z.number().int().safe().nonnegative()]).optional(),
+    item_price: z.union([z.string(), z.number().int().safe().nonnegative()]).optional(),
     qty: z.coerce.number().int().positive().optional(),
     quantity: z.coerce.number().int().positive().optional()
   })
@@ -56,8 +58,8 @@ const dealsSchema = z.array(
       title: z.string(),
       link: z.url(),
       img: z.url().optional(),
-      price: z.coerce.number().nonnegative().optional(),
-      original_price: z.coerce.number().nonnegative().optional(),
+      price: z.union([z.string(), z.number().int().safe().nonnegative()]).optional(),
+      original_price: z.union([z.string(), z.number().int().safe().nonnegative()]).optional(),
       percent: z.coerce.number().nonnegative().optional()
     })
     .passthrough()
@@ -96,22 +98,19 @@ export class AddLiveTagConnector extends ConnectorBase {
     }
     const url = new URL(env.ADDLIVETAG_API_BASE_URL);
     for (const [key, value] of Object.entries(searchParams)) url.searchParams.set(key, value);
-    const response = await fetch(url, {
-      headers: {
-        Accept: "application/json",
-        "X-API-Key": env.ADDLIVETAG_API_KEY
+    return requestProviderJson({
+      provider: "AddLiveTag",
+      url,
+      init: {
+        headers: {
+          Accept: "application/json",
+          "X-API-Key": env.ADDLIVETAG_API_KEY
+        }
       },
-      cache: "no-store",
-      signal: AbortSignal.timeout(20_000)
+      timeoutMs: 20_000,
+      maxResponseBytes: 2_097_152,
+      maxAttempts: 2
     });
-    if (!response.ok) {
-      throw new AppError(
-        "CONNECTOR_UNAVAILABLE",
-        `AddLiveTag trả về HTTP ${response.status}.`,
-        503
-      );
-    }
-    return response.json();
   }
 
   private accountQuery(): Record<string, string> {
@@ -158,12 +157,19 @@ export class AddLiveTagConnector extends ConnectorBase {
 
   async listOffers(input: OfferQuery): Promise<OfferPage> {
     const env = loadServerEnv();
-    const response = await fetch(env.ADDLIVETAG_DEALS_URL, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(15_000)
-    });
-    if (!response.ok) return { offers: [] };
-    const rows = dealsSchema.parse(await response.json());
+    let payload: unknown;
+    try {
+      payload = await requestProviderJson({
+        provider: "AddLiveTag",
+        url: new URL(env.ADDLIVETAG_DEALS_URL),
+        timeoutMs: 15_000,
+        maxResponseBytes: 2_097_152,
+        maxAttempts: 2
+      });
+    } catch {
+      return { offers: [] };
+    }
+    const rows = dealsSchema.parse(payload);
     const keyword = input.keyword?.trim().toLowerCase();
     const limit = Math.min(input.limit ?? 50, 100);
     return {
@@ -179,10 +185,14 @@ export class AddLiveTagConnector extends ConnectorBase {
                 title: row.title,
                 originUrl,
                 imageUrl: row.img,
-                ...(row.price === undefined ? {} : { priceVnd: BigInt(Math.trunc(row.price)) }),
+                ...(row.price === undefined
+                  ? {}
+                  : { priceVnd: parseVndAmount(row.price, "price") }),
                 ...(row.original_price === undefined
                   ? {}
-                  : { originalPriceVnd: BigInt(Math.trunc(row.original_price)) }),
+                  : {
+                      originalPriceVnd: parseVndAmount(row.original_price, "original price")
+                    }),
                 ...(row.percent === undefined
                   ? {}
                   : { commissionBps: Math.min(10_000, Math.round(row.percent * 100)) }),
@@ -218,8 +228,9 @@ export class AddLiveTagConnector extends ConnectorBase {
             ...this.accountQuery()
           })
         );
-      if (!payload.ok)
+      if (!payload.ok) {
         throw new AppError("CONNECTOR_UNAVAILABLE", "AddLiveTag click API failed.", 503);
+      }
       total = payload.meta.total;
       received += payload.data.length;
       for (const row of payload.data) {
@@ -266,8 +277,11 @@ export class AddLiveTagConnector extends ConnectorBase {
         const externalOrderId = row.order_id ?? row.checkout_id;
         if (!externalOrderId) continue;
         const externalItemKey = row.item_id ?? "order";
-        const grossCommission = BigInt(Math.trunc(row.commission));
-        const netCommission = BigInt(Math.trunc(row.net_commission ?? row.commission));
+        const grossCommission = parseVndAmount(row.commission, "gross commission");
+        const netCommission = parseVndAmount(
+          row.net_commission ?? row.commission,
+          "net commission"
+        );
         yield {
           externalOrderId,
           externalItemKey,
@@ -283,7 +297,7 @@ export class AddLiveTagConnector extends ConnectorBase {
               quantity: row.qty ?? row.quantity ?? 1,
               ...((row.price ?? row.item_price) === undefined
                 ? {}
-                : { priceVnd: BigInt(Math.trunc((row.price ?? row.item_price)!)) }),
+                : { priceVnd: parseVndAmount(row.price ?? row.item_price, "item price") }),
               commissionVnd: netCommission,
               payload: row
             }

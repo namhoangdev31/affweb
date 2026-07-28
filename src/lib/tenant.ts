@@ -1,7 +1,9 @@
-import type { Prisma } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
+import { AppError } from "@/lib/errors";
 import { createPayOSPaymentLink } from "@/lib/payos";
-import { PLAN_PRESETS } from "./tenant-config";
+import { featureEnabled } from "@/modules/flags/service";
+import { requireTenantPlan, tenantSubscriptionIsEffective } from "@/modules/tenants/plans";
 
 export * from "./tenant-config";
 
@@ -65,6 +67,7 @@ export async function registerTenantWithTrial(
       status: "TRIAL",
       isTrial: true,
       planId: "TRIAL_14D",
+      planCode: "TRIAL_14D",
       trialEndsAt,
       planExpiresAt: trialEndsAt,
       ownerUserId: params.ownerUserId,
@@ -82,54 +85,142 @@ export async function registerTenantWithTrial(
 export async function createTenantCheckoutSession(params: {
   tenantId: string;
   planCode: string;
-  billingCycle?: "monthly" | "yearly";
   baseUrl: string;
+  idempotencyKey: string;
+  requestHash: string;
 }) {
+  if (!(await featureEnabled("saas.billing.enabled", false))) {
+    throw new AppError("CONNECTOR_DISABLED", "Thanh toán SaaS đang tạm dừng.", 503);
+  }
   const tenant = await db.tenant.findUnique({
     where: { id: params.tenantId }
   });
 
-  if (!tenant) throw new Error("Tenant not found");
+  if (!tenant) throw new AppError("NOT_FOUND", "Tenant không tồn tại.", 404);
+  if (tenant.status === "CLOSED" || tenant.status === "SUSPENDED") {
+    throw new AppError("FORBIDDEN", "Tenant không thể tạo thanh toán ở trạng thái hiện tại.", 403);
+  }
 
-  const plan = PLAN_PRESETS[params.planCode];
-  if (!plan) throw new Error("Invalid Plan Code");
+  const existing = await db.saaSInvoice.findFirst({
+    where: { tenantId: tenant.id, clientIdempotencyKey: params.idempotencyKey }
+  });
+  if (existing) {
+    if (existing.requestHash !== params.requestHash) {
+      throw new AppError("CONFLICT", "Idempotency-Key đã được dùng với dữ liệu khác.", 409);
+    }
+    return {
+      invoice: existing,
+      checkoutUrl: existing.checkoutUrl,
+      qrCode: existing.qrCode
+    };
+  }
 
-  const isYearly = params.billingCycle === "yearly" || params.planCode.endsWith("_YEARLY");
-  const amount = isYearly ? plan.priceYearly : plan.priceMonthly;
+  const plan = await requireTenantPlan(params.planCode);
+  if (plan.billingCycle === "TRIAL" || plan.priceVnd <= 0n) {
+    throw new AppError("VALIDATION_ERROR", "Không thể checkout gói dùng thử.", 400);
+  }
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const description = `Thanh toan ${plan.code}`.slice(0, 25);
+  let invoice;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const sequenceRows = await db.$queryRaw<Array<{ orderCode: bigint }>>`
+      SELECT nextval('"SaaSInvoice_order_code_seq"') AS "orderCode"
+    `;
+    const orderCodeValue = sequenceRows[0]?.orderCode;
+    if (!orderCodeValue || orderCodeValue > 2_000_000_000n) {
+      throw new AppError("INTERNAL_ERROR", "Dải mã thanh toán PayOS đã hết.", 500);
+    }
+    const orderCode = Number(orderCodeValue);
+    try {
+      invoice = await db.saaSInvoice.create({
+        data: {
+          tenantId: tenant.id,
+          orderCode,
+          amount: 0,
+          amountVnd: plan.priceVnd,
+          description,
+          planCode: plan.code,
+          durationDays: plan.durationDays,
+          planSnapshot: {
+            code: plan.code,
+            name: plan.name,
+            priceVnd: plan.priceVnd.toString(),
+            durationDays: plan.durationDays,
+            billingCycle: plan.billingCycle,
+            maxUsers: plan.maxUsers,
+            maxClicksPerMonth: plan.maxClicksPerMonth,
+            allowZaloBot: plan.allowZaloBot,
+            allowedConnectors: plan.allowedConnectors
+          },
+          clientIdempotencyKey: params.idempotencyKey,
+          requestHash: params.requestHash,
+          expiresAt,
+          status: "PENDING"
+        }
+      });
+      break;
+    } catch (error) {
+      if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2002") {
+        throw error;
+      }
+      const concurrent = await db.saaSInvoice.findFirst({
+        where: { tenantId: tenant.id, clientIdempotencyKey: params.idempotencyKey }
+      });
+      if (concurrent) {
+        if (concurrent.requestHash !== params.requestHash) {
+          throw new AppError("CONFLICT", "Idempotency-Key đã được dùng với dữ liệu khác.", 409);
+        }
+        if (!concurrent.checkoutUrl || !concurrent.qrCode) {
+          throw new AppError("CONFLICT", "Payment link đang được khởi tạo, vui lòng thử lại.", 409);
+        }
+        return {
+          invoice: concurrent,
+          checkoutUrl: concurrent.checkoutUrl,
+          qrCode: concurrent.qrCode
+        };
+      }
+      if (attempt === 2) throw error;
+    }
+  }
+  if (!invoice) {
+    throw new AppError("INTERNAL_ERROR", "Không thể cấp mã thanh toán.", 500);
+  }
 
-  // Generate numeric 6-digit order code for PayOS
-  const orderCode = Math.floor(100000 + Math.random() * 900000);
+  let payosResult;
+  try {
+    payosResult = await createPayOSPaymentLink({
+      orderCode: invoice.orderCode,
+      amountVnd: plan.priceVnd,
+      description,
+      returnUrl: `${params.baseUrl}/app/settings/tenant?invoice=${invoice.id}`,
+      cancelUrl: `${params.baseUrl}/app/settings/tenant?invoice=${invoice.id}`,
+      expiresAt
+    });
+  } catch (error) {
+    await db.saaSInvoice.update({
+      where: { id: invoice.id },
+      data: {
+        status: "FAILED",
+        failureCode: error instanceof AppError ? error.code : "CONNECTOR_UNAVAILABLE",
+        failureMessage: "Không thể tạo payment link PayOS."
+      }
+    });
+    throw error;
+  }
 
-  const invoice = await db.saaSInvoice.create({
+  const updatedInvoice = await db.saaSInvoice.update({
+    where: { id: invoice.id },
     data: {
-      tenantId: tenant.id,
-      orderCode,
-      amount,
-      description: `Gia han ${plan.name} (${isYearly ? "1 Nam" : "1 Thang"}) - ${tenant.slug}`,
-      planCode: plan.code,
-      status: "PENDING"
+      paymentLinkId: payosResult.paymentLinkId,
+      checkoutUrl: payosResult.checkoutUrl,
+      qrCode: payosResult.qrCode
     }
   });
 
-  const payosResult = await createPayOSPaymentLink({
-    orderCode: invoice.orderCode,
-    amount,
-    description: `Thanh toan ${plan.code}`,
-    returnUrl: `${params.baseUrl}/app/settings/tenant?status=success`,
-    cancelUrl: `${params.baseUrl}/app/settings/tenant?status=cancelled`
-  });
-
-  if (payosResult.data?.paymentLinkId) {
-    await db.saaSInvoice.update({
-      where: { id: invoice.id },
-      data: { paymentLinkId: payosResult.data.paymentLinkId }
-    });
-  }
-
   return {
-    invoice,
-    checkoutUrl: payosResult.data?.checkoutUrl,
-    qrCode: payosResult.data?.qrCode
+    invoice: updatedInvoice,
+    checkoutUrl: payosResult.checkoutUrl,
+    qrCode: payosResult.qrCode
   };
 }
 
@@ -141,14 +232,12 @@ export async function checkTenantUserQuota(tenantId: string): Promise<{
   currentCount: number;
   maxUsers: number;
 }> {
-  const tenant = await db.tenant.findUnique({
-    where: { id: tenantId }
-  });
+  const tenant = await db.tenant.findUnique({ where: { id: tenantId } });
 
-  if (!tenant) return { allowed: true, currentCount: 0, maxUsers: Infinity };
+  if (!tenant) return { allowed: false, currentCount: 0, maxUsers: 0 };
 
-  const plan = PLAN_PRESETS[tenant.planId] ?? PLAN_PRESETS.TRIAL_14D;
-  const maxUsers = plan?.maxUsers ?? 100;
+  const plan = await requireTenantPlan(tenant.planCode ?? tenant.planId);
+  const maxUsers = plan.maxUsers;
   const currentCount = await db.user.count({
     where: { tenantId }
   });
@@ -171,10 +260,10 @@ export async function canTenantUseConnector(
     where: { id: tenantId }
   });
 
-  if (!tenant) return true;
+  if (!tenant || !tenantSubscriptionIsEffective(tenant)) return false;
 
-  const plan = PLAN_PRESETS[tenant.planId] ?? PLAN_PRESETS.TRIAL_14D;
-  return plan?.allowedConnectors?.includes(connectorType) ?? false;
+  const plan = await requireTenantPlan(tenant.planCode ?? tenant.planId);
+  return plan.allowedConnectors.includes(connectorType);
 }
 
 /**
@@ -187,8 +276,8 @@ export async function canTenantUseCustomDomain(tenantId: string): Promise<boolea
 
   if (!tenant) return false;
 
-  const plan = PLAN_PRESETS[tenant.planId] ?? PLAN_PRESETS.TRIAL_14D;
-  return plan?.allowCustomDomain ?? false;
+  const plan = await requireTenantPlan(tenant.planCode ?? tenant.planId);
+  return tenantSubscriptionIsEffective(tenant) && plan.allowCustomDomain;
 }
 
 /**
@@ -201,8 +290,8 @@ export async function canTenantUseCustomCredentials(tenantId: string): Promise<b
 
   if (!tenant) return false;
 
-  const plan = PLAN_PRESETS[tenant.planId] ?? PLAN_PRESETS.TRIAL_14D;
-  return plan?.allowApiCredentials ?? false;
+  const plan = await requireTenantPlan(tenant.planCode ?? tenant.planId);
+  return tenantSubscriptionIsEffective(tenant) && plan.allowApiCredentials;
 }
 
 /**
@@ -215,8 +304,8 @@ export async function canTenantUseZaloBot(tenantId: string): Promise<boolean> {
 
   if (!tenant) return false;
 
-  const plan = PLAN_PRESETS[tenant.planId] ?? PLAN_PRESETS.TRIAL_14D;
-  return plan?.allowZaloBot ?? false;
+  const plan = await requireTenantPlan(tenant.planCode ?? tenant.planId);
+  return tenantSubscriptionIsEffective(tenant) && plan.allowZaloBot;
 }
 
 /**
@@ -229,8 +318,7 @@ export async function getTenantFeatureSummary(tenantId: string) {
 
   if (!tenant) return null;
 
-  const plan = PLAN_PRESETS[tenant.planId] ?? PLAN_PRESETS.TRIAL_14D;
-  if (!plan) return null;
+  const plan = await requireTenantPlan(tenant.planCode ?? tenant.planId);
 
   const userCount = await db.user.count({ where: { tenantId } });
 
@@ -249,7 +337,7 @@ export async function getTenantFeatureSummary(tenantId: string) {
     name: tenant.name,
     planCode: plan.code,
     planName: plan.name,
-    isTrial: tenant.isTrial,
+    isTrial: plan.billingCycle === "TRIAL",
     status: tenant.status,
     userQuota: {
       used: userCount,
@@ -267,5 +355,32 @@ export async function getTenantFeatureSummary(tenantId: string) {
       allowZaloBot: plan.allowZaloBot,
       allowedConnectors: plan.allowedConnectors
     }
+  };
+}
+
+export async function expireSaaSInvoicesAndTenants(): Promise<{
+  expiredInvoices: number;
+  pastDueTenants: number;
+}> {
+  const now = new Date();
+  const [expiredInvoices, pastDueTenants] = await db.$transaction([
+    db.saaSInvoice.updateMany({
+      where: {
+        status: "PENDING",
+        expiresAt: { lte: now }
+      },
+      data: { status: "EXPIRED" }
+    }),
+    db.tenant.updateMany({
+      where: {
+        status: { in: ["TRIAL", "ACTIVE"] },
+        planExpiresAt: { lte: now }
+      },
+      data: { status: "PAST_DUE" }
+    })
+  ]);
+  return {
+    expiredInvoices: expiredInvoices.count,
+    pastDueTenants: pastDueTenants.count
   };
 }

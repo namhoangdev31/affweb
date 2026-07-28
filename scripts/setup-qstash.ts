@@ -20,10 +20,13 @@ const schedules = [
   ["payout-reconciliation", "*/5 * * * *"],
   ["sync-addlivetag", "*/10 * * * *"],
   ["sync-accesstrade", "*/15 * * * *"],
+  ["reconcile-accesstrade-orders", "30 19 * * *"],
   ["sync-lazada", "*/15 * * * *"],
   ["release-safety-holds", "0 * * * *"],
   ["sync-offers", "5 * * * *"],
   ["notification-dispatch", "*/5 * * * *"],
+  ["zalo-dispatch", "*/5 * * * *"],
+  ["saas-lifecycle", "*/15 * * * *"],
   // QStash cron runs in UTC: these correspond to 02:00, 03:00 and Sunday 04:00 in Vietnam.
   ["backfill-conversions", "0 19 * * *"],
   ["ledger-invariant", "0 20 * * *"],

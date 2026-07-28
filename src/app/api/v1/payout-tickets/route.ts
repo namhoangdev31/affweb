@@ -4,7 +4,12 @@ import { db } from "@/lib/db";
 import { errorResponse } from "@/lib/errors";
 import { jsonSafe } from "@/lib/json";
 import { rateLimit } from "@/lib/rate-limit";
-import { assertTrustedOrigin, readJson } from "@/lib/request";
+import {
+  assertTrustedOrigin,
+  readJson,
+  requestPayloadHash,
+  requireIdempotencyKey
+} from "@/lib/request";
 import { createPayoutTicket } from "@/modules/payout/service";
 
 export const runtime = "nodejs";
@@ -43,7 +48,13 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
     const input = inputSchema.parse(await readJson(request));
-    const ticket = await createPayoutTicket({ userId: user.id, ...input });
+    const idempotencyKey = requireIdempotencyKey(request);
+    const ticket = await createPayoutTicket({
+      userId: user.id,
+      ...input,
+      idempotencyKey,
+      requestHash: requestPayloadHash(input)
+    });
     return Response.json(jsonSafe({ ticket }), {
       status: 201,
       headers: { "Cache-Control": "private, no-store" }

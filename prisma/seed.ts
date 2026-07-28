@@ -63,9 +63,16 @@ const flags = [
   ["registration.invite_only", true, "Chỉ người dùng có lời mời được đăng ký."],
   ["connector.shopee.enabled", true, "Shopee Marketplace link và sync."],
   ["connector.shopee_food.enabled", true, "ShopeeFood link; cashback vẫn có flag riêng."],
-  ["connector.accesstrade.enabled", true, "AccessTrade link và sync."],
-  ["connector.lazada.enabled", false, "Bật sau shadow sync và smoke test Lazada."],
-  ["cashback.release.enabled", false, "Kill switch phát hành cashback khả dụng."],
+  ["connector.accesstrade.enabled", false, "Bật sau credential preflight AccessTrade."],
+  ["connector.lazada.enabled", false, "Bật sau credential preflight Lazada."],
+  ["provider.credentials.enabled", false, "Kill switch cấu hình provider credentials."],
+  ["shopee.orders_import.enabled", false, "Kill switch Shopee Orders CSV import."],
+  [
+    "shopee.reconciliation_import.enabled",
+    false,
+    "Giữ tắt đến khi có fixture chi tiết hóa đơn đối soát."
+  ],
+  ["cashback.release.enabled", false, "Kill switch phát hành cashback qua settlement."],
   ["payout.enabled", false, "Kill switch gửi payout thật."],
   ["connector.shopee_food_cashback", false, "Chỉ bật sau khi SubID round-trip đạt nghiệm thu."]
 ] as const;
@@ -93,6 +100,14 @@ await prisma.featureFlag.upsert({
 });
 
 const accounts = [
+  {
+    connectorType: ConnectorType.SHOPEE_DIRECT,
+    platform: Platform.SHOPEE_MARKETPLACE,
+    externalAccountId: process.env.SHOPEE_AFFILIATE_ID ?? "pending-shopee-direct",
+    label: "Shopee Direct",
+    enabled: true,
+    mode: ConnectorMode.ACTIVE
+  },
   {
     connectorType: ConnectorType.SHOPEE_OPEN_API,
     platform: Platform.SHOPEE_MARKETPLACE,

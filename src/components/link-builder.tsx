@@ -27,19 +27,19 @@ interface ProductPreview {
   itemId: string;
   title: string;
   shopName: string;
-  priceVnd: number;
+  priceVnd: string;
   imageUrl?: string | undefined;
   rating: string;
   salesCount: number;
   isXtra: boolean;
   commission: {
-    totalVnd: number;
+    totalVnd: string;
     totalPercent: number;
-    sellerVnd: number;
+    sellerVnd: string;
     sellerPercent: number;
-    shopeeVnd: number;
+    shopeeVnd: string;
     shopeePercent: number;
-    capVnd: number;
+    capVnd: string;
     isCapped: boolean;
   };
 }
@@ -76,7 +76,10 @@ export function LinkBuilder({
       // 1. Generate affiliate tracking link
       const response = await fetch("/api/v1/links", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": crypto.randomUUID()
+        },
         body: JSON.stringify({ url: url.trim(), ...(campaignId ? { campaignId } : {}) })
       });
       const body = (await response.json()) as {
@@ -90,20 +93,20 @@ export function LinkBuilder({
           itemId: string;
           title: string;
           shopName: string;
-          priceVnd: number;
+          priceVnd: string;
           imageUrl?: string;
           rating: string;
           salesCount: number;
           isXtra: boolean;
         };
         commission?: {
-          totalVnd: number;
+          totalVnd: string;
           totalPercent: number;
-          sellerVnd: number;
+          sellerVnd: string;
           sellerPercent: number;
-          shopeeVnd: number;
+          shopeeVnd: string;
           shopeePercent: number;
-          capVnd: number;
+          capVnd: string;
           isCapped: boolean;
         };
         error?: { message?: string };
@@ -211,7 +214,7 @@ export function LinkBuilder({
                 htmlFor="product-url"
                 className="text-sm sm:text-base font-semibold text-white/90"
               >
-                Dán URL sản phẩm (Shopee, ShopeeFood, AccessTrade, Lazada)
+                Dán URL sản phẩm (Shopee, Lazada hoặc campaign AccessTrade)
               </Label>
               <div className="relative w-full">
                 <Input
@@ -236,10 +239,9 @@ export function LinkBuilder({
                 ) : null}
               </div>
               <p className="text-xs text-white/50">
-                Tự động hỗ trợ link gốc, link rút gọn{" "}
+                Shopee/Lazada được nhận diện trực tiếp. AccessTrade bắt buộc chọn campaign; hỗ trợ{" "}
                 <code className="text-emerald-400">s.shopee.vn</code> /{" "}
-                <code className="text-emerald-400">shp.ee</code> và tra cứu ngay hoa hồng hoàn về
-                ví.
+                <code className="text-emerald-400">shp.ee</code> và link Lazada theo allowlist.
               </p>
             </div>
 
@@ -411,8 +413,7 @@ export function LinkBuilder({
                           ≈{" "}
                           {formatVnd(
                             BigInt(
-                              result.estimatedCashbackVnd ??
-                                Math.trunc(result.product.commission.totalVnd)
+                              result.estimatedCashbackVnd ?? result.product.commission.totalVnd
                             )
                           )}
                         </span>

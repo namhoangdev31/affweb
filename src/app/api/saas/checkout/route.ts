@@ -3,7 +3,15 @@ import { requireApiUser } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { loadServerEnv } from "@/lib/env";
 import { AppError, errorResponse } from "@/lib/errors";
-import { assertTrustedOrigin, readJson, requestId } from "@/lib/request";
+import { jsonSafe } from "@/lib/json";
+import { rateLimit } from "@/lib/rate-limit";
+import {
+  assertTrustedOrigin,
+  readJson,
+  requestId,
+  requestPayloadHash,
+  requireIdempotencyKey
+} from "@/lib/request";
 import { createTenantCheckoutSession } from "@/lib/tenant";
 
 export const runtime = "nodejs";
@@ -26,6 +34,11 @@ export async function POST(request: Request): Promise<Response> {
     assertTrustedOrigin(request);
     const user = await requireApiUser();
     const input = inputSchema.parse(await readJson(request));
+    const idempotencyKey = requireIdempotencyKey(request);
+    const limit = await rateLimit(`saas-checkout:${user.id}`, 10, 3600);
+    if (!limit.allowed) {
+      throw new AppError("RATE_LIMITED", "Bạn đã tạo quá nhiều yêu cầu thanh toán.", 429);
+    }
     const ownedTenant = await db.tenant.findFirst({
       where: { id: input.tenantId, ownerUserId: user.id },
       select: { id: true }
@@ -37,14 +50,14 @@ export async function POST(request: Request): Promise<Response> {
     const session = await createTenantCheckoutSession({
       tenantId: input.tenantId,
       planCode: input.planCode,
-      billingCycle: input.planCode.endsWith("_YEARLY") ? "yearly" : "monthly",
-      baseUrl: loadServerEnv().APP_BASE_URL
+      baseUrl: loadServerEnv().APP_BASE_URL,
+      idempotencyKey,
+      requestHash: requestPayloadHash(input)
     });
 
-    return Response.json(
-      { success: true, data: session },
-      { headers: { "Cache-Control": "no-store", "X-Request-Id": id } }
-    );
+    return Response.json(jsonSafe({ success: true, data: session }), {
+      headers: { "Cache-Control": "no-store", "X-Request-Id": id }
+    });
   } catch (error) {
     return errorResponse(error, id);
   }

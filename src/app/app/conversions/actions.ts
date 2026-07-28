@@ -22,29 +22,38 @@ export async function markTenantConversionPaidAction(formData: FormData): Promis
           id: true,
           tenantId: true,
           status: true,
+          orderValidationStatus: true,
           cashbackVnd: true,
-          tenantPaidAt: true
+          tenantPaidAt: true,
+          click: { select: { attributionMode: true } }
         }
       });
       if (!conversion?.tenantId) {
         throw new AppError("FORBIDDEN", "Bạn không quản lý đơn hàng này.", 403);
       }
-      if (conversion.status !== "VALIDATED") {
+      if (conversion.status !== "VALIDATED" || conversion.orderValidationStatus !== "VALIDATED") {
         throw new AppError(
           "VALIDATION_ERROR",
           "Chỉ có thể xác nhận chi trả cho đơn đã được duyệt.",
           400
         );
       }
-      if (conversion.cashbackVnd <= 0n || conversion.tenantPaidAt) return;
+      if (
+        conversion.click?.attributionMode === "TENANT_CHANNEL" ||
+        conversion.cashbackVnd <= 0n ||
+        conversion.tenantPaidAt
+      ) {
+        return;
+      }
 
       const updated = await tx.conversion.updateMany({
         where: {
           id: conversion.id,
           tenantPaidAt: null,
-          status: "VALIDATED"
+          status: "VALIDATED",
+          orderValidationStatus: "VALIDATED"
         },
-        data: { tenantPaidAt: now }
+        data: { tenantPaidAt: now, settlementStatus: "RELEASED" }
       });
       if (updated.count !== 1) return;
 
