@@ -20,8 +20,7 @@ export type ClerkUserLike = {
 
 export function primaryVerifiedEmail(user: ClerkUserLike): string | null {
   const primary = user.emailAddresses.find(
-    (email) =>
-      email.id === user.primaryEmailAddressId && email.verification?.status === "verified"
+    (email) => email.id === user.primaryEmailAddressId && email.verification?.status === "verified"
   );
   return primary?.emailAddress.trim().toLowerCase() ?? null;
 }

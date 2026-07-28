@@ -33,11 +33,7 @@ function webAuthnConfig() {
 function challengeSecret(): string {
   const secret = loadServerEnv().WEBAUTHN_CHALLENGE_SECRET;
   if (!secret) {
-    throw new AppError(
-      "INTERNAL_ERROR",
-      "WEBAUTHN_CHALLENGE_SECRET chưa được cấu hình.",
-      503
-    );
+    throw new AppError("INTERNAL_ERROR", "WEBAUTHN_CHALLENGE_SECRET chưa được cấu hình.", 503);
   }
   return secret;
 }

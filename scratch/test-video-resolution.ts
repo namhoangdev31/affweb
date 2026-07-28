@@ -17,8 +17,12 @@ export async function parseShopeeVideoPage(videoUrl: string): Promise<{
     if (!res.ok) return null;
     const html = await res.text();
 
-    const titleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i) || html.match(/<title>([^<]+)<\/title>/i);
-    const descMatch = html.match(/<meta\s+name="description"\s+content="([^"]+)"/i) || html.match(/<meta\s+property="og:description"\s+content="([^"]+)"/i);
+    const titleMatch =
+      html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i) ||
+      html.match(/<title>([^<]+)<\/title>/i);
+    const descMatch =
+      html.match(/<meta\s+name="description"\s+content="([^"]+)"/i) ||
+      html.match(/<meta\s+property="og:description"\s+content="([^"]+)"/i);
     const imageMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i);
 
     let rawTitle = descMatch?.[1] || titleMatch?.[1] || "Shopee Video";

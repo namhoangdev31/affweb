@@ -10,10 +10,10 @@ import {
   OrderValidationStatus,
   RiskHoldStatus,
   SettlementStatus,
+  Prisma,
   type AffiliateAccount,
   type Conversion,
-  type Platform,
-  type Prisma
+  type Platform
 } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
 import {
@@ -385,22 +385,37 @@ export async function ingestConversion(input: {
     include: { conversion: true }
   });
   if (exactIdentity) {
-    await db.$transaction(
-      async (tx) => {
-        await tx.$queryRaw`SELECT id FROM "Conversion" WHERE id = ${exactIdentity.conversionId} FOR UPDATE`;
-        const current = await tx.conversion.findUniqueOrThrow({
-          where: { id: exactIdentity.conversionId }
-        });
-        await applyConversionRevision(tx, {
-          current,
-          next: input.conversion,
-          nextAuthority: input.authority,
-          rawEvidenceId: raw.id,
-          reason: "Provider reported a conversion correction."
-        });
-      },
-      { isolationLevel: "Serializable" }
-    );
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        await db.$transaction(
+          async (tx) => {
+            await tx.$queryRaw`SELECT id FROM "Conversion" WHERE id = ${exactIdentity.conversionId} FOR UPDATE`;
+            const current = await tx.conversion.findUniqueOrThrow({
+              where: { id: exactIdentity.conversionId }
+            });
+            await applyConversionRevision(tx, {
+              current,
+              next: input.conversion,
+              nextAuthority: input.authority,
+              rawEvidenceId: raw.id,
+              reason: "Provider reported a conversion correction."
+            });
+          },
+          { isolationLevel: "Serializable" }
+        );
+        break;
+      } catch (error) {
+        const isRetryable =
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          (error.code === "P2002" ||
+            error.code === "P2034" ||
+            error.code === "P2010" ||
+            String(error.message).includes("40001") ||
+            String(error.message).includes("deadlock"));
+        if (!isRetryable || attempt === 2) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 50 * (attempt + 1)));
+      }
+    }
     return { conversionId: exactIdentity.conversionId, created: false, deduplicated: true };
   }
 

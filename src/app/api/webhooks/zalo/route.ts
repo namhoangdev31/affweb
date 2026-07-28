@@ -29,7 +29,7 @@ const textMessageSchema = z.object({
 });
 
 function verifyWebhookSecret(request: Request): void {
-  const expected = loadServerEnv().ZALO_BOT_SECRET_TOKEN;
+  const expected = loadServerEnv().ZALO_BOT_SECRET_TOKEN ?? process.env.ZALO_BOT_SECRET_TOKEN;
   const received = request.headers.get("x-bot-api-secret-token");
   if (!expected || !received) {
     throw new AppError("FORBIDDEN", "Zalo webhook secret bị thiếu.", 403);

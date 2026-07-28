@@ -12,7 +12,8 @@ export async function generateMetadata({
   if (!url) {
     return {
       title: "Tra cứu hoa hồng Shopee | Affiliate Cashback",
-      description: "Tra cứu tỷ lệ % hoa hồng Seller & Shopee, giá bán, lượt bán và tính hoa hồng dự kiến cho bất kỳ sản phẩm Shopee nào."
+      description:
+        "Tra cứu tỷ lệ % hoa hồng Seller & Shopee, giá bán, lượt bán và tính hoa hồng dự kiến cho bất kỳ sản phẩm Shopee nào."
     };
   }
 

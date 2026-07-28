@@ -3,24 +3,8 @@
   "name": "affweb",
   "rawDescription": "",
   "readmeHead": "# Hoàn Tiền\n\nWeb App/PWA affiliate cashback cho Shopee, ShopeeFood, AccessTrade và Lazada, xây bằng Next.js 16 App Router, React 19, Prisma 7, Clerk và PostgreSQL. Hệ thống dùng double-entry ledger, payout payOS có phân tách reviewer/approver, immutable evidence và các kill switch độc lập.\n\n## Trạng thái triển khai\n\n- Shopee direct link, Shopee Open API, AddLiveTag account sync và ShopeeFood `source=food` đã có connector riêng.\n- AccessTrade dùng Publisher API chính thức: product-link, transaction pagination, overlap và SubID.\n- Lazada đã có signing, link/product/conversion contract, fixture test và mode `credential_ready`; chỉ chuyển `active` sau khi xác minh operation từ portal authenticated.\n- Payout payOS dùng batch payout, idempotency, destination validation, `UNKNOWN` reconciliation và journal đối ứng khi thất bại.",
-  "languages": [
-    "config",
-    "css",
-    "json",
-    "markdown",
-    "sql",
-    "toml",
-    "typescript",
-    "yaml"
-  ],
-  "frameworks": [
-    "Next.js",
-    "Prisma",
-    "React",
-    "Tailwind CSS",
-    "TypeScript",
-    "Vitest"
-  ],
+  "languages": ["config", "css", "json", "markdown", "sql", "toml", "typescript", "yaml"],
+  "frameworks": ["Next.js", "Prisma", "React", "Tailwind CSS", "TypeScript", "Vitest"],
   "files": [
     {
       "path": ".env.example",
@@ -1576,31 +1560,15 @@
     "prisma/schema.prisma": [],
     "prisma/seed.ts": [],
     "project_map.json": [],
-    "scratch/debug-video.ts": [
-      "src/lib/db.ts",
-      "src/modules/links/service.ts"
-    ],
-    "scratch/test-shopee-shortlink-redirect.ts": [
-      "src/lib/shopee-product.ts"
-    ],
-    "scratch/test-video-resolution.ts": [
-      "src/lib/shopee-product.ts"
-    ],
-    "scripts/bootstrap-super-admin.ts": [
-      "src/lib/db.ts",
-      "src/lib/env.ts"
-    ],
+    "scratch/debug-video.ts": ["src/lib/db.ts", "src/modules/links/service.ts"],
+    "scratch/test-shopee-shortlink-redirect.ts": ["src/lib/shopee-product.ts"],
+    "scratch/test-video-resolution.ts": ["src/lib/shopee-product.ts"],
+    "scripts/bootstrap-super-admin.ts": ["src/lib/db.ts", "src/lib/env.ts"],
     "scripts/capture-pwa-screenshots.ts": [],
-    "scripts/check-env.ts": [
-      "src/lib/env.ts"
-    ],
+    "scripts/check-env.ts": ["src/lib/env.ts"],
     "scripts/manual-test.ts": [],
-    "scripts/setup-qstash.ts": [
-      "src/lib/env.ts"
-    ],
-    "scripts/smoke-production.ts": [
-      "src/lib/env.ts"
-    ],
+    "scripts/setup-qstash.ts": ["src/lib/env.ts"],
+    "scripts/smoke-production.ts": ["src/lib/env.ts"],
     "sentry.server.config.ts": [],
     "src/app/[slug]/page.tsx": [],
     "src/app/admin/adjustments/actions.ts": [],
@@ -1617,16 +1585,12 @@
     "src/app/admin/payouts/actions.ts": [],
     "src/app/admin/payouts/page.tsx": [],
     "src/app/admin/reconciliation/actions.ts": [],
-    "src/app/admin/reconciliation/page.tsx": [
-      "src/app/admin/reconciliation/actions.ts"
-    ],
+    "src/app/admin/reconciliation/page.tsx": ["src/app/admin/reconciliation/actions.ts"],
     "src/app/admin/rules/actions.ts": [],
     "src/app/admin/rules/page.tsx": [],
     "src/app/admin/tenants/page.tsx": [],
     "src/app/admin/users/actions.ts": [],
-    "src/app/admin/users/page.tsx": [
-      "src/app/admin/users/actions.ts"
-    ],
+    "src/app/admin/users/page.tsx": ["src/app/admin/users/actions.ts"],
     "src/app/api/admin/passkeys/authenticate/options/route.ts": [],
     "src/app/api/admin/passkeys/authenticate/verify/route.ts": [],
     "src/app/api/admin/passkeys/register/options/route.ts": [],
@@ -1650,23 +1614,17 @@
     "src/app/api/webhooks/clerk/route.ts": [],
     "src/app/api/webhooks/lazada/route.ts": [],
     "src/app/app/conversions/actions.ts": [],
-    "src/app/app/conversions/page.tsx": [
-      "src/app/app/conversions/actions.ts"
-    ],
+    "src/app/app/conversions/page.tsx": ["src/app/app/conversions/actions.ts"],
     "src/app/app/layout.tsx": [],
     "src/app/app/leaderboard/page.tsx": [],
     "src/app/app/links/page.tsx": [],
     "src/app/app/notifications/actions.ts": [],
-    "src/app/app/notifications/page.tsx": [
-      "src/app/app/notifications/actions.ts"
-    ],
+    "src/app/app/notifications/page.tsx": ["src/app/app/notifications/actions.ts"],
     "src/app/app/onboarding/tenant/page.tsx": [],
     "src/app/app/page.tsx": [],
     "src/app/app/profile/[[...user-profile]]/page.tsx": [],
     "src/app/app/settings/actions.ts": [],
-    "src/app/app/settings/page.tsx": [
-      "src/app/app/settings/actions.ts"
-    ],
+    "src/app/app/settings/page.tsx": ["src/app/app/settings/actions.ts"],
     "src/app/app/settings/tenant/page.tsx": [],
     "src/app/app/settings/tenant/tenant-settings-client.tsx": [],
     "src/app/app/wallet/page.tsx": [],
@@ -1748,9 +1706,7 @@
     "src/lib/request.ts": [],
     "src/lib/shopee-product.ts": [],
     "src/lib/tenant-config.ts": [],
-    "src/lib/tenant.ts": [
-      "src/lib/tenant-config.ts"
-    ],
+    "src/lib/tenant.ts": ["src/lib/tenant-config.ts"],
     "src/lib/utils.ts": [],
     "src/modules/admin/adjustments.ts": [],
     "src/modules/admin/passkey.ts": [],

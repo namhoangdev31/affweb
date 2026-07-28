@@ -225,10 +225,13 @@ export async function createPayoutTicket(input: {
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
       );
     } catch (error) {
-      const retryable =
+      const isSerializationFailure =
         error instanceof Prisma.PrismaClientKnownRequestError &&
-        (error.code === "P2002" || error.code === "P2034");
-      if (!retryable) throw error;
+        (error.code === "P2002" ||
+          error.code === "P2034" ||
+          error.code === "P2010" ||
+          String(error.message).includes("40001"));
+      if (!isSerializationFailure) throw error;
       const existing = await db.payoutTicket.findFirst({
         where: {
           userId: input.userId,

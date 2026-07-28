@@ -41,7 +41,8 @@ describe("Flow 5: Payout Ticket, Two-Eye Control & Passkey Step-Up Security", ()
 
     // Invalid setup (Same user trying to review & approve)
     const illegalApprover: string = "usr-reviewer"; // Same as reviewer
-    const isIllegalApproveAllowed = illegalApprover !== reviewerUserId && illegalApprover !== ownerUserId;
+    const isIllegalApproveAllowed =
+      illegalApprover !== reviewerUserId && illegalApprover !== ownerUserId;
 
     expect(isIllegalApproveAllowed).toBe(false);
   });

@@ -21,8 +21,7 @@ if (!clerkUser || clerkUser.primaryEmailAddress?.verification?.status !== "verif
 }
 const hasGoogle = clerkUser.externalAccounts.some(
   (account) =>
-    account.provider.toLowerCase().includes("google") &&
-    account.verification?.status === "verified"
+    account.provider.toLowerCase().includes("google") && account.verification?.status === "verified"
 );
 if (!hasGoogle) {
   throw new Error("The Clerk user must have a verified Google connection.");

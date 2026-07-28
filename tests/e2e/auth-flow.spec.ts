@@ -23,7 +23,9 @@ test.describe("Authentication & Authorization Flows (Clerk Auth)", () => {
     await expect(main).toBeVisible();
   });
 
-  test("Unauthenticated user accessing protected /app routes is redirected to sign-in", async ({ page }) => {
+  test("Unauthenticated user accessing protected /app routes is redirected to sign-in", async ({
+    page
+  }) => {
     await page.goto("/app");
     await expect(page).not.toHaveURL(/\/app$/);
 

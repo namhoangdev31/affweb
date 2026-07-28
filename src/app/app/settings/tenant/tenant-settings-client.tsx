@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Bot,
   Building2,
@@ -169,6 +169,12 @@ export function TenantSettingsClient({
     setCopiedCommand(true);
     setTimeout(() => setCopiedCommand(false), 2000);
   };
+
+  useEffect(() => {
+    if (zaloAvailable && !zaloBindingCode && !loadingZaloCode) {
+      handleGenerateZaloCode();
+    }
+  }, [zaloAvailable]);
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 p-6 lg:p-10">

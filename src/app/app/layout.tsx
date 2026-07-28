@@ -13,5 +13,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   });
   const hasTenant = Boolean(ownedTenant);
 
-  return <AppShell user={user} hasTenant={hasTenant}>{children}</AppShell>;
+  return (
+    <AppShell user={user} hasTenant={hasTenant}>
+      {children}
+    </AppShell>
+  );
 }

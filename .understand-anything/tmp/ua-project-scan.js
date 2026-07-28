@@ -1,12 +1,5 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -59,7 +52,7 @@ const LANGUAGE_BY_EXTENSION = new Map([
   [".xml", "xml"],
   [".cfg", "config"],
   [".ini", "config"],
-  [".env", "config"],
+  [".env", "config"]
 ]);
 
 const INFRA_BASENAMES = new Set([
@@ -68,7 +61,7 @@ const INFRA_BASENAMES = new Set([
   "Jenkinsfile",
   "Procfile",
   "Vagrantfile",
-  ".gitlab-ci.yml",
+  ".gitlab-ci.yml"
 ]);
 
 const CODE_EXTENSIONS = new Set([
@@ -92,7 +85,7 @@ const CODE_EXTENSIONS = new Set([
   ".kt",
   ".php",
   ".vue",
-  ".svelte",
+  ".svelte"
 ]);
 
 const RESOLUTION_SUFFIXES = [
@@ -107,7 +100,7 @@ const RESOLUTION_SUFFIXES = [
   ".py",
   ".go",
   ".rs",
-  ".rb",
+  ".rb"
 ];
 
 function normalizeRelative(filePath) {
@@ -127,12 +120,9 @@ function discoverWithGit(projectRoot) {
     const output = execFileSync("git", ["-C", projectRoot, "ls-files", "-z"], {
       encoding: "utf8",
       maxBuffer: 128 * 1024 * 1024,
-      stdio: ["ignore", "pipe", "pipe"],
+      stdio: ["ignore", "pipe", "pipe"]
     });
-    return output
-      .split("\0")
-      .filter(Boolean)
-      .map(normalizeRelative);
+    return output.split("\0").filter(Boolean).map(normalizeRelative);
   } catch {
     return null;
   }
@@ -175,7 +165,7 @@ function isBaselineIgnored(filePath) {
     "vendor",
     "venv",
     ".venv",
-    "__pycache__",
+    "__pycache__"
   ]);
   const buildSegments = new Set([
     "dist",
@@ -186,7 +176,7 @@ function isBaselineIgnored(filePath) {
     ".cache",
     ".turbo",
     "target",
-    "obj",
+    "obj"
   ]);
   const binaryExtensions = new Set([
     ".png",
@@ -204,7 +194,7 @@ function isBaselineIgnored(filePath) {
     ".pdf",
     ".zip",
     ".tar",
-    ".gz",
+    ".gz"
   ]);
 
   if (parts.some((segment) => dependencySegments.has(segment))) {
@@ -248,11 +238,7 @@ function isBaselineIgnored(filePath) {
 
 async function filterDiscoveredFiles(projectRoot, originalFiles) {
   const baselineFiles = originalFiles.filter((filePath) => !isBaselineIgnored(filePath));
-  const projectIgnorePath = path.join(
-    projectRoot,
-    ".understand-anything",
-    ".understandignore",
-  );
+  const projectIgnorePath = path.join(projectRoot, ".understand-anything", ".understandignore");
   const rootIgnorePath = path.join(projectRoot, ".understandignore");
 
   if (!existsSync(projectIgnorePath) && !existsSync(rootIgnorePath)) {
@@ -269,7 +255,7 @@ async function filterDiscoveredFiles(projectRoot, originalFiles) {
 
   return {
     files,
-    filteredByIgnore: Math.max(0, unifiedRemoved - baselineRemoved),
+    filteredByIgnore: Math.max(0, unifiedRemoved - baselineRemoved)
   };
 }
 
@@ -318,9 +304,7 @@ function detectCategory(filePath) {
   }
 
   if (
-    [".yaml", ".yml", ".json", ".toml", ".xml", ".cfg", ".ini", ".env"].includes(
-      extension,
-    ) ||
+    [".yaml", ".yml", ".json", ".toml", ".xml", ".cfg", ".ini", ".env"].includes(extension) ||
     lowerBasename === "tsconfig.json" ||
     lowerBasename === "package.json" ||
     lowerBasename === "pyproject.toml" ||
@@ -351,7 +335,7 @@ function countLines(filePath) {
   try {
     const result = spawnSync("wc", ["-l", filePath], {
       encoding: "utf8",
-      maxBuffer: 1024 * 1024,
+      maxBuffer: 1024 * 1024
     });
     if (result.status !== 0) {
       return 0;
@@ -372,7 +356,7 @@ function addFramework(frameworks, framework) {
 function detectPackageFrameworks(packageJson, frameworks) {
   const dependencies = {
     ...(packageJson.dependencies ?? {}),
-    ...(packageJson.devDependencies ?? {}),
+    ...(packageJson.devDependencies ?? {})
   };
   const knownFrameworks = new Map([
     ["react", "React"],
@@ -395,7 +379,7 @@ function detectPackageFrameworks(packageJson, frameworks) {
     ["mongoose", "Mongoose"],
     ["redux", "Redux"],
     ["zustand", "Zustand"],
-    ["mobx", "MobX"],
+    ["mobx", "MobX"]
   ]);
 
   for (const [dependency, framework] of knownFrameworks) {
@@ -416,9 +400,7 @@ function detectNamedFrameworks(content, knownFrameworks, frameworks) {
 
 function parseTomlName(content, sectionName) {
   const sectionPattern = sectionName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const section = content.match(
-    new RegExp(`\\[${sectionPattern}\\]([\\s\\S]*?)(?=\\n\\[|$)`, "i"),
-  );
+  const section = content.match(new RegExp(`\\[${sectionPattern}\\]([\\s\\S]*?)(?=\\n\\[|$)`, "i"));
   return section?.[1].match(/^\s*name\s*=\s*["']([^"']+)["']/m)?.[1] ?? "";
 }
 
@@ -435,8 +417,7 @@ function detectFrameworks(projectRoot, discoveredPaths) {
       packageJson = JSON.parse(safeRead(path.join(projectRoot, "package.json")));
       projectName =
         typeof packageJson.name === "string" && packageJson.name ? packageJson.name : "";
-      rawDescription =
-        typeof packageJson.description === "string" ? packageJson.description : "";
+      rawDescription = typeof packageJson.description === "string" ? packageJson.description : "";
       detectPackageFrameworks(packageJson, frameworks);
     } catch {
       packageJson = {};
@@ -464,15 +445,13 @@ function detectFrameworks(projectRoot, discoveredPaths) {
         ["diesel", "Diesel"],
         ["tokio", "Tokio"],
         ["serde", "Serde"],
-        ["warp", "Warp"],
+        ["warp", "Warp"]
       ],
-      frameworks,
+      frameworks
     );
   }
 
-  const goModContent = discovered.has("go.mod")
-    ? safeRead(path.join(projectRoot, "go.mod"))
-    : "";
+  const goModContent = discovered.has("go.mod") ? safeRead(path.join(projectRoot, "go.mod")) : "";
   if (goModContent) {
     addFramework(frameworks, "Go");
     goModule = goModContent.match(/^\s*module\s+(\S+)/m)?.[1] ?? "";
@@ -486,9 +465,9 @@ function detectFrameworks(projectRoot, discoveredPaths) {
         ["github.com/labstack/echo", "Echo"],
         ["github.com/gofiber/fiber", "Fiber"],
         ["github.com/go-chi/chi", "Chi"],
-        ["gorm.io/gorm", "GORM"],
+        ["gorm.io/gorm", "GORM"]
       ],
-      frameworks,
+      frameworks
     );
   }
 
@@ -508,14 +487,14 @@ function detectFrameworks(projectRoot, discoveredPaths) {
     ["starlette", "Starlette"],
     ["pytest", "pytest"],
     ["hypothesis", "Hypothesis"],
-    ["channels", "Django Channels"],
+    ["channels", "Django Channels"]
   ];
   const pythonConfigFiles = [
     "requirements.txt",
     "pyproject.toml",
     "setup.py",
     "setup.cfg",
-    "Pipfile",
+    "Pipfile"
   ].filter((filePath) => discovered.has(filePath));
   if (pythonConfigFiles.length > 0) {
     addFramework(frameworks, "Python");
@@ -523,8 +502,7 @@ function detectFrameworks(projectRoot, discoveredPaths) {
       const content = safeRead(path.join(projectRoot, filePath));
       detectNamedFrameworks(content, pythonFrameworks, frameworks);
       if (filePath === "pyproject.toml" && !projectName) {
-        projectName =
-          parseTomlName(content, "project") || parseTomlName(content, "tool.poetry");
+        projectName = parseTomlName(content, "project") || parseTomlName(content, "tool.poetry");
       }
       if (filePath === "pyproject.toml" && /\[tool\.pytest\.ini_options\]/i.test(content)) {
         addFramework(frameworks, "pytest");
@@ -549,9 +527,9 @@ function detectFrameworks(projectRoot, discoveredPaths) {
         ["activerecord", "Active Record"],
         ["actionpack", "Action Pack"],
         ["devise", "Devise"],
-        ["pundit", "Pundit"],
+        ["pundit", "Pundit"]
       ],
-      frameworks,
+      frameworks
     );
   }
 
@@ -571,9 +549,9 @@ function detectFrameworks(projectRoot, discoveredPaths) {
         ["hibernate", "Hibernate"],
         ["jakarta", "Jakarta"],
         ["junit", "JUnit"],
-        ["ktor", "Ktor"],
+        ["ktor", "Ktor"]
       ],
-      frameworks,
+      frameworks
     );
   }
 
@@ -590,7 +568,7 @@ function detectFrameworks(projectRoot, discoveredPaths) {
     discoveredPaths.some(
       (filePath) =>
         filePath.startsWith(".github/workflows/") &&
-        (filePath.endsWith(".yml") || filePath.endsWith(".yaml")),
+        (filePath.endsWith(".yml") || filePath.endsWith(".yaml"))
     )
   ) {
     addFramework(frameworks, "GitHub Actions");
@@ -606,16 +584,15 @@ function detectFrameworks(projectRoot, discoveredPaths) {
     frameworks: [...frameworks].sort(),
     projectName: projectName || path.basename(projectRoot),
     rawDescription,
-    goModule,
+    goModule
   };
 }
 
 function resolveCandidate(importerPath, specifier, discovered) {
   const importerDirectory = path.posix.dirname(importerPath);
-  const rawCandidate = normalizeRelative(path.posix.normalize(path.posix.join(
-    importerDirectory,
-    specifier,
-  )));
+  const rawCandidate = normalizeRelative(
+    path.posix.normalize(path.posix.join(importerDirectory, specifier))
+  );
   if (rawCandidate === ".." || rawCandidate.startsWith("../")) {
     return null;
   }
@@ -695,8 +672,7 @@ function resolveGoImports(content, importerPath, goModule, discovered) {
     const relativeDirectory = importPath.slice(goModule.length).replace(/^\//, "");
     const candidates = [...discovered]
       .filter(
-        (filePath) =>
-          path.posix.dirname(filePath) === relativeDirectory && filePath.endsWith(".go"),
+        (filePath) => path.posix.dirname(filePath) === relativeDirectory && filePath.endsWith(".go")
       )
       .sort();
     for (const candidate of candidates) {
@@ -719,10 +695,9 @@ function resolveRustImports(content, importerPath, discovered) {
   while ((match = usePattern.exec(content)) !== null) {
     const base = match[1] === "crate" ? crateRoot : path.posix.dirname(importerDirectory);
     const modulePath = match[2].split("::").join("/");
-    for (const candidate of [
-      `${base}/${modulePath}.rs`,
-      `${base}/${modulePath}/mod.rs`,
-    ].map(normalizeRelative)) {
+    for (const candidate of [`${base}/${modulePath}.rs`, `${base}/${modulePath}/mod.rs`].map(
+      normalizeRelative
+    )) {
       if (discovered.has(candidate)) {
         results.add(candidate);
         break;
@@ -732,7 +707,7 @@ function resolveRustImports(content, importerPath, discovered) {
   while ((match = modPattern.exec(content)) !== null) {
     for (const candidate of [
       `${importerDirectory}/${match[1]}.rs`,
-      `${importerDirectory}/${match[1]}/mod.rs`,
+      `${importerDirectory}/${match[1]}/mod.rs`
     ].map(normalizeRelative)) {
       if (discovered.has(candidate)) {
         results.add(candidate);
@@ -820,7 +795,7 @@ async function main() {
   const uniqueOriginalFiles = [...new Set(originalFiles)].sort();
   const { files: filteredFiles, filteredByIgnore } = await filterDiscoveredFiles(
     projectRoot,
-    uniqueOriginalFiles,
+    uniqueOriginalFiles
   );
   const sortedFiles = [...new Set(filteredFiles)].sort();
 
@@ -828,21 +803,17 @@ async function main() {
     path: filePath,
     language: detectLanguage(filePath),
     sizeLines: countLines(path.join(projectRoot, filePath)),
-    fileCategory: detectCategory(filePath),
+    fileCategory: detectCategory(filePath)
   }));
   const languages = [
     ...new Set(
-      fileRecords
-        .map((file) => file.language)
-        .filter((language) => language !== "unknown"),
-    ),
+      fileRecords.map((file) => file.language).filter((language) => language !== "unknown")
+    )
   ].sort();
-  const {
-    frameworks,
-    projectName,
-    rawDescription,
-    goModule,
-  } = detectFrameworks(projectRoot, sortedFiles);
+  const { frameworks, projectName, rawDescription, goModule } = detectFrameworks(
+    projectRoot,
+    sortedFiles
+  );
   const readmeHead = sortedFiles.includes("README.md")
     ? safeRead(path.join(projectRoot, "README.md")).split(/\r?\n/).slice(0, 10).join("\n")
     : "";
@@ -858,7 +829,7 @@ async function main() {
     totalFiles: fileRecords.length,
     filteredByIgnore,
     estimatedComplexity: estimateComplexity(fileRecords.length),
-    importMap,
+    importMap
   };
 
   mkdirSync(path.dirname(outputPath), { recursive: true });

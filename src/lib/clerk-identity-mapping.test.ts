@@ -60,18 +60,14 @@ describe("Clerk identity mapping", () => {
     expect(
       hasVerifiedGoogleConnection(
         clerkUser({
-          externalAccounts: [
-            { provider: "oauth_google", verification: { status: "unverified" } }
-          ]
+          externalAccounts: [{ provider: "oauth_google", verification: { status: "unverified" } }]
         })
       )
     ).toBe(false);
     expect(
       hasVerifiedGoogleConnection(
         clerkUser({
-          externalAccounts: [
-            { provider: "oauth_github", verification: { status: "verified" } }
-          ]
+          externalAccounts: [{ provider: "oauth_github", verification: { status: "verified" } }]
         })
       )
     ).toBe(false);

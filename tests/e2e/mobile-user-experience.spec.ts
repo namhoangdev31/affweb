@@ -1,7 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Mobile Responsive User Experience & PWA Flows", () => {
-  test("Mobile view renders responsive navigation and header controls", async ({ page, isMobile }) => {
+  test("Mobile view renders responsive navigation and header controls", async ({
+    page,
+    isMobile
+  }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 

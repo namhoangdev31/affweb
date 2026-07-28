@@ -28,6 +28,10 @@ function assertBalanced(lines: readonly JournalLine[]): void {
 }
 
 async function ensureAccount(tx: Tx, line: JournalLine): Promise<string> {
+  const existing = await tx.ledgerAccount.findUnique({
+    where: { code: line.accountCode }
+  });
+  if (existing) return existing.id;
   const account = await tx.ledgerAccount.upsert({
     where: { code: line.accountCode },
     create: {

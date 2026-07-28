@@ -19,7 +19,9 @@ export async function resolveShopeeShortUrlWithHtmlFallback(shortUrl: string): P
 
     // Parse HTML body for embedded target URLs (e.g. var CONFIG = { httpUrl: "..." })
     const html = await res.text();
-    const configMatch = html.match(/httpUrl\s*:\s*["']([^"']+)["']/i) || html.match(/deepLinkUrl\s*:\s*["']([^"']+)["']/i);
+    const configMatch =
+      html.match(/httpUrl\s*:\s*["']([^"']+)["']/i) ||
+      html.match(/deepLinkUrl\s*:\s*["']([^"']+)["']/i);
 
     if (configMatch?.[1]) {
       const unescaped = configMatch[1].replace(/\\u0026/g, "&").replace(/\\/g, "");

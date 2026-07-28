@@ -44,7 +44,11 @@ export class ShopeeOpenApiConnector extends ConnectorBase {
     const appId = process.env.SHOPEE_APP_ID;
     const secret = process.env.SHOPEE_APP_SECRET;
     if (process.env.SHOPEE_OPEN_API_ENABLED !== "true" || !appId || !secret) {
-      throw new AppError("CONNECTOR_UNAVAILABLE", "Shopee Open API chưa hỗ trợ tại thị trường Việt Nam.", 503);
+      throw new AppError(
+        "CONNECTOR_UNAVAILABLE",
+        "Shopee Open API chưa hỗ trợ tại thị trường Việt Nam.",
+        503
+      );
     }
     const timestamp = Math.floor(Date.now() / 1000);
     const payload = JSON.stringify({ query, variables });

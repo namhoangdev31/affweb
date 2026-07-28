@@ -103,7 +103,7 @@ export async function createFinanceSettlementBatch(input: {
   try {
     return await db.$transaction(
       async (tx) => {
-        await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${input.idempotencyKey}))`;
+        await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${input.idempotencyKey}))::text;`;
         const replay = await tx.settlementBatch.findUnique({
           where: { idempotencyKey: input.idempotencyKey }
         });
@@ -282,7 +282,10 @@ export async function createFinanceSettlementBatch(input: {
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
     );
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    const isRetryable =
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      (error.code === "P2002" || error.code === "P2010" || String(error.message).includes("40001"));
+    if (isRetryable) {
       const replay = await db.settlementBatch.findUnique({
         where: { idempotencyKey: input.idempotencyKey }
       });

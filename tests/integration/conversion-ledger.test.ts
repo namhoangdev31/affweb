@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   ConnectorType,
   EvidenceAuthority,
+  LedgerAccountKind,
   LedgerDirection,
   LedgerTransactionType,
   Platform,
@@ -11,9 +12,25 @@ import {
 import { db } from "@/lib/db";
 import type { NormalizedConversion } from "@/modules/connectors/types";
 import { ingestConversion } from "@/modules/conversions/service";
+import { postJournal } from "@/modules/ledger/service";
 import { createPayoutTicket } from "@/modules/payout/service";
 
 describe("conversion ingestion and ledger", () => {
+  beforeAll(async () => {
+    await db.featureFlag.upsert({
+      where: { key: "payout.daily_budget_vnd" },
+      create: {
+        key: "payout.daily_budget_vnd",
+        enabled: true,
+        value: { amountVnd: "1000000000000" }
+      },
+      update: {
+        enabled: true,
+        value: { amountVnd: "1000000000000" }
+      }
+    });
+  });
+
   afterAll(async () => {
     await db.$disconnect();
   });
@@ -140,21 +157,28 @@ describe("conversion ingestion and ledger", () => {
 
     const unbalancedKey = `unbalanced-${suffix}`;
     await expect(
-      db.ledgerTransaction.create({
-        data: {
-          type: LedgerTransactionType.MANUAL_ADJUSTMENT,
-          idempotencyKey: unbalancedKey,
-          description: "Constraint fixture",
-          entries: {
-            create: {
-              accountId: entry.accountId,
-              direction: LedgerDirection.DEBIT,
-              amountVnd: 1n
-            }
+      postJournal(db, {
+        type: LedgerTransactionType.MANUAL_ADJUSTMENT,
+        idempotencyKey: unbalancedKey,
+        description: "Constraint fixture",
+        lines: [
+          {
+            accountCode: "asset:bank:test",
+            accountName: "Bank test",
+            accountKind: LedgerAccountKind.ASSET,
+            direction: LedgerDirection.DEBIT,
+            amountVnd: 150_000n
+          },
+          {
+            accountCode: "liability:user:test",
+            accountName: "User test",
+            accountKind: LedgerAccountKind.LIABILITY,
+            direction: LedgerDirection.CREDIT,
+            amountVnd: 78_000n
           }
-        }
+        ]
       })
-    ).rejects.toThrow();
+    ).rejects.toThrow(/not balanced/);
     expect(await db.ledgerTransaction.count({ where: { idempotencyKey: unbalancedKey } })).toBe(0);
   });
 

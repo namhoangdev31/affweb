@@ -52,21 +52,36 @@ export default async function SettingsPage() {
               <div className="space-y-2 text-sm">
                 <p className="font-semibold text-emerald-700">Kênh: {ownedTenant.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  Đường dẫn Kênh: <span className="font-mono">{getAppHostDisplay()}/{ownedTenant.slug}</span>
+                  Đường dẫn Kênh:{" "}
+                  <span className="font-mono">
+                    {getAppHostDisplay()}/{ownedTenant.slug}
+                  </span>
                 </p>
-                <Button asChild variant="outline" size="sm" className="mt-1 border-emerald-600/30 text-emerald-700 hover:bg-emerald-50">
-                  <Link href={"/app/settings/tenant" as Route}>Quản lý Kênh & Cấu hình Zalo Bot 🤖</Link>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="mt-1 border-emerald-600/30 text-emerald-700 hover:bg-emerald-50"
+                >
+                  <Link href={"/app/settings/tenant" as Route}>
+                    Quản lý Kênh & Cấu hình Zalo Bot 🤖
+                  </Link>
                 </Button>
               </div>
             ) : (
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <p className="font-semibold text-sm">Bạn muốn sở hữu Kênh KOC / Thương hiệu Cashback riêng?</p>
+                  <p className="font-semibold text-sm">
+                    Bạn muốn sở hữu Kênh KOC / Thương hiệu Cashback riêng?
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     Khởi tạo kênh riêng với domain tùy chỉnh và nhận 14 ngày dùng thử miễn phí.
                   </p>
                 </div>
-                <Button asChild className="bg-emerald-600 font-semibold text-white hover:bg-emerald-500">
+                <Button
+                  asChild
+                  className="bg-emerald-600 font-semibold text-white hover:bg-emerald-500"
+                >
                   <Link href="/onboarding/tenant">
                     <Sparkles className="mr-1.5 size-4" /> Tạo Kênh KOC Ngay
                   </Link>

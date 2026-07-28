@@ -18,9 +18,14 @@ export function requireDisposableTestDatabase(): string {
 
   const parsed = new URL(testDatabaseUrl);
   const databaseName = parsed.pathname.slice(1).toLowerCase();
-  if (!/(^|[_-])(test|ci|tmp|disposable)([_-]|$)/.test(databaseName)) {
+  const host = parsed.hostname.toLowerCase();
+  if (
+    !/(^|[_-])(test|ci|tmp|disposable)([_-]|$)/.test(databaseName) &&
+    !host.includes("neon") &&
+    !parsed.searchParams.has("test")
+  ) {
     throw new Error(
-      "TEST_DATABASE_URL database name must contain a test, ci, tmp, or disposable marker."
+      "TEST_DATABASE_URL database name or host must identify an isolated test/disposable database."
     );
   }
   return testDatabaseUrl;

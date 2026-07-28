@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { z } from "zod";
 
 const emptyToUndefined = (value: unknown): string | undefined => {
@@ -275,8 +277,10 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
   }
   if (env.TENANT_IMPORT_ENABLED) {
     try {
-      const fs = require("node:fs");
-      const fixturePath = require("node:path").join(process.cwd(), "src/modules/imports/__fixtures__/shopee-orders-v1.csv");
+      const fixturePath = path.join(
+        process.cwd(),
+        "src/modules/imports/__fixtures__/shopee-orders-v1.csv"
+      );
       if (!fs.existsSync(fixturePath)) {
         issues.push(
           "Tenant conversion import cannot be enabled until the redacted Shopee CSV contract fixture is installed."

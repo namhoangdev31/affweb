@@ -19,9 +19,7 @@ export function toIso(value: Date | null | undefined): string | null {
 
 export function getAppHostDisplay(): string {
   const urlStr =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.APP_BASE_URL ||
-    "http://localhost:3000";
+    process.env.NEXT_PUBLIC_APP_URL || process.env.APP_BASE_URL || "http://localhost:3000";
   try {
     const parsed = new URL(urlStr);
     return parsed.host;

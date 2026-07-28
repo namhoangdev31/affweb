@@ -8,10 +8,7 @@ import type { ClerkUserLike } from "@/lib/clerk-identity-mapping";
 import { db } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 
-type UserEventData = Extract<
-  WebhookEvent,
-  { type: "user.created" | "user.updated" }
->["data"];
+type UserEventData = Extract<WebhookEvent, { type: "user.created" | "user.updated" }>["data"];
 
 function normalizedWebhookUser(data: UserEventData): ClerkUserLike {
   return {
@@ -24,15 +21,11 @@ function normalizedWebhookUser(data: UserEventData): ClerkUserLike {
     emailAddresses: data.email_addresses.map((email) => ({
       id: email.id,
       emailAddress: email.email_address,
-      verification: email.verification
-        ? { status: email.verification.status }
-        : null
+      verification: email.verification ? { status: email.verification.status } : null
     })),
     externalAccounts: data.external_accounts.map((account) => ({
       provider: account.provider,
-      verification: account.verification
-        ? { status: account.verification.status }
-        : null
+      verification: account.verification ? { status: account.verification.status } : null
     })),
     banned: data.banned,
     locked: data.locked
@@ -133,10 +126,7 @@ export async function handleClerkWebhook(event: WebhookEvent): Promise<void> {
   }
 }
 
-export async function claimWebhookEvent(
-  svixId: string,
-  event: WebhookEvent
-): Promise<boolean> {
+export async function claimWebhookEvent(svixId: string, event: WebhookEvent): Promise<boolean> {
   const requestHash = createHash("sha256")
     .update(`${event.type}:${event.data.id ?? "unknown"}`)
     .digest("hex");

@@ -2,13 +2,16 @@ import { chromium } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 
-const outputDir = "/Users/hoangnam/.gemini/antigravity/brain/41d407f1-1577-4949-ace5-563cae0cc699/screenshots";
+const outputDir =
+  "/Users/hoangnam/.gemini/antigravity/brain/41d407f1-1577-4949-ace5-563cae0cc699/screenshots";
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }
 
 async function runManualTesting() {
-  console.log("🚀 Starting Interactive Manual Browser Test (Auth & Public Flows) against http://localhost:3000 ...");
+  console.log(
+    "🚀 Starting Interactive Manual Browser Test (Auth & Public Flows) against http://localhost:3000 ..."
+  );
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1280, height: 800 },
@@ -32,13 +35,19 @@ async function runManualTesting() {
   console.log("3. Testing Legacy /login redirect...");
   await page.goto("http://localhost:3000/login");
   await page.waitForTimeout(1000);
-  await page.screenshot({ path: path.join(outputDir, "11_legacy_login_redirect.png"), fullPage: true });
+  await page.screenshot({
+    path: path.join(outputDir, "11_legacy_login_redirect.png"),
+    fullPage: true
+  });
 
   // 4. Test Protected Route (/app) Redirect
   console.log("4. Testing Protected /app Redirect...");
   await page.goto("http://localhost:3000/app");
   await page.waitForTimeout(1000);
-  await page.screenshot({ path: path.join(outputDir, "12_protected_app_redirect.png"), fullPage: true });
+  await page.screenshot({
+    path: path.join(outputDir, "12_protected_app_redirect.png"),
+    fullPage: true
+  });
 
   await browser.close();
   console.log("✅ Interactive Auth Manual Test completed! Screenshots saved to:", outputDir);

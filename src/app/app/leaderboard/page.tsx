@@ -88,7 +88,8 @@ export default async function LeaderboardPage({
             </Badge>
             <h1 className="display-type text-3xl sm:text-4xl">Bảng xếp hạng hoàn tiền.</h1>
             <p className="max-w-xl text-sm text-emerald-100/70">
-              Vinh danh những KOC và mua sắm có tổng tiền hoàn thực nhận cao nhất hệ thống. Cập nhật theo thời gian thực từ Ledger Kế toán.
+              Vinh danh những KOC và mua sắm có tổng tiền hoàn thực nhận cao nhất hệ thống. Cập nhật
+              theo thời gian thực từ Ledger Kế toán.
             </p>
           </div>
 
@@ -96,8 +97,12 @@ export default async function LeaderboardPage({
           <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur sm:min-w-[240px]">
             <p className="text-xs font-medium text-emerald-200/80">Thứ hạng của bạn</p>
             <div className="mt-1 flex items-baseline justify-between">
-              <span className="display-type text-3xl font-bold text-amber-400">#{currentUserRank}</span>
-              <span className="text-sm font-semibold text-emerald-100">{formatVnd(currentUserEarnings)}</span>
+              <span className="display-type text-3xl font-bold text-amber-400">
+                #{currentUserRank}
+              </span>
+              <span className="text-sm font-semibold text-emerald-100">
+                {formatVnd(currentUserEarnings)}
+              </span>
             </div>
             <p className="mt-1 text-[11px] text-white/50">Tích lũy cashback khả dụng</p>
           </div>
@@ -129,7 +134,9 @@ export default async function LeaderboardPage({
               <Link
                 href="/app/leaderboard?scope=global"
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                  scope === "global" ? "bg-emerald-600 text-white" : "text-white/60 hover:text-white"
+                  scope === "global"
+                    ? "bg-emerald-600 text-white"
+                    : "text-white/60 hover:text-white"
                 }`}
               >
                 Toàn hệ thống
@@ -137,7 +144,9 @@ export default async function LeaderboardPage({
               <Link
                 href="/app/leaderboard?scope=tenant"
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                  scope === "tenant" ? "bg-emerald-600 text-white" : "text-white/60 hover:text-white"
+                  scope === "tenant"
+                    ? "bg-emerald-600 text-white"
+                    : "text-white/60 hover:text-white"
                 }`}
               >
                 Kênh KOC của tôi
@@ -173,7 +182,9 @@ export default async function LeaderboardPage({
               ) : null}
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-xl font-bold text-slate-800">{formatVnd(top2.lifetimeCashbackVnd)}</p>
+              <p className="text-xl font-bold text-slate-800">
+                {formatVnd(top2.lifetimeCashbackVnd)}
+              </p>
               <p className="text-xs text-muted-foreground">Cashback đã nhận</p>
             </CardContent>
           </Card>
@@ -203,7 +214,9 @@ export default async function LeaderboardPage({
               ) : null}
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-2xl font-black text-amber-600">{formatVnd(top1.lifetimeCashbackVnd)}</p>
+              <p className="text-2xl font-black text-amber-600">
+                {formatVnd(top1.lifetimeCashbackVnd)}
+              </p>
               <p className="text-xs text-muted-foreground">Cashback đã nhận</p>
             </CardContent>
           </Card>
@@ -233,7 +246,9 @@ export default async function LeaderboardPage({
               ) : null}
             </CardHeader>
             <CardContent className="text-center">
-              <p className="text-xl font-bold text-amber-900">{formatVnd(top3.lifetimeCashbackVnd)}</p>
+              <p className="text-xl font-bold text-amber-900">
+                {formatVnd(top3.lifetimeCashbackVnd)}
+              </p>
               <p className="text-xs text-muted-foreground">Cashback đã nhận</p>
             </CardContent>
           </Card>
@@ -262,10 +277,10 @@ export default async function LeaderboardPage({
                       item.rank === 1
                         ? "bg-amber-400 text-amber-950"
                         : item.rank === 2
-                        ? "bg-slate-300 text-slate-800"
-                        : item.rank === 3
-                        ? "bg-amber-800/30 text-amber-900"
-                        : "bg-muted text-muted-foreground"
+                          ? "bg-slate-300 text-slate-800"
+                          : item.rank === 3
+                            ? "bg-amber-800/30 text-amber-900"
+                            : "bg-muted text-muted-foreground"
                     }`}
                   >
                     #{item.rank}
@@ -278,9 +293,7 @@ export default async function LeaderboardPage({
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="truncate font-semibold text-sm">
-                        {item.name}
-                      </p>
+                      <p className="truncate font-semibold text-sm">{item.name}</p>
                       {item.isCurrentUser ? (
                         <Badge variant="default" className="bg-emerald-600 text-[10px]">
                           <UserCheck className="mr-0.5 size-3" /> Bạn
@@ -294,7 +307,9 @@ export default async function LeaderboardPage({
                 </div>
 
                 <div className="text-right">
-                  <p className="font-bold text-sm text-emerald-600">{formatVnd(item.lifetimeCashbackVnd)}</p>
+                  <p className="font-bold text-sm text-emerald-600">
+                    {formatVnd(item.lifetimeCashbackVnd)}
+                  </p>
                   <p className="text-[11px] text-muted-foreground">Tích lũy khả dụng</p>
                 </div>
               </div>

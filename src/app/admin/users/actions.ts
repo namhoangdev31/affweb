@@ -147,10 +147,7 @@ export async function resendInvitationAction(formData: FormData) {
     where: { id: invitationId }
   });
   const client = await clerkClient();
-  if (
-    invitation.clerkInvitationId &&
-    invitation.status === IdentityInvitationStatus.SENT
-  ) {
+  if (invitation.clerkInvitationId && invitation.status === IdentityInvitationStatus.SENT) {
     await client.invitations.revokeInvitation(invitation.clerkInvitationId);
   }
   const clerkInvitation = await client.invitations.createInvitation({
@@ -250,9 +247,7 @@ export async function updateUserStatusAction(formData: FormData) {
 
 export async function revokeUserSessionsAction(formData: FormData) {
   const actor = await requireRole([Role.SUPER_ADMIN]);
-  const { userId } = z
-    .object({ userId: z.string().cuid() })
-    .parse(Object.fromEntries(formData));
+  const { userId } = z.object({ userId: z.string().cuid() }).parse(Object.fromEntries(formData));
   const target = await db.user.findUniqueOrThrow({
     where: { id: userId },
     select: { clerkUserId: true }

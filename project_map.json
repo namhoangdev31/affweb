@@ -377,8 +377,8 @@
     },
     "context.md": {
       "category": "documentation",
-      "bytes": 22357,
-      "sha256": "7cddebd454e31872837b0e023717446eca4042dfcaaf6f1791b55378998480ad",
+      "bytes": 22474,
+      "sha256": "d9bd255001984430152fb224585e19102aca3293d4e8df40ed15d70404f253eb",
       "summary": "Documents Project Context — Hoàn Tiền (affweb)."
     },
     "docs/README.md": {
@@ -425,8 +425,8 @@
     },
     "docs/operations/production-runbook.md": {
       "category": "documentation",
-      "bytes": 7801,
-      "sha256": "5ba0044df5579cbcd0c8920708d7df118d33eec22d4deb11cc0e2682c79ff8dd",
+      "bytes": 7880,
+      "sha256": "0ad824299d793fa01e35df1852d56b26cd9657619c963c0d10d1932f887cfbf4",
       "summary": "Documents Production runbook."
     },
     "docs/operations/provider-contract-status.md": {
@@ -443,8 +443,8 @@
     },
     "docs/production-readiness-audit-2026-07-28.md": {
       "category": "documentation",
-      "bytes": 76731,
-      "sha256": "83f9d780b8697989003eaa4180dc7e028279bbdf59d19ff2dbce14db63f75599",
+      "bytes": 87870,
+      "sha256": "8b27540ef59a30bc276e087fac4df54ec183436926ecae5021f699edb80d0585",
       "summary": "Documents Báo cáo kiểm toán tiến độ, Production Readiness và User Flow — affweb."
     },
     "docs/research/api_availability_matrix.csv": {
@@ -581,8 +581,8 @@
     },
     "pnpm-lock.yaml": {
       "category": "configuration",
-      "bytes": 558200,
-      "sha256": "b6e9dc594adade97f56c8af7b9853d996a18b43bf50c9cdaa64186c1dff87434",
+      "bytes": 592981,
+      "sha256": "311255237ded3ff89659504db5f2725b53ed5b8071510923cbffb52dbeb2034d",
       "summary": "Exact dependency graph and integrity lock for reproducible pnpm installs."
     },
     "pnpm-workspace.yaml": {
@@ -659,8 +659,8 @@
     },
     "prisma/migrations/202607290001_core_v1_expand/migration.sql": {
       "category": "database",
-      "bytes": 10684,
-      "sha256": "f7fe5eda544ecb19f9ccfc3228da35636c8c8ca300095ece719116129acc0372",
+      "bytes": 11093,
+      "sha256": "8ede8e0ea7598876b8b2447aafc4164b60c67474c2572fb11f1a1ad21beeb182",
       "summary": "Expands Core v1 attribution, idempotency, plan entitlement, billing, tenant import, adjustment, and Zalo binding persistence without dropping legacy columns."
     },
     "prisma/migrations/202607300001_provider_settlement_core/migration.sql": {
@@ -5319,8 +5319,8 @@
     },
     "scratch/test-shopee-shortlink-redirect.ts": {
       "category": "source",
-      "bytes": 1688,
-      "sha256": "68768bbaf5aa859b790a54fbdcb2f821c1d568243e35e618649c5cb1671ab936",
+      "bytes": 1700,
+      "sha256": "6891defb70dba7a272f191beb61adaac8e42d3ee81c746c746170ce89cd45880",
       "summary": "Provides a manual scratch utility for test shopee shortlink redirect.",
       "analysis": {
         "runtime": "shared",
@@ -5360,8 +5360,8 @@
     },
     "scratch/test-video-resolution.ts": {
       "category": "source",
-      "bytes": 1851,
-      "sha256": "1e30bcac4a44778d5fb65c8f83578af6e00365f5bbef1fd55ef3d801862e91e7",
+      "bytes": 1875,
+      "sha256": "c5dfeb09bf49cff938b990ba008fdb590237500d3b92c857c30a6c4b9c13dae0",
       "summary": "Provides a manual scratch utility for test video resolution.",
       "analysis": {
         "runtime": "shared",
@@ -5405,8 +5405,8 @@
     },
     "scripts/bootstrap-super-admin.ts": {
       "category": "script",
-      "bytes": 2795,
-      "sha256": "375f4a02d81d7130d98e999c5f4565d36e5e8446ee0c6d96c7ef17849da435ed",
+      "bytes": 2791,
+      "sha256": "2160025f4941f1eb4771ce04db362b2761334709b842e317a44241cb07c9c2cd",
       "summary": "Promotes one allowlisted, verified Google-backed Clerk user to local SUPER_ADMIN.",
       "analysis": {
         "runtime": "shared",
@@ -5487,8 +5487,8 @@
     },
     "scripts/manual-test.ts": {
       "category": "script",
-      "bytes": 2022,
-      "sha256": "9a33ff78a805360a25778140c55722683d806c3384ca528e1a095b175e595ef5",
+      "bytes": 2052,
+      "sha256": "1d6b5ae098fe406092085323006988c1d7f0c182d08447930ad423e54c2295cc",
       "summary": "Manual test.",
       "analysis": {
         "runtime": "shared",
@@ -6584,8 +6584,8 @@
     },
     "src/app/admin/users/actions.ts": {
       "category": "app-route",
-      "bytes": 10897,
-      "sha256": "e77cea2ca009c1cec9e11c4f038a99e9b71425a7c29a74161d152d87638563bd",
+      "bytes": 10875,
+      "sha256": "9b87f7b0e79c3358661938fba3cc7902c5581539c24538bcef4c7542fcf43188",
       "summary": "Authenticated server actions used by /admin/users.",
       "analysis": {
         "runtime": "server",
@@ -6729,8 +6729,8 @@
     },
     "src/app/admin/users/page.tsx": {
       "category": "app-route",
-      "bytes": 8306,
-      "sha256": "ddf5db2491adcaa960d00996e6f67ed2dff45318f3529783f667757968aa59d1",
+      "bytes": 8669,
+      "sha256": "4c31c371b9dc3a4622df2567eba43d593462af3db47af4d7d925cd60d727303c",
       "summary": "Renders the /admin/users application page.",
       "route": "/admin/users",
       "analysis": {
@@ -7508,8 +7508,8 @@
     },
     "src/app/api/v1/imports/shopee-reconciliation-invoices/route.ts": {
       "category": "api-route",
-      "bytes": 966,
-      "sha256": "4416d776b785507ac988867dbe0e5809787cb44e034a9dc618ef629af7792b7a",
+      "bytes": 2027,
+      "sha256": "289c7838465a570cd6839cccee13665ec9680495bf4abfe4f1a3fe0d0f783167",
       "summary": "POST route for /api/v1/imports/shopee-reconciliation-invoices.",
       "route": "/api/v1/imports/shopee-reconciliation-invoices",
       "analysis": {
@@ -8594,8 +8594,8 @@
     },
     "src/app/api/webhooks/zalo/route.ts": {
       "category": "api-route",
-      "bytes": 2771,
-      "sha256": "b6cd0a39bff8a19ad4d00ebaff960918171150b470dc81065516b5cdcc07d92f",
+      "bytes": 2808,
+      "sha256": "62a8a8e6091bfb25cd7c813fe6d96ead1033343037b3d3c0fabb43cfbc903f6e",
       "summary": "POST route for /api/webhooks/zalo.",
       "route": "/api/webhooks/zalo",
       "analysis": {
@@ -8748,8 +8748,8 @@
     },
     "src/app/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 646,
-      "sha256": "f7f3b23a20748b7ed2a5088be23e5a8a7af60e866489a302c14fcc5445d0a9fc",
+      "bytes": 668,
+      "sha256": "c31de040d4ea77552924bfeabfe06177a9160596c139b962fb894bc028291cd9",
       "summary": "Defines layout and access boundary for /app.",
       "analysis": {
         "runtime": "shared",
@@ -8785,8 +8785,8 @@
     },
     "src/app/app/leaderboard/page.tsx": {
       "category": "app-route",
-      "bytes": 13388,
-      "sha256": "0cf348fab5a49e903392e4ebfe18b5b46b359a320c4cd98b5e9c9fc05bf073be",
+      "bytes": 13646,
+      "sha256": "2a59ad98f9210993505d367c3ebee376766600fac23200ad2d8e345e5b38b112",
       "summary": "Renders the /app/leaderboard application page.",
       "route": "/app/leaderboard",
       "analysis": {
@@ -9136,8 +9136,8 @@
     },
     "src/app/app/settings/page.tsx": {
       "category": "app-route",
-      "bytes": 6504,
-      "sha256": "2ccc67d0b99267e289fdb53b78e2747f3aa6d4e074166a32dccf297354307730",
+      "bytes": 6789,
+      "sha256": "a1dad1269509ebfd2fbef464733c2c5275cce7c392c280acdcc6ec4c2433caf5",
       "summary": "Renders the /app/settings application page.",
       "route": "/app/settings",
       "analysis": {
@@ -9228,8 +9228,8 @@
     },
     "src/app/app/settings/tenant/tenant-settings-client.tsx": {
       "category": "app-route",
-      "bytes": 33254,
-      "sha256": "85470f1abdb8abc5f60b843054e65c84f3031d8cbdc6cf72912da545b493187f",
+      "bytes": 33412,
+      "sha256": "da9c75744671a44be80550aef0470c56fb18e083c2bfc0a902e2594c0ce19c8e",
       "summary": "Renders tenant subscription/Zalo controls plus a real Affiliate ID and member-share settings form.",
       "analysis": {
         "runtime": "client",
@@ -9897,8 +9897,8 @@
     },
     "src/app/shopee-lookup/page.tsx": {
       "category": "app-route",
-      "bytes": 1889,
-      "sha256": "798205915572678ba6545760e07706555612241948e34b6f3da8e88ee887a3b1",
+      "bytes": 1897,
+      "sha256": "078faf86c633032e5502842eb22e74b0da28c392b512bd90526d03cb3c51175c",
       "summary": "Renders the /shopee-lookup application page.",
       "route": "/shopee-lookup",
       "analysis": {
@@ -11831,8 +11831,8 @@
     },
     "src/lib/clerk-identity-mapping.test.ts": {
       "category": "test",
-      "bytes": 2033,
-      "sha256": "e222ba9ff30874f25afbf9c2b5e9e878516035ef0e711a3c95df0606b2861377",
+      "bytes": 1985,
+      "sha256": "8f3d9ab5c8e8b9350310d5c759485af8f10a3c5dec1302b05999d9da4b3796b3",
       "summary": "Tests: describe: Clerk identity mapping; it: only accepts the verified primary email and normalizes it; it: requires a verified Google connection for admin access.",
       "analysis": {
         "runtime": "shared",
@@ -11867,8 +11867,8 @@
     },
     "src/lib/clerk-identity-mapping.ts": {
       "category": "library",
-      "bytes": 982,
-      "sha256": "7d2688bb09dcb81f900a20dd17c6cda96719e6c77f2a4474064f9c2c8baf5cc3",
+      "bytes": 976,
+      "sha256": "c9443bde0ff7e7e13c866eef9739cfb1ae48aaf933aad21dee18bfe99582e2d1",
       "summary": "Implements ClerkUserLike, primaryVerifiedEmail, hasVerifiedGoogleConnection.",
       "analysis": {
         "runtime": "shared",
@@ -12257,8 +12257,8 @@
     },
     "src/lib/env.test.ts": {
       "category": "test",
-      "bytes": 5619,
-      "sha256": "2924e7465ab122938d240507005b56889e48c741d5cddbc44c5fb2b1836e771d",
+      "bytes": 5684,
+      "sha256": "e0a379734ac037e522bc1ec9c431ceabe55322db2933117eb96c0d9e06ac9c64",
       "summary": "Tests: describe: Environment Variables Audit & Readiness Tests; it: provides sensible defaults for optional development ENVs; it: validates core required variables in production readiness check; it: validates WEBAUTHN_CHALLENGE_SECRET minimum length requirement (>= 32 bytes); it: locks Clerk to the approved application ID; it: validates BANK_DATA_ENCRYPTION_KEY_V1 base64 length requirement (32 bytes); it: fails closed on ShopeeDirectConnector when SHOPEE_AFFILIATE_ID is missing; it: always uses ShopeeDirectConnector (an_redir) for Shopee Marketplace in Vietnam; it: fails closed on AddLiveTagConnector when ADDLIVETAG_ENABLED or API_KEY is missing; it: fails closed on AccessTradeConnector when ACCESSTRADE_ENABLED or API_KEY is missing; it: enforces Lazada credentials requirement when LAZADA_MODE is active.",
       "analysis": {
         "runtime": "shared",
@@ -12313,8 +12313,8 @@
     },
     "src/lib/env.ts": {
       "category": "library",
-      "bytes": 11826,
-      "sha256": "f13bb10b89798957912df49a5e347d269a8ba43e3c50f7942c1749dc5179248b",
+      "bytes": 12122,
+      "sha256": "e761dba61c97468b92dbf9ce95c40940490ab6f3b24ee1ad36db1636c5faf9f0",
       "summary": "Implements ServerEnv, loadServerEnv, hasDatabase, adminEmailAllowlist, productionReadinessIssues, resetEnvCacheForTests.",
       "analysis": {
         "runtime": "shared",
@@ -12868,8 +12868,8 @@
     },
     "src/lib/redis.ts": {
       "category": "library",
-      "bytes": 994,
-      "sha256": "19fbdcc7bb4df5a6b89980813a642eac1823096211d4894cbb915b304db15c90",
+      "bytes": 1026,
+      "sha256": "f1095fa4f410785eb0f4a3ed1edf23d5e3c08cfe21401da678787c1093a302e7",
       "summary": "Implements getRedis, redis.",
       "analysis": {
         "runtime": "server",
@@ -12897,8 +12897,8 @@
     },
     "src/lib/request.ts": {
       "category": "library",
-      "bytes": 2042,
-      "sha256": "ebfa0417c675e65b7fb5ce60def3d4c197dab5b60ea02caebc884a3346d7aaf2",
+      "bytes": 2100,
+      "sha256": "ba809564e95ab971fe484ba151a729638ed3ec216df5a710212ca9863c0bc1c3",
       "summary": "Implements requestId, assertTrustedOrigin, requireIdempotencyKey, requestPayloadHash, readJson.",
       "analysis": {
         "runtime": "shared",
@@ -12973,8 +12973,8 @@
     },
     "src/lib/shopee-product.ts": {
       "category": "library",
-      "bytes": 10229,
-      "sha256": "ecfd5eb51ce5487beb5130dd55eb8831cbfb8561cb3330d0525167f069c01538",
+      "bytes": 10287,
+      "sha256": "c2527d68d15460bca7dc290d6203ce56623af41daa7f0b10128947b3fede7445",
       "summary": "Implements ShopeeProductResult, resolveShopeeShortUrl, extractShopeeIds, parseShopeeVideoPage, fetchShopeeProductData.",
       "analysis": {
         "runtime": "shared",
@@ -13296,8 +13296,8 @@
     },
     "src/lib/utils.ts": {
       "category": "library",
-      "bytes": 773,
-      "sha256": "b69c91d488077f92deb553da58d3f1bd6d29ab9352dabf80f50515741d141b16",
+      "bytes": 765,
+      "sha256": "94f946afc4676d768bfd2fe92ab17b97e6ef266701d673456d8f09c0f9826bb1",
       "summary": "Implements cn, formatVnd, toIso, getAppHostDisplay.",
       "analysis": {
         "runtime": "shared",
@@ -13607,8 +13607,8 @@
     },
     "src/modules/admin/webauthn.ts": {
       "category": "domain-module",
-      "bytes": 6509,
-      "sha256": "ca5dc5f2780650b3f57903e8e4f09191d3c8b58ef083eee1d8854bf749d2cdab",
+      "bytes": 6485,
+      "sha256": "1c1e1ef3a0b424024944b5d2dd7ed949b03ee9d8836153ce6f692d76af11ec2f",
       "summary": "Implements registrationOptions, verifyRegistration, authenticationOptions, verifyAuthentication.",
       "analysis": {
         "runtime": "server",
@@ -13929,8 +13929,8 @@
     },
     "src/modules/connectors/addlivetag.ts": {
       "category": "domain-module",
-      "bytes": 10056,
-      "sha256": "0c34cb9d03a89b61e41309fd2da0181a9cbcc698db1e1f9bb6ad7db417261f53",
+      "bytes": 10133,
+      "sha256": "78dd05932231ba159bacb8bf2fdf0cdc1deb796fc51dfd772534bf9cf49c979e",
       "summary": "Implements AddLiveTagConnector.",
       "analysis": {
         "runtime": "shared",
@@ -14426,8 +14426,8 @@
     },
     "src/modules/connectors/shopee-open-api.ts": {
       "category": "domain-module",
-      "bytes": 10043,
-      "sha256": "0e81dbd9d4a07538ae3a1628e764344618156e26d1e9763a53e03ebfdf2b7e54",
+      "bytes": 10075,
+      "sha256": "47a12b902f0fd0ee7c7e0455beaee9d8ef4d8013090c95f5424377e799bf6b87",
       "summary": "Implements shopeeSignature, ShopeeOpenApiConnector.",
       "analysis": {
         "runtime": "shared",
@@ -14512,7 +14512,7 @@
     "src/modules/connectors/shopee.ts": {
       "category": "domain-module",
       "bytes": 4061,
-      "sha256": "00b73b4be6045064a0097d087cd9db830abb6eb5b1b42972fd692a7f02876b7a",
+      "sha256": "170ccb6b9625577385e7e36f5d60f4615876277387e5ed5834cd9c29ecb97132",
       "summary": "Implements ShopeeDirectConnector, ShopeeFoodConnector.",
       "analysis": {
         "runtime": "shared",
@@ -14889,8 +14889,8 @@
     },
     "src/modules/conversions/service.ts": {
       "category": "domain-module",
-      "bytes": 28449,
-      "sha256": "64cfd10159429815d4583d32a7732f2560786eaf1818e963db342e91a98527f5",
+      "bytes": 29085,
+      "sha256": "5f269d717a626a5242169d77cc29ec9150d66c55d6cf5cc1d08c48a00ce34c53",
       "summary": "Implements ingestConversion, ingestValidation, releaseDueSafetyHolds.",
       "analysis": {
         "runtime": "server",
@@ -15209,8 +15209,8 @@
     },
     "src/modules/identity/webhook.ts": {
       "category": "domain-module",
-      "bytes": 5605,
-      "sha256": "4cf8fd89fcb0dda3dd409dbd8a08b89f209499e0170b034c3b07971c69fdc0a0",
+      "bytes": 5561,
+      "sha256": "8410b8bd43a673226568ccf0f1808ccd287df37b20ff0929986add5bf0d07a81",
       "summary": "Implements handleClerkWebhook, claimWebhookEvent, completeWebhookEvent, releaseWebhookClaim.",
       "analysis": {
         "runtime": "server",
@@ -15503,8 +15503,8 @@
     },
     "src/modules/jobs/qstash.ts": {
       "category": "domain-module",
-      "bytes": 991,
-      "sha256": "0114ecd6bd387abf16758f73b0725a1cb47197bd595246898f501e9d9fb82980",
+      "bytes": 995,
+      "sha256": "57b53a7683c20523bab5be60571b89afafa4fd42f660d059e8174d91bc97dafb",
       "summary": "Implements verifyQStashRequest.",
       "analysis": {
         "runtime": "server",
@@ -15757,8 +15757,8 @@
     },
     "src/modules/ledger/service.ts": {
       "category": "domain-module",
-      "bytes": 5699,
-      "sha256": "cf62cd8f9704d7b638cbb5c4b0da5ece445554f16b27f3c41c95c8ae50f49c72",
+      "bytes": 5834,
+      "sha256": "256b4e33240b592ad8aba0fe0e445de985f4e0a76d2bcbe1ef699fd3fad42cf0",
       "summary": "Implements postJournal, postPendingCashback, releaseCashback, verifyLedgerBalance.",
       "analysis": {
         "runtime": "server",
@@ -16139,8 +16139,8 @@
     },
     "src/modules/payout/service.ts": {
       "category": "domain-module",
-      "bytes": 23167,
-      "sha256": "62b7edf6263ac2cb8cd94a0aa59e8e3a54a00e20aca0fedbb4fc94097f09bd06",
+      "bytes": 23292,
+      "sha256": "7f41b5e8ae52507bed561e0d976febfc1f36df8ca14bf98fc1a6c4d426b15f62",
       "summary": "Implements createPayoutTicket, reviewPayout, approvePayout, submitPayout, reconcilePayout.",
       "analysis": {
         "runtime": "server",
@@ -16506,8 +16506,8 @@
     },
     "src/modules/settlement/service.ts": {
       "category": "domain-module",
-      "bytes": 10474,
-      "sha256": "a248529e67b76c097c820ff7680be6d8e2e493301607d8bf11c04928384c0fea",
+      "bytes": 10601,
+      "sha256": "efa37ee6d4eb3df9dc01e9b086e032f60ceae1f54e34da8abc67684aaac2eda7",
       "summary": "Implements FinanceSettlementInput, createFinanceSettlementBatch.",
       "analysis": {
         "runtime": "server",
@@ -16914,8 +16914,8 @@
     },
     "src/proxy.ts": {
       "category": "source",
-      "bytes": 3630,
-      "sha256": "a428befbf2737590e5f2a20571862a0d38065b5773ada3453c5b8ab4d6e5f8ec",
+      "bytes": 3738,
+      "sha256": "42c73fee4738bf5a1dda0ee9dc3829bc405ee6c1813ededce224b41ff7426315",
       "summary": "Runs Clerk middleware, propagates request IDs, and applies the application Content Security Policy.",
       "analysis": {
         "runtime": "shared",
@@ -16968,8 +16968,8 @@
     },
     "tests/e2e/all-user-journeys-desktop.spec.ts": {
       "category": "test",
-      "bytes": 2546,
-      "sha256": "30669227fd1a495e16868fd49969b37af7d5e5328b45eaefc61bc4b63eb47e40",
+      "bytes": 2580,
+      "sha256": "b43fb01d226bb4e720d85c87239a8b193bdc628b182dfa3f1912283bfcf0abb4",
       "summary": "Verifies all user journeys desktop behavior.",
       "analysis": {
         "runtime": "shared",
@@ -17010,8 +17010,8 @@
     },
     "tests/e2e/all-user-journeys-mobile.spec.ts": {
       "category": "test",
-      "bytes": 1860,
-      "sha256": "5712ad041110eb662671bdb48c76d5c5f60b293ceeb2cd43ebfb49871f3f3177",
+      "bytes": 1874,
+      "sha256": "9ac848d1d26626fa857b9ec25b161594eb59c96d78d3f5db53670c9e86eeedc6",
       "summary": "Verifies all user journeys mobile behavior.",
       "analysis": {
         "runtime": "shared",
@@ -17042,8 +17042,8 @@
     },
     "tests/e2e/auth-flow.spec.ts": {
       "category": "test",
-      "bytes": 1534,
-      "sha256": "67651404d34cde00d651674bee76d520dabdc2bdab5b78a6ce83206151daeb78",
+      "bytes": 1540,
+      "sha256": "3efddae219eb9670142b13ea5e230ba6a6f1f642266d1a53c1f2029b7887b210",
       "summary": "Verifies auth flow behavior.",
       "analysis": {
         "runtime": "shared",
@@ -17151,8 +17151,8 @@
     },
     "tests/e2e/mobile-user-experience.spec.ts": {
       "category": "test",
-      "bytes": 2031,
-      "sha256": "4ec2ed629fe8729ac0f8c30d88d3b5b97f85a480933506a6136c3b0841d7578e",
+      "bytes": 2041,
+      "sha256": "904fbb899a5f8918ab4c16d199bd6ec7a6c3535a51d559f527180fc81d61466d",
       "summary": "Verifies mobile user experience behavior.",
       "analysis": {
         "runtime": "shared",
@@ -17226,8 +17226,8 @@
     },
     "tests/integration/conversion-ledger.test.ts": {
       "category": "test",
-      "bytes": 8746,
-      "sha256": "93fcd710ac1278875fe62e413acea2092e53081cbcabc788e40a3643eaec2e68",
+      "bytes": 9472,
+      "sha256": "0ffba46a32489951812582ea58ea1a6994ac2eac3a06cd2f4788469f5fefc749",
       "summary": "Database integration tests for cross-source conversion dedupe/reversal, append-only ledger constraints, and concurrent payout reservation.",
       "analysis": {
         "runtime": "shared",
@@ -17294,8 +17294,8 @@
     },
     "tests/integration/database-guard.ts": {
       "category": "test",
-      "bytes": 922,
-      "sha256": "2dfc326dfe9132d9908af8141219d1e61c011d7a7e1a446ff4591c470c163586",
+      "bytes": 1054,
+      "sha256": "26f97bee673c172a856d399104bee6135656b4f4313b38edac3cacbb581d418c",
       "summary": "Rejects integration test database URLs that are missing, shared with runtime, or not explicitly disposable.",
       "analysis": {
         "runtime": "shared",
@@ -17421,8 +17421,8 @@
     },
     "tests/integration/flow5-payout-passkey-twoeye.test.ts": {
       "category": "test",
-      "bytes": 1999,
-      "sha256": "d3cbe1a7147c3407cecf78e0ff5f1e90ab19db0bd4f0b891e09ea262d47912b1",
+      "bytes": 2005,
+      "sha256": "6453c7d286d6b8a0d25b0547bb037c45ea1b6650c48321627120ba353c6c0f46",
       "summary": "Verifies flow5 payout passkey twoeye behavior.",
       "analysis": {
         "runtime": "shared",
@@ -17504,8 +17504,8 @@
     },
     "tests/integration/global-setup.ts": {
       "category": "test",
-      "bytes": 518,
-      "sha256": "54dbb462dfec3eee4a0eda95c0d70794a37fab0130c5ddb6a3963d026ef43902",
+      "bytes": 1318,
+      "sha256": "5156fd5a6c4043c0148daacfdbd088f739d01b14abbdc098137c5e6a83649645",
       "summary": "Validates the disposable integration database and deploys migrations before integration tests.",
       "analysis": {
         "runtime": "shared",
@@ -17550,8 +17550,8 @@
     },
     "tests/integration/ledger-payout-two-eye.test.ts": {
       "category": "test",
-      "bytes": 3901,
-      "sha256": "c8231d3c16c25bb634abf6b1a969c5d4deb708cfe9d58511cf2e004d22cf45e7",
+      "bytes": 3812,
+      "sha256": "5bcff3d383ea59a74d02cdb7dc241a8acee776d986170b55ad4c21d423415ec0",
       "summary": "Verifies ledger payout two eye behavior.",
       "analysis": {
         "runtime": "shared",
@@ -17645,8 +17645,8 @@
     },
     "tests/integration/setup.ts": {
       "category": "test",
-      "bytes": 152,
-      "sha256": "c45503b8c5c72727c89c5b3e8803f36dd5d4f016fa16c35d0016189e08ad9b6a",
+      "bytes": 213,
+      "sha256": "f85641305c2872d40cc5e2872a1b5375b1ec9ca7b85eb3a5215a7ef40ed9424f",
       "summary": "Rejects integration test execution unless TEST_DATABASE_URL is isolated from runtime/migration databases and explicitly named disposable.",
       "analysis": {
         "runtime": "shared",
@@ -17742,8 +17742,8 @@
     },
     "vitest.integration.config.ts": {
       "category": "configuration",
-      "bytes": 534,
-      "sha256": "c2099be626d6d99334510faccf272b52c5c748fe72738da689d1041143995b58",
+      "bytes": 558,
+      "sha256": "827139ce4ed7c3423a8e4aa44a4db5e499beea697c59389e4cd9328332d35c5c",
       "summary": "Runs integration tests separately with database isolation setup and serialized files.",
       "analysis": {
         "runtime": "shared",
@@ -17752,6 +17752,80 @@
         "declarations": [],
         "functionCalls": ["defineConfig", "fileURLToPath"],
         "tests": []
+      }
+    },
+    ".understand-anything/tmp/ua-project-scan.js": {
+      "category": "source",
+      "bytes": 23572,
+      "sha256": "634a9609e8f9d0ca23f5d7e066043c9c41874f7cab2f955b78ffb8a1d86b7f69",
+      "summary": "File ua-project-scan.js"
+    },
+    ".understand-anything/tmp/ua-scan-results.json": {
+      "category": "source",
+      "bytes": 48949,
+      "sha256": "1c395512a782e59b243864f60b551e51c3d58b54a8d86ef620a17f69c39ecd6b",
+      "summary": "File ua-scan-results.json"
+    },
+    "project_map.json": {
+      "category": "source",
+      "bytes": 574039,
+      "sha256": "78adf7ac97f6d3f997f2b5f63dde342090734abc36e6841c4b3d7452ed342091",
+      "summary": "File project_map.json"
+    },
+    "src/modules/imports/shopee-reconciliation.test.ts": {
+      "category": "module",
+      "bytes": 1504,
+      "sha256": "fff94562dd47af8aa7d487a507cc48a42cf1b624b03c033d8b077c0555e7d58b",
+      "summary": "File shopee-reconciliation.test.ts",
+      "analysis": {
+        "runtime": "node",
+        "imports": ["node:fs", "node:path", "vitest", "./shopee-reconciliation"],
+        "exports": [],
+        "declarations": []
+      }
+    },
+    "src/modules/imports/shopee-reconciliation.ts": {
+      "category": "module",
+      "bytes": 14014,
+      "sha256": "6d8d33e682b3523b4446dc09f9c6c7f1c2ae1456cdb99bb36558c32e32acaefb",
+      "summary": "File shopee-reconciliation.ts",
+      "analysis": {
+        "runtime": "node",
+        "imports": [
+          "@/generated/prisma/client",
+          "@/lib/csv",
+          "@/lib/db",
+          "@/lib/errors",
+          "@/lib/money",
+          "@/modules/evidence/service",
+          "@/modules/ledger/service"
+        ],
+        "exports": [],
+        "declarations": []
+      }
+    },
+    "tests/fixtures/shopee_reconciliation_invoice_sample.csv": {
+      "category": "test",
+      "bytes": 2267,
+      "sha256": "d5515508c1abbe8041775f02147e179ca2f456dd05e8838253b5b5318b781a9f",
+      "summary": "File shopee_reconciliation_invoice_sample.csv"
+    },
+    "scripts/update-project-map.js": {
+      "category": "source",
+      "bytes": 3747,
+      "sha256": "f0b466ada7e300a3f53c799e5d41f4e0fbf24154b52e05465b1fd8b6514501af",
+      "summary": "File update-project-map.js"
+    },
+    "tests/e2e/authenticated-user-flow.spec.ts": {
+      "category": "test",
+      "bytes": 2152,
+      "sha256": "284851ff4a2fbd112eb355217afd0f8b2cb6fa59d313bca1a334328b012b347f",
+      "summary": "Authenticated Playwright E2E test suite for protected app surfaces, link redirects, internal tools, and API boundaries.",
+      "analysis": {
+        "runtime": "node",
+        "imports": ["@playwright/test"],
+        "exports": [],
+        "declarations": []
       }
     }
   }

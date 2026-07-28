@@ -66,128 +66,133 @@ export default async function AdminUsersPage() {
           const deletion = user.deletionRequests[0];
           return (
             <Card key={user.id}>
-            <CardContent className="grid gap-5 p-5 xl:grid-cols-[1fr_auto_auto] xl:items-center">
-              <div className="min-w-0 flex-1">
-                <p className="font-medium">{user.name ?? "Chưa đặt tên"}</p>
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-                <Badge
-                  className="mt-2"
-                  variant={user.status === UserStatus.ACTIVE ? "default" : "outline"}
-                >
-                  {user.status}
-                </Badge>
-                <Badge className="ml-2 mt-2" variant="outline">
-                  Clerk: {user.identityState}
-                </Badge>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Đăng nhập gần nhất:{" "}
-                  {clerkUser?.lastSignInAt
-                    ? new Date(clerkUser.lastSignInAt).toLocaleString("vi-VN", {
-                        timeZone: "Asia/Ho_Chi_Minh"
-                      })
-                    : "—"}
-                </p>
-                {invitation ? (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <Badge variant="secondary">Invite: {invitation.status}</Badge>
-                    {invitation.status !== IdentityInvitationStatus.ACCEPTED ? (
-                      <>
-                        <form action={resendInvitationAction}>
-                          <input type="hidden" name="invitationId" value={invitation.id} />
-                          <Button type="submit" size="sm" variant="outline">
-                            Gửi lại
-                          </Button>
-                        </form>
-                        {invitation.status === IdentityInvitationStatus.SENT ? (
-                          <form action={revokeInvitationAction}>
+              <CardContent className="grid gap-5 p-5 xl:grid-cols-[1fr_auto_auto] xl:items-center">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{user.name ?? "Chưa đặt tên"}</p>
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                  <Badge
+                    className="mt-2"
+                    variant={user.status === UserStatus.ACTIVE ? "default" : "outline"}
+                  >
+                    {user.status}
+                  </Badge>
+                  <Badge className="ml-2 mt-2" variant="outline">
+                    Clerk: {user.identityState}
+                  </Badge>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Đăng nhập gần nhất:{" "}
+                    {clerkUser?.lastSignInAt
+                      ? new Date(clerkUser.lastSignInAt).toLocaleString("vi-VN", {
+                          timeZone: "Asia/Ho_Chi_Minh"
+                        })
+                      : "—"}
+                  </p>
+                  {invitation ? (
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <Badge variant="secondary">Invite: {invitation.status}</Badge>
+                      {invitation.status !== IdentityInvitationStatus.ACCEPTED ? (
+                        <>
+                          <form action={resendInvitationAction}>
                             <input type="hidden" name="invitationId" value={invitation.id} />
-                            <Button type="submit" size="sm" variant="ghost">
-                              Thu hồi
+                            <Button type="submit" size="sm" variant="outline">
+                              Gửi lại
                             </Button>
                           </form>
-                        ) : null}
-                      </>
-                    ) : null}
-                  </div>
-                ) : null}
-                {deletion ? (
-                  <div className="mt-3 rounded-lg border p-3 text-xs">
-                    <p>
-                      Yêu cầu xóa: <strong>{deletion.status}</strong>
-                    </p>
-                    {deletion.blockedReason ? (
-                      <p className="mt-1 text-destructive">{deletion.blockedReason}</p>
-                    ) : null}
-                    {([
-                      AccountDeletionStatus.REQUESTED,
-                      AccountDeletionStatus.BLOCKED
-                    ] as AccountDeletionStatus[]).includes(deletion.status) ? (
-                      <form action={approveDeletionRequestAction} className="mt-2">
-                        <input type="hidden" name="requestId" value={deletion.id} />
-                        <Button type="submit" size="sm" variant="destructive">
-                          Kiểm tra và duyệt xóa
-                        </Button>
-                      </form>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
-              <div>
-                <div className="flex flex-wrap gap-1">
-                  {user.roles.map((role) => (
-                    <Badge key={role.id} variant="secondary">
-                      {role.role}
-                    </Badge>
-                  ))}
+                          {invitation.status === IdentityInvitationStatus.SENT ? (
+                            <form action={revokeInvitationAction}>
+                              <input type="hidden" name="invitationId" value={invitation.id} />
+                              <Button type="submit" size="sm" variant="ghost">
+                                Thu hồi
+                              </Button>
+                            </form>
+                          ) : null}
+                        </>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {deletion ? (
+                    <div className="mt-3 rounded-lg border p-3 text-xs">
+                      <p>
+                        Yêu cầu xóa: <strong>{deletion.status}</strong>
+                      </p>
+                      {deletion.blockedReason ? (
+                        <p className="mt-1 text-destructive">{deletion.blockedReason}</p>
+                      ) : null}
+                      {(
+                        [
+                          AccountDeletionStatus.REQUESTED,
+                          AccountDeletionStatus.BLOCKED
+                        ] as AccountDeletionStatus[]
+                      ).includes(deletion.status) ? (
+                        <form action={approveDeletionRequestAction} className="mt-2">
+                          <input type="hidden" name="requestId" value={deletion.id} />
+                          <Button type="submit" size="sm" variant="destructive">
+                            Kiểm tra và duyệt xóa
+                          </Button>
+                        </form>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
-                <form action={setUserRoleAction} className="mt-3 flex flex-wrap gap-2">
-                  <input type="hidden" name="userId" value={user.id} />
-                  <select name="role" className="h-9 rounded-md border bg-background px-2 text-sm">
-                    {Object.values(Role).map((role) => (
-                      <option key={role} value={role}>
-                        {role}
-                      </option>
+                <div>
+                  <div className="flex flex-wrap gap-1">
+                    {user.roles.map((role) => (
+                      <Badge key={role.id} variant="secondary">
+                        {role.role}
+                      </Badge>
                     ))}
-                  </select>
-                  <Button name="assigned" value="true" type="submit" size="sm" variant="outline">
-                    Cấp role
-                  </Button>
-                  <Button name="assigned" value="false" type="submit" size="sm" variant="ghost">
-                    Gỡ role
-                  </Button>
-                </form>
-              </div>
-              <div className="xl:text-right">
-                <p className="font-semibold">{formatVnd(user.wallet?.availableVnd ?? 0n)}</p>
-                <p className="text-xs text-muted-foreground">available</p>
-                <form action={updateUserStatusAction} className="mt-3 flex gap-2">
-                  <input type="hidden" name="userId" value={user.id} />
-                  <select
-                    name="status"
-                    defaultValue={user.status}
-                    className="h-9 rounded-md border bg-background px-2 text-sm"
-                  >
-                    {Object.values(UserStatus).map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                  <Button type="submit" size="sm" variant="outline">
-                    Cập nhật
-                  </Button>
-                </form>
-                {user.clerkUserId ? (
-                  <form action={revokeUserSessionsAction} className="mt-2">
+                  </div>
+                  <form action={setUserRoleAction} className="mt-3 flex flex-wrap gap-2">
                     <input type="hidden" name="userId" value={user.id} />
-                    <Button type="submit" size="sm" variant="ghost">
-                      Thu hồi mọi session
+                    <select
+                      name="role"
+                      className="h-9 rounded-md border bg-background px-2 text-sm"
+                    >
+                      {Object.values(Role).map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                    <Button name="assigned" value="true" type="submit" size="sm" variant="outline">
+                      Cấp role
+                    </Button>
+                    <Button name="assigned" value="false" type="submit" size="sm" variant="ghost">
+                      Gỡ role
                     </Button>
                   </form>
-                ) : null}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+                <div className="xl:text-right">
+                  <p className="font-semibold">{formatVnd(user.wallet?.availableVnd ?? 0n)}</p>
+                  <p className="text-xs text-muted-foreground">available</p>
+                  <form action={updateUserStatusAction} className="mt-3 flex gap-2">
+                    <input type="hidden" name="userId" value={user.id} />
+                    <select
+                      name="status"
+                      defaultValue={user.status}
+                      className="h-9 rounded-md border bg-background px-2 text-sm"
+                    >
+                      {Object.values(UserStatus).map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                    <Button type="submit" size="sm" variant="outline">
+                      Cập nhật
+                    </Button>
+                  </form>
+                  {user.clerkUserId ? (
+                    <form action={revokeUserSessionsAction} className="mt-2">
+                      <input type="hidden" name="userId" value={user.id} />
+                      <Button type="submit" size="sm" variant="ghost">
+                        Thu hồi mọi session
+                      </Button>
+                    </form>
+                  ) : null}
+                </div>
+              </CardContent>
+            </Card>
           );
         })}
       </div>

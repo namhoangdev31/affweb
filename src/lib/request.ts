@@ -4,7 +4,11 @@ import { AppError } from "@/lib/errors";
 import { loadServerEnv } from "@/lib/env";
 
 export async function requestId(): Promise<string> {
-  return (await headers()).get("x-request-id") ?? crypto.randomUUID();
+  try {
+    return (await headers()).get("x-request-id") ?? crypto.randomUUID();
+  } catch {
+    return crypto.randomUUID();
+  }
 }
 
 export function assertTrustedOrigin(request: Request): void {

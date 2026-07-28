@@ -1,8 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("All 7 Technical User Flow Journeys (Mobile Viewports)", () => {
-
-  test("Mobile Journey 1: Shopper Mobile Experience - Deals & Responsive Header", async ({ page, isMobile }) => {
+  test("Mobile Journey 1: Shopper Mobile Experience - Deals & Responsive Header", async ({
+    page,
+    isMobile
+  }) => {
     await page.goto("/deals");
     await expect(page.getByRole("heading", { name: "Tìm món đáng mua." })).toBeVisible();
 
@@ -24,7 +26,9 @@ test.describe("All 7 Technical User Flow Journeys (Mobile Viewports)", () => {
     await expect(page.getByRole("button", { name: /Đang tra|Tra cứu/i })).toBeVisible();
   });
 
-  test("Mobile Journey 3 & 4: Mobile Access Control to Protected Admin Dashboard", async ({ page }) => {
+  test("Mobile Journey 3 & 4: Mobile Access Control to Protected Admin Dashboard", async ({
+    page
+  }) => {
     await page.goto("/admin");
     await expect(page).not.toHaveURL(/\/admin$/);
   });
@@ -43,5 +47,4 @@ test.describe("All 7 Technical User Flow Journeys (Mobile Viewports)", () => {
     await page.goto("/offline");
     await expect(page.getByRole("heading", { name: /Đang ngoại tuyến|Offline/i })).toBeVisible();
   });
-
 });
