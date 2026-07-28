@@ -201,6 +201,11 @@ export async function handleZaloBotIncomingUpdate(input: {
       messageKey,
       text: `Đã liên kết group với ${linked.tenantName}. Link trong group sẽ ghi nhận cho tenant owner; không phát sinh cashback member.`
     });
+    try {
+      await dispatchZaloOutbox();
+    } catch {
+      // Outbox event is safely persisted for fallback retry
+    }
     await db.idempotencyRecord.create({
       data: {
         namespace: "zalo.webhook",
@@ -244,6 +249,11 @@ export async function handleZaloBotIncomingUpdate(input: {
     messageKey,
     text: `Link ${result.platform.replaceAll("_", " ")} của kênh ${binding.tenant.name}: ${trackingUrl}\nHoa hồng được ghi nhận trực tiếp cho tenant owner; link này không có cashback member.`
   });
+  try {
+    await dispatchZaloOutbox();
+  } catch {
+    // Outbox event is safely persisted for fallback retry
+  }
   await db.idempotencyRecord.create({
     data: {
       namespace: "zalo.webhook",

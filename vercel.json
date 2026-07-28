@@ -17,11 +17,11 @@
     },
     {
       "path": "/api/internal/jobs/saas-lifecycle",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 3 * * *"
     },
     {
       "path": "/api/internal/jobs/zalo-dispatch",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 4 * * *"
     }
   ]
 }

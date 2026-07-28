@@ -171,10 +171,18 @@ export function TenantSettingsClient({
   };
 
   useEffect(() => {
+    let active = true;
     if (zaloAvailable && !zaloBindingCode && !loadingZaloCode) {
-      handleGenerateZaloCode();
+      queueMicrotask(() => {
+        if (active) {
+          void handleGenerateZaloCode();
+        }
+      });
     }
-  }, [zaloAvailable]);
+    return () => {
+      active = false;
+    };
+  }, [zaloAvailable, zaloBindingCode, loadingZaloCode]);
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 p-6 lg:p-10">
