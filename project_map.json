@@ -3526,7 +3526,7 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 269,
+    "mappedFiles": 270,
     "sourceFiles": 224,
     "tests": 33,
     "prismaModels": 50,
@@ -4551,6 +4551,313 @@
           {
             "level": 2,
             "title": "Quản lý thay đổi"
+          }
+        ]
+      }
+    },
+    "docs/production-readiness-audit-2026-07-28.md": {
+      "category": "documentation",
+      "bytes": 67960,
+      "sha256": "1e456192737134e2cbdf7a4bd1c0137406370065530aa0a7d87438e1a468eb67",
+      "summary": "Evidence-based snapshot of affweb development progress, production readiness, blockers, actors, current user flows, and Mermaid system diagrams as of 2026-07-28.",
+      "analysis": {
+        "title": "Báo cáo kiểm toán tiến độ, Production Readiness và User Flow — `affweb`",
+        "headings": [
+          {
+            "level": 1,
+            "title": "Báo cáo kiểm toán tiến độ, Production Readiness và User Flow — `affweb`"
+          },
+          {
+            "level": 2,
+            "title": "1. Executive Summary"
+          },
+          {
+            "level": 2,
+            "title": "2. Current Architecture"
+          },
+          {
+            "level": 2,
+            "title": "3. Feature Reality Check"
+          },
+          {
+            "level": 2,
+            "title": "4. Core User Journey Assessment"
+          },
+          {
+            "level": 3,
+            "title": "Journey A — User → Authentication → Create affiliate link → Persist click/snapshot → Redirect"
+          },
+          {
+            "level": 3,
+            "title": "Journey B — Provider/job → Conversion ingestion → Evidence → Ledger → Wallet hold"
+          },
+          {
+            "level": 3,
+            "title": "Journey C — User → Beneficiary → Payout request → Review/approval → PayOS → Reconcile"
+          },
+          {
+            "level": 3,
+            "title": "Journey D — Tenant owner/member → Tenant link → Tenant conversion → External owner settlement"
+          },
+          {
+            "level": 3,
+            "title": "Journey E — Tenant → SaaS plan → PayOS payment → Subscription renewal"
+          },
+          {
+            "level": 3,
+            "title": "Journey F — Tenant → Zalo QR/configuration → Notification/reply"
+          },
+          {
+            "level": 2,
+            "title": "5. Development Progress"
+          },
+          {
+            "level": 2,
+            "title": "6. Production Readiness"
+          },
+          {
+            "level": 3,
+            "title": "6.1 Application"
+          },
+          {
+            "level": 3,
+            "title": "6.2 Database"
+          },
+          {
+            "level": 3,
+            "title": "6.3 Infrastructure và deployment"
+          },
+          {
+            "level": 3,
+            "title": "6.4 Reliability"
+          },
+          {
+            "level": 3,
+            "title": "6.5 Security"
+          },
+          {
+            "level": 3,
+            "title": "6.6 Observability"
+          },
+          {
+            "level": 3,
+            "title": "6.7 Testing"
+          },
+          {
+            "level": 2,
+            "title": "7. Production Blockers"
+          },
+          {
+            "level": 3,
+            "title": "P0 — Launch Blocker"
+          },
+          {
+            "level": 4,
+            "title": "P0.1 — Lazada webhook có thể tạo authoritative conversion mà không xác thực"
+          },
+          {
+            "level": 4,
+            "title": "P0.2 — Public Shopee product lookup có SSRF surface"
+          },
+          {
+            "level": 4,
+            "title": "P0.3 — Zalo configuration mutation thiếu authorization boundary"
+          },
+          {
+            "level": 4,
+            "title": "P0.4 — SaaS/PayOS path không fail-closed"
+          },
+          {
+            "level": 4,
+            "title": "P0.5 — Migration lineage không chứng minh tạo được schema hiện tại"
+          },
+          {
+            "level": 4,
+            "title": "P0.6 — Cashback release connector guard có nhánh fail-open"
+          },
+          {
+            "level": 4,
+            "title": "P0.7 — Không có production environment khả dụng được chứng minh"
+          },
+          {
+            "level": 3,
+            "title": "P1 — High Risk"
+          },
+          {
+            "level": 4,
+            "title": "P1.1 — Payout reconciliation race"
+          },
+          {
+            "level": 4,
+            "title": "P1.2 — Money parsing qua `number`/floating point"
+          },
+          {
+            "level": 4,
+            "title": "P1.3 — Tenant product chưa có acquisition path đầy đủ"
+          },
+          {
+            "level": 4,
+            "title": "P1.4 — Runtime database connection ưu tiên direct URL"
+          },
+          {
+            "level": 4,
+            "title": "P1.5 — Không có CI/release/backup automation"
+          },
+          {
+            "level": 4,
+            "title": "P1.6 — Integration test có trạng thái không an toàn/misleading"
+          },
+          {
+            "level": 3,
+            "title": "P2 — Important"
+          },
+          {
+            "level": 3,
+            "title": "P3 — Improvement"
+          },
+          {
+            "level": 2,
+            "title": "8. Implemented vs Claimed"
+          },
+          {
+            "level": 3,
+            "title": "8.1 Actually implemented"
+          },
+          {
+            "level": 3,
+            "title": "8.2 Partially implemented"
+          },
+          {
+            "level": 3,
+            "title": "8.3 Only scaffolded"
+          },
+          {
+            "level": 3,
+            "title": "8.4 Documented but not implemented"
+          },
+          {
+            "level": 3,
+            "title": "8.5 Impossible to verify"
+          },
+          {
+            "level": 3,
+            "title": "8.6 Các mismatch đáng chú ý"
+          },
+          {
+            "level": 2,
+            "title": "9. What Is Actually Needed Before Production"
+          },
+          {
+            "level": 3,
+            "title": "9.1 Must have before production"
+          },
+          {
+            "level": 3,
+            "title": "9.2 Can be done after launch"
+          },
+          {
+            "level": 2,
+            "title": "10. Final Verdict"
+          },
+          {
+            "level": 2,
+            "title": "11. Các tác nhân đang hoạt động"
+          },
+          {
+            "level": 2,
+            "title": "12. System Context Diagram"
+          },
+          {
+            "level": 2,
+            "title": "13. Core User Flow tổng thể"
+          },
+          {
+            "level": 2,
+            "title": "14. Chi tiết User Flow hiện tại"
+          },
+          {
+            "level": 3,
+            "title": "14.1 Đăng ký và đăng nhập"
+          },
+          {
+            "level": 3,
+            "title": "14.2 Tạo và chia sẻ affiliate link"
+          },
+          {
+            "level": 3,
+            "title": "14.3 Người mua mở link"
+          },
+          {
+            "level": 3,
+            "title": "14.4 Thu nhận conversion và ghi nhận cashback"
+          },
+          {
+            "level": 3,
+            "title": "14.5 Wallet và payout"
+          },
+          {
+            "level": 2,
+            "title": "15. Tenant User Flow"
+          },
+          {
+            "level": 2,
+            "title": "16. Admin và Finance Flow"
+          },
+          {
+            "level": 2,
+            "title": "17. Các luồng chưa hoàn chỉnh"
+          },
+          {
+            "level": 3,
+            "title": "17.1 SaaS subscription"
+          },
+          {
+            "level": 3,
+            "title": "17.2 Zalo"
+          },
+          {
+            "level": 2,
+            "title": "18. Tóm tắt luồng thực tế"
+          },
+          {
+            "level": 2,
+            "title": "19. Diagrams bổ sung"
+          },
+          {
+            "level": 3,
+            "title": "19.1 Modular Monolith Component Diagram"
+          },
+          {
+            "level": 3,
+            "title": "19.2 Identity và Access-Control Flow"
+          },
+          {
+            "level": 3,
+            "title": "19.3 Affiliate Link và Click Lifecycle"
+          },
+          {
+            "level": 3,
+            "title": "19.4 Conversion và Evidence Pipeline"
+          },
+          {
+            "level": 3,
+            "title": "19.5 Ledger, Wallet và Payout Fund Flow"
+          },
+          {
+            "level": 3,
+            "title": "19.6 Security Trust-Boundary Diagram"
+          },
+          {
+            "level": 3,
+            "title": "19.7 Notification Outbox và Delivery Flow"
+          },
+          {
+            "level": 2,
+            "title": "Phụ lục A — Bằng chứng kiểm định"
+          },
+          {
+            "level": 2,
+            "title": "Phụ lục B — Giới hạn của kết luận"
           }
         ]
       }
