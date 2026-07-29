@@ -362,16 +362,16 @@ export function TenantSettingsClient({
             <CardContent className="space-y-3 text-sm flex-1">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-emerald-500" /> Tối đa{" "}
-                <strong>500 Thành viên</strong>
+                <strong>100 Thành viên</strong>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-500" /> 5,000 Clicks/tháng
+                <CheckCircle2 className="size-4 text-emerald-500" /> <strong>Không giới hạn Clicks & Link AFF</strong>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-500" /> Shopee Direct Link / CSV Import
+                <CheckCircle2 className="size-4 text-emerald-500" /> Shopee, Lazada & AccessTrade
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <span className="text-xs">❌ Chưa hỗ trợ Zalo Bot</span>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="size-4 text-emerald-500" /> Hỗ trợ Zalo Bot tự tạo link 🤖
               </div>
             </CardContent>
             <div className="p-6 pt-0">
@@ -410,11 +410,15 @@ export function TenantSettingsClient({
             <CardContent className="space-y-3 text-sm flex-1">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-primary" /> Tối đa{" "}
-                <strong>3,000 Thành viên</strong>
+                <strong>1,000 Thành viên</strong>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-primary" />{" "}
-                <strong>Shopee Direct Link / CSV Import</strong>
+                <strong>Không giới hạn Clicks & Link AFF</strong>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="size-4 text-primary" />{" "}
+                Shopee, Lazada & AccessTrade
               </div>
               {zaloAvailable ? (
                 <div className="flex items-center gap-2">
@@ -456,10 +460,10 @@ export function TenantSettingsClient({
             <CardContent className="space-y-3 text-sm flex-1">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-emerald-500" /> Tối đa{" "}
-                <strong>20,000+ Thành viên</strong>
+                <strong>10,000+ Thành viên</strong>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-500" /> Shopee Direct Link / CSV Import
+                <CheckCircle2 className="size-4 text-emerald-500" /> Không giới hạn Clicks & Link AFF
               </div>
               {zaloAvailable ? (
                 <div className="flex items-center gap-2">

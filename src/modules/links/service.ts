@@ -522,15 +522,6 @@ export async function createAffiliateLink(input: {
           if (!currentPlan.allowedConnectors.includes(connectorEntitlement(platform))) {
             throw new AppError("CONNECTOR_DISABLED", "Gói tenant không hỗ trợ đối tác này.", 403);
           }
-          const startOfMonth = new Date();
-          startOfMonth.setDate(1);
-          startOfMonth.setHours(0, 0, 0, 0);
-          const used = await tx.affiliateClick.count({
-            where: { tenantId: currentTenant.id, createdAt: { gte: startOfMonth } }
-          });
-          if (used >= currentPlan.maxClicksPerMonth) {
-            throw new AppError("RATE_LIMITED", "Tenant đã hết quota click trong tháng.", 429);
-          }
           await createClick(tx);
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }

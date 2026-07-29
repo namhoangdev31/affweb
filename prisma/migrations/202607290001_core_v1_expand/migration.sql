@@ -111,13 +111,13 @@ INSERT INTO "SubscriptionPlan" (
   "maxUsers", "maxClicksPerMonth", "allowCustomDomain", "allowApiCredentials",
   "allowZaloBot", "allowedConnectors", "active", "updatedAt"
 ) VALUES
-  ('plan_trial_14d', 'TRIAL_14D', 'Dùng thử 14 Ngày', 0, 0, 14, 'TRIAL', 100, 2000, false, false, true, '["SHOPEE_DIRECT"]', true, CURRENT_TIMESTAMP),
-  ('plan_starter_99k', 'STARTER_99K', 'Gói Starter (Hàng tháng)', 99000, 99000, 30, 'MONTHLY', 500, 5000, false, false, false, '["SHOPEE_DIRECT"]', true, CURRENT_TIMESTAMP),
-  ('plan_starter_yearly', 'STARTER_YEARLY', 'Gói Starter (Hàng năm)', 82500, 990000, 365, 'YEARLY', 500, 5000, false, false, false, '["SHOPEE_DIRECT"]', true, CURRENT_TIMESTAMP),
-  ('plan_pro_199k', 'PRO_199K', 'Gói Pro (Hàng tháng)', 199000, 199000, 30, 'MONTHLY', 3000, 50000, false, false, true, '["SHOPEE_DIRECT"]', true, CURRENT_TIMESTAMP),
-  ('plan_pro_yearly', 'PRO_YEARLY', 'Gói Pro (Hàng năm)', 165000, 1990000, 365, 'YEARLY', 3000, 50000, false, false, true, '["SHOPEE_DIRECT"]', true, CURRENT_TIMESTAMP),
-  ('plan_business_399k', 'PREMIUM_399K', 'Gói Business (Hàng tháng)', 399000, 399000, 30, 'MONTHLY', 20000, 500000, false, false, true, '["SHOPEE_DIRECT"]', true, CURRENT_TIMESTAMP),
-  ('plan_business_yearly', 'PREMIUM_YEARLY', 'Gói Business (Hàng năm)', 332500, 3990000, 365, 'YEARLY', 20000, 500000, false, false, true, '["SHOPEE_DIRECT"]', true, CURRENT_TIMESTAMP)
+  ('plan_trial_14d', 'TRIAL_14D', 'Dùng thử 14 Ngày', 0, 0, 14, 'TRIAL', 100, 2000, false, false, true, '["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]', true, CURRENT_TIMESTAMP),
+  ('plan_starter_99k', 'STARTER_99K', 'Gói Starter (Hàng tháng)', 99000, 99000, 30, 'MONTHLY', 500, 5000, false, false, true, '["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]', true, CURRENT_TIMESTAMP),
+  ('plan_starter_yearly', 'STARTER_YEARLY', 'Gói Starter (Hàng năm)', 82500, 990000, 365, 'YEARLY', 500, 5000, false, false, true, '["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]', true, CURRENT_TIMESTAMP),
+  ('plan_pro_199k', 'PRO_199K', 'Gói Pro (Hàng tháng)', 199000, 199000, 30, 'MONTHLY', 3000, 50000, false, false, true, '["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]', true, CURRENT_TIMESTAMP),
+  ('plan_pro_yearly', 'PRO_YEARLY', 'Gói Pro (Hàng năm)', 165000, 1990000, 365, 'YEARLY', 3000, 50000, false, false, true, '["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]', true, CURRENT_TIMESTAMP),
+  ('plan_business_399k', 'PREMIUM_399K', 'Gói Business (Hàng tháng)', 399000, 399000, 30, 'MONTHLY', 20000, 500000, false, false, true, '["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]', true, CURRENT_TIMESTAMP),
+  ('plan_business_yearly', 'PREMIUM_YEARLY', 'Gói Business (Hàng năm)', 332500, 3990000, 365, 'YEARLY', 20000, 500000, false, false, true, '["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]', true, CURRENT_TIMESTAMP)
 ON CONFLICT ("code") DO UPDATE SET
   "name" = EXCLUDED."name",
   "priceVnd" = EXCLUDED."priceVnd",
