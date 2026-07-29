@@ -18,12 +18,21 @@ export function toIso(value: Date | null | undefined): string | null {
 }
 
 export function getAppHostDisplay(): string {
-  const urlStr =
-    process.env.NEXT_PUBLIC_APP_URL || process.env.APP_BASE_URL || "http://localhost:3000";
+  if (typeof window !== "undefined" && window.location?.host) {
+    return window.location.host;
+  }
+  const rawUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.APP_BASE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
   try {
-    const parsed = new URL(urlStr);
+    const parsed = new URL(rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`);
     return parsed.host;
   } catch {
-    return "localhost:3000";
+    return "aff-shop.vercel.app";
   }
 }
