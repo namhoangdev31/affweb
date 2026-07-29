@@ -20,7 +20,7 @@ export const PLAN_PRESETS: Record<string, TenantPlanDetails> = {
     maxUsers: 50,
     maxClicksPerMonth: 2147483647,
     allowCustomDomain: false,
-    allowApiCredentials: false,
+    allowApiCredentials: true,
     allowZaloBot: true,
     allowedConnectors: ["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]
   },
@@ -32,7 +32,7 @@ export const PLAN_PRESETS: Record<string, TenantPlanDetails> = {
     maxUsers: 100,
     maxClicksPerMonth: 2147483647,
     allowCustomDomain: false,
-    allowApiCredentials: false,
+    allowApiCredentials: true,
     allowZaloBot: true,
     allowedConnectors: ["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]
   },
@@ -44,7 +44,7 @@ export const PLAN_PRESETS: Record<string, TenantPlanDetails> = {
     maxUsers: 100,
     maxClicksPerMonth: 2147483647,
     allowCustomDomain: false,
-    allowApiCredentials: false,
+    allowApiCredentials: true,
     allowZaloBot: true,
     allowedConnectors: ["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]
   },
@@ -56,7 +56,7 @@ export const PLAN_PRESETS: Record<string, TenantPlanDetails> = {
     maxUsers: 1000,
     maxClicksPerMonth: 2147483647,
     allowCustomDomain: false,
-    allowApiCredentials: false,
+    allowApiCredentials: true,
     allowZaloBot: true,
     allowedConnectors: ["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]
   },
@@ -68,7 +68,7 @@ export const PLAN_PRESETS: Record<string, TenantPlanDetails> = {
     maxUsers: 1000,
     maxClicksPerMonth: 2147483647,
     allowCustomDomain: false,
-    allowApiCredentials: false,
+    allowApiCredentials: true,
     allowZaloBot: true,
     allowedConnectors: ["SHOPEE_DIRECT", "LAZADA_OPEN_API", "ACCESSTRADE_API"]
   },

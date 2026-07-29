@@ -137,7 +137,9 @@ export function TenantProviderCredentials({
             <KeyRound className="size-5 text-primary" />
             <CardTitle>Lazada / AccessTrade credential</CardTitle>
           </div>
-          <Badge variant={planAllowsCredentials ? "default" : "secondary"}>Business only</Badge>
+          <Badge variant={planAllowsCredentials ? "default" : "secondary"}>
+            {planAllowsCredentials ? "Khả dụng" : "Business only"}
+          </Badge>
         </div>
         <CardDescription>
           Credential được nhập một lần, mã hóa phía server và chỉ hiển thị fingerprint/trạng thái.

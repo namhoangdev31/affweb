@@ -58,6 +58,10 @@ export async function bootstrapFeatureFlags(): Promise<void> {
     });
     console.log(`✓ Feature flag '${result.key}' is now set to enabled=${result.enabled}`);
   }
+  const updatedPlans = await prisma.subscriptionPlan.updateMany({
+    data: { allowApiCredentials: true }
+  });
+  console.log(`✓ Updated ${updatedPlans.count} subscription plans with allowApiCredentials=true`);
   console.log("All default feature flags bootstrapped successfully.");
 }
 

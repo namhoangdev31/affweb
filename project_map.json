@@ -10821,8 +10821,8 @@
     },
     "src/components/tenant-provider-credentials.tsx": {
       "category": "component",
-      "bytes": 11989,
-      "sha256": "e2d03e97a7ec6632a0f2471014ce908b369c47360a38dc82bada8351f7801051",
+      "bytes": 12058,
+      "sha256": "e0e93735310b029e9be1e2f603799180e364ab6560a9929bf1e9b7b17ec7b39c",
       "summary": "Implements UI components TenantProviderAccountView, TenantProviderCredentials.",
       "analysis": {
         "runtime": "client",
@@ -13115,8 +13115,8 @@
     },
     "src/lib/tenant-config.ts": {
       "category": "library",
-      "bytes": 2912,
-      "sha256": "1962ac7afa265229e4f43d82709a3fa9c3ea8b99942d9e3985a8bc03608ffa6a",
+      "bytes": 2907,
+      "sha256": "8efc73ce751d841edd2c9170ff5bc28442e8aa5d1dc8f6e26f77cd47ed19cbab",
       "summary": "Implements TenantPlanDetails, PLAN_PRESETS.",
       "analysis": {
         "runtime": "shared",
@@ -17769,7 +17769,7 @@
     "project_map.json": {
       "category": "source",
       "bytes": 574468,
-      "sha256": "e8a7fee071f473fcd4e22d6904b2c6a3c5dc95a4460076628873a146d3db7e43",
+      "sha256": "12a7a92aa3164b9b5991217f285909099eb1831475d3f5b69ac4104acec380b0",
       "summary": "File project_map.json"
     },
     "src/modules/imports/shopee-reconciliation.test.ts": {
@@ -17830,8 +17830,8 @@
     },
     "scripts/bootstrap-feature-flags.ts": {
       "category": "source",
-      "bytes": 2056,
-      "sha256": "c0caae8229e3c0ba9339707b7c58eb1045877ada6368d8fc952492459e1946c0",
+      "bytes": 2269,
+      "sha256": "4502d3e50d27e133716b03477b50c25b3108e7ac9ba22e9a4d99ef892b1569f7",
       "summary": "File bootstrap-feature-flags.ts",
       "analysis": {
         "runtime": "node",
