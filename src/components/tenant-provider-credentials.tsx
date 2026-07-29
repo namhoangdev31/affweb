@@ -52,6 +52,9 @@ export function TenantProviderCredentials({
     setError("");
     setSuccess("");
     try {
+      const effectiveIdentity =
+        accountIdentity.trim() || (provider === "ACCESSTRADE_API" ? "accesstrade" : "");
+
       let accountId = current?.id;
       if (!accountId) {
         const createResponse = await fetch("/api/v1/provider-accounts", {
@@ -59,7 +62,7 @@ export function TenantProviderCredentials({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             provider,
-            externalAccountId: accountIdentity.trim(),
+            externalAccountId: effectiveIdentity,
             label: label.trim()
           })
         });
@@ -78,7 +81,7 @@ export function TenantProviderCredentials({
           ? {
               provider,
               apiKey,
-              publisherId: accountIdentity.trim(),
+              publisherId: effectiveIdentity,
               validationHoldDays: Number(validationHoldDays)
             }
           : {
@@ -86,7 +89,7 @@ export function TenantProviderCredentials({
               appKey,
               appSecret,
               userToken,
-              affiliateId: accountIdentity.trim(),
+              affiliateId: effectiveIdentity,
               validationHoldDays: Number(validationHoldDays)
             };
       const response = await fetch(`/api/v1/provider-accounts/${accountId}/credential`, {
@@ -203,14 +206,19 @@ export function TenantProviderCredentials({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="provider-account-id">
-                  {provider === "LAZADA_OPEN_API" ? "Lazada Affiliate ID" : "Publisher ID"}
+                  {provider === "LAZADA_OPEN_API"
+                    ? "Lazada Affiliate ID"
+                    : "Publisher ID (Không bắt buộc)"}
                 </Label>
                 <Input
                   id="provider-account-id"
-                  required
+                  required={provider === "LAZADA_OPEN_API"}
                   disabled={Boolean(current)}
                   value={accountIdentity}
                   onChange={(event) => setExternalAccountId(event.target.value)}
+                  placeholder={
+                    provider === "ACCESSTRADE_API" ? "Tùy chọn (để trống nếu không có)" : ""
+                  }
                 />
               </div>
               <div className="space-y-2">

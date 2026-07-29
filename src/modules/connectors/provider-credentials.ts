@@ -9,7 +9,7 @@ import { AppError } from "@/lib/errors";
 const accessTradeCredentialSchema = z.object({
   provider: z.literal(ConnectorType.ACCESSTRADE_API),
   apiKey: z.string().trim().min(16).max(512),
-  publisherId: z.string().trim().min(1).max(200)
+  publisherId: z.string().trim().max(200).optional().default("accesstrade")
 });
 
 const lazadaCredentialSchema = z.object({

@@ -7746,8 +7746,8 @@
     },
     "src/app/api/v1/provider-accounts/route.ts": {
       "category": "api-route",
-      "bytes": 5391,
-      "sha256": "efb785320746230f895a8de3a479a47014a84d91fd29023322756bae0c5e5f32",
+      "bytes": 5479,
+      "sha256": "b14cc8424646556778f72a592f2eb377581f6d1997ef08e54d681818ab255021",
       "summary": "POST route for /api/v1/provider-accounts.",
       "route": "/api/v1/provider-accounts",
       "analysis": {
@@ -10821,8 +10821,8 @@
     },
     "src/components/tenant-provider-credentials.tsx": {
       "category": "component",
-      "bytes": 12058,
-      "sha256": "e0e93735310b029e9be1e2f603799180e364ab6560a9929bf1e9b7b17ec7b39c",
+      "bytes": 12417,
+      "sha256": "5d34f278b25635a593e0ad160effbac801a362281b2aa037d42ca72a7ef60868",
       "summary": "Implements UI components TenantProviderAccountView, TenantProviderCredentials.",
       "analysis": {
         "runtime": "client",
@@ -14221,8 +14221,8 @@
     },
     "src/modules/connectors/provider-credentials.ts": {
       "category": "domain-module",
-      "bytes": 4871,
-      "sha256": "4d5e705921102586bd142681bff54fa86ad8462c5e2f31f0f2b7e869b40afb98",
+      "bytes": 4898,
+      "sha256": "38fb427b541630029bc8f87daeb898bd866ffdb50d799c74a7114e78a9b73e07",
       "summary": "Implements providerCredentialPayloadSchema, ProviderCredentialPayload, activeProviderCredential, saveVerifiedProviderCredential.",
       "analysis": {
         "runtime": "server",
@@ -17769,7 +17769,7 @@
     "project_map.json": {
       "category": "source",
       "bytes": 574468,
-      "sha256": "12a7a92aa3164b9b5991217f285909099eb1831475d3f5b69ac4104acec380b0",
+      "sha256": "0d14c01c29e0ef1040ca93407effa76123a716db521be86463fdbe4e407f8dae",
       "summary": "File project_map.json"
     },
     "src/modules/imports/shopee-reconciliation.test.ts": {

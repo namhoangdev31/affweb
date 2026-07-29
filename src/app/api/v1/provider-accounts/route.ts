@@ -24,7 +24,12 @@ const inputSchema = z.discriminatedUnion("provider", [
   }),
   z.object({
     provider: z.literal(ConnectorType.ACCESSTRADE_API),
-    externalAccountId: z.string().trim().min(1).max(200),
+    externalAccountId: z
+      .string()
+      .trim()
+      .max(200)
+      .optional()
+      .transform((val) => val?.trim() || "accesstrade"),
     label: z.string().trim().min(2).max(120)
   })
 ]);
