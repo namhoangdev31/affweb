@@ -192,8 +192,8 @@ export async function createTenantCheckoutSession(params: {
       orderCode: invoice.orderCode,
       amountVnd: plan.priceVnd,
       description,
-      returnUrl: `${params.baseUrl}/app/settings/tenant?invoice=${invoice.id}`,
-      cancelUrl: `${params.baseUrl}/app/settings/tenant?invoice=${invoice.id}`,
+      returnUrl: `${params.baseUrl}/api/saas/payos-redirect?invoice=${invoice.id}`,
+      cancelUrl: `${params.baseUrl}/api/saas/payos-redirect?invoice=${invoice.id}`,
       expiresAt
     });
   } catch (error) {

@@ -113,13 +113,15 @@ export default clerkMiddleware(
           "https://*.sentry.io",
           "https://*.ingest.sentry.io",
           "https://api-merchant.payos.vn",
+          "https://pay.payos.vn",
+          "https://*.payos.vn",
           "https://bot-api.zaloplatforms.com"
         ],
         "worker-src": ["'self'", "blob:"],
         "manifest-src": ["'self'"],
         "object-src": ["'none'"],
         "base-uri": ["'self'"],
-        "form-action": ["'self'"],
+        "form-action": ["'self'", "https://pay.payos.vn", "https://*.payos.vn"],
         "frame-ancestors": ["'none'"]
       }
     }
