@@ -106,7 +106,7 @@ export function TenantSettingsClient({
           planCode
         });
         if (checkoutUrl) {
-          window.location.href = checkoutUrl;
+          window.open(checkoutUrl, "_blank", "noopener,noreferrer");
         }
       } else if (data.error?.message) {
         alert(data.error.message);
@@ -247,7 +247,7 @@ export function TenantSettingsClient({
                     <Button
                       className="rounded-full px-6 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                       onClick={() => {
-                        window.location.href = payosData.checkoutUrl!;
+                        window.open(payosData.checkoutUrl!, "_blank", "noopener,noreferrer");
                       }}
                     >
                       <ExternalLink className="size-4" /> Mở trang thanh toán PayOS
