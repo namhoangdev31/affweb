@@ -88,7 +88,7 @@ export function TenantSettingsClient({
       });
       const data = await res.json();
       if (data.success && data.data?.checkoutUrl) {
-        window.location.href = data.data.checkoutUrl;
+        window.open(data.data.checkoutUrl, "_blank", "noopener,noreferrer");
       } else if (data.error?.message) {
         alert(data.error.message);
       }
