@@ -659,8 +659,8 @@
     },
     "prisma/migrations/202607290001_core_v1_expand/migration.sql": {
       "category": "database",
-      "bytes": 11093,
-      "sha256": "8ede8e0ea7598876b8b2447aafc4164b60c67474c2572fb11f1a1ad21beeb182",
+      "bytes": 11357,
+      "sha256": "dd25ced94ea0f8194745718dc94bb1e98e273a6ac117c1ca16212bb6df276f02",
       "summary": "Expands Core v1 attribution, idempotency, plan entitlement, billing, tenant import, adjustment, and Zalo binding persistence without dropping legacy columns."
     },
     "prisma/migrations/202607300001_provider_settlement_core/migration.sql": {
@@ -8512,8 +8512,8 @@
     },
     "src/app/api/webhooks/payos/route.ts": {
       "category": "api-route",
-      "bytes": 5516,
-      "sha256": "db6fb6672cd74507dff96c80a2a643b79afb71b25b2c042ca46384756d8007fc",
+      "bytes": 5515,
+      "sha256": "40bbb857a86a7b6a89da857c7fdccd5d932f6b51baf76201aff981bf984c843b",
       "summary": "POST route for /api/webhooks/payos.",
       "route": "/api/webhooks/payos",
       "analysis": {
@@ -9228,8 +9228,8 @@
     },
     "src/app/app/settings/tenant/tenant-settings-client.tsx": {
       "category": "app-route",
-      "bytes": 33597,
-      "sha256": "0cf6eab73565399b2deb7a691f00b7e7fab13484255f42ecef049fd3418ec5d3",
+      "bytes": 37283,
+      "sha256": "b68cf4704d988951c006af7f5c321f3056de2f6239479a880547dd9d2b35b3e9",
       "summary": "Renders tenant subscription/Zalo controls plus a real Affiliate ID and member-share settings form.",
       "analysis": {
         "runtime": "client",
@@ -9662,8 +9662,8 @@
     },
     "src/app/onboarding/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 16734,
-      "sha256": "5a754c0f3708034e6c55d7e353677d2d3961bff21e76a80b487f8846d3001af4",
+      "bytes": 17489,
+      "sha256": "f2fbcc305e66fefcff93f29aad66d66f470f245f5a979ca83b19089307eff365",
       "summary": "Renders the /onboarding/tenant application page.",
       "route": "/onboarding/tenant",
       "analysis": {
@@ -12313,8 +12313,8 @@
     },
     "src/lib/env.ts": {
       "category": "library",
-      "bytes": 12122,
-      "sha256": "e761dba61c97468b92dbf9ce95c40940490ab6f3b24ee1ad36db1636c5faf9f0",
+      "bytes": 12121,
+      "sha256": "17aecb57872c1fe3335e053fc67c1c426e6048a3a46f72b8cc19eadfe08624f4",
       "summary": "Implements ServerEnv, loadServerEnv, hasDatabase, adminEmailAllowlist, productionReadinessIssues, resetEnvCacheForTests.",
       "analysis": {
         "runtime": "shared",
@@ -12744,8 +12744,8 @@
     },
     "src/lib/payos.ts": {
       "category": "library",
-      "bytes": 3291,
-      "sha256": "010b72fccecf99bbb76629bd719dda0b0f92bf29d10c3e963a1c0c6e5121009d",
+      "bytes": 3462,
+      "sha256": "8456dffbf5ba7529fd2ae666c0db56053435272a1e92562b4ff2df22ffc6e87a",
       "summary": "Implements PayOSWebhookPayload, createPayOSPaymentLink, verifyPayOSWebhookSignature.",
       "analysis": {
         "runtime": "server",
@@ -13115,8 +13115,8 @@
     },
     "src/lib/tenant-config.ts": {
       "category": "library",
-      "bytes": 2689,
-      "sha256": "dd454ae993c19a8ca6d93430197e3db8b7d2a4c785793c2e710c6f467d80312f",
+      "bytes": 2912,
+      "sha256": "1962ac7afa265229e4f43d82709a3fa9c3ea8b99942d9e3985a8bc03608ffa6a",
       "summary": "Implements TenantPlanDetails, PLAN_PRESETS.",
       "analysis": {
         "runtime": "shared",
@@ -13144,8 +13144,8 @@
     },
     "src/lib/tenant.ts": {
       "category": "library",
-      "bytes": 11353,
-      "sha256": "1512fa4b983c4c9012b8c654bab94158e16c05c3add6ae20e8ad866e4387b9c8",
+      "bytes": 11352,
+      "sha256": "ea9ff80df1f52c930b2685ddfa9b0570c69a4d78f65b360f0adabd1604a06f9d",
       "summary": "Implements getTenantBySlug, getTenantByHost, registerTenantWithTrial, createTenantCheckoutSession, checkTenantUserQuota, canTenantUseConnector.",
       "analysis": {
         "runtime": "shared",
@@ -15854,8 +15854,8 @@
     },
     "src/modules/links/service.ts": {
       "category": "domain-module",
-      "bytes": 21480,
-      "sha256": "693cf84f164d85c70c32b630f7ca503481d03adf511b8b222534c3bd33b571d8",
+      "bytes": 21037,
+      "sha256": "f435252694ff29874dff925748385d99e0e2f8a2bf0f8a456b4fada34e0ef803",
       "summary": "Implements createAffiliateLink, resolveClickRedirect.",
       "analysis": {
         "runtime": "server",
@@ -17768,8 +17768,8 @@
     },
     "project_map.json": {
       "category": "source",
-      "bytes": 574039,
-      "sha256": "9c2cb42fa826445ac656f46ee190fa471ebb2f973bbe39cd15efc8f6860dd9d4",
+      "bytes": 574468,
+      "sha256": "e8a7fee071f473fcd4e22d6904b2c6a3c5dc95a4460076628873a146d3db7e43",
       "summary": "File project_map.json"
     },
     "src/modules/imports/shopee-reconciliation.test.ts": {
@@ -17824,6 +17824,18 @@
       "analysis": {
         "runtime": "node",
         "imports": ["@playwright/test"],
+        "exports": [],
+        "declarations": []
+      }
+    },
+    "scripts/bootstrap-feature-flags.ts": {
+      "category": "source",
+      "bytes": 2056,
+      "sha256": "c0caae8229e3c0ba9339707b7c58eb1045877ada6368d8fc952492459e1946c0",
+      "summary": "File bootstrap-feature-flags.ts",
+      "analysis": {
+        "runtime": "node",
+        "imports": ["dotenv", "@prisma/adapter-pg", "../src/generated/prisma/client"],
         "exports": [],
         "declarations": []
       }

@@ -9,6 +9,7 @@ import {
   Copy,
   CreditCard,
   Crown,
+  ExternalLink,
   KeyRound,
   QrCode,
   ShieldCheck,
@@ -95,12 +96,20 @@ export function TenantSettingsClient({
       });
       const data = await res.json();
       if (data.success && data.data) {
+        const checkoutUrl = data.data.checkoutUrl;
+        const qrCode = data.data.qrCode;
+        const amountVnd = data.data.invoice?.amountVnd;
         setPayosData({
-          checkoutUrl: data.data.checkoutUrl,
-          qrCode: data.data.qrCode,
-          amountVnd: data.data.invoice.amountVnd,
+          checkoutUrl,
+          qrCode,
+          amountVnd,
           planCode
         });
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
+        }
+      } else if (data.error?.message) {
+        alert(data.error.message);
       }
     } catch (err) {
       console.error(err);
@@ -203,6 +212,73 @@ export function TenantSettingsClient({
           <Building2 className="size-4" /> Tenant: {getAppHostDisplay()}/{tenant.slug}
         </Badge>
       </div>
+
+      {/* PayOS Checkout Card */}
+      {payosData && (
+        <Card className="border-2 border-primary/50 bg-card shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
+          <CardHeader className="bg-primary/5 border-b pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary">
+                  <CreditCard className="size-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Hoàn tất thanh toán PayOS</CardTitle>
+                  <CardDescription>
+                    Hóa đơn nâng cấp gói {payosData.planCode} (
+                    {formatVnd(Number(payosData.amountVnd ?? 0))})
+                  </CardDescription>
+                </div>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setPayosData(null)}>
+                Đóng
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 space-y-6">
+            <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
+              <div className="space-y-3 text-center md:text-left">
+                <p className="text-sm text-muted-foreground">
+                  Hệ thống đang tự động chuyển hướng sang cổng thanh toán PayOS. Nếu trình duyệt
+                  chưa tự mở trang thanh toán, vui lòng bấm nút bên dưới:
+                </p>
+                <div className="flex flex-wrap gap-3 justify-center md:justify-start pt-2">
+                  {payosData.checkoutUrl && (
+                    <Button
+                      className="rounded-full px-6 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                      onClick={() => {
+                        window.location.href = payosData.checkoutUrl!;
+                      }}
+                    >
+                      <ExternalLink className="size-4" /> Mở trang thanh toán PayOS
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    className="rounded-full px-6"
+                    onClick={() => setPayosData(null)}
+                  >
+                    Đóng
+                  </Button>
+                </div>
+              </div>
+
+              {payosData.qrCode && (
+                <div className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-zinc-900 border rounded-2xl shrink-0 shadow-sm">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+                      payosData.qrCode
+                    )}`}
+                    alt="VietQR PayOS Code"
+                    className="size-44 object-contain rounded-lg"
+                  />
+                  <span className="text-xs font-mono text-muted-foreground">Quét mã VietQR</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Trial Alert Banner */}
       {tenant.isTrial && (
@@ -365,7 +441,8 @@ export function TenantSettingsClient({
                 <strong>100 Thành viên</strong>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-500" /> <strong>Không giới hạn Clicks & Link AFF</strong>
+                <CheckCircle2 className="size-4 text-emerald-500" />{" "}
+                <strong>Không giới hạn Clicks & Link AFF</strong>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-emerald-500" /> Shopee, Lazada & AccessTrade
@@ -417,8 +494,7 @@ export function TenantSettingsClient({
                 <strong>Không giới hạn Clicks & Link AFF</strong>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-primary" />{" "}
-                Shopee, Lazada & AccessTrade
+                <CheckCircle2 className="size-4 text-primary" /> Shopee, Lazada & AccessTrade
               </div>
               {zaloAvailable ? (
                 <div className="flex items-center gap-2">
@@ -463,7 +539,8 @@ export function TenantSettingsClient({
                 <strong>10,000+ Thành viên</strong>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-500" /> Không giới hạn Clicks & Link AFF
+                <CheckCircle2 className="size-4 text-emerald-500" /> Không giới hạn Clicks & Link
+                AFF
               </div>
               {zaloAvailable ? (
                 <div className="flex items-center gap-2">

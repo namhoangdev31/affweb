@@ -276,7 +276,8 @@ export default async function TenantOnboardingPage({
                       <CheckCircle2 className="size-3.5 text-emerald-400" /> Tối đa 100 thành viên
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <CheckCircle2 className="size-3.5 text-emerald-400" /> Không giới hạn Clicks & Tạo Link AFF
+                      <CheckCircle2 className="size-3.5 text-emerald-400" /> Không giới hạn Clicks &
+                      Tạo Link AFF
                     </li>
                     <li className="flex items-center gap-1.5">
                       <CheckCircle2 className="size-3.5 text-emerald-400" /> Full Bot Zalo Nhóm Chat
@@ -302,17 +303,21 @@ export default async function TenantOnboardingPage({
                     <p className="text-2xl font-bold text-emerald-400">
                       199.000 ₫ <span className="text-xs font-normal text-slate-400">/tháng</span>
                     </p>
-                    <p className="text-xs text-slate-300">Gói phổ biến cho cộng đồng săn sale dưới 1.000 thành viên.</p>
+                    <p className="text-xs text-slate-300">
+                      Gói phổ biến cho cộng đồng săn sale dưới 1.000 thành viên.
+                    </p>
                   </div>
                   <ul className="mt-4 text-xs text-slate-200 space-y-1.5 border-t border-emerald-900/50 pt-3">
                     <li className="flex items-center gap-1.5">
                       <CheckCircle2 className="size-3.5 text-emerald-400" /> Tối đa 1.000 thành viên
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <CheckCircle2 className="size-3.5 text-emerald-400" /> Không giới hạn Clicks & Tạo Link AFF
+                      <CheckCircle2 className="size-3.5 text-emerald-400" /> Không giới hạn Clicks &
+                      Tạo Link AFF
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <CheckCircle2 className="size-3.5 text-emerald-400" /> Shopee, Lazada & AccessTrade
+                      <CheckCircle2 className="size-3.5 text-emerald-400" /> Shopee, Lazada &
+                      AccessTrade
                     </li>
                   </ul>
                 </label>
@@ -342,7 +347,8 @@ export default async function TenantOnboardingPage({
                       <CheckCircle2 className="size-3.5 text-purple-400" /> Tối đa 10.000 thành viên
                     </li>
                     <li className="flex items-center gap-1.5">
-                      <CheckCircle2 className="size-3.5 text-purple-400" /> Không giới hạn Clicks & Tạo Link AFF
+                      <CheckCircle2 className="size-3.5 text-purple-400" /> Không giới hạn Clicks &
+                      Tạo Link AFF
                     </li>
                     <li className="flex items-center gap-1.5">
                       <CheckCircle2 className="size-3.5 text-purple-400" /> Tối đa 500.000 lượt

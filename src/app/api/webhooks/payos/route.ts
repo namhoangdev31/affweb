@@ -14,7 +14,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request): Promise<Response> {
   const id = await requestId();
   try {
-    if (!(await featureEnabled("saas.billing.enabled", false))) {
+    if (!(await featureEnabled("saas.billing.enabled", true))) {
       throw new AppError("CONNECTOR_DISABLED", "Thanh toán SaaS đang tạm dừng.", 503);
     }
     const payload = await readJson<unknown>(request, 65_536);
