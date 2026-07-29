@@ -99,7 +99,7 @@ const serverEnvSchema = z.object({
   PAYOS_API_KEY: optionalString,
   PAYOS_CHECKSUM_KEY: optionalString,
   PAYOS_WEBHOOK_URL: optionalUrl,
-  SAAS_BILLING_ENABLED: optionalBoolean.default(false),
+  SAAS_BILLING_ENABLED: optionalBoolean.default(true),
   PAYOS_BILLING_CLIENT_ID: optionalString,
   PAYOS_BILLING_API_KEY: optionalString,
   PAYOS_BILLING_CHECKSUM_KEY: optionalString,
