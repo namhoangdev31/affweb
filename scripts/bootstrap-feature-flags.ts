@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { PLAN_PRESETS } from "../src/lib/tenant-config";
 
 dotenv.config({ path: ".env.local" });
 dotenv.config();
@@ -58,11 +59,48 @@ export async function bootstrapFeatureFlags(): Promise<void> {
     });
     console.log(`✓ Feature flag '${result.key}' is now set to enabled=${result.enabled}`);
   }
-  const updatedPlans = await prisma.subscriptionPlan.updateMany({
-    data: { allowApiCredentials: true }
-  });
-  console.log(`✓ Updated ${updatedPlans.count} subscription plans with allowApiCredentials=true`);
-  console.log("All default feature flags bootstrapped successfully.");
+  for (const [code, preset] of Object.entries(PLAN_PRESETS)) {
+    const isYearly = code.endsWith("_YEARLY");
+    const isTrial = code === "TRIAL_14D";
+    const priceVnd = BigInt(isYearly ? preset.priceYearly : preset.priceMonthly);
+    const durationDays = isTrial ? 14 : isYearly ? 365 : 30;
+    const billingCycle = isTrial ? "TRIAL" : isYearly ? "YEARLY" : "MONTHLY";
+
+    await prisma.subscriptionPlan.upsert({
+      where: { code },
+      create: {
+        code,
+        name: preset.name,
+        priceVnd,
+        priceMonthly: preset.priceMonthly,
+        durationDays,
+        billingCycle,
+        maxUsers: preset.maxUsers,
+        maxClicksPerMonth: preset.maxClicksPerMonth,
+        allowCustomDomain: preset.allowCustomDomain,
+        allowApiCredentials: true,
+        allowZaloBot: true,
+        allowedConnectors: preset.allowedConnectors,
+        active: true
+      },
+      update: {
+        name: preset.name,
+        priceVnd,
+        priceMonthly: preset.priceMonthly,
+        durationDays,
+        billingCycle,
+        maxUsers: preset.maxUsers,
+        maxClicksPerMonth: preset.maxClicksPerMonth,
+        allowCustomDomain: preset.allowCustomDomain,
+        allowApiCredentials: true,
+        allowZaloBot: true,
+        allowedConnectors: preset.allowedConnectors,
+        active: true
+      }
+    });
+    console.log(`✓ Subscription plan '${code}' updated with real-world entitlements`);
+  }
+  console.log("All default feature flags and subscription plans bootstrapped successfully.");
 }
 
 bootstrapFeatureFlags()

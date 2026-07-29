@@ -9228,8 +9228,8 @@
     },
     "src/app/app/settings/tenant/tenant-settings-client.tsx": {
       "category": "app-route",
-      "bytes": 37329,
-      "sha256": "f1d41b5b95333bda648d14934b9d376dc09e8534e5eeed46fcd5374ad3dac000",
+      "bytes": 30495,
+      "sha256": "6f574f80435a5cc423fc7dffaaad8716150eb817aaa28e2f03c618431917f4cd",
       "summary": "Renders tenant subscription/Zalo controls plus a real Affiliate ID and member-share settings form.",
       "analysis": {
         "runtime": "client",
@@ -13116,7 +13116,7 @@
     "src/lib/tenant-config.ts": {
       "category": "library",
       "bytes": 2907,
-      "sha256": "8efc73ce751d841edd2c9170ff5bc28442e8aa5d1dc8f6e26f77cd47ed19cbab",
+      "sha256": "f6709181d42c535a8f7afa4da55a7fa437df04edd0dd46caa457b4b40f6398b8",
       "summary": "Implements TenantPlanDetails, PLAN_PRESETS.",
       "analysis": {
         "runtime": "shared",
@@ -17768,8 +17768,8 @@
     },
     "project_map.json": {
       "category": "source",
-      "bytes": 574468,
-      "sha256": "e994e58590cf847fdabe0a374336e4440293648efde8092f52ec006896fc1d19",
+      "bytes": 574851,
+      "sha256": "a62c26e79d8e4a8ba1cda3984ae11c86c7d10480c647ea14bb7c70f713567347",
       "summary": "File project_map.json"
     },
     "src/modules/imports/shopee-reconciliation.test.ts": {
@@ -17830,8 +17830,8 @@
     },
     "scripts/bootstrap-feature-flags.ts": {
       "category": "source",
-      "bytes": 2269,
-      "sha256": "4502d3e50d27e133716b03477b50c25b3108e7ac9ba22e9a4d99ef892b1569f7",
+      "bytes": 3560,
+      "sha256": "64b802d95a0f00554576914243c9fb76a63ecf2a40aa7130d3c41b6085eb8035",
       "summary": "File bootstrap-feature-flags.ts",
       "analysis": {
         "runtime": "node",

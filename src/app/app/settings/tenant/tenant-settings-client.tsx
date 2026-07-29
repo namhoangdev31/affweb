@@ -63,13 +63,6 @@ export function TenantSettingsClient({
   const [zaloBindingError, setZaloBindingError] = useState<string | null>(null);
   const [loadingZaloCode, setLoadingZaloCode] = useState(false);
 
-  const [payosData, setPayosData] = useState<{
-    checkoutUrl?: string;
-    qrCode?: string;
-    amountVnd?: string;
-    planCode?: string;
-  } | null>(null);
-
   const [tenant, setTenant] = useState(initialTenant);
 
   const [savingConfig, setSavingConfig] = useState(false);
@@ -81,7 +74,6 @@ export function TenantSettingsClient({
       ? `${basePlanCode.replace("_99K", "_YEARLY").replace("_199K", "_YEARLY").replace("_399K", "_YEARLY")}`
       : basePlanCode;
     setLoadingPlan(planCode);
-    setPayosData(null);
     try {
       const res = await fetch("/api/saas/checkout", {
         method: "POST",
@@ -95,19 +87,8 @@ export function TenantSettingsClient({
         })
       });
       const data = await res.json();
-      if (data.success && data.data) {
-        const checkoutUrl = data.data.checkoutUrl;
-        const qrCode = data.data.qrCode;
-        const amountVnd = data.data.invoice?.amountVnd;
-        setPayosData({
-          checkoutUrl,
-          qrCode,
-          amountVnd,
-          planCode
-        });
-        if (checkoutUrl) {
-          window.open(checkoutUrl, "_blank", "noopener,noreferrer");
-        }
+      if (data.success && data.data?.checkoutUrl) {
+        window.location.href = data.data.checkoutUrl;
       } else if (data.error?.message) {
         alert(data.error.message);
       }
@@ -213,73 +194,6 @@ export function TenantSettingsClient({
         </Badge>
       </div>
 
-      {/* PayOS Checkout Card */}
-      {payosData && (
-        <Card className="border-2 border-primary/50 bg-card shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
-          <CardHeader className="bg-primary/5 border-b pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary">
-                  <CreditCard className="size-5" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl">Hoàn tất thanh toán PayOS</CardTitle>
-                  <CardDescription>
-                    Hóa đơn nâng cấp gói {payosData.planCode} (
-                    {formatVnd(Number(payosData.amountVnd ?? 0))})
-                  </CardDescription>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => setPayosData(null)}>
-                Đóng
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
-              <div className="space-y-3 text-center md:text-left">
-                <p className="text-sm text-muted-foreground">
-                  Hệ thống đang tự động chuyển hướng sang cổng thanh toán PayOS. Nếu trình duyệt
-                  chưa tự mở trang thanh toán, vui lòng bấm nút bên dưới:
-                </p>
-                <div className="flex flex-wrap gap-3 justify-center md:justify-start pt-2">
-                  {payosData.checkoutUrl && (
-                    <Button
-                      className="rounded-full px-6 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                      onClick={() => {
-                        window.open(payosData.checkoutUrl!, "_blank", "noopener,noreferrer");
-                      }}
-                    >
-                      <ExternalLink className="size-4" /> Mở trang thanh toán PayOS
-                    </Button>
-                  )}
-                  <Button
-                    variant="outline"
-                    className="rounded-full px-6"
-                    onClick={() => setPayosData(null)}
-                  >
-                    Đóng
-                  </Button>
-                </div>
-              </div>
-
-              {payosData.qrCode && (
-                <div className="flex flex-col items-center gap-2 p-3 bg-white dark:bg-zinc-900 border rounded-2xl shrink-0 shadow-sm">
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                      payosData.qrCode
-                    )}`}
-                    alt="VietQR PayOS Code"
-                    className="size-44 object-contain rounded-lg"
-                  />
-                  <span className="text-xs font-mono text-muted-foreground">Quét mã VietQR</span>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Trial Alert Banner */}
       {tenant.isTrial && (
         <Card className="border-amber-500/40 bg-amber-500/10 text-amber-900 dark:text-amber-200">
@@ -323,66 +237,6 @@ export function TenantSettingsClient({
           </div>
         </CardContent>
       </Card>
-
-      {/* PayOS VietQR Modal / Card if generated */}
-      {payosData && (
-        <Card className="border-2 border-primary bg-card shadow-xl">
-          <CardHeader className="bg-primary/5 pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <QrCode className="size-6 text-primary" />
-                <CardTitle>Thanh toán Gia hạn qua PayOS (VietQR)</CardTitle>
-              </div>
-              <Badge variant="secondary">Tự động kích hoạt 24/7</Badge>
-            </div>
-            <CardDescription>
-              Quét mã QR bằng ứng dụng ngân hàng bất kỳ để tự động gia hạn gói{" "}
-              <strong>{payosData.planCode}</strong> (
-              {payosData.amountVnd ? formatVnd(BigInt(payosData.amountVnd)) : "—"})
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:justify-around">
-            <div className="text-center space-y-2">
-              <div className="inline-block p-3 rounded-2xl bg-white shadow-md border">
-                {/* QR is generated by the external payment service URL. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(payosData.qrCode || "")}`}
-                  alt="VietQR PayOS"
-                  className="size-48 object-contain"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">Mã QR VietQR chuẩn Napas247</p>
-            </div>
-            <div className="space-y-4 max-w-md w-full">
-              <div className="rounded-lg bg-muted p-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Số tiền thanh toán:</span>
-                  <span className="font-bold text-primary text-base">
-                    {payosData.amountVnd ? formatVnd(BigInt(payosData.amountVnd)) : "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Cổng thanh toán:</span>
-                  <span className="font-medium">PayOS VietQR</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Thời gian kích hoạt:</span>
-                  <span className="font-medium text-emerald-600">Tự động mở khóa ngay</span>
-                </div>
-              </div>
-
-              {payosData.checkoutUrl && (
-                <Button asChild className="w-full rounded-full" size="lg">
-                  <a href={payosData.checkoutUrl} target="_blank" rel="noreferrer">
-                    Mở trang thanh toán PayOS <CreditCard className="ml-2 size-4" />
-                  </a>
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Subscription Pricing Grid & Monthly/Yearly Toggle */}
       <div className="space-y-6">
