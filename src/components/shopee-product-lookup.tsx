@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Search, Copy, Check, Zap, Sparkles, ShoppingBag, Info, Star, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,6 @@ interface ProductData {
     rating: string;
     isXtra: boolean;
     canonicalUrl: string;
-    trackingUrl: string;
   };
   commission: {
     totalVnd: string;
@@ -46,6 +46,7 @@ export function ShopeeProductLookup({
   const [data, setData] = useState<ProductData | null>(initialData);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [trackingLoading, setTrackingLoading] = useState(false);
 
   async function lookup(targetUrl: string) {
     if (!targetUrl.trim()) return;
@@ -77,10 +78,43 @@ export function ShopeeProductLookup({
     }
   }, [initialUrl, initialData]);
 
-  async function handleCopy(text: string) {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  async function createTrackingLink(openInNewTab: boolean) {
+    if (!data || trackingLoading) return;
+    setTrackingLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/v1/links", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": crypto.randomUUID()
+        },
+        body: JSON.stringify({ url: data.product.canonicalUrl })
+      });
+      const body = (await response.json()) as {
+        redirectUrl?: string;
+        error?: { code?: string; message?: string };
+      };
+      if (response.status === 401) {
+        window.location.assign(`/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`);
+        return;
+      }
+      if (!response.ok || !body.redirectUrl) {
+        throw new Error(body.error?.message ?? "Không thể tạo link tracking.");
+      }
+      const trackingUrl = new URL(body.redirectUrl, window.location.origin).toString();
+      if (openInNewTab) {
+        window.open(trackingUrl, "_blank", "noopener,noreferrer");
+      } else {
+        await navigator.clipboard.writeText(trackingUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Không thể tạo link tracking.");
+    } finally {
+      setTrackingLoading(false);
+    }
   }
 
   return (
@@ -173,10 +207,11 @@ export function ShopeeProductLookup({
                 {/* Product Thumbnail */}
                 <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-black/40">
                   {data.product.imageUrl ? (
-                    // eslint-disable-next-error
-                    <img
+                    <Image
                       src={data.product.imageUrl}
                       alt={data.product.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 280px"
                       className="size-full object-cover transition-transform duration-300 hover:scale-105"
                     />
                   ) : (
@@ -242,18 +277,19 @@ export function ShopeeProductLookup({
 
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-3 pt-2">
-                    <a
-                      href={data.product.trackingUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Button
+                      type="button"
+                      onClick={() => void createTrackingLink(true)}
+                      disabled={trackingLoading}
                       className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-orange-600 px-5 py-3 font-semibold text-white shadow-lg transition-all hover:bg-orange-500"
                     >
                       <ShoppingBag className="size-5" /> Xem trên Shopee
-                    </a>
+                    </Button>
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => handleCopy(data.product.trackingUrl)}
+                      onClick={() => void createTrackingLink(false)}
+                      disabled={trackingLoading}
                       className="h-12 border-white/20 bg-white/10 px-5 text-white hover:bg-white/20"
                     >
                       {copied ? (

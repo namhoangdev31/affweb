@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ui } from "@clerk/ui";
 import { headers } from "next/headers";
 import "@/app/globals.css";
 import { Providers } from "@/components/providers";
@@ -45,7 +44,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body>
         <ClerkProvider
           dynamic
-          ui={ui}
           appearance={{
             variables: {
               colorPrimary: "#102c24",

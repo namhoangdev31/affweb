@@ -22,6 +22,7 @@ import {
 } from "@/lib/money";
 import { postJournal } from "@/modules/ledger/service";
 import { canTransitionPayout } from "@/modules/payout/state-machine";
+import { assertPayoutProviderEnabled } from "@/modules/payout/provider-gate";
 import { requireRecentFinancePasskey } from "@/modules/admin/passkey";
 import { featureEnabled } from "@/modules/flags/service";
 
@@ -45,15 +46,20 @@ function assertTransition(from: PayoutStatus, to: PayoutStatus): void {
   }
 }
 
-function payosClient(): PayOS {
+function payosClient(operation: "submit" | "reconcile" = "submit", databaseEnabled = false): PayOS {
   const env = loadServerEnv();
-  if (!env.PAYOS_CLIENT_ID || !env.PAYOS_API_KEY || !env.PAYOS_CHECKSUM_KEY) {
-    throw new AppError("PAYOUT_DISABLED", "payOS Payout credentials chưa được cấu hình.", 503);
-  }
-  return new PayOS({
+  const config = {
+    enabled: operation === "reconcile" || env.PAYOS_PAYOUT_ENABLED,
+    databaseEnabled: operation === "reconcile" || databaseEnabled,
     clientId: env.PAYOS_CLIENT_ID,
     apiKey: env.PAYOS_API_KEY,
-    checksumKey: env.PAYOS_CHECKSUM_KEY,
+    checksumKey: env.PAYOS_CHECKSUM_KEY
+  };
+  assertPayoutProviderEnabled(config);
+  return new PayOS({
+    clientId: config.clientId,
+    apiKey: config.apiKey,
+    checksumKey: config.checksumKey,
     timeout: 20_000,
     maxRetries: 0
   });
@@ -465,10 +471,8 @@ async function applyTerminalPayoutOutcome(
 
 export async function submitPayout(payoutTicketId: string, actorUserId: string) {
   await requireRecentFinancePasskey(actorUserId);
-  if (!(await featureEnabled("payout.enabled", false))) {
-    throw new AppError("PAYOUT_DISABLED", "Payout kill switch đang tắt.", 503);
-  }
-  const client = payosClient();
+  const databaseEnabled = await featureEnabled("payout.enabled", false);
+  const client = payosClient("submit", databaseEnabled);
   const ticket = await db.payoutTicket.findUnique({
     where: { id: payoutTicketId },
     include: { beneficiary: true, attempts: { orderBy: { attemptNumber: "desc" }, take: 1 } }
@@ -483,9 +487,28 @@ export async function submitPayout(payoutTicketId: string, actorUserId: string) 
       await tx.$queryRaw`SELECT id FROM "PayoutTicket" WHERE id = ${ticket.id} FOR UPDATE`;
       const current = await tx.payoutTicket.findUniqueOrThrow({
         where: { id: ticket.id },
-        include: { attempts: { orderBy: { attemptNumber: "desc" }, take: 1 } }
+        include: {
+          beneficiary: true,
+          attempts: { orderBy: { attemptNumber: "desc" }, take: 1 }
+        }
       });
       assertTransition(current.status, PayoutStatus.SUBMITTED);
+      const lastBeneficiaryChange = await tx.beneficiaryChange.findFirst({
+        where: { beneficiaryId: current.beneficiaryId },
+        orderBy: { createdAt: "desc" }
+      });
+      if (
+        !current.beneficiary.active ||
+        current.beneficiary.status !== "VERIFIED" ||
+        !lastBeneficiaryChange ||
+        lastBeneficiaryChange.holdUntil > new Date()
+      ) {
+        throw new AppError(
+          "BENEFICIARY_HOLD",
+          "Người thụ hưởng không còn hợp lệ hoặc đang trong thời gian khóa.",
+          409
+        );
+      }
       const attemptNumber = (current.attempts[0]?.attemptNumber ?? 0) + 1;
       const idempotencyKey = `payout:${ticket.id}:attempt:${attemptNumber}`;
       const created = await tx.payoutAttempt.create({
@@ -591,7 +614,7 @@ export async function reconcilePayout(payoutTicketId: string) {
   if (!ticket || !attempt) {
     throw new AppError("PAYOUT_STATE", "Không có payOS payout để đối soát.", 409);
   }
-  const client = payosClient();
+  const client = payosClient("reconcile");
   let payout: Payout | undefined;
   if (attempt.providerPayoutId) {
     payout = await client.payouts.get(attempt.providerPayoutId);

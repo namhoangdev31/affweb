@@ -239,6 +239,7 @@ export async function handleZaloBotIncomingUpdate(input: {
       ? { campaignId: binding.accessTradeCampaignId! }
       : {}),
     clientIdempotencyKey: `zalo:${messageKey}`,
+    source: "zalo",
     requestHash: stableHash(
       `${binding.tenantId}:${binding.routingMode}:${binding.accessTradeCampaignId ?? ""}:${url}`
     )

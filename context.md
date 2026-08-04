@@ -147,7 +147,7 @@ Ranh giới phụ thuộc mong muốn:
 2. Onboarding bắt buộc Shopee Affiliate ID và tỷ lệ hoàn member từ 1–100%; tenant bắt đầu trial 14 ngày và owner được gắn `tenantId`.
 3. Public channel dùng `/<slug>`. Join explicit đi qua `POST /api/v1/tenants/{slug}/join`; Clerk cookie onboarding gọi cùng domain service, khóa tenant và kiểm tra subscription/config/quota. User đã thuộc tenant khác không bị chuyển âm thầm.
 4. Owner tạo link mua cá nhân luôn đi theo Affiliate ID/rate nền tảng để tránh tự mua bằng Affiliate ID của chính mình. Member tenant chỉ tạo link Shopee bằng Affiliate ID của owner khi gói còn hiệu lực và cấu hình đầy đủ; không fallback âm thầm về ID nền tảng.
-5. Packet SubID là `[clickToken, userId, tenantId | "main", "hoantien"]`; principal `PLATFORM_USER`, `TENANT_MEMBER`, `TENANT_CHANNEL`, idempotency key, product snapshot, rate và thuế được persist tại link time. Entitlement và click quota được kiểm tra lại trong transaction ghi click.
+5. Packet Shopee SubID v2 là `["affweb", clickToken alphanumeric, "web" | "zalo", "cashback" | "tenant", "v2"]`; không đưa user/tenant ID hoặc PII vào URL. Principal `PLATFORM_USER`, `TENANT_MEMBER`, `TENANT_CHANNEL`, idempotency key, product snapshot, rate và thuế được persist tại link time. Entitlement và click quota được kiểm tra lại trong transaction ghi click.
 6. Conversion tenant propagate `tenantId`, trừ 10% thuế ước tính rồi chia theo immutable
    `shareBps`. Không tạo ledger posting hay wallet projection của nền tảng; owner đánh dấu external
    payment bằng endpoint idempotent có audit.
@@ -160,8 +160,9 @@ Ranh giới phụ thuộc mong muốn:
 
 Các release blocker còn mở:
 
-- Shopee Orders parser đã chốt theo fixture 47 cột đã redacted; dòng thiếu/sai SubID hoặc schema bị
-  quarantine. Import chỉ cập nhật conversion/validation/evidence, không settle.
+- Shopee Orders parser đã chốt theo hai fixture provider 47 cột Việt/Anh đã redacted. Schema drift,
+  SubID malformed, duplicate natural key hoặc unmatched click khóa batch; đơn hủy là non-payable
+  và không post ledger/wallet. Import chỉ cập nhật conversion/validation/evidence, không settle.
 - Shopee reconciliation endpoint vẫn chủ động fail-closed dù flag bị bật cho tới khi có export chi
   tiết “Xem chi tiết/Bảng kê thanh toán” thật đã redacted, AFF ID/account identity và exact line
   tie-out. Không dùng ảnh chụp, tổng invoice hoặc Payment History để release.
@@ -276,8 +277,9 @@ pnpm build
 TEST_DATABASE_URL=postgresql://.../affweb_test pnpm test:integration
 ```
 
-Database phải là disposable; global setup kiểm tra URL rồi chạy `prisma migrate deploy` đúng vào
-`TEST_DATABASE_URL`. Setup từ chối URL trùng runtime/migration URL.
+Database phải là disposable; global setup canonicalize pooled/unpooled URL rồi chạy
+`prisma migrate deploy` đúng vào `TEST_DATABASE_URL`. Setup từ chối URL trùng runtime/migration và
+không tạo DDL ngoài migrations.
 
 E2E public:
 

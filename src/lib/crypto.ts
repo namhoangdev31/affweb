@@ -83,7 +83,7 @@ export function decryptSensitiveValue(payload: string): string {
   return decryptWithKey(payload, encryptionKey());
 }
 
-export function stableHash(value: string): string {
+export function stableHash(value: string | Uint8Array): string {
   return createHash("sha256").update(value).digest("hex");
 }
 

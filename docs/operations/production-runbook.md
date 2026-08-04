@@ -10,7 +10,7 @@ Không bật tiền thật nếu còn bất kỳ điều kiện nào sau:
 - chưa có Terms, Privacy, Cashback Policy và quy trình khiếu nại được rà soát pháp lý/kế toán/thuế;
 - chưa có hai admin finance khác nhau với passkey;
 - chưa hoàn tất Clerk production instance/domain/webhook, SPF/DKIM/DMARC, provider contract/credential thực sự được sử dụng hoặc PayOS production credential;
-- chưa có CSV Shopee Orders thật đã redacted và contract test nếu định bật import;
+- chưa xác nhận SubID v2 round-trip trên Click/Conversion report staging nếu định bật import;
 - chưa có file chi tiết Hóa đơn đối soát thật đã redacted, account identity và exact line tie-out nếu
   định bật Shopee settlement;
 - chưa rotate credential AccessTrade từng bị lộ hoặc chưa preflight credential Lazada/AccessTrade;

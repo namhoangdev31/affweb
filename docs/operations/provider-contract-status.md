@@ -3,13 +3,13 @@
 Tài liệu này là release gate. Credential hợp lệ chỉ mở quyền gọi API; không tự biến order status
 thành settlement authority.
 
-| Provider/path    | Acquisition                                                           | Authority                                                                                                                | Release gate                                                                                                                                                  |
-| ---------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shopee Direct    | Link trực tiếp; Orders từ CSV `Báo cáo chuyển đổi`                    | Orders chỉ xác nhận validation. Chỉ file chi tiết **Hóa đơn đối soát** đã đóng mới có thể settle                         | Orders parser đã có fixture 47 cột. Reconciliation parser vẫn hard-disabled đến khi có export thật đã redacted, AFF ID/account identity và exact line tie-out |
-| Lazada Direct    | `/marketing/getlink`; poll `/marketing/conversion/report`             | Poll API authoritative cho order validation; postback chỉ auxiliary. `fulfilled`/`delivered` không chứng minh settlement | Credential preflight, VN/VND, SubID round-trip, fixture/contract test, health record và DB kill switch                                                        |
-| AccessTrade      | `/v1/product_link/create`; poll transaction/order/product/detail APIs | `approved` chỉ xác nhận validation. Finance settlement từ evidence đã verify mới release                                 | Credential mới sau rotation, publisher/account match, campaign explicit, fixture/contract test, 10 request/phút, health record và DB kill switch              |
-| PayOS billing    | SDK chính thức                                                        | Webhook đã verify và invoice snapshot match                                                                              | Credential billing riêng, sandbox smoke, duplicate/mismatch tests                                                                                             |
-| Zalo central bot | Secret-token verified webhook                                         | Không có authority tài chính                                                                                             | Bot token/secret, encryption key, staging bind/reply smoke                                                                                                    |
+| Provider/path    | Acquisition                                                           | Authority                                                                                                                | Release gate                                                                                                                                                            |
+| ---------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shopee Direct    | Link trực tiếp; Orders từ CSV `Báo cáo chuyển đổi`                    | Orders chỉ xác nhận validation. Chỉ file chi tiết **Hóa đơn đối soát** đã đóng mới có thể settle                         | Orders parser có fixture provider Việt/Anh 47 cột. Reconciliation route hard-disabled đến khi có export thật đã redacted, AFF ID/account identity và exact line tie-out |
+| Lazada Direct    | `/marketing/getlink`; poll `/marketing/conversion/report`             | Poll API authoritative cho order validation; postback chỉ auxiliary. `fulfilled`/`delivered` không chứng minh settlement | Credential preflight, VN/VND, SubID round-trip, fixture/contract test, health record và DB kill switch                                                                  |
+| AccessTrade      | `/v1/product_link/create`; poll transaction/order/product/detail APIs | `approved` chỉ xác nhận validation. Finance settlement từ evidence đã verify mới release                                 | Credential mới sau rotation, publisher/account match, campaign explicit, fixture/contract test, 10 request/phút, health record và DB kill switch                        |
+| PayOS billing    | SDK chính thức                                                        | Webhook đã verify và invoice snapshot match                                                                              | Credential billing riêng, sandbox smoke, duplicate/mismatch tests                                                                                                       |
+| Zalo central bot | Secret-token verified webhook                                         | Không có authority tài chính                                                                                             | Bot token/secret, encryption key, staging bind/reply smoke                                                                                                              |
 
 ## Hai state machine
 
@@ -23,11 +23,13 @@ FINANCE_CONFIRMED → RELEASED`; correction sau release dùng `REVERSED` và com
 
 ## Shopee
 
-`POST /api/v1/imports/shopee-orders` nhận CSV multipart có giới hạn kích thước và hash raw evidence
-trước parse. Dòng thiếu SubID, sai account, sai header hoặc không map được bị quarantine; không suy
-đoán attribution.
+`POST /api/v1/imports/shopee-orders` nhận CSV multipart UTF-8 có giới hạn kích thước, dòng/cell và
+hash raw evidence. Chỉ chấp nhận đúng schema Việt/Anh 47 cột đã quan sát. Schema drift, SubID v2
+malformed, duplicate natural key hoặc click không thuộc account khóa batch; đơn không hoàn thành là
+non-payable và không tác động ledger/wallet.
 
-`POST /api/v1/imports/shopee-reconciliation-invoices` chủ động trả fail-closed trong bản này. Ảnh
+`POST /api/v1/imports/shopee-reconciliation-invoices` trả fail-closed trước auth và body parsing;
+env/DB flag không thể mở trong bản này. Ảnh
 chụp, trang tổng hợp, “Lịch sử thanh toán” hoặc tổng hóa đơn không được release. Chỉ triển khai parser
 khi có file chi tiết từ “Xem chi tiết/Bảng kê thanh toán” và chứng minh được:
 

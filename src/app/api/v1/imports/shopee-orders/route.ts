@@ -83,11 +83,19 @@ export async function POST(request: Request): Promise<Response> {
         throw new AppError("CONNECTOR_DISABLED", "Tenant Shopee import đang được tắt.", 503);
       }
     }
+    let content: string;
+    const rawBytes = new Uint8Array(await file.arrayBuffer());
+    try {
+      content = new TextDecoder("utf-8", { fatal: true }).decode(rawBytes);
+    } catch {
+      throw new AppError("VALIDATION_ERROR", "CSV phải dùng UTF-8 hợp lệ.", 400);
+    }
     const result = await importShopeeOrders({
       actorUserId: actor.id,
       affiliateAccountId,
       filename: file.name,
-      content: await file.text()
+      content,
+      rawBytes
     });
     return Response.json(jsonSafe({ data: result }), {
       status: 201,

@@ -59,7 +59,7 @@ export async function storeRawEvidence(input: {
   authority: EvidenceAuthority;
   externalRef?: string;
   payload: unknown;
-  rawBody?: string;
+  rawBody?: string | Uint8Array;
   contentType?: string;
   extension?: string;
   metadata?: Record<string, string | number | boolean | null>;

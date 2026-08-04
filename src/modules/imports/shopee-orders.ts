@@ -4,16 +4,19 @@ import {
   SyncStatus,
   TenantImportStatus
 } from "@/generated/prisma/client";
-import { csvRecords, parseCsv } from "@/lib/csv";
+import { parseCsv } from "@/lib/csv";
+import { stableHash } from "@/lib/crypto";
 import { db } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { parseVndAmount } from "@/lib/money";
 import { ingestConversion } from "@/modules/conversions/service";
 import { storeRawEvidence } from "@/modules/evidence/service";
 
-export const SHOPEE_ORDERS_SCHEMA_VERSION = "SHOPEE_CONVERSION_REPORT_V1_47";
+export const SHOPEE_CONVERSION_SCHEMA_VI = "shopee-conversion-vi-47-v1";
+export const SHOPEE_CONVERSION_SCHEMA_EN = "shopee-conversion-en-47-v1";
+export const SHOPEE_ORDERS_SCHEMA_VERSION = SHOPEE_CONVERSION_SCHEMA_VI;
 
-const EXPECTED_HEADERS = [
+const VI_HEADERS = [
   "ID đơn hàng",
   "Trạng thái đặt hàng",
   "Checkout id",
@@ -34,10 +37,10 @@ const EXPECTED_HEADERS = [
   "Giá(₫)",
   "Số lượng",
   "Loại Hoa hồng",
-  "Đối tác chiến dịch",
+  "Đối tác chiến dịchr",
   "Giá trị đơn hàng (₫)",
   "Số tiền hoàn trả (₫)",
-  "Tỷ lệ sản phẩm hoa hồng Shopee",
+  "Tỷ lệ sản phẩm hoa hồng Shope",
   "Hoa hồng Shopee trên sản phẩm(₫)",
   "Tỷ lệ sản phẩm hoa hồng người bán",
   "Hoa hồng Xtra trên sản phẩm(₫)",
@@ -63,10 +66,70 @@ const EXPECTED_HEADERS = [
   "Kênh"
 ] as const;
 
-const HEADER_ALIASES = new Map<string, string>([
-  ["Đối tác chiến dịchr", "Đối tác chiến dịch"],
-  ["Tỷ lệ sản phẩm hoa hồng Shope", "Tỷ lệ sản phẩm hoa hồng Shopee"]
-]);
+const EN_HEADERS = [
+  "Order id",
+  "Order Status",
+  "Conversion id",
+  "Order Time",
+  "Complete Time",
+  "Click Time",
+  "Shop Name",
+  "Shop id",
+  "Shop Type",
+  "Item id",
+  "Item Name",
+  "Model id",
+  "Product Type",
+  "Promotion id",
+  "L1 Global Category",
+  "L2 Global Category",
+  "L3 Global Category",
+  "Price(₫)",
+  "Qty",
+  "Offer Type",
+  "Campaign Partner",
+  "Purchase Value(₫)",
+  "Refund Amount(₫)",
+  "Item Shopee Commission Rate",
+  "Item Shopee Commission(₫)",
+  "Item Seller Commission Rate",
+  "Item Seller Commission(₫)",
+  "Item Total Commission(₫)",
+  "Order Shopee Commission(₫)",
+  "Order Seller Commission(₫)",
+  "Total Order Commission(₫)",
+  "Linked MCN Name",
+  "MCN Contract id",
+  "MCN Management Fee Rate",
+  "MCN Management Fee(₫)",
+  "Affiliate Agreement Fee Rate",
+  "Affiliate Net Commission(₫)",
+  "Affiliate Item Status",
+  "Item Note",
+  "Attribution Type",
+  "Buyer Status",
+  "Sub_id1",
+  "Sub_id2",
+  "Sub_id3",
+  "Sub_id4",
+  "Sub_id5",
+  "Channel"
+] as const;
+
+const MAX_CSV_BYTES = 2 * 1024 * 1024;
+const MAX_CSV_ROWS = 10_000;
+const MAX_CELL_CHARS = 4_096;
+
+type ShopeeSchema = {
+  version: typeof SHOPEE_CONVERSION_SCHEMA_VI | typeof SHOPEE_CONVERSION_SCHEMA_EN;
+  headers: readonly string[];
+  completedStatus: string;
+};
+
+const SCHEMAS: readonly ShopeeSchema[] = [
+  { version: SHOPEE_CONVERSION_SCHEMA_VI, headers: VI_HEADERS, completedStatus: "Hoàn thành" },
+  { version: SHOPEE_CONVERSION_SCHEMA_EN, headers: EN_HEADERS, completedStatus: "Completed" }
+];
 
 type ShopeeOrderRow = {
   rowNumber: number;
@@ -81,20 +144,13 @@ type ShopeeOrderRow = {
   priceVnd: bigint;
   commissionVnd: bigint;
   rawOrderStatus: string;
+  subIdVersion: "legacy" | "v2";
 };
 
 export type ShopeeOrderQuarantine = {
   rowNumber: number;
   code: string;
 };
-
-function normalizeHeader(value: string): string {
-  const header = value
-    .trim()
-    .replace(/^\uFEFF/, "")
-    .normalize("NFC");
-  return HEADER_ALIASES.get(header) ?? header;
-}
 
 function parseVietnamDate(value: string, field: string): Date {
   if (!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
@@ -118,87 +174,124 @@ function parsePositiveInteger(value: string, field: string): number {
   return parsed;
 }
 
-function validateHeaders(content: string): void {
+function matchesHeaders(actual: readonly string[], expected: readonly string[]): boolean {
+  return (
+    actual.length === expected.length && expected.every((header, index) => actual[index] === header)
+  );
+}
+
+function parseAndValidateCsv(content: string): { schema: ShopeeSchema; rows: string[][] } {
+  if (Buffer.byteLength(content, "utf8") > MAX_CSV_BYTES) {
+    throw new AppError("VALIDATION_ERROR", "CSV Shopee vượt giới hạn 2 MB.", 413);
+  }
   const [rawHeaders, ...rawRows] = parseCsv(content);
   if (!rawHeaders) {
     throw new AppError("VALIDATION_ERROR", "CSV Shopee không có header.", 400);
   }
-  const headers = rawHeaders.map(normalizeHeader);
-  if (
-    headers.length !== EXPECTED_HEADERS.length ||
-    rawRows.some((row) => row.length !== EXPECTED_HEADERS.length) ||
-    EXPECTED_HEADERS.some((header, index) => headers[index] !== header)
-  ) {
-    throw new AppError("VALIDATION_ERROR", `CSV không khớp ${SHOPEE_ORDERS_SCHEMA_VERSION}.`, 400);
+  const headers = rawHeaders.map((header, index) =>
+    (index === 0 ? header.replace(/^\uFEFF/, "") : header).trim().normalize("NFC")
+  );
+  const schema = SCHEMAS.find((candidate) => matchesHeaders(headers, candidate.headers));
+  if (!schema) {
+    throw new AppError(
+      "VALIDATION_ERROR",
+      `CSV không khớp ${SHOPEE_CONVERSION_SCHEMA_VI} hoặc ${SHOPEE_CONVERSION_SCHEMA_EN}.`,
+      400
+    );
   }
+  if (rawRows.length === 0 || rawRows.length > MAX_CSV_ROWS) {
+    throw new AppError("VALIDATION_ERROR", "CSV phải có từ 1 đến 10.000 dòng.", 400);
+  }
+  for (const row of rawRows) {
+    if (row.length !== schema.headers.length) {
+      throw new AppError("VALIDATION_ERROR", `CSV không khớp ${schema.version}.`, 400);
+    }
+    for (const cell of row) {
+      const value = cell.trim();
+      if (value.length > MAX_CELL_CHARS) {
+        throw new AppError("VALIDATION_ERROR", "CSV có cell vượt giới hạn 4.096 ký tự.", 400);
+      }
+      if (/^[=+@]/.test(value) || /^-[A-Za-z=(]/.test(value)) {
+        throw new AppError("VALIDATION_ERROR", "CSV chứa công thức không an toàn.", 400);
+      }
+    }
+  }
+  return { schema, rows: rawRows };
+}
+
+function resolveClickToken(cells: readonly string[]): { token: string; version: "legacy" | "v2" } {
+  const subIds = cells.slice(41, 46).map((value) => value.trim());
+  if (subIds[4] === "v2") {
+    if (
+      subIds[0] !== "affweb" ||
+      !/^[A-Za-z0-9]+$/.test(subIds[1] ?? "") ||
+      !["web", "zalo"].includes(subIds[2] ?? "") ||
+      !["cashback", "tenant"].includes(subIds[3] ?? "")
+    ) {
+      throw new AppError("VALIDATION_ERROR", "Shopee Sub ID v2 không hợp lệ.", 400);
+    }
+    return { token: subIds[1]!, version: "v2" };
+  }
+  const legacy = subIds[0] ?? "";
+  if (!legacy || legacy.length > 200) {
+    throw new AppError("VALIDATION_ERROR", "Shopee Sub ID legacy không hợp lệ.", 400);
+  }
+  return { token: legacy, version: "legacy" };
 }
 
 export function parseShopeeOrdersCsv(content: string): {
   rows: ShopeeOrderRow[];
   quarantined: ShopeeOrderQuarantine[];
+  schemaVersion: ShopeeSchema["version"];
 } {
-  validateHeaders(content);
-  const records = csvRecords(content);
-  if (records.length === 0 || records.length > 10_000) {
-    throw new AppError("VALIDATION_ERROR", "CSV phải có từ 1 đến 10.000 dòng.", 400);
-  }
+  const parsed = parseAndValidateCsv(content);
   const rows: ShopeeOrderRow[] = [];
   const quarantined: ShopeeOrderQuarantine[] = [];
   const naturalKeys = new Set<string>();
-  records.forEach((record, index) => {
+  parsed.rows.forEach((rawCells, index) => {
     const rowNumber = index + 2;
-    const row = Object.fromEntries(
-      Object.entries(record).map(([header, value]) => [normalizeHeader(header), value.trim()])
-    );
-    if (row["Trạng thái đặt hàng"] !== "Hoàn thành") {
-      quarantined.push({ rowNumber, code: "UNKNOWN_ORDER_STATUS" });
+    const cells = rawCells.map((value) => value.trim());
+    const status = cells[1] ?? "";
+    if (status !== parsed.schema.completedStatus) {
+      quarantined.push({ rowNumber, code: "NON_PAYABLE_ORDER_STATUS" });
       return;
     }
-    if (!row.Sub_id1) {
-      quarantined.push({ rowNumber, code: "EMPTY_SUB_ID_1" });
-      return;
+    const orderId = cells[0];
+    const itemId = cells[9];
+    const modelId = cells[11];
+    if (!orderId || !itemId) {
+      throw new AppError("VALIDATION_ERROR", `Dòng ${rowNumber} thiếu natural key.`, 400);
     }
-    try {
-      const orderId = row["ID đơn hàng"];
-      const itemId = row["Item id"];
-      const modelId = row["ID Model"];
-      if (!orderId || !itemId) {
-        quarantined.push({ rowNumber, code: "MISSING_NATURAL_KEY" });
-        return;
-      }
-      const externalItemKey = `${itemId}:${modelId || "default"}`;
-      const naturalKey = `${orderId}\u0000${externalItemKey}`;
-      if (naturalKeys.has(naturalKey)) {
-        quarantined.push({ rowNumber, code: "DUPLICATE_NATURAL_KEY" });
-        return;
-      }
-      naturalKeys.add(naturalKey);
-      const deliveredAt = parseVietnamDate(
-        row["Thời gian hoàn thành"] ?? "",
-        "Thời gian hoàn thành"
-      );
-      rows.push({
-        rowNumber,
-        externalOrderId: orderId,
-        externalItemKey,
-        externalItemId: itemId,
-        ...(row["Tên Item"] ? { itemName: row["Tên Item"] } : {}),
-        clickToken: row.Sub_id1,
-        purchasedAt: parseVietnamDate(row["Thời Gian Đặt Hàng"] ?? "", "Thời Gian Đặt Hàng"),
-        deliveredAt,
-        quantity: parsePositiveInteger(row["Số lượng"] ?? "", "Số lượng"),
-        priceVnd: parseVndAmount(row["Giá(₫)"] ?? "", "Giá"),
-        commissionVnd: parseVndAmount(
-          row["Tổng hoa hồng sản phẩm(₫)"] ?? "",
-          "Tổng hoa hồng sản phẩm"
-        ),
-        rawOrderStatus: row["Trạng thái đặt hàng"]
-      });
-    } catch {
-      quarantined.push({ rowNumber, code: "INVALID_ROW" });
+    const externalItemKey = `${itemId}:${modelId || "default"}`;
+    const naturalKey = `${orderId}\u0000${externalItemKey}`;
+    if (naturalKeys.has(naturalKey)) {
+      throw new AppError("VALIDATION_ERROR", `Dòng ${rowNumber} trùng natural key.`, 400);
     }
+    naturalKeys.add(naturalKey);
+    const itemShopeeCommission = parseVndAmount(cells[24] ?? "", "Item Shopee commission");
+    const itemSellerCommission = parseVndAmount(cells[26] ?? "", "Item seller commission");
+    const commissionVnd = parseVndAmount(cells[27] ?? "", "Item total commission");
+    if (itemShopeeCommission + itemSellerCommission !== commissionVnd) {
+      throw new AppError("VALIDATION_ERROR", `Dòng ${rowNumber} không cân tổng hoa hồng.`, 400);
+    }
+    const subId = resolveClickToken(cells);
+    rows.push({
+      rowNumber,
+      externalOrderId: orderId,
+      externalItemKey,
+      externalItemId: itemId,
+      ...(cells[10] ? { itemName: cells[10] } : {}),
+      clickToken: subId.token,
+      subIdVersion: subId.version,
+      purchasedAt: parseVietnamDate(cells[3] ?? "", "Order Time"),
+      deliveredAt: parseVietnamDate(cells[4] ?? "", "Complete Time"),
+      quantity: parsePositiveInteger(cells[18] ?? "", "Qty"),
+      priceVnd: parseVndAmount(cells[17] ?? "", "Price"),
+      commissionVnd,
+      rawOrderStatus: status
+    });
   });
-  return { rows, quarantined };
+  return { rows, quarantined, schemaVersion: parsed.schema.version };
 }
 
 export async function importShopeeOrders(input: {
@@ -206,6 +299,7 @@ export async function importShopeeOrders(input: {
   affiliateAccountId: string;
   filename: string;
   content: string;
+  rawBytes?: Uint8Array | undefined;
 }) {
   const account = await db.affiliateAccount.findUnique({
     where: { id: input.affiliateAccountId },
@@ -223,21 +317,27 @@ export async function importShopeeOrders(input: {
   ) {
     throw new AppError("VALIDATION_ERROR", "Shopee provider account không hợp lệ.", 400);
   }
+  const rawBody = input.rawBytes ?? input.content;
+  const rawSha256 = stableHash(rawBody);
+  const parsed = parseShopeeOrdersCsv(input.content);
   const sourceEvidence = await storeRawEvidence({
     provider: ConnectorType.SHOPEE_DIRECT,
     kind: "shopee-orders-csv",
     authority: EvidenceAuthority.AUTHORITATIVE,
     payload: null,
-    rawBody: input.content,
+    rawBody,
     contentType: "text/csv; charset=utf-8",
     extension: "csv",
     metadata: {
       filename: input.filename.slice(0, 200),
       importedByUserId: input.actorUserId,
-      schemaVersion: SHOPEE_ORDERS_SCHEMA_VERSION
+      schemaVersion: parsed.schemaVersion
     },
     schemaVersion: 1
   });
+  if (sourceEvidence.sha256 !== rawSha256) {
+    throw new AppError("EVIDENCE_INTEGRITY", "Shopee raw evidence hash không khớp.", 503);
+  }
   if (account.tenantId) {
     const replay = await db.tenantConversionImport.findUnique({
       where: {
@@ -249,7 +349,20 @@ export async function importShopeeOrders(input: {
     });
     if (replay) return replay;
   }
-  const parsed = parseShopeeOrdersCsv(input.content);
+  const clickTokens = [...new Set(parsed.rows.map((row) => row.clickToken))];
+  const matchedClicks = await db.affiliateClick.findMany({
+    where: { affiliateAccountId: account.id, clickToken: { in: clickTokens } },
+    select: { clickToken: true }
+  });
+  const matchedClickTokens = new Set(matchedClicks.map((click) => click.clickToken));
+  const unmatched = parsed.rows.find((row) => !matchedClickTokens.has(row.clickToken));
+  if (unmatched) {
+    throw new AppError(
+      "VALIDATION_ERROR",
+      `Dòng ${unmatched.rowNumber} không khớp click của provider account.`,
+      400
+    );
+  }
   const config =
     account.connectorConfigs[0] ??
     (await db.connectorConfig.create({
@@ -287,17 +400,6 @@ export async function importShopeeOrders(input: {
   const quarantined = [...parsed.quarantined];
   const observedAt = new Date();
   for (const row of parsed.rows) {
-    const attributedClick = await db.affiliateClick.findFirst({
-      where: {
-        clickToken: row.clickToken,
-        affiliateAccountId: account.id
-      },
-      select: { id: true }
-    });
-    if (!attributedClick) {
-      quarantined.push({ rowNumber: row.rowNumber, code: "UNMATCHED_SUB_ID_1" });
-      continue;
-    }
     try {
       const result = await ingestConversion({
         source: ConnectorType.SHOPEE_DIRECT,
@@ -327,7 +429,7 @@ export async function importShopeeOrders(input: {
           ],
           payload: {
             sourceEvidenceId: sourceEvidence.id,
-            schemaVersion: SHOPEE_ORDERS_SCHEMA_VERSION,
+            schemaVersion: parsed.schemaVersion,
             rowNumber: row.rowNumber
           }
         }
@@ -408,7 +510,7 @@ export async function importShopeeOrders(input: {
           sourceSummary: {
             syncRunId: run.id,
             rawEvidenceId: sourceEvidence.id,
-            schemaVersion: SHOPEE_ORDERS_SCHEMA_VERSION,
+            schemaVersion: parsed.schemaVersion,
             counts: Object.fromEntries(
               Array.from(
                 quarantined.reduce(

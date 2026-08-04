@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSy
 import { createRequire } from "node:module";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import prettier from "prettier";
 
 const CORE_PACKAGE_ROOT =
   "/Users/hoangnam/.codex/understand-anything/understand-anything-plugin/package.json";
@@ -62,30 +63,6 @@ const INFRA_BASENAMES = new Set([
   "Procfile",
   "Vagrantfile",
   ".gitlab-ci.yml"
-]);
-
-const CODE_EXTENSIONS = new Set([
-  ".ts",
-  ".tsx",
-  ".js",
-  ".jsx",
-  ".py",
-  ".go",
-  ".rs",
-  ".java",
-  ".rb",
-  ".cpp",
-  ".cc",
-  ".cxx",
-  ".h",
-  ".hpp",
-  ".c",
-  ".cs",
-  ".swift",
-  ".kt",
-  ".php",
-  ".vue",
-  ".svelte"
 ]);
 
 const RESOLUTION_SUFFIXES = [
@@ -245,18 +222,36 @@ async function filterDiscoveredFiles(projectRoot, originalFiles) {
     return { files: baselineFiles, filteredByIgnore: 0 };
   }
 
-  const packageRequire = createRequire(CORE_PACKAGE_ROOT);
-  const coreEntry = packageRequire.resolve("@understand-anything/core");
-  const { createIgnoreFilter } = await import(pathToFileURL(coreEntry).href);
-  const ignoreFilter = createIgnoreFilter(projectRoot);
-  const files = originalFiles.filter((filePath) => !ignoreFilter.isIgnored(filePath));
-  const baselineRemoved = originalFiles.length - baselineFiles.length;
-  const unifiedRemoved = originalFiles.length - files.length;
+  try {
+    const packageRequire = createRequire(CORE_PACKAGE_ROOT);
+    const coreEntry = packageRequire.resolve("@understand-anything/core");
+    const { createIgnoreFilter } = await import(pathToFileURL(coreEntry).href);
+    const ignoreFilter = createIgnoreFilter(projectRoot);
+    const files = originalFiles.filter((filePath) => !ignoreFilter.isIgnored(filePath));
+    const baselineRemoved = originalFiles.length - baselineFiles.length;
+    const unifiedRemoved = originalFiles.length - files.length;
 
-  return {
-    files,
-    filteredByIgnore: Math.max(0, unifiedRemoved - baselineRemoved)
-  };
+    return {
+      files,
+      filteredByIgnore: Math.max(0, unifiedRemoved - baselineRemoved)
+    };
+  } catch {
+    const activePatterns = safeRead(
+      existsSync(projectIgnorePath) ? projectIgnorePath : rootIgnorePath
+    )
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith("#"));
+    if (activePatterns.length > 0) {
+      throw new Error(
+        "Cannot apply active .understandignore patterns without @understand-anything/core"
+      );
+    }
+    return {
+      files: baselineFiles,
+      filteredByIgnore: originalFiles.length - baselineFiles.length
+    };
+  }
 }
 
 function detectLanguage(filePath) {
@@ -590,9 +585,12 @@ function detectFrameworks(projectRoot, discoveredPaths) {
 
 function resolveCandidate(importerPath, specifier, discovered) {
   const importerDirectory = path.posix.dirname(importerPath);
-  const rawCandidate = normalizeRelative(
-    path.posix.normalize(path.posix.join(importerDirectory, specifier))
-  );
+  const rawCandidate = specifier.startsWith("@/")
+    ? path.posix.join("src", specifier.slice(2))
+    : specifier.startsWith("./") || specifier.startsWith("../")
+      ? normalizeRelative(path.posix.normalize(path.posix.join(importerDirectory, specifier)))
+      : null;
+  if (!rawCandidate) return null;
   if (rawCandidate === ".." || rawCandidate.startsWith("../")) {
     return null;
   }
@@ -611,8 +609,8 @@ function resolveCandidate(importerPath, specifier, discovered) {
 
 function extractJavaScriptImports(content) {
   const imports = [];
-  const fromPattern = /\bimport\s+(?:[\s\S]*?\s+from\s+)?["'](\.{1,2}\/[^"'`]+)["']/g;
-  const requirePattern = /\brequire\s*\(\s*["'](\.{1,2}\/[^"'`]+)["']\s*\)/g;
+  const fromPattern = /\bimport\s+(?:[\s\S]*?\s+from\s+)?["']([^"'`]+)["']/g;
+  const requirePattern = /\brequire\s*\(\s*["']([^"'`]+)["']\s*\)/g;
   let match;
   while ((match = fromPattern.exec(content)) !== null) {
     imports.push(match[1]);
@@ -833,7 +831,11 @@ async function main() {
   };
 
   mkdirSync(path.dirname(outputPath), { recursive: true });
-  writeFileSync(outputPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
+  const formatted = await prettier.format(JSON.stringify(result), {
+    ...(await prettier.resolveConfig(outputPath)),
+    filepath: outputPath
+  });
+  writeFileSync(outputPath, formatted, "utf8");
 }
 
 main()

@@ -5,8 +5,8 @@
   "type": "module",
   "packageManager": "pnpm@10.5.2",
   "engines": {
-    "node": ">=20.x",
-    "pnpm": ">=9.x"
+    "node": "22.x",
+    "pnpm": "10.5.2"
   },
   "scripts": {
     "dev": "next dev",
@@ -22,7 +22,7 @@
     "test:run": "pnpm test:unit",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test:unit && pnpm build",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm db:validate && pnpm test:unit && pnpm build",
     "env:check": "tsx scripts/check-env.ts",
     "jobs:setup": "tsx scripts/setup-qstash.ts",
     "clerk:bootstrap-admin": "tsx scripts/bootstrap-super-admin.ts",
@@ -39,11 +39,10 @@
     "@aws-sdk/client-s3": "3.1094.0",
     "@aws-sdk/client-sts": "3.1094.0",
     "@clerk/nextjs": "7.6.0",
-    "@clerk/ui": "1.25.8",
     "@payos/node": "2.0.5",
-    "@prisma/adapter-pg": "7.9.0",
-    "@prisma/client": "7.9.0",
-    "@sentry/nextjs": "10.67.0",
+    "@prisma/adapter-pg": "7.9.1",
+    "@prisma/client": "7.9.1",
+    "@sentry/nextjs": "10.69.0",
     "@simplewebauthn/browser": "13.3.0",
     "@simplewebauthn/server": "13.3.2",
     "@upstash/qstash": "2.11.3",
@@ -82,12 +81,20 @@
     "eslint-config-next": "16.2.11",
     "fast-check": "4.9.0",
     "jsdom": "28.1.0",
-    "postcss": "8.5.22",
+    "postcss": "8.5.25",
     "prettier": "3.9.6",
-    "prisma": "7.9.0",
+    "prisma": "7.9.1",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.1",
     "typescript": "5.9.3",
     "vitest": "4.1.10"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.25",
+      "sharp": "0.35.0",
+      "brace-expansion@>=4.0.0 <5.0.9": "5.0.9",
+      "fast-uri": "3.1.5"
+    }
   }
 }

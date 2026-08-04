@@ -20,7 +20,6 @@ export interface ShopeeProductResult {
     rating: string;
     isXtra: boolean;
     canonicalUrl: string;
-    trackingUrl: string;
   };
   commission: {
     totalVnd: string;
@@ -227,8 +226,7 @@ export async function fetchShopeeProductData(
           ...(videoMeta.imageUrl ? { imageUrl: videoMeta.imageUrl } : {}),
           rating: "5.0",
           isXtra: false,
-          canonicalUrl: expandedUrl,
-          trackingUrl: targetUrl
+          canonicalUrl: expandedUrl
         },
         commission: {
           totalVnd: "0",
@@ -268,14 +266,10 @@ export async function fetchShopeeProductData(
     const payload = productPayloadSchema.parse(parseLosslessJson(responseText, 512_000));
 
     const info = payload.productInfo;
-    const affiliateId = env.SHOPEE_AFFILIATE_ID;
-    if (!affiliateId) return null;
     const canonicalProductUrl = parseAllowedUrl(
       info.productLink ?? `https://shopee.vn/product/${shopId ?? ""}/${itemId}`,
       "SHOPEE_MARKETPLACE"
     ).toString();
-    const redirectUrl = `https://s.shopee.vn/an_redir?origin_link=${encodeURIComponent(canonicalProductUrl)}&affiliate_id=${affiliateId}`;
-
     const totalCom = parseVndAmount(info.commission ?? "0", "total commission");
     const sellerCom = parseVndAmount(info.sellerComFinal ?? "0", "seller commission");
     const shopeeCom = parseVndAmount(info.shopeeComFinal ?? "0", "Shopee commission");
@@ -294,8 +288,7 @@ export async function fetchShopeeProductData(
         ...(productImageUrl ? { imageUrl: productImageUrl } : {}),
         rating: String(info.rating ?? "5.0"),
         isXtra: info.isXtra ?? false,
-        canonicalUrl: canonicalProductUrl,
-        trackingUrl: redirectUrl
+        canonicalUrl: canonicalProductUrl
       },
       commission: {
         totalVnd: totalCom.toString(),

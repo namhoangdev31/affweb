@@ -2,64 +2,47 @@
   "scriptCompleted": true,
   "name": "affweb",
   "rawDescription": "",
-  "readmeHead": "# Hoàn Tiền\n\nWeb App/PWA affiliate cashback cho Shopee, ShopeeFood, AccessTrade và Lazada, xây bằng Next.js 16 App Router, React 19, Prisma 7, Clerk và PostgreSQL. Hệ thống dùng double-entry ledger, payout payOS có phân tách reviewer/approver, immutable evidence và các kill switch độc lập.\n\n## Trạng thái triển khai\n\n- Shopee direct link, Shopee Open API, AddLiveTag account sync và ShopeeFood `source=food` đã có connector riêng.\n- AccessTrade dùng Publisher API chính thức: product-link, transaction pagination, overlap và SubID.\n- Lazada đã có signing, link/product/conversion contract, fixture test và mode `credential_ready`; chỉ chuyển `active` sau khi xác minh operation từ portal authenticated.\n- Payout payOS dùng batch payout, idempotency, destination validation, `UNKNOWN` reconciliation và journal đối ứng khi thất bại.",
-  "languages": ["config", "css", "json", "markdown", "sql", "toml", "typescript", "yaml"],
+  "readmeHead": "# Hoàn Tiền\n\nWeb App/PWA affiliate cashback cho Shopee, ShopeeFood, AccessTrade và Lazada, xây bằng Next.js 16 App Router, React 19, Prisma 7, Clerk và PostgreSQL. Hệ thống dùng double-entry ledger, payout payOS có phân tách reviewer/approver, immutable evidence và các kill switch độc lập.\n\n## Trạng thái triển khai\n\n- Shopee direct link dùng packet `sub_id=affweb-<click>-<source>-<mode>-v2`; CSV Báo cáo chuyển đổi có contract Việt/Anh 47 cột. Hóa đơn đối soát vẫn hard-disabled tới khi có export thật.\n- AccessTrade dùng Publisher API chính thức: product-link, transaction pagination, overlap và SubID.\n- Lazada đã có signing, link/product/conversion contract, fixture test và mode `credential_ready`; chỉ chuyển `active` sau khi xác minh operation từ portal authenticated.\n- Payout payOS dùng batch payout, idempotency, destination validation, `UNKNOWN` reconciliation và journal đối ứng khi thất bại.",
+  "languages": [
+    "config",
+    "css",
+    "javascript",
+    "json",
+    "markdown",
+    "sql",
+    "toml",
+    "typescript",
+    "yaml"
+  ],
   "frameworks": ["Next.js", "Prisma", "React", "Tailwind CSS", "TypeScript", "Vitest"],
   "files": [
+    { "path": ".env.example", "language": "config", "sizeLines": 107, "fileCategory": "config" },
+    { "path": ".gitleaks.toml", "language": "toml", "sizeLines": 8, "fileCategory": "config" },
+    { "path": ".node-version", "language": "unknown", "sizeLines": 1, "fileCategory": "code" },
+    { "path": ".npmrc", "language": "unknown", "sizeLines": 3, "fileCategory": "code" },
     {
-      "path": ".env.example",
-      "language": "config",
-      "sizeLines": 92,
-      "fileCategory": "config"
-    },
-    {
-      "path": ".gitleaks.toml",
-      "language": "toml",
-      "sizeLines": 8,
-      "fileCategory": "config"
-    },
-    {
-      "path": ".node-version",
+      "path": ".understand-anything/.understandignore",
       "language": "unknown",
-      "sizeLines": 1,
+      "sizeLines": 30,
       "fileCategory": "code"
     },
     {
-      "path": ".npmrc",
-      "language": "unknown",
-      "sizeLines": 3,
+      "path": ".understand-anything/tmp/ua-project-scan.js",
+      "language": "javascript",
+      "sizeLines": 849,
       "fileCategory": "code"
     },
     {
-      "path": "AGENTS.md",
-      "language": "markdown",
-      "sizeLines": 225,
-      "fileCategory": "docs"
-    },
-    {
-      "path": "README.md",
-      "language": "markdown",
-      "sizeLines": 72,
-      "fileCategory": "docs"
-    },
-    {
-      "path": "components.json",
+      "path": ".understand-anything/tmp/ua-scan-results.json",
       "language": "json",
-      "sizeLines": 22,
+      "sizeLines": 2808,
       "fileCategory": "config"
     },
-    {
-      "path": "context.md",
-      "language": "markdown",
-      "sizeLines": 305,
-      "fileCategory": "docs"
-    },
-    {
-      "path": "docs/README.md",
-      "language": "markdown",
-      "sizeLines": 85,
-      "fileCategory": "docs"
-    },
+    { "path": "AGENTS.md", "language": "markdown", "sizeLines": 225, "fileCategory": "docs" },
+    { "path": "README.md", "language": "markdown", "sizeLines": 66, "fileCategory": "docs" },
+    { "path": "components.json", "language": "json", "sizeLines": 22, "fileCategory": "config" },
+    { "path": "context.md", "language": "markdown", "sizeLines": 345, "fileCategory": "docs" },
+    { "path": "docs/README.md", "language": "markdown", "sizeLines": 85, "fileCategory": "docs" },
     {
       "path": "docs/brd/cashback_affiliate_platform_brd_en.md",
       "language": "markdown",
@@ -79,6 +62,12 @@
       "fileCategory": "docs"
     },
     {
+      "path": "docs/operations/evidence-retention-policy.md",
+      "language": "markdown",
+      "sizeLines": 31,
+      "fileCategory": "docs"
+    },
+    {
       "path": "docs/operations/incident-runbook.md",
       "language": "markdown",
       "sizeLines": 38,
@@ -87,19 +76,31 @@
     {
       "path": "docs/operations/lazada-activation.md",
       "language": "markdown",
-      "sizeLines": 23,
+      "sizeLines": 32,
       "fileCategory": "docs"
     },
     {
       "path": "docs/operations/production-runbook.md",
       "language": "markdown",
-      "sizeLines": 137,
+      "sizeLines": 192,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/operations/provider-contract-status.md",
+      "language": "markdown",
+      "sizeLines": 62,
       "fileCategory": "docs"
     },
     {
       "path": "docs/operations/restore-drill.md",
       "language": "markdown",
       "sizeLines": 21,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/production-readiness-audit-2026-07-28.md",
+      "language": "markdown",
+      "sizeLines": 1410,
       "fileCategory": "docs"
     },
     {
@@ -162,36 +163,11 @@
       "sizeLines": 1572,
       "fileCategory": "docs"
     },
-    {
-      "path": "eslint.config.mjs",
-      "language": "unknown",
-      "sizeLines": 15,
-      "fileCategory": "code"
-    },
-    {
-      "path": "lighthouserc.cjs",
-      "language": "unknown",
-      "sizeLines": 26,
-      "fileCategory": "code"
-    },
-    {
-      "path": "next-env.d.ts",
-      "language": "typescript",
-      "sizeLines": 6,
-      "fileCategory": "code"
-    },
-    {
-      "path": "next.config.ts",
-      "language": "typescript",
-      "sizeLines": 71,
-      "fileCategory": "code"
-    },
-    {
-      "path": "package.json",
-      "language": "json",
-      "sizeLines": 90,
-      "fileCategory": "config"
-    },
+    { "path": "eslint.config.mjs", "language": "unknown", "sizeLines": 15, "fileCategory": "code" },
+    { "path": "lighthouserc.cjs", "language": "unknown", "sizeLines": 26, "fileCategory": "code" },
+    { "path": "next-env.d.ts", "language": "typescript", "sizeLines": 6, "fileCategory": "code" },
+    { "path": "next.config.ts", "language": "typescript", "sizeLines": 71, "fileCategory": "code" },
+    { "path": "package.json", "language": "json", "sizeLines": 100, "fileCategory": "config" },
     {
       "path": "playwright.config.ts",
       "language": "typescript",
@@ -204,12 +180,7 @@
       "sizeLines": 13,
       "fileCategory": "config"
     },
-    {
-      "path": "postcss.config.mjs",
-      "language": "unknown",
-      "sizeLines": 7,
-      "fileCategory": "code"
-    },
+    { "path": "postcss.config.mjs", "language": "unknown", "sizeLines": 7, "fileCategory": "code" },
     {
       "path": "prettier.config.mjs",
       "language": "unknown",
@@ -235,9 +206,27 @@
       "fileCategory": "data"
     },
     {
+      "path": "prisma/migrations/202607270001_tenant_saas_baseline/migration.sql",
+      "language": "sql",
+      "sizeLines": 127,
+      "fileCategory": "data"
+    },
+    {
       "path": "prisma/migrations/202607280001_tenant_affiliate_member_sharing/migration.sql",
       "language": "sql",
       "sizeLines": 32,
+      "fileCategory": "data"
+    },
+    {
+      "path": "prisma/migrations/202607290001_core_v1_expand/migration.sql",
+      "language": "sql",
+      "sizeLines": 260,
+      "fileCategory": "data"
+    },
+    {
+      "path": "prisma/migrations/202607300001_provider_settlement_core/migration.sql",
+      "language": "sql",
+      "sizeLines": 327,
       "fileCategory": "data"
     },
     {
@@ -249,19 +238,19 @@
     {
       "path": "prisma/schema.prisma",
       "language": "unknown",
-      "sizeLines": 1137,
+      "sizeLines": 1421,
       "fileCategory": "data"
     },
     {
       "path": "prisma/seed.ts",
       "language": "typescript",
-      "sizeLines": 181,
+      "sizeLines": 196,
       "fileCategory": "code"
     },
     {
       "path": "project_map.json",
       "language": "json",
-      "sizeLines": 20867,
+      "sizeLines": 16036,
       "fileCategory": "config"
     },
     {
@@ -273,19 +262,25 @@
     {
       "path": "scratch/test-shopee-shortlink-redirect.ts",
       "language": "typescript",
-      "sizeLines": 50,
+      "sizeLines": 52,
       "fileCategory": "code"
     },
     {
       "path": "scratch/test-video-resolution.ts",
       "language": "typescript",
-      "sizeLines": 53,
+      "sizeLines": 57,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/bootstrap-feature-flags.ts",
+      "language": "typescript",
+      "sizeLines": 115,
       "fileCategory": "code"
     },
     {
       "path": "scripts/bootstrap-super-admin.ts",
       "language": "typescript",
-      "sizeLines": 85,
+      "sizeLines": 84,
       "fileCategory": "code"
     },
     {
@@ -303,19 +298,25 @@
     {
       "path": "scripts/manual-test.ts",
       "language": "typescript",
-      "sizeLines": 50,
+      "sizeLines": 59,
       "fileCategory": "code"
     },
     {
       "path": "scripts/setup-qstash.ts",
       "language": "typescript",
-      "sizeLines": 52,
+      "sizeLines": 55,
       "fileCategory": "code"
     },
     {
       "path": "scripts/smoke-production.ts",
       "language": "typescript",
       "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/update-project-map.js",
+      "language": "javascript",
+      "sizeLines": 259,
       "fileCategory": "code"
     },
     {
@@ -327,7 +328,7 @@
     {
       "path": "src/app/[slug]/page.tsx",
       "language": "typescript",
-      "sizeLines": 143,
+      "sizeLines": 194,
       "fileCategory": "code"
     },
     {
@@ -369,13 +370,13 @@
     {
       "path": "src/app/admin/flags/actions.ts",
       "language": "typescript",
-      "sizeLines": 75,
+      "sizeLines": 81,
       "fileCategory": "code"
     },
     {
       "path": "src/app/admin/flags/page.tsx",
       "language": "typescript",
-      "sizeLines": 86,
+      "sizeLines": 90,
       "fileCategory": "code"
     },
     {
@@ -433,21 +434,27 @@
       "fileCategory": "code"
     },
     {
+      "path": "src/app/admin/tenants/actions.ts",
+      "language": "typescript",
+      "sizeLines": 260,
+      "fileCategory": "code"
+    },
+    {
       "path": "src/app/admin/tenants/page.tsx",
       "language": "typescript",
-      "sizeLines": 312,
+      "sizeLines": 371,
       "fileCategory": "code"
     },
     {
       "path": "src/app/admin/users/actions.ts",
       "language": "typescript",
-      "sizeLines": 336,
+      "sizeLines": 331,
       "fileCategory": "code"
     },
     {
       "path": "src/app/admin/users/page.tsx",
       "language": "typescript",
-      "sizeLines": 196,
+      "sizeLines": 201,
       "fileCategory": "code"
     },
     {
@@ -499,9 +506,33 @@
       "fileCategory": "code"
     },
     {
+      "path": "src/app/api/saas/checkout/route.ts",
+      "language": "typescript",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/saas/payos-redirect/route.ts",
+      "language": "typescript",
+      "sizeLines": 41,
+      "fileCategory": "code"
+    },
+    {
       "path": "src/app/api/saas/register/route.ts",
       "language": "typescript",
       "sizeLines": 78,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/saas/zalo-qr/route.ts",
+      "language": "typescript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/admin/settlement-batches/route.ts",
+      "language": "typescript",
+      "sizeLines": 79,
       "fileCategory": "code"
     },
     {
@@ -517,15 +548,39 @@
       "fileCategory": "code"
     },
     {
+      "path": "src/app/api/v1/imports/shopee-orders/route.ts",
+      "language": "typescript",
+      "sizeLines": 107,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/imports/shopee-reconciliation-invoices/route.ts",
+      "language": "typescript",
+      "sizeLines": 17,
+      "fileCategory": "code"
+    },
+    {
       "path": "src/app/api/v1/links/route.ts",
       "language": "typescript",
-      "sizeLines": 40,
+      "sizeLines": 54,
       "fileCategory": "code"
     },
     {
       "path": "src/app/api/v1/payout-tickets/route.ts",
       "language": "typescript",
-      "sizeLines": 54,
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/provider-accounts/[id]/credential/route.ts",
+      "language": "typescript",
+      "sizeLines": 154,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/provider-accounts/route.ts",
+      "language": "typescript",
+      "sizeLines": 158,
       "fileCategory": "code"
     },
     {
@@ -537,7 +592,7 @@
     {
       "path": "src/app/api/v1/public/offers/route.ts",
       "language": "typescript",
-      "sizeLines": 35,
+      "sizeLines": 38,
       "fileCategory": "code"
     },
     {
@@ -549,13 +604,49 @@
     {
       "path": "src/app/api/v1/shopee/product/route.ts",
       "language": "typescript",
-      "sizeLines": 39,
+      "sizeLines": 40,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/tenant/conversion-imports/route.ts",
+      "language": "typescript",
+      "sizeLines": 34,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/tenant/conversions/[id]/external-payment/route.ts",
+      "language": "typescript",
+      "sizeLines": 144,
       "fileCategory": "code"
     },
     {
       "path": "src/app/api/v1/tenant/settings/route.ts",
       "language": "typescript",
       "sizeLines": 79,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/tenant/zalo-bindings/[id]/routing/route.ts",
+      "language": "typescript",
+      "sizeLines": 127,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/tenant/zalo/group-link-codes/route.ts",
+      "language": "typescript",
+      "sizeLines": 40,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/tenants/[slug]/join/route.ts",
+      "language": "typescript",
+      "sizeLines": 35,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/tools/clean-link/route.ts",
+      "language": "typescript",
+      "sizeLines": 46,
       "fileCategory": "code"
     },
     {
@@ -579,31 +670,49 @@
     {
       "path": "src/app/api/webhooks/lazada/route.ts",
       "language": "typescript",
-      "sizeLines": 156,
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/webhooks/payos/route.ts",
+      "language": "typescript",
+      "sizeLines": 152,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/webhooks/zalo/route.test.ts",
+      "language": "typescript",
+      "sizeLines": 41,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/webhooks/zalo/route.ts",
+      "language": "typescript",
+      "sizeLines": 82,
       "fileCategory": "code"
     },
     {
       "path": "src/app/app/conversions/actions.ts",
       "language": "typescript",
-      "sizeLines": 70,
+      "sizeLines": 79,
       "fileCategory": "code"
     },
     {
       "path": "src/app/app/conversions/page.tsx",
       "language": "typescript",
-      "sizeLines": 244,
+      "sizeLines": 254,
       "fileCategory": "code"
     },
     {
       "path": "src/app/app/layout.tsx",
       "language": "typescript",
-      "sizeLines": 17,
+      "sizeLines": 21,
       "fileCategory": "code"
     },
     {
       "path": "src/app/app/leaderboard/page.tsx",
       "language": "typescript",
-      "sizeLines": 313,
+      "sizeLines": 328,
       "fileCategory": "code"
     },
     {
@@ -633,13 +742,19 @@
     {
       "path": "src/app/app/page.tsx",
       "language": "typescript",
-      "sizeLines": 155,
+      "sizeLines": 172,
       "fileCategory": "code"
     },
     {
       "path": "src/app/app/profile/[[...user-profile]]/page.tsx",
       "language": "typescript",
       "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/app/reconciliation/page.tsx",
+      "language": "typescript",
+      "sizeLines": 149,
       "fileCategory": "code"
     },
     {
@@ -651,19 +766,25 @@
     {
       "path": "src/app/app/settings/page.tsx",
       "language": "typescript",
-      "sizeLines": 150,
+      "sizeLines": 165,
       "fileCategory": "code"
     },
     {
       "path": "src/app/app/settings/tenant/page.tsx",
       "language": "typescript",
-      "sizeLines": 31,
+      "sizeLines": 71,
       "fileCategory": "code"
     },
     {
       "path": "src/app/app/settings/tenant/tenant-settings-client.tsx",
       "language": "typescript",
-      "sizeLines": 184,
+      "sizeLines": 693,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/app/tools/page.tsx",
+      "language": "typescript",
+      "sizeLines": 15,
       "fileCategory": "code"
     },
     {
@@ -681,7 +802,7 @@
     {
       "path": "src/app/deals/page.tsx",
       "language": "typescript",
-      "sizeLines": 80,
+      "sizeLines": 60,
       "fileCategory": "code"
     },
     {
@@ -690,12 +811,7 @@
       "sizeLines": 45,
       "fileCategory": "code"
     },
-    {
-      "path": "src/app/globals.css",
-      "language": "css",
-      "sizeLines": 84,
-      "fileCategory": "markup"
-    },
+    { "path": "src/app/globals.css", "language": "css", "sizeLines": 84, "fileCategory": "markup" },
     {
       "path": "src/app/go/[clickToken]/route.ts",
       "language": "typescript",
@@ -705,7 +821,7 @@
     {
       "path": "src/app/layout.tsx",
       "language": "typescript",
-      "sizeLines": 62,
+      "sizeLines": 60,
       "fileCategory": "code"
     },
     {
@@ -741,7 +857,7 @@
     {
       "path": "src/app/onboarding/tenant/page.tsx",
       "language": "typescript",
-      "sizeLines": 278,
+      "sizeLines": 385,
       "fileCategory": "code"
     },
     {
@@ -753,13 +869,13 @@
     {
       "path": "src/app/partners/[partner]/page.tsx",
       "language": "typescript",
-      "sizeLines": 78,
+      "sizeLines": 67,
       "fileCategory": "code"
     },
     {
       "path": "src/app/partners/page.tsx",
       "language": "typescript",
-      "sizeLines": 85,
+      "sizeLines": 77,
       "fileCategory": "code"
     },
     {
@@ -777,7 +893,7 @@
     {
       "path": "src/app/shopee-lookup/page.tsx",
       "language": "typescript",
-      "sizeLines": 54,
+      "sizeLines": 55,
       "fileCategory": "code"
     },
     {
@@ -843,7 +959,7 @@
     {
       "path": "src/components/app-shell.tsx",
       "language": "typescript",
-      "sizeLines": 137,
+      "sizeLines": 151,
       "fileCategory": "code"
     },
     {
@@ -859,6 +975,12 @@
       "fileCategory": "code"
     },
     {
+      "path": "src/components/internal-tools.tsx",
+      "language": "typescript",
+      "sizeLines": 301,
+      "fileCategory": "code"
+    },
+    {
       "path": "src/components/legal-page.tsx",
       "language": "typescript",
       "sizeLines": 23,
@@ -867,7 +989,7 @@
     {
       "path": "src/components/link-builder.tsx",
       "language": "typescript",
-      "sizeLines": 549,
+      "sizeLines": 550,
       "fileCategory": "code"
     },
     {
@@ -879,7 +1001,7 @@
     {
       "path": "src/components/payout-form.tsx",
       "language": "typescript",
-      "sizeLines": 74,
+      "sizeLines": 77,
       "fileCategory": "code"
     },
     {
@@ -909,7 +1031,7 @@
     {
       "path": "src/components/shopee-product-lookup.tsx",
       "language": "typescript",
-      "sizeLines": 344,
+      "sizeLines": 376,
       "fileCategory": "code"
     },
     {
@@ -922,6 +1044,12 @@
       "path": "src/components/site-header.tsx",
       "language": "typescript",
       "sizeLines": 86,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/tenant-provider-credentials.tsx",
+      "language": "typescript",
+      "sizeLines": 314,
       "fileCategory": "code"
     },
     {
@@ -1023,19 +1151,19 @@
     {
       "path": "src/lib/authz.ts",
       "language": "typescript",
-      "sizeLines": 114,
+      "sizeLines": 134,
       "fileCategory": "code"
     },
     {
       "path": "src/lib/clerk-identity-mapping.test.ts",
       "language": "typescript",
-      "sizeLines": 79,
+      "sizeLines": 75,
       "fileCategory": "code"
     },
     {
       "path": "src/lib/clerk-identity-mapping.ts",
       "language": "typescript",
-      "sizeLines": 35,
+      "sizeLines": 34,
       "fileCategory": "code"
     },
     {
@@ -1047,7 +1175,7 @@
     {
       "path": "src/lib/crypto.ts",
       "language": "typescript",
-      "sizeLines": 48,
+      "sizeLines": 108,
       "fileCategory": "code"
     },
     {
@@ -1056,28 +1184,18 @@
       "sizeLines": 17,
       "fileCategory": "code"
     },
-    {
-      "path": "src/lib/csv.ts",
-      "language": "typescript",
-      "sizeLines": 50,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/lib/db.ts",
-      "language": "typescript",
-      "sizeLines": 30,
-      "fileCategory": "code"
-    },
+    { "path": "src/lib/csv.ts", "language": "typescript", "sizeLines": 50, "fileCategory": "code" },
+    { "path": "src/lib/db.ts", "language": "typescript", "sizeLines": 27, "fileCategory": "code" },
     {
       "path": "src/lib/env.test.ts",
       "language": "typescript",
-      "sizeLines": 135,
+      "sizeLines": 183,
       "fileCategory": "code"
     },
     {
       "path": "src/lib/env.ts",
       "language": "typescript",
-      "sizeLines": 281,
+      "sizeLines": 336,
       "fileCategory": "code"
     },
     {
@@ -1086,12 +1204,7 @@
       "sizeLines": 87,
       "fileCategory": "code"
     },
-    {
-      "path": "src/lib/json.ts",
-      "language": "typescript",
-      "sizeLines": 7,
-      "fileCategory": "code"
-    },
+    { "path": "src/lib/json.ts", "language": "typescript", "sizeLines": 7, "fileCategory": "code" },
     {
       "path": "src/lib/logger.ts",
       "language": "typescript",
@@ -1099,15 +1212,33 @@
       "fileCategory": "code"
     },
     {
+      "path": "src/lib/lossless-json.test.ts",
+      "language": "typescript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/lossless-json.ts",
+      "language": "typescript",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
       "path": "src/lib/money.test.ts",
       "language": "typescript",
-      "sizeLines": 60,
+      "sizeLines": 32,
       "fileCategory": "code"
     },
     {
       "path": "src/lib/money.ts",
       "language": "typescript",
-      "sizeLines": 52,
+      "sizeLines": 89,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/payos.ts",
+      "language": "typescript",
+      "sizeLines": 116,
       "fileCategory": "code"
     },
     {
@@ -1119,19 +1250,19 @@
     {
       "path": "src/lib/redis.ts",
       "language": "typescript",
-      "sizeLines": 28,
+      "sizeLines": 34,
       "fileCategory": "code"
     },
     {
       "path": "src/lib/request.ts",
       "language": "typescript",
-      "sizeLines": 41,
+      "sizeLines": 63,
       "fileCategory": "code"
     },
     {
       "path": "src/lib/shopee-product.ts",
       "language": "typescript",
-      "sizeLines": 270,
+      "sizeLines": 307,
       "fileCategory": "code"
     },
     {
@@ -1143,19 +1274,25 @@
     {
       "path": "src/lib/tenant.ts",
       "language": "typescript",
-      "sizeLines": 213,
+      "sizeLines": 386,
       "fileCategory": "code"
     },
     {
       "path": "src/lib/utils.ts",
       "language": "typescript",
-      "sizeLines": 31,
+      "sizeLines": 38,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/zalo.ts",
+      "language": "typescript",
+      "sizeLines": 373,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/admin/adjustments.ts",
       "language": "typescript",
-      "sizeLines": 191,
+      "sizeLines": 194,
       "fileCategory": "code"
     },
     {
@@ -1173,7 +1310,7 @@
     {
       "path": "src/modules/admin/webauthn.ts",
       "language": "typescript",
-      "sizeLines": 191,
+      "sizeLines": 187,
       "fileCategory": "code"
     },
     {
@@ -1185,13 +1322,13 @@
     {
       "path": "src/modules/connectors/accesstrade.ts",
       "language": "typescript",
-      "sizeLines": 234,
+      "sizeLines": 445,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/connectors/addlivetag.ts",
       "language": "typescript",
-      "sizeLines": 298,
+      "sizeLines": 312,
       "fileCategory": "code"
     },
     {
@@ -1203,25 +1340,43 @@
     {
       "path": "src/modules/connectors/lazada.ts",
       "language": "typescript",
-      "sizeLines": 216,
+      "sizeLines": 283,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/connectors/provider-credentials.ts",
+      "language": "typescript",
+      "sizeLines": 146,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/connectors/provider-http.ts",
+      "language": "typescript",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/connectors/provider-status.test.ts",
+      "language": "typescript",
+      "sizeLines": 25,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/connectors/registry.ts",
       "language": "typescript",
-      "sizeLines": 16,
+      "sizeLines": 32,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/connectors/shopee-open-api.ts",
       "language": "typescript",
-      "sizeLines": 294,
+      "sizeLines": 298,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/connectors/shopee.ts",
       "language": "typescript",
-      "sizeLines": 111,
+      "sizeLines": 97,
       "fileCategory": "code"
     },
     {
@@ -1233,7 +1388,7 @@
     {
       "path": "src/modules/connectors/types.ts",
       "language": "typescript",
-      "sizeLines": 104,
+      "sizeLines": 115,
       "fileCategory": "code"
     },
     {
@@ -1245,19 +1400,19 @@
     {
       "path": "src/modules/connectors/url-policy.ts",
       "language": "typescript",
-      "sizeLines": 127,
+      "sizeLines": 219,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/conversions/service.ts",
       "language": "typescript",
-      "sizeLines": 565,
+      "sizeLines": 780,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/evidence/service.ts",
       "language": "typescript",
-      "sizeLines": 164,
+      "sizeLines": 170,
       "fileCategory": "code"
     },
     {
@@ -1275,19 +1430,49 @@
     {
       "path": "src/modules/identity/webhook.ts",
       "language": "typescript",
-      "sizeLines": 191,
+      "sizeLines": 181,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/imports/__fixtures__/shopee-orders-v1.csv",
+      "language": "unknown",
+      "sizeLines": 2,
+      "fileCategory": "data"
+    },
+    {
+      "path": "src/modules/imports/shopee-orders.test.ts",
+      "language": "typescript",
+      "sizeLines": 85,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/imports/shopee-orders.ts",
+      "language": "typescript",
+      "sizeLines": 551,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/imports/shopee-reconciliation.test.ts",
+      "language": "typescript",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/imports/shopee-reconciliation.ts",
+      "language": "typescript",
+      "sizeLines": 456,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/jobs/qstash.ts",
       "language": "typescript",
-      "sizeLines": 25,
+      "sizeLines": 26,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/jobs/runner.ts",
       "language": "typescript",
-      "sizeLines": 461,
+      "sizeLines": 662,
       "fileCategory": "code"
     },
     {
@@ -1305,19 +1490,19 @@
     {
       "path": "src/modules/ledger/service.ts",
       "language": "typescript",
-      "sizeLines": 188,
+      "sizeLines": 194,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/links/service.ts",
       "language": "typescript",
-      "sizeLines": 279,
+      "sizeLines": 607,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/links/tenant-policy.test.ts",
       "language": "typescript",
-      "sizeLines": 62,
+      "sizeLines": 77,
       "fileCategory": "code"
     },
     {
@@ -1329,13 +1514,13 @@
     {
       "path": "src/modules/notifications/dispatch.ts",
       "language": "typescript",
-      "sizeLines": 217,
+      "sizeLines": 250,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/payout/service.ts",
       "language": "typescript",
-      "sizeLines": 588,
+      "sizeLines": 679,
       "fileCategory": "code"
     },
     {
@@ -1375,11 +1560,60 @@
       "fileCategory": "code"
     },
     {
-      "path": "src/proxy.ts",
+      "path": "src/modules/settlement/service.ts",
       "language": "typescript",
-      "sizeLines": 116,
+      "sizeLines": 296,
       "fileCategory": "code"
     },
+    {
+      "path": "src/modules/tenants/billing-policy.test.ts",
+      "language": "typescript",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/tenants/billing-policy.ts",
+      "language": "typescript",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/tenants/membership.ts",
+      "language": "typescript",
+      "sizeLines": 68,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/tenants/plans.ts",
+      "language": "typescript",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/tools/link-inspector.test.ts",
+      "language": "typescript",
+      "sizeLines": 32,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/tools/link-inspector.ts",
+      "language": "typescript",
+      "sizeLines": 141,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/tools/tax-2026.test.ts",
+      "language": "typescript",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/tools/tax-2026.ts",
+      "language": "typescript",
+      "sizeLines": 74,
+      "fileCategory": "code"
+    },
+    { "path": "src/proxy.ts", "language": "typescript", "sizeLines": 136, "fileCategory": "code" },
     {
       "path": "src/test/server-only.ts",
       "language": "typescript",
@@ -1389,37 +1623,43 @@
     {
       "path": "tests/e2e/all-user-journeys-desktop.spec.ts",
       "language": "typescript",
-      "sizeLines": 61,
+      "sizeLines": 71,
       "fileCategory": "code"
     },
     {
       "path": "tests/e2e/all-user-journeys-mobile.spec.ts",
       "language": "typescript",
-      "sizeLines": 47,
+      "sizeLines": 50,
       "fileCategory": "code"
     },
     {
       "path": "tests/e2e/auth-flow.spec.ts",
       "language": "typescript",
-      "sizeLines": 44,
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/e2e/authenticated-user-flow.spec.ts",
+      "language": "typescript",
+      "sizeLines": 71,
       "fileCategory": "code"
     },
     {
       "path": "tests/e2e/desktop-tenant-flow.spec.ts",
       "language": "typescript",
-      "sizeLines": 37,
+      "sizeLines": 46,
       "fileCategory": "code"
     },
     {
       "path": "tests/e2e/flows.spec.ts",
       "language": "typescript",
-      "sizeLines": 85,
+      "sizeLines": 87,
       "fileCategory": "code"
     },
     {
       "path": "tests/e2e/mobile-user-experience.spec.ts",
       "language": "typescript",
-      "sizeLines": 47,
+      "sizeLines": 50,
       "fileCategory": "code"
     },
     {
@@ -1429,9 +1669,21 @@
       "fileCategory": "code"
     },
     {
+      "path": "tests/fixtures/shopee_reconciliation_invoice_sample.csv",
+      "language": "unknown",
+      "sizeLines": 3,
+      "fileCategory": "data"
+    },
+    {
       "path": "tests/integration/conversion-ledger.test.ts",
       "language": "typescript",
-      "sizeLines": 216,
+      "sizeLines": 293,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/integration/database-guard.ts",
+      "language": "typescript",
+      "sizeLines": 46,
       "fileCategory": "code"
     },
     {
@@ -1455,13 +1707,13 @@
     {
       "path": "tests/integration/flow4-ledger-risk-hold-guards.test.ts",
       "language": "typescript",
-      "sizeLines": 49,
+      "sizeLines": 38,
       "fileCategory": "code"
     },
     {
       "path": "tests/integration/flow5-payout-passkey-twoeye.test.ts",
       "language": "typescript",
-      "sizeLines": 48,
+      "sizeLines": 49,
       "fileCategory": "code"
     },
     {
@@ -1471,56 +1723,79 @@
       "fileCategory": "code"
     },
     {
+      "path": "tests/integration/flow7-b2b-tenant-saas-zalo.test.ts",
+      "language": "typescript",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/integration/global-setup.ts",
+      "language": "typescript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
       "path": "tests/integration/lazada-postback-and-sync.test.ts",
       "language": "typescript",
-      "sizeLines": 87,
+      "sizeLines": 15,
       "fileCategory": "code"
     },
     {
       "path": "tests/integration/ledger-payout-two-eye.test.ts",
       "language": "typescript",
-      "sizeLines": 102,
+      "sizeLines": 95,
       "fileCategory": "code"
     },
     {
-      "path": "tests/integration/seed-live-user-data.test.ts",
+      "path": "tests/integration/settlement-release.test.ts",
       "language": "typescript",
-      "sizeLines": 414,
+      "sizeLines": 158,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tests/integration/setup.ts",
+      "language": "typescript",
+      "sizeLines": 7,
       "fileCategory": "code"
     },
     {
       "path": "tests/integration/tenant-saas-revenue-split.test.ts",
       "language": "typescript",
-      "sizeLines": 18,
+      "sizeLines": 38,
       "fileCategory": "code"
     },
     {
-      "path": "tsconfig.json",
-      "language": "json",
-      "sizeLines": 36,
-      "fileCategory": "config"
+      "path": "tests/integration/zalo-master-bot.test.ts",
+      "language": "typescript",
+      "sizeLines": 46,
+      "fileCategory": "code"
     },
-    {
-      "path": "vercel.json",
-      "language": "json",
-      "sizeLines": 19,
-      "fileCategory": "config"
-    },
+    { "path": "tsconfig.json", "language": "json", "sizeLines": 36, "fileCategory": "config" },
+    { "path": "vercel.json", "language": "json", "sizeLines": 27, "fileCategory": "config" },
     {
       "path": "vitest.config.ts",
       "language": "typescript",
       "sizeLines": 19,
       "fileCategory": "code"
+    },
+    {
+      "path": "vitest.integration.config.ts",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
     }
   ],
-  "totalFiles": 251,
-  "filteredByIgnore": 0,
+  "totalFiles": 313,
+  "filteredByIgnore": 11,
   "estimatedComplexity": "large",
   "importMap": {
     ".env.example": [],
     ".gitleaks.toml": [],
     ".node-version": [],
     ".npmrc": [],
+    ".understand-anything/.understandignore": [],
+    ".understand-anything/tmp/ua-project-scan.js": [],
+    ".understand-anything/tmp/ua-scan-results.json": [],
     "AGENTS.md": [],
     "README.md": [],
     "components.json": [],
@@ -1529,10 +1804,13 @@
     "docs/brd/cashback_affiliate_platform_brd_en.md": [],
     "docs/brd/cashback_affiliate_platform_brd_vi.md": [],
     "docs/operations/clerk-cutover.md": [],
+    "docs/operations/evidence-retention-policy.md": [],
     "docs/operations/incident-runbook.md": [],
     "docs/operations/lazada-activation.md": [],
     "docs/operations/production-runbook.md": [],
+    "docs/operations/provider-contract-status.md": [],
     "docs/operations/restore-drill.md": [],
+    "docs/production-readiness-audit-2026-07-28.md": [],
     "docs/research/api_availability_matrix.csv": [],
     "docs/research/cashback_affiliate_market_research_2026_vi.md": [],
     "docs/research/cashback_affiliate_research_report.md": [],
@@ -1555,7 +1833,10 @@
     "prisma.config.ts": [],
     "prisma/migrations/202607240001_init/migration.sql": [],
     "prisma/migrations/202607250001_add_clerk_identity/migration.sql": [],
+    "prisma/migrations/202607270001_tenant_saas_baseline/migration.sql": [],
     "prisma/migrations/202607280001_tenant_affiliate_member_sharing/migration.sql": [],
+    "prisma/migrations/202607290001_core_v1_expand/migration.sql": [],
+    "prisma/migrations/202607300001_provider_settlement_core/migration.sql": [],
     "prisma/migrations/migration_lock.toml": [],
     "prisma/schema.prisma": [],
     "prisma/seed.ts": [],
@@ -1563,210 +1844,965 @@
     "scratch/debug-video.ts": ["src/lib/db.ts", "src/modules/links/service.ts"],
     "scratch/test-shopee-shortlink-redirect.ts": ["src/lib/shopee-product.ts"],
     "scratch/test-video-resolution.ts": ["src/lib/shopee-product.ts"],
+    "scripts/bootstrap-feature-flags.ts": ["src/lib/tenant-config.ts"],
     "scripts/bootstrap-super-admin.ts": ["src/lib/db.ts", "src/lib/env.ts"],
     "scripts/capture-pwa-screenshots.ts": [],
     "scripts/check-env.ts": ["src/lib/env.ts"],
     "scripts/manual-test.ts": [],
     "scripts/setup-qstash.ts": ["src/lib/env.ts"],
     "scripts/smoke-production.ts": ["src/lib/env.ts"],
+    "scripts/update-project-map.js": [],
     "sentry.server.config.ts": [],
-    "src/app/[slug]/page.tsx": [],
-    "src/app/admin/adjustments/actions.ts": [],
-    "src/app/admin/adjustments/page.tsx": [],
-    "src/app/admin/audit/page.tsx": [],
-    "src/app/admin/catalog/actions.ts": [],
-    "src/app/admin/catalog/page.tsx": [],
-    "src/app/admin/connectors/page.tsx": [],
-    "src/app/admin/flags/actions.ts": [],
-    "src/app/admin/flags/page.tsx": [],
-    "src/app/admin/layout.tsx": [],
-    "src/app/admin/ledger/page.tsx": [],
-    "src/app/admin/page.tsx": [],
-    "src/app/admin/payouts/actions.ts": [],
-    "src/app/admin/payouts/page.tsx": [],
-    "src/app/admin/reconciliation/actions.ts": [],
-    "src/app/admin/reconciliation/page.tsx": ["src/app/admin/reconciliation/actions.ts"],
-    "src/app/admin/rules/actions.ts": [],
-    "src/app/admin/rules/page.tsx": [],
-    "src/app/admin/tenants/page.tsx": [],
-    "src/app/admin/users/actions.ts": [],
-    "src/app/admin/users/page.tsx": ["src/app/admin/users/actions.ts"],
-    "src/app/api/admin/passkeys/authenticate/options/route.ts": [],
-    "src/app/api/admin/passkeys/authenticate/verify/route.ts": [],
-    "src/app/api/admin/passkeys/register/options/route.ts": [],
-    "src/app/api/admin/passkeys/register/verify/route.ts": [],
-    "src/app/api/health/live/route.ts": [],
-    "src/app/api/health/ready/route.ts": [],
-    "src/app/api/internal/jobs/[jobName]/route.ts": [],
-    "src/app/api/internal/qstash-failure/route.ts": [],
-    "src/app/api/saas/register/route.ts": [],
-    "src/app/api/v1/beneficiaries/route.ts": [],
-    "src/app/api/v1/conversions/route.ts": [],
-    "src/app/api/v1/links/route.ts": [],
-    "src/app/api/v1/payout-tickets/route.ts": [],
+    "src/app/[slug]/page.tsx": [
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/tenant.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/admin/adjustments/actions.ts": [
+      "src/lib/authz.ts",
+      "src/modules/admin/adjustments.ts"
+    ],
+    "src/app/admin/adjustments/page.tsx": [
+      "src/app/admin/adjustments/actions.ts",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/admin/audit/page.tsx": [
+      "src/components/ui/badge.tsx",
+      "src/components/ui/card.tsx",
+      "src/lib/db.ts"
+    ],
+    "src/app/admin/catalog/actions.ts": ["src/lib/authz.ts", "src/lib/db.ts"],
+    "src/app/admin/catalog/page.tsx": [
+      "src/app/admin/catalog/actions.ts",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx",
+      "src/lib/db.ts"
+    ],
+    "src/app/admin/connectors/page.tsx": [
+      "src/components/ui/badge.tsx",
+      "src/components/ui/card.tsx",
+      "src/lib/db.ts"
+    ],
+    "src/app/admin/flags/actions.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/modules/admin/passkey.ts"
+    ],
+    "src/app/admin/flags/page.tsx": [
+      "src/app/admin/flags/actions.ts",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/admin/layout.tsx": ["src/components/admin-shell.tsx", "src/lib/authz.ts"],
+    "src/app/admin/ledger/page.tsx": [
+      "src/components/ui/badge.tsx",
+      "src/components/ui/card.tsx",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/admin/page.tsx": [
+      "src/components/admin-passkey.tsx",
+      "src/components/ui/card.tsx",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/admin/payouts/actions.ts": ["src/lib/authz.ts", "src/modules/payout/service.ts"],
+    "src/app/admin/payouts/page.tsx": [
+      "src/app/admin/payouts/actions.ts",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/admin/reconciliation/actions.ts": [
+      "src/lib/authz.ts",
+      "src/lib/csv.ts",
+      "src/lib/db.ts",
+      "src/modules/admin/passkey.ts",
+      "src/modules/conversions/service.ts",
+      "src/modules/evidence/service.ts"
+    ],
+    "src/app/admin/reconciliation/page.tsx": [
+      "src/app/admin/reconciliation/actions.ts",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/db.ts"
+    ],
+    "src/app/admin/rules/actions.ts": [
+      "src/lib/authz.ts",
+      "src/modules/admin/passkey.ts",
+      "src/modules/admin/rules.ts"
+    ],
+    "src/app/admin/rules/page.tsx": [
+      "src/app/admin/rules/actions.ts",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx",
+      "src/lib/db.ts"
+    ],
+    "src/app/admin/tenants/actions.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/tenant.ts",
+      "src/modules/admin/passkey.ts",
+      "src/modules/tenants/plans.ts"
+    ],
+    "src/app/admin/tenants/page.tsx": [
+      "src/app/admin/tenants/actions.ts",
+      "src/components/admin-passkey.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/admin/users/actions.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/modules/identity/deletion.ts"
+    ],
+    "src/app/admin/users/page.tsx": [
+      "src/app/admin/users/actions.ts",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/api/admin/passkeys/authenticate/options/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/errors.ts",
+      "src/modules/admin/webauthn.ts"
+    ],
+    "src/app/api/admin/passkeys/authenticate/verify/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts",
+      "src/modules/admin/webauthn.ts"
+    ],
+    "src/app/api/admin/passkeys/register/options/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/errors.ts",
+      "src/modules/admin/webauthn.ts"
+    ],
+    "src/app/api/admin/passkeys/register/verify/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts",
+      "src/modules/admin/webauthn.ts"
+    ],
+    "src/app/api/health/live/route.ts": ["src/lib/env.ts"],
+    "src/app/api/health/ready/route.ts": ["src/lib/db.ts", "src/lib/env.ts", "src/lib/errors.ts"],
+    "src/app/api/internal/jobs/[jobName]/route.ts": [
+      "src/lib/errors.ts",
+      "src/modules/jobs/qstash.ts",
+      "src/modules/jobs/runner.ts"
+    ],
+    "src/app/api/internal/qstash-failure/route.ts": [
+      "src/lib/crypto.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/logger.ts",
+      "src/modules/jobs/qstash.ts"
+    ],
+    "src/app/api/saas/checkout/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/json.ts",
+      "src/lib/rate-limit.ts",
+      "src/lib/request.ts",
+      "src/lib/tenant.ts"
+    ],
+    "src/app/api/saas/payos-redirect/route.ts": ["src/lib/env.ts"],
+    "src/app/api/saas/register/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts",
+      "src/lib/tenant.ts"
+    ],
+    "src/app/api/saas/zalo-qr/route.ts": [],
+    "src/app/api/v1/admin/settlement-batches/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/errors.ts",
+      "src/lib/json.ts",
+      "src/lib/rate-limit.ts",
+      "src/lib/request.ts",
+      "src/modules/admin/passkey.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/settlement/service.ts"
+    ],
+    "src/app/api/v1/beneficiaries/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/crypto.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts",
+      "src/modules/beneficiaries/service.ts"
+    ],
+    "src/app/api/v1/conversions/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/json.ts"
+    ],
+    "src/app/api/v1/imports/shopee-orders/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/json.ts",
+      "src/lib/rate-limit.ts",
+      "src/lib/request.ts",
+      "src/modules/admin/passkey.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/imports/shopee-orders.ts",
+      "src/modules/tenants/plans.ts"
+    ],
+    "src/app/api/v1/imports/shopee-reconciliation-invoices/route.ts": [
+      "src/lib/errors.ts",
+      "src/lib/request.ts"
+    ],
+    "src/app/api/v1/links/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/errors.ts",
+      "src/lib/json.ts",
+      "src/lib/rate-limit.ts",
+      "src/lib/request.ts",
+      "src/modules/links/service.ts"
+    ],
+    "src/app/api/v1/payout-tickets/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/json.ts",
+      "src/lib/rate-limit.ts",
+      "src/lib/request.ts",
+      "src/modules/payout/service.ts"
+    ],
+    "src/app/api/v1/provider-accounts/[id]/credential/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/rate-limit.ts",
+      "src/lib/request.ts",
+      "src/modules/admin/passkey.ts",
+      "src/modules/connectors/provider-credentials.ts",
+      "src/modules/connectors/registry.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/tenants/plans.ts"
+    ],
+    "src/app/api/v1/provider-accounts/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/rate-limit.ts",
+      "src/lib/request.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/tenants/plans.ts"
+    ],
     "src/app/api/v1/public/deals/route.ts": [],
-    "src/app/api/v1/public/offers/route.ts": [],
-    "src/app/api/v1/push-subscriptions/route.ts": [],
-    "src/app/api/v1/shopee/product/route.ts": [],
-    "src/app/api/v1/tenant/settings/route.ts": [],
-    "src/app/api/v1/wallet/route.ts": [],
-    "src/app/api/webhooks/clerk/route.test.ts": [],
-    "src/app/api/webhooks/clerk/route.ts": [],
+    "src/app/api/v1/public/offers/route.ts": ["src/lib/db.ts", "src/lib/json.ts"],
+    "src/app/api/v1/push-subscriptions/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts"
+    ],
+    "src/app/api/v1/shopee/product/route.ts": [
+      "src/lib/errors.ts",
+      "src/lib/json.ts",
+      "src/lib/request.ts",
+      "src/lib/shopee-product.ts"
+    ],
+    "src/app/api/v1/tenant/conversion-imports/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts",
+      "src/modules/flags/service.ts"
+    ],
+    "src/app/api/v1/tenant/conversions/[id]/external-payment/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts"
+    ],
+    "src/app/api/v1/tenant/settings/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts"
+    ],
+    "src/app/api/v1/tenant/zalo-bindings/[id]/routing/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts",
+      "src/modules/tenants/plans.ts"
+    ],
+    "src/app/api/v1/tenant/zalo/group-link-codes/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/rate-limit.ts",
+      "src/lib/request.ts",
+      "src/lib/zalo.ts"
+    ],
+    "src/app/api/v1/tenants/[slug]/join/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts",
+      "src/modules/tenants/membership.ts"
+    ],
+    "src/app/api/v1/tools/clean-link/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/errors.ts",
+      "src/lib/rate-limit.ts",
+      "src/lib/request.ts",
+      "src/modules/connectors/url-policy.ts",
+      "src/modules/tools/link-inspector.ts"
+    ],
+    "src/app/api/v1/wallet/route.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/json.ts"
+    ],
+    "src/app/api/webhooks/clerk/route.test.ts": ["src/app/api/webhooks/clerk/route.ts"],
+    "src/app/api/webhooks/clerk/route.ts": [
+      "src/lib/errors.ts",
+      "src/lib/logger.ts",
+      "src/modules/identity/webhook.ts"
+    ],
     "src/app/api/webhooks/lazada/route.ts": [],
-    "src/app/app/conversions/actions.ts": [],
-    "src/app/app/conversions/page.tsx": ["src/app/app/conversions/actions.ts"],
-    "src/app/app/layout.tsx": [],
-    "src/app/app/leaderboard/page.tsx": [],
-    "src/app/app/links/page.tsx": [],
-    "src/app/app/notifications/actions.ts": [],
-    "src/app/app/notifications/page.tsx": ["src/app/app/notifications/actions.ts"],
+    "src/app/api/webhooks/payos/route.ts": [
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/payos.ts",
+      "src/lib/request.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/tenants/billing-policy.ts"
+    ],
+    "src/app/api/webhooks/zalo/route.test.ts": ["src/app/api/webhooks/zalo/route.ts"],
+    "src/app/api/webhooks/zalo/route.ts": [
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts",
+      "src/lib/zalo.ts"
+    ],
+    "src/app/app/conversions/actions.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts"
+    ],
+    "src/app/app/conversions/page.tsx": [
+      "src/app/app/conversions/actions.ts",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/app/layout.tsx": ["src/components/app-shell.tsx", "src/lib/authz.ts", "src/lib/db.ts"],
+    "src/app/app/leaderboard/page.tsx": [
+      "src/components/ui/avatar.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/card.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/app/links/page.tsx": [
+      "src/components/links-workspace.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts"
+    ],
+    "src/app/app/notifications/actions.ts": ["src/lib/authz.ts", "src/lib/db.ts"],
+    "src/app/app/notifications/page.tsx": [
+      "src/app/app/notifications/actions.ts",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts"
+    ],
     "src/app/app/onboarding/tenant/page.tsx": [],
-    "src/app/app/page.tsx": [],
+    "src/app/app/page.tsx": [
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
     "src/app/app/profile/[[...user-profile]]/page.tsx": [],
-    "src/app/app/settings/actions.ts": [],
-    "src/app/app/settings/page.tsx": ["src/app/app/settings/actions.ts"],
-    "src/app/app/settings/tenant/page.tsx": [],
-    "src/app/app/settings/tenant/tenant-settings-client.tsx": [],
-    "src/app/app/wallet/page.tsx": [],
-    "src/app/cashback-policy/page.tsx": [],
-    "src/app/deals/page.tsx": [],
-    "src/app/faq/page.tsx": [],
+    "src/app/app/reconciliation/page.tsx": [
+      "src/components/ui/badge.tsx",
+      "src/components/ui/card.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/app/settings/actions.ts": [
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/modules/identity/deletion.ts"
+    ],
+    "src/app/app/settings/page.tsx": [
+      "src/app/app/settings/actions.ts",
+      "src/components/beneficiary-form.tsx",
+      "src/components/push-toggle.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/app/settings/tenant/page.tsx": [
+      "src/app/app/settings/tenant/tenant-settings-client.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/tenant.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/tenants/plans.ts"
+    ],
+    "src/app/app/settings/tenant/tenant-settings-client.tsx": [
+      "src/components/tenant-provider-credentials.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/app/app/tools/page.tsx": ["src/components/internal-tools.tsx"],
+    "src/app/app/wallet/page.tsx": [
+      "src/components/payout-form.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/card.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/cashback-policy/page.tsx": ["src/components/legal-page.tsx"],
+    "src/app/deals/page.tsx": [
+      "src/components/deal-browser.tsx",
+      "src/components/public-shell.tsx",
+      "src/lib/db.ts"
+    ],
+    "src/app/faq/page.tsx": ["src/components/public-shell.tsx"],
     "src/app/globals.css": [],
-    "src/app/go/[clickToken]/route.ts": [],
-    "src/app/layout.tsx": [],
+    "src/app/go/[clickToken]/route.ts": [
+      "src/lib/crypto.ts",
+      "src/lib/errors.ts",
+      "src/modules/links/service.ts"
+    ],
+    "src/app/layout.tsx": ["src/components/providers.tsx", "src/lib/env.ts"],
     "src/app/login/page.tsx": [],
     "src/app/login/verify/page.tsx": [],
     "src/app/manifest.ts": [],
-    "src/app/not-found.tsx": [],
+    "src/app/not-found.tsx": ["src/components/ui/button.tsx"],
     "src/app/offline/page.tsx": [],
-    "src/app/onboarding/tenant/page.tsx": [],
-    "src/app/page.tsx": [],
-    "src/app/partners/[partner]/page.tsx": [],
-    "src/app/partners/page.tsx": [],
-    "src/app/privacy/page.tsx": [],
-    "src/app/robots.ts": [],
-    "src/app/shopee-lookup/page.tsx": [],
+    "src/app/onboarding/tenant/page.tsx": [
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/tenant.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/page.tsx": [
+      "src/components/site-footer.tsx",
+      "src/components/site-header.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx"
+    ],
+    "src/app/partners/[partner]/page.tsx": [
+      "src/components/public-shell.tsx",
+      "src/components/ui/badge.tsx"
+    ],
+    "src/app/partners/page.tsx": [
+      "src/components/public-shell.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/card.tsx"
+    ],
+    "src/app/privacy/page.tsx": ["src/components/legal-page.tsx"],
+    "src/app/robots.ts": ["src/lib/env.ts"],
+    "src/app/shopee-lookup/page.tsx": [
+      "src/components/shopee-product-lookup.tsx",
+      "src/lib/shopee-product.ts",
+      "src/lib/utils.ts"
+    ],
     "src/app/sign-in/[[...sign-in]]/page.tsx": [],
     "src/app/sign-up/[[...sign-up]]/page.tsx": [],
-    "src/app/sitemap.ts": [],
-    "src/app/sw.js/route.ts": [],
-    "src/app/sw.test.ts": [],
+    "src/app/sitemap.ts": ["src/lib/env.ts"],
+    "src/app/sw.js/route.ts": ["src/lib/env.ts"],
+    "src/app/sw.test.ts": ["src/app/sw.js/route.ts"],
     "src/app/t/[slug]/page.tsx": [],
-    "src/app/terms/page.tsx": [],
-    "src/app/unauthorized/page.tsx": [],
-    "src/components/admin-passkey.tsx": [],
+    "src/app/terms/page.tsx": ["src/components/legal-page.tsx"],
+    "src/app/unauthorized/page.tsx": ["src/components/ui/button.tsx"],
+    "src/components/admin-passkey.tsx": ["src/components/ui/button.tsx"],
     "src/components/admin-shell.tsx": [],
-    "src/components/app-shell.tsx": [],
-    "src/components/beneficiary-form.tsx": [],
-    "src/components/deal-browser.tsx": [],
-    "src/components/legal-page.tsx": [],
-    "src/components/link-builder.tsx": [],
-    "src/components/links-workspace.tsx": [],
-    "src/components/payout-form.tsx": [],
-    "src/components/providers.tsx": [],
-    "src/components/public-shell.tsx": [],
-    "src/components/push-toggle.tsx": [],
-    "src/components/pwa/service-worker-registration.tsx": [],
-    "src/components/shopee-product-lookup.tsx": [],
+    "src/components/app-shell.tsx": [
+      "src/components/ui/button.tsx",
+      "src/components/ui/separator.tsx"
+    ],
+    "src/components/beneficiary-form.tsx": [
+      "src/components/ui/alert.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx"
+    ],
+    "src/components/deal-browser.tsx": [
+      "src/components/ui/badge.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx"
+    ],
+    "src/components/internal-tools.tsx": [
+      "src/components/ui/alert.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx",
+      "src/components/ui/tabs.tsx",
+      "src/lib/utils.ts",
+      "src/modules/tools/link-inspector.ts",
+      "src/modules/tools/tax-2026.ts"
+    ],
+    "src/components/legal-page.tsx": ["src/components/public-shell.tsx"],
+    "src/components/link-builder.tsx": [
+      "src/components/ui/alert.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/links-workspace.tsx": [
+      "src/components/link-builder.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/tabs.tsx",
+      "src/lib/utils.ts"
+    ],
+    "src/components/payout-form.tsx": [
+      "src/components/ui/alert.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx"
+    ],
+    "src/components/providers.tsx": [
+      "src/components/pwa/service-worker-registration.tsx",
+      "src/components/ui/tooltip.tsx"
+    ],
+    "src/components/public-shell.tsx": [
+      "src/components/site-footer.tsx",
+      "src/components/site-header.tsx"
+    ],
+    "src/components/push-toggle.tsx": ["src/components/ui/button.tsx"],
+    "src/components/pwa/service-worker-registration.tsx": ["src/components/ui/button.tsx"],
+    "src/components/shopee-product-lookup.tsx": [
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/lib/utils.ts"
+    ],
     "src/components/site-footer.tsx": [],
-    "src/components/site-header.tsx": [],
-    "src/components/ui/alert.tsx": [],
-    "src/components/ui/avatar.tsx": [],
-    "src/components/ui/badge.tsx": [],
-    "src/components/ui/button.tsx": [],
-    "src/components/ui/card.tsx": [],
-    "src/components/ui/dropdown-menu.tsx": [],
-    "src/components/ui/input.tsx": [],
-    "src/components/ui/label.tsx": [],
-    "src/components/ui/progress.tsx": [],
-    "src/components/ui/separator.tsx": [],
-    "src/components/ui/sheet.tsx": [],
-    "src/components/ui/table.tsx": [],
-    "src/components/ui/tabs.tsx": [],
-    "src/components/ui/tooltip.tsx": [],
+    "src/components/site-header.tsx": [
+      "src/components/ui/button.tsx",
+      "src/components/ui/sheet.tsx"
+    ],
+    "src/components/tenant-provider-credentials.tsx": [
+      "src/components/ui/alert.tsx",
+      "src/components/ui/badge.tsx",
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/input.tsx",
+      "src/components/ui/label.tsx"
+    ],
+    "src/components/ui/alert.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/avatar.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/badge.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/button.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/card.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/dropdown-menu.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/input.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/label.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/progress.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/separator.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/sheet.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/table.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/tabs.tsx": ["src/lib/utils.ts"],
+    "src/components/ui/tooltip.tsx": ["src/lib/utils.ts"],
     "src/instrumentation-client.ts": [],
     "src/instrumentation.ts": [],
-    "src/lib/authz.ts": [],
-    "src/lib/clerk-identity-mapping.test.ts": [],
+    "src/lib/authz.ts": [
+      "src/lib/clerk-identity-mapping.ts",
+      "src/lib/clerk-identity.ts",
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/redis.ts"
+    ],
+    "src/lib/clerk-identity-mapping.test.ts": ["src/lib/clerk-identity-mapping.ts"],
     "src/lib/clerk-identity-mapping.ts": [],
-    "src/lib/clerk-identity.ts": [],
-    "src/lib/crypto.ts": [],
-    "src/lib/csv.test.ts": [],
+    "src/lib/clerk-identity.ts": [
+      "src/lib/clerk-identity-mapping.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/modules/tenants/membership.ts"
+    ],
+    "src/lib/crypto.ts": ["src/lib/env.ts", "src/lib/errors.ts"],
+    "src/lib/csv.test.ts": ["src/lib/csv.ts"],
     "src/lib/csv.ts": [],
-    "src/lib/db.ts": [],
-    "src/lib/env.test.ts": [],
+    "src/lib/db.ts": ["src/lib/env.ts"],
+    "src/lib/env.test.ts": [
+      "src/lib/env.ts",
+      "src/modules/connectors/accesstrade.ts",
+      "src/modules/connectors/addlivetag.ts",
+      "src/modules/connectors/registry.ts",
+      "src/modules/connectors/shopee.ts"
+    ],
     "src/lib/env.ts": [],
     "src/lib/errors.ts": [],
     "src/lib/json.ts": [],
     "src/lib/logger.ts": [],
-    "src/lib/money.test.ts": [],
-    "src/lib/money.ts": [],
-    "src/lib/rate-limit.ts": [],
-    "src/lib/redis.ts": [],
-    "src/lib/request.ts": [],
-    "src/lib/shopee-product.ts": [],
+    "src/lib/lossless-json.test.ts": ["src/lib/lossless-json.ts"],
+    "src/lib/lossless-json.ts": ["src/lib/errors.ts"],
+    "src/lib/money.test.ts": ["src/lib/money.ts"],
+    "src/lib/money.ts": ["src/lib/errors.ts"],
+    "src/lib/payos.ts": ["src/lib/env.ts", "src/lib/errors.ts"],
+    "src/lib/rate-limit.ts": ["src/lib/redis.ts"],
+    "src/lib/redis.ts": ["src/lib/env.ts"],
+    "src/lib/request.ts": ["src/lib/env.ts", "src/lib/errors.ts"],
+    "src/lib/shopee-product.ts": [
+      "src/lib/env.ts",
+      "src/lib/lossless-json.ts",
+      "src/lib/money.ts",
+      "src/modules/connectors/url-policy.ts"
+    ],
     "src/lib/tenant-config.ts": [],
-    "src/lib/tenant.ts": ["src/lib/tenant-config.ts"],
+    "src/lib/tenant.ts": [
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/payos.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/tenants/plans.ts"
+    ],
     "src/lib/utils.ts": [],
-    "src/modules/admin/adjustments.ts": [],
-    "src/modules/admin/passkey.ts": [],
-    "src/modules/admin/rules.ts": [],
-    "src/modules/admin/webauthn.ts": [],
-    "src/modules/beneficiaries/service.ts": [],
-    "src/modules/connectors/accesstrade.ts": [],
-    "src/modules/connectors/addlivetag.ts": [],
-    "src/modules/connectors/base.ts": [],
-    "src/modules/connectors/lazada.ts": [],
-    "src/modules/connectors/registry.ts": [],
-    "src/modules/connectors/shopee-open-api.ts": [],
-    "src/modules/connectors/shopee.ts": [],
-    "src/modules/connectors/signatures.test.ts": [],
+    "src/lib/zalo.ts": [
+      "src/lib/crypto.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/request.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/links/service.ts",
+      "src/modules/tenants/plans.ts"
+    ],
+    "src/modules/admin/adjustments.ts": [
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/modules/admin/passkey.ts",
+      "src/modules/ledger/service.ts"
+    ],
+    "src/modules/admin/passkey.ts": ["src/lib/db.ts", "src/lib/errors.ts"],
+    "src/modules/admin/rules.ts": ["src/lib/db.ts", "src/lib/errors.ts"],
+    "src/modules/admin/webauthn.ts": ["src/lib/db.ts", "src/lib/env.ts", "src/lib/errors.ts"],
+    "src/modules/beneficiaries/service.ts": [
+      "src/lib/crypto.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts"
+    ],
+    "src/modules/connectors/accesstrade.ts": [
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/money.ts",
+      "src/modules/connectors/base.ts",
+      "src/modules/connectors/provider-credentials.ts",
+      "src/modules/connectors/provider-http.ts",
+      "src/modules/connectors/types.ts"
+    ],
+    "src/modules/connectors/addlivetag.ts": [
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/money.ts",
+      "src/modules/connectors/base.ts",
+      "src/modules/connectors/provider-http.ts",
+      "src/modules/connectors/types.ts",
+      "src/modules/connectors/url-policy.ts"
+    ],
+    "src/modules/connectors/base.ts": ["src/modules/connectors/types.ts"],
+    "src/modules/connectors/lazada.ts": [
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/money.ts",
+      "src/modules/connectors/base.ts",
+      "src/modules/connectors/provider-credentials.ts",
+      "src/modules/connectors/provider-http.ts",
+      "src/modules/connectors/types.ts",
+      "src/modules/connectors/url-policy.ts"
+    ],
+    "src/modules/connectors/provider-credentials.ts": [
+      "src/lib/crypto.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts"
+    ],
+    "src/modules/connectors/provider-http.ts": ["src/lib/errors.ts", "src/lib/lossless-json.ts"],
+    "src/modules/connectors/provider-status.test.ts": [
+      "src/modules/connectors/accesstrade.ts",
+      "src/modules/connectors/lazada.ts"
+    ],
+    "src/modules/connectors/registry.ts": [
+      "src/modules/connectors/accesstrade.ts",
+      "src/modules/connectors/lazada.ts",
+      "src/modules/connectors/provider-credentials.ts",
+      "src/modules/connectors/shopee.ts",
+      "src/modules/connectors/types.ts"
+    ],
+    "src/modules/connectors/shopee-open-api.ts": [
+      "src/lib/errors.ts",
+      "src/modules/connectors/base.ts",
+      "src/modules/connectors/types.ts",
+      "src/modules/connectors/url-policy.ts"
+    ],
+    "src/modules/connectors/shopee.ts": [
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/modules/connectors/base.ts",
+      "src/modules/connectors/types.ts",
+      "src/modules/connectors/url-policy.ts"
+    ],
+    "src/modules/connectors/signatures.test.ts": [
+      "src/modules/connectors/lazada.ts",
+      "src/modules/connectors/shopee-open-api.ts"
+    ],
     "src/modules/connectors/types.ts": [],
-    "src/modules/connectors/url-policy.test.ts": [],
-    "src/modules/connectors/url-policy.ts": [],
-    "src/modules/conversions/service.ts": [],
-    "src/modules/evidence/service.ts": [],
-    "src/modules/flags/service.ts": [],
-    "src/modules/identity/deletion.ts": [],
-    "src/modules/identity/webhook.ts": [],
-    "src/modules/jobs/qstash.ts": [],
-    "src/modules/jobs/runner.ts": [],
-    "src/modules/ledger/invariants.test.ts": [],
+    "src/modules/connectors/url-policy.test.ts": ["src/modules/connectors/url-policy.ts"],
+    "src/modules/connectors/url-policy.ts": ["src/lib/errors.ts"],
+    "src/modules/conversions/service.ts": [
+      "src/lib/db.ts",
+      "src/lib/money.ts",
+      "src/modules/connectors/types.ts",
+      "src/modules/evidence/service.ts",
+      "src/modules/ledger/service.ts"
+    ],
+    "src/modules/evidence/service.ts": [
+      "src/lib/crypto.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/errors.ts"
+    ],
+    "src/modules/flags/service.ts": ["src/lib/db.ts"],
+    "src/modules/identity/deletion.ts": ["src/lib/db.ts", "src/lib/errors.ts"],
+    "src/modules/identity/webhook.ts": [
+      "src/lib/clerk-identity-mapping.ts",
+      "src/lib/clerk-identity.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts"
+    ],
+    "src/modules/imports/__fixtures__/shopee-orders-v1.csv": [],
+    "src/modules/imports/shopee-orders.test.ts": ["src/modules/imports/shopee-orders.ts"],
+    "src/modules/imports/shopee-orders.ts": [
+      "src/lib/crypto.ts",
+      "src/lib/csv.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/money.ts",
+      "src/modules/conversions/service.ts",
+      "src/modules/evidence/service.ts"
+    ],
+    "src/modules/imports/shopee-reconciliation.test.ts": [
+      "src/modules/imports/shopee-reconciliation.ts"
+    ],
+    "src/modules/imports/shopee-reconciliation.ts": [
+      "src/lib/csv.ts",
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/money.ts",
+      "src/modules/evidence/service.ts",
+      "src/modules/ledger/service.ts"
+    ],
+    "src/modules/jobs/qstash.ts": ["src/lib/env.ts", "src/lib/errors.ts"],
+    "src/modules/jobs/runner.ts": [
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/logger.ts",
+      "src/lib/tenant.ts",
+      "src/lib/zalo.ts",
+      "src/modules/connectors/addlivetag.ts",
+      "src/modules/connectors/provider-credentials.ts",
+      "src/modules/connectors/registry.ts",
+      "src/modules/connectors/types.ts",
+      "src/modules/conversions/service.ts",
+      "src/modules/evidence/service.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/ledger/service.ts",
+      "src/modules/notifications/dispatch.ts",
+      "src/modules/payout/service.ts"
+    ],
+    "src/modules/ledger/invariants.test.ts": ["src/modules/ledger/invariants.ts"],
     "src/modules/ledger/invariants.ts": [],
-    "src/modules/ledger/service.ts": [],
-    "src/modules/links/service.ts": [],
-    "src/modules/links/tenant-policy.test.ts": [],
-    "src/modules/links/tenant-policy.ts": [],
-    "src/modules/notifications/dispatch.ts": [],
-    "src/modules/payout/service.ts": [],
-    "src/modules/payout/state-machine.test.ts": [],
+    "src/modules/ledger/service.ts": [
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/modules/ledger/invariants.ts"
+    ],
+    "src/modules/links/service.ts": [
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/money.ts",
+      "src/lib/shopee-product.ts",
+      "src/modules/connectors/provider-credentials.ts",
+      "src/modules/connectors/registry.ts",
+      "src/modules/connectors/url-policy.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/links/tenant-policy.ts",
+      "src/modules/rates/service.ts",
+      "src/modules/tenants/plans.ts"
+    ],
+    "src/modules/links/tenant-policy.test.ts": ["src/modules/links/tenant-policy.ts"],
+    "src/modules/links/tenant-policy.ts": ["src/lib/errors.ts", "src/lib/money.ts"],
+    "src/modules/notifications/dispatch.ts": [
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/logger.ts",
+      "src/modules/push/service.ts"
+    ],
+    "src/modules/payout/service.ts": [
+      "src/lib/crypto.ts",
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/lib/errors.ts",
+      "src/lib/money.ts",
+      "src/modules/admin/passkey.ts",
+      "src/modules/flags/service.ts",
+      "src/modules/ledger/service.ts",
+      "src/modules/payout/state-machine.ts"
+    ],
+    "src/modules/payout/state-machine.test.ts": ["src/modules/payout/state-machine.ts"],
     "src/modules/payout/state-machine.ts": [],
-    "src/modules/push/service.ts": [],
-    "src/modules/rates/precedence.test.ts": [],
+    "src/modules/push/service.ts": [
+      "src/lib/db.ts",
+      "src/lib/env.ts",
+      "src/modules/connectors/url-policy.ts"
+    ],
+    "src/modules/rates/precedence.test.ts": ["src/modules/rates/precedence.ts"],
     "src/modules/rates/precedence.ts": [],
-    "src/modules/rates/service.ts": [],
+    "src/modules/rates/service.ts": ["src/lib/db.ts", "src/modules/rates/precedence.ts"],
+    "src/modules/settlement/service.ts": [
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/lib/money.ts",
+      "src/modules/evidence/service.ts",
+      "src/modules/ledger/service.ts"
+    ],
+    "src/modules/tenants/billing-policy.test.ts": ["src/modules/tenants/billing-policy.ts"],
+    "src/modules/tenants/billing-policy.ts": [],
+    "src/modules/tenants/membership.ts": [
+      "src/lib/db.ts",
+      "src/lib/errors.ts",
+      "src/modules/tenants/plans.ts"
+    ],
+    "src/modules/tenants/plans.ts": ["src/lib/db.ts", "src/lib/errors.ts"],
+    "src/modules/tools/link-inspector.test.ts": ["src/modules/tools/link-inspector.ts"],
+    "src/modules/tools/link-inspector.ts": ["src/lib/errors.ts"],
+    "src/modules/tools/tax-2026.test.ts": ["src/modules/tools/tax-2026.ts"],
+    "src/modules/tools/tax-2026.ts": [],
     "src/proxy.ts": [],
     "src/test/server-only.ts": [],
     "tests/e2e/all-user-journeys-desktop.spec.ts": [],
     "tests/e2e/all-user-journeys-mobile.spec.ts": [],
     "tests/e2e/auth-flow.spec.ts": [],
+    "tests/e2e/authenticated-user-flow.spec.ts": [],
     "tests/e2e/desktop-tenant-flow.spec.ts": [],
     "tests/e2e/flows.spec.ts": [],
     "tests/e2e/mobile-user-experience.spec.ts": [],
     "tests/e2e/public.spec.ts": [],
-    "tests/integration/conversion-ledger.test.ts": [],
+    "tests/fixtures/shopee_reconciliation_invoice_sample.csv": [],
+    "tests/integration/conversion-ledger.test.ts": [
+      "src/lib/db.ts",
+      "src/modules/connectors/types.ts",
+      "src/modules/conversions/service.ts",
+      "src/modules/ledger/service.ts",
+      "src/modules/payout/service.ts"
+    ],
+    "tests/integration/database-guard.ts": [],
     "tests/integration/flow1-auth-identity-deletion.test.ts": [],
-    "tests/integration/flow2-link-resolution-subid.test.ts": [],
+    "tests/integration/flow2-link-resolution-subid.test.ts": [
+      "src/modules/connectors/url-policy.ts",
+      "src/modules/rates/precedence.ts"
+    ],
     "tests/integration/flow3-ingestion-revision-clawback.test.ts": [],
-    "tests/integration/flow4-ledger-risk-hold-guards.test.ts": [],
-    "tests/integration/flow5-payout-passkey-twoeye.test.ts": [],
+    "tests/integration/flow4-ledger-risk-hold-guards.test.ts": ["src/lib/money.ts"],
+    "tests/integration/flow5-payout-passkey-twoeye.test.ts": ["src/lib/money.ts"],
     "tests/integration/flow6-auxiliary-jobs-evidence.test.ts": [],
-    "tests/integration/lazada-postback-and-sync.test.ts": [],
-    "tests/integration/ledger-payout-two-eye.test.ts": [],
-    "tests/integration/seed-live-user-data.test.ts": [],
-    "tests/integration/tenant-saas-revenue-split.test.ts": [],
+    "tests/integration/flow7-b2b-tenant-saas-zalo.test.ts": [],
+    "tests/integration/global-setup.ts": ["tests/integration/database-guard.ts"],
+    "tests/integration/lazada-postback-and-sync.test.ts": ["src/app/api/webhooks/lazada/route.ts"],
+    "tests/integration/ledger-payout-two-eye.test.ts": [
+      "src/lib/crypto.ts",
+      "src/modules/ledger/invariants.ts",
+      "src/modules/payout/state-machine.ts"
+    ],
+    "tests/integration/settlement-release.test.ts": [
+      "src/lib/db.ts",
+      "src/modules/conversions/service.ts",
+      "src/modules/settlement/service.ts"
+    ],
+    "tests/integration/setup.ts": ["tests/integration/database-guard.ts"],
+    "tests/integration/tenant-saas-revenue-split.test.ts": ["src/lib/money.ts"],
+    "tests/integration/zalo-master-bot.test.ts": [
+      "src/app/api/saas/zalo-qr/route.ts",
+      "src/app/api/webhooks/zalo/route.ts"
+    ],
     "tsconfig.json": [],
     "vercel.json": [],
-    "vitest.config.ts": []
+    "vitest.config.ts": [],
+    "vitest.integration.config.ts": []
   }
 }

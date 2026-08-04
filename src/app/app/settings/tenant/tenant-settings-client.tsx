@@ -7,9 +7,7 @@ import {
   Check,
   CheckCircle2,
   Copy,
-  CreditCard,
   Crown,
-  ExternalLink,
   KeyRound,
   QrCode,
   ShieldCheck,
@@ -27,7 +25,6 @@ import {
   TenantProviderCredentials,
   type TenantProviderAccountView
 } from "@/components/tenant-provider-credentials";
-import { formatVnd } from "@/lib/utils";
 
 type TenantSettingsProps = {
   id: string;

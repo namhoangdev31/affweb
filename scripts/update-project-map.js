@@ -1,115 +1,259 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
+import ts from "typescript";
+import prettier from "prettier";
 
-const mapPath = path.join(process.cwd(), "project_map.json");
-if (!fs.existsSync(mapPath)) {
-  console.error("project_map.json not found!");
-  process.exit(1);
-}
-
+const root = process.cwd();
+const mapPath = path.join(root, "project_map.json");
 const mapData = JSON.parse(fs.readFileSync(mapPath, "utf8"));
+const SELF_HASH_PLACEHOLDER = "0".repeat(64);
 
-// 1. Get tracked + valid untracked files
-const gitFiles = execSync("git ls-files", { encoding: "utf8" }).trim().split("\n").filter(Boolean);
-const untrackedFiles = execSync("git ls-files --others --exclude-standard", { encoding: "utf8" })
-  .trim()
-  .split("\n")
-  .filter(Boolean);
-
-const activeFiles = new Set(
-  [...gitFiles, ...untrackedFiles].filter((f) => {
-    if (f.startsWith(".next/") || f.startsWith("node_modules/") || f.startsWith(".git/"))
-      return false;
-    if (f === ".env" || f === ".env.local" || f.endsWith(".log")) return false;
-    if (f.startsWith("src/generated/prisma")) return false;
-    return true;
-  })
-);
-
-let updatedCount = 0;
-let newCount = 0;
-
-// Update existing entries and remove deleted ones
-for (const relPath of Object.keys(mapData.files)) {
-  if (!activeFiles.has(relPath)) {
-    delete mapData.files[relPath];
-    continue;
-  }
-
-  const absPath = path.join(process.cwd(), relPath);
-  if (!fs.existsSync(absPath)) {
-    delete mapData.files[relPath];
-    continue;
-  }
-
-  const content = fs.readFileSync(absPath);
-  const bytes = content.length;
-  const sha256 = crypto.createHash("sha256").update(content).digest("hex");
-
-  if (mapData.files[relPath].sha256 !== sha256 || mapData.files[relPath].bytes !== bytes) {
-    mapData.files[relPath].sha256 = sha256;
-    mapData.files[relPath].bytes = bytes;
-    updatedCount++;
-  }
+function gitFiles(args) {
+  const output = execFileSync("git", args, { cwd: root, encoding: "buffer" });
+  return output.toString("utf8").split("\0").filter(Boolean);
 }
 
-// Add newly created files with rich metadata
-for (const relPath of activeFiles) {
-  if (mapData.files[relPath]) continue;
+function isMappable(relPath) {
+  return !(
+    relPath.startsWith(".next/") ||
+    relPath.startsWith("node_modules/") ||
+    relPath.startsWith(".git/") ||
+    relPath.startsWith("src/generated/prisma/") ||
+    relPath === ".env" ||
+    relPath === ".env.local" ||
+    relPath.endsWith(".log")
+  );
+}
 
-  const absPath = path.join(process.cwd(), relPath);
-  if (!fs.existsSync(absPath)) continue;
+const activeFiles = [
+  ...new Set([
+    ...gitFiles(["ls-files", "-z"]),
+    ...gitFiles(["ls-files", "--others", "--exclude-standard", "-z"])
+  ])
+]
+  .filter(isMappable)
+  .filter((relPath) => fs.existsSync(path.join(root, relPath)))
+  .sort();
 
-  const contentStr = fs.readFileSync(absPath, "utf8");
-  const bytes = Buffer.byteLength(contentStr, "utf8");
-  const sha256 = crypto.createHash("sha256").update(contentStr).digest("hex");
-
-  let category = "source";
-  if (relPath.startsWith("src/app")) category = "app-route";
-  else if (relPath.startsWith("src/components")) category = "component";
-  else if (relPath.startsWith("src/modules")) category = "module";
-  else if (relPath.startsWith("src/lib")) category = "utility";
-  else if (relPath.startsWith("tests/")) category = "test";
-  else if (relPath.startsWith("docs/")) category = "documentation";
-  else if (relPath.startsWith("prisma/")) category = "database";
-
-  let summary = `File ${path.basename(relPath)}`;
-  if (relPath === "tests/e2e/authenticated-user-flow.spec.ts") {
-    summary =
-      "Authenticated Playwright E2E test suite for protected app surfaces, link redirects, internal tools, and API boundaries.";
+function categoryFor(relPath) {
+  if (/\.test\.[cm]?[jt]sx?$/.test(relPath) || relPath.startsWith("tests/")) return "test";
+  if (relPath.startsWith("src/app/") && /\/(page|layout|route)\.tsx?$/.test(relPath)) {
+    return relPath.endsWith("route.ts") ? "api-route" : "app-route";
   }
+  if (relPath.startsWith("src/components/")) return "component";
+  if (relPath.startsWith("src/modules/")) return "domain-module";
+  if (relPath.startsWith("src/lib/")) return "library";
+  if (relPath.startsWith("docs/") || relPath.endsWith(".md")) return "documentation";
+  if (relPath.startsWith("prisma/")) return "database";
+  if (/\.(json|ya?ml|toml)$/.test(relPath) || relPath.startsWith(".")) return "configuration";
+  return "source";
+}
 
-  const fileEntry = {
-    category,
-    bytes,
-    sha256,
-    summary
-  };
+function routeFor(relPath) {
+  if (!relPath.startsWith("src/app/")) return undefined;
+  const match = relPath.match(/^src\/app\/(.*)\/(?:page|route)\.tsx?$/);
+  if (!match) return undefined;
+  const parts = match[1]
+    .split("/")
+    .filter((part) => !/^\(.+\)$/.test(part))
+    .map((part) => (part.startsWith("[") ? `:${part.slice(1, -1)}` : part));
+  return `/${parts.join("/")}`;
+}
 
-  if (relPath.endsWith(".ts") || relPath.endsWith(".tsx")) {
-    const imports = [];
-    const importRegex =
-      /import\s+(?:type\s+)?(?:\{[^}]*\}|[\w$]+)(?:\s*,\s*(?:\{[^}]*\}|[\w$]+))*\s+from\s+["']([^"']+)["']/g;
-    let match;
-    while ((match = importRegex.exec(contentStr)) !== null) {
-      if (match[1] && !imports.includes(match[1])) imports.push(match[1]);
+function declarationNames(node) {
+  if (ts.isVariableStatement(node)) {
+    return node.declarationList.declarations
+      .map((declaration) => (ts.isIdentifier(declaration.name) ? declaration.name.text : undefined))
+      .filter(Boolean);
+  }
+  if (
+    (ts.isFunctionDeclaration(node) ||
+      ts.isClassDeclaration(node) ||
+      ts.isInterfaceDeclaration(node) ||
+      ts.isTypeAliasDeclaration(node) ||
+      ts.isEnumDeclaration(node)) &&
+    node.name
+  ) {
+    return [node.name.text];
+  }
+  return [];
+}
+
+function declarationKind(node) {
+  if (ts.isFunctionDeclaration(node)) return "function";
+  if (ts.isClassDeclaration(node)) return "class";
+  if (ts.isInterfaceDeclaration(node)) return "interface";
+  if (ts.isTypeAliasDeclaration(node)) return "type";
+  if (ts.isEnumDeclaration(node)) return "enum";
+  return "variable";
+}
+
+function hasModifier(node, kind) {
+  return Boolean(node.modifiers?.some((modifier) => modifier.kind === kind));
+}
+
+function analyzeTypeScript(relPath, content) {
+  const sourceFile = ts.createSourceFile(
+    relPath,
+    content,
+    ts.ScriptTarget.Latest,
+    true,
+    relPath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+  );
+  const imports = [];
+  const exports = [];
+  const declarations = [];
+  const functionCalls = [];
+
+  for (const node of sourceFile.statements) {
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
+      imports.push(node.moduleSpecifier.text);
     }
-
-    fileEntry.analysis = {
-      runtime: relPath.startsWith("src/app/") ? "shared" : "node",
-      imports,
-      exports: [],
-      declarations: []
-    };
+    const names = declarationNames(node);
+    const exported = hasModifier(node, ts.SyntaxKind.ExportKeyword);
+    for (const name of names) {
+      declarations.push({
+        name,
+        kind: declarationKind(node),
+        line: sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1,
+        exported,
+        purpose: `${name}.`
+      });
+      if (exported) exports.push(name);
+    }
+    if (ts.isExportDeclaration(node)) {
+      if (node.exportClause && ts.isNamedExports(node.exportClause)) {
+        exports.push(...node.exportClause.elements.map((element) => element.name.text));
+      } else if (node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+        exports.push(`* from ${node.moduleSpecifier.text}`);
+      }
+    }
+    if (ts.isExportAssignment(node)) exports.push("default");
   }
 
-  mapData.files[relPath] = fileEntry;
-  newCount++;
+  function visit(node) {
+    if (ts.isCallExpression(node)) {
+      const name = node.expression.getText(sourceFile).replace(/\s+/g, " ").slice(0, 160);
+      if (name && !functionCalls.includes(name)) functionCalls.push(name);
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(sourceFile);
+
+  const firstStatement = sourceFile.statements[0];
+  const client =
+    firstStatement &&
+    ts.isExpressionStatement(firstStatement) &&
+    ts.isStringLiteral(firstStatement.expression) &&
+    firstStatement.expression.text === "use client";
+  const server = imports.includes("server-only");
+  return {
+    runtime: client
+      ? "client"
+      : server
+        ? "server"
+        : relPath.startsWith("src/app/")
+          ? "shared"
+          : "node",
+    imports: [...new Set(imports)],
+    exports: [...new Set(exports)],
+    declarations,
+    functionCalls: functionCalls.slice(0, 300),
+    tests: []
+  };
 }
 
-fs.writeFileSync(mapPath, JSON.stringify(mapData, null, 2));
+function summaryFor(relPath, category, analysis) {
+  const names = analysis?.exports?.filter((name) => name !== "default").slice(0, 6) ?? [];
+  if (category === "test")
+    return `Verifies ${path.basename(relPath).replace(/\.test\..+$/, "")} behavior.`;
+  if (category === "documentation")
+    return `Documents ${path.basename(relPath, path.extname(relPath))}.`;
+  if (names.length > 0) return `Implements ${names.join(", ")}.`;
+  if (analysis?.declarations?.length) {
+    return `Implements ${analysis.declarations
+      .slice(0, 4)
+      .map((item) => item.name)
+      .join(", ")}.`;
+  }
+  return `Provides ${path.basename(relPath)} project ${category.replace("-", " ")} responsibilities.`;
+}
+
+const oldFiles = mapData.files ?? {};
+const nextFiles = {};
+for (const relPath of activeFiles) {
+  if (relPath === "project_map.json") continue;
+  const absolutePath = path.join(root, relPath);
+  const content = fs.readFileSync(absolutePath);
+  const text = content.toString("utf8");
+  const category = oldFiles[relPath]?.category ?? categoryFor(relPath);
+  const analysis = /\.[cm]?[jt]sx?$/.test(relPath)
+    ? analyzeTypeScript(relPath, text)
+    : oldFiles[relPath]?.analysis;
+  const route = routeFor(relPath) ?? oldFiles[relPath]?.route;
+  nextFiles[relPath] = {
+    category,
+    bytes: content.length,
+    sha256: crypto.createHash("sha256").update(content).digest("hex"),
+    summary: summaryFor(relPath, category, analysis),
+    ...(route ? { route } : {}),
+    ...(analysis ? { analysis } : {})
+  };
+}
+
+nextFiles["project_map.json"] = {
+  category: "documentation",
+  bytes: 0,
+  sha256: SELF_HASH_PLACEHOLDER,
+  summary: "Maps repository files, architecture, invariants, routes, symbols, and hashes."
+};
+mapData.files = Object.fromEntries(
+  Object.entries(nextFiles).sort(([left], [right]) => left.localeCompare(right))
+);
+mapData.project.baseCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+  cwd: root,
+  encoding: "utf8"
+}).trim();
+mapData.nonNegotiableInvariants = [...new Set(mapData.nonNegotiableInvariants ?? [])];
+mapData.statistics = {
+  ...mapData.statistics,
+  mappedFiles: activeFiles.length,
+  sourceFiles: activeFiles.filter((file) => file.startsWith("src/")).length,
+  tests: activeFiles.filter((file) => /(?:^tests\/|\.test\.|\.spec\.)/.test(file)).length
+};
+
+async function formattedMap() {
+  return prettier.format(JSON.stringify(mapData), {
+    ...(await prettier.resolveConfig(mapPath)),
+    filepath: mapPath
+  });
+}
+
+let wroteMap = false;
+for (let attempt = 0; attempt < 5; attempt += 1) {
+  mapData.files["project_map.json"].sha256 = SELF_HASH_PLACEHOLDER;
+  const canonical = await formattedMap();
+  const bytes = Buffer.byteLength(canonical);
+  if (mapData.files["project_map.json"].bytes !== bytes) {
+    mapData.files["project_map.json"].bytes = bytes;
+    continue;
+  }
+  mapData.files["project_map.json"].sha256 = crypto
+    .createHash("sha256")
+    .update(canonical)
+    .digest("hex");
+  const output = await formattedMap();
+  if (Buffer.byteLength(output) !== bytes) {
+    mapData.files["project_map.json"].bytes = Buffer.byteLength(output);
+    continue;
+  }
+  fs.writeFileSync(mapPath, output);
+  wroteMap = true;
+  break;
+}
+if (!wroteMap) throw new Error("project_map.json self metadata did not stabilize");
 console.log(
-  `✓ project_map.json updated cleanly: ${updatedCount} files updated, ${newCount} new files added.`
+  `project_map.json regenerated for ${activeFiles.length} files with TypeScript AST metadata.`
 );

@@ -32,9 +32,9 @@ export type PayOSWebhookPayload = z.infer<typeof webhookSchema>;
 
 function billingClient(): PayOS {
   const env = loadServerEnv();
-  const clientId = env.PAYOS_BILLING_CLIENT_ID || env.PAYOS_CLIENT_ID;
-  const apiKey = env.PAYOS_BILLING_API_KEY || env.PAYOS_API_KEY;
-  const checksumKey = env.PAYOS_BILLING_CHECKSUM_KEY || env.PAYOS_CHECKSUM_KEY;
+  const clientId = env.PAYOS_BILLING_CLIENT_ID;
+  const apiKey = env.PAYOS_BILLING_API_KEY;
+  const checksumKey = env.PAYOS_BILLING_CHECKSUM_KEY;
 
   if (env.SAAS_BILLING_ENABLED === false) {
     throw new AppError("CONNECTOR_DISABLED", "Thanh toán SaaS đang tạm dừng.", 503);

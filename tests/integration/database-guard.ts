@@ -1,3 +1,22 @@
+export function canonicalDatabaseIdentity(value: string): string {
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new Error("Database URL must be a valid PostgreSQL URL.");
+  }
+  if (parsed.protocol !== "postgresql:" && parsed.protocol !== "postgres:") {
+    throw new Error("Database URL must use the PostgreSQL protocol.");
+  }
+  const databaseName = decodeURIComponent(parsed.pathname.replace(/^\//, "")).toLowerCase();
+  if (!parsed.hostname || !databaseName || databaseName.includes("/")) {
+    throw new Error("Database URL must include one database name.");
+  }
+  const host = parsed.hostname.toLowerCase().replace(/-pooler(?=\.)/, "");
+  const port = parsed.port || "5432";
+  return `${host}:${port}/${databaseName}`;
+}
+
 export function requireDisposableTestDatabase(): string {
   const testDatabaseUrl = process.env.TEST_DATABASE_URL;
   if (!testDatabaseUrl) {
@@ -12,20 +31,15 @@ export function requireDisposableTestDatabase(): string {
     process.env.DATABASE_URL_UNPOOLED
   ].filter((value): value is string => Boolean(value));
 
-  if (runtimeUrls.includes(testDatabaseUrl)) {
+  const testIdentity = canonicalDatabaseIdentity(testDatabaseUrl);
+  if (runtimeUrls.some((value) => canonicalDatabaseIdentity(value) === testIdentity)) {
     throw new Error("TEST_DATABASE_URL must differ from every runtime or migration database URL.");
   }
 
-  const parsed = new URL(testDatabaseUrl);
-  const databaseName = parsed.pathname.slice(1).toLowerCase();
-  const host = parsed.hostname.toLowerCase();
-  if (
-    !/(^|[_-])(test|ci|tmp|disposable)([_-]|$)/.test(databaseName) &&
-    !host.includes("neon") &&
-    !parsed.searchParams.has("test")
-  ) {
+  const databaseName = testIdentity.slice(testIdentity.indexOf("/") + 1);
+  if (!/(^|[_-])(test|ci|tmp|disposable)([_-]|$)/.test(databaseName)) {
     throw new Error(
-      "TEST_DATABASE_URL database name or host must identify an isolated test/disposable database."
+      "TEST_DATABASE_URL database name must contain a test, ci, tmp, or disposable marker."
     );
   }
   return testDatabaseUrl;

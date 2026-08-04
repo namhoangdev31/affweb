@@ -23,12 +23,16 @@ describe("Environment Variables Audit & Readiness Tests", () => {
     delete process.env.ADDLIVETAG_ENABLED;
     delete process.env.ACCESSTRADE_ENABLED;
     delete process.env.LAZADA_MODE;
+    delete process.env.SAAS_BILLING_ENABLED;
+    delete process.env.PAYOS_PAYOUT_ENABLED;
 
     const env = loadServerEnv();
     expect(env.NODE_ENV).toBe("development");
     expect(env.APP_BASE_URL).toBe("http://localhost:3000");
     expect(env.ADDLIVETAG_ENABLED).toBe(false);
     expect(env.ACCESSTRADE_ENABLED).toBe(false);
+    expect(env.SAAS_BILLING_ENABLED).toBe(false);
+    expect(env.PAYOS_PAYOUT_ENABLED).toBe(false);
     expect(env.LAZADA_MODE).toBe("credential_ready");
   });
 
@@ -109,6 +113,42 @@ describe("Environment Variables Audit & Readiness Tests", () => {
   it("always uses ShopeeDirectConnector (an_redir) for Shopee Marketplace in Vietnam", () => {
     const connector = connectorFor("SHOPEE_MARKETPLACE");
     expect(connector).toBeInstanceOf(ShopeeDirectConnector);
+  });
+
+  it("emits exactly one documented five-slot Shopee sub_id", async () => {
+    process.env.SHOPEE_AFFILIATE_ID = "123456789";
+    resetEnvCacheForTests();
+    const connector = new ShopeeDirectConnector();
+    const result = await connector.createTrackingLink({
+      target: {
+        platform: "SHOPEE_MARKETPLACE",
+        targetType: "PRODUCT",
+        canonicalUrl: "https://shopee.vn/product/1/2"
+      },
+      clickToken: "0123456789abcdef",
+      subIds: ["affweb", "0123456789abcdef", "web", "cashback", "v2"]
+    });
+    const url = new URL(result.url);
+
+    expect(url.searchParams.get("sub_id")).toBe("affweb-0123456789abcdef-web-cashback-v2");
+    expect([...url.searchParams.keys()].filter((key) => /^sub_id\d+$/.test(key))).toEqual([]);
+  });
+
+  it("rejects malformed Shopee sub_id packets", async () => {
+    process.env.SHOPEE_AFFILIATE_ID = "123456789";
+    resetEnvCacheForTests();
+    const connector = new ShopeeDirectConnector();
+    await expect(
+      connector.createTrackingLink({
+        target: {
+          platform: "SHOPEE_MARKETPLACE",
+          targetType: "PRODUCT",
+          canonicalUrl: "https://shopee.vn/product/1/2"
+        },
+        clickToken: "click-token",
+        subIds: ["affweb", "click-token", "web", "cashback", "v2"]
+      })
+    ).rejects.toThrow("đúng 5 SubID chỉ gồm chữ và số");
   });
 
   it("fails closed on AddLiveTagConnector when ADDLIVETAG_ENABLED or API_KEY is missing", async () => {

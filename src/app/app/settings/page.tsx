@@ -11,7 +11,7 @@ import { db } from "@/lib/db";
 import { loadServerEnv } from "@/lib/env";
 import { requestAccountDeletionAction, signOutAllSessionsAction } from "./actions";
 
-import { Building2, Sparkles, Store } from "lucide-react";
+import { Building2, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default async function SettingsPage() {

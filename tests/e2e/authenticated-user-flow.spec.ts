@@ -38,7 +38,9 @@ test.describe("Authenticated User Flow & App Surfaces (Playwright E2E)", () => {
     await expect(input).toBeVisible();
   });
 
-  test("Reconciliation invoice upload API requires authentication", async ({ request }) => {
+  test("Reconciliation invoice upload API is hard-disabled before body parsing", async ({
+    request
+  }) => {
     const response = await request.post("/api/v1/imports/shopee-reconciliation-invoices", {
       data: {
         invoiceNumber: "INV-2026-TEST",
@@ -48,7 +50,10 @@ test.describe("Authenticated User Flow & App Surfaces (Playwright E2E)", () => {
       }
     });
 
-    expect([400, 401, 403, 404, 409]).toContain(response.status());
+    expect(response.status()).toBe(503);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: "CONNECTOR_DISABLED" }
+    });
   });
 
   test("Payout request submission API requires authentication & valid idempotency key", async ({

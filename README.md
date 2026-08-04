@@ -4,7 +4,7 @@ Web App/PWA affiliate cashback cho Shopee, ShopeeFood, AccessTrade và Lazada, x
 
 ## Trạng thái triển khai
 
-- Shopee direct link, Shopee Open API, AddLiveTag account sync và ShopeeFood `source=food` đã có connector riêng.
+- Shopee direct link dùng packet `sub_id=affweb-<click>-<source>-<mode>-v2`; CSV Báo cáo chuyển đổi có contract Việt/Anh 47 cột. Hóa đơn đối soát vẫn hard-disabled tới khi có export thật.
 - AccessTrade dùng Publisher API chính thức: product-link, transaction pagination, overlap và SubID.
 - Lazada đã có signing, link/product/conversion contract, fixture test và mode `credential_ready`; chỉ chuyển `active` sau khi xác minh operation từ portal authenticated.
 - Payout payOS dùng batch payout, idempotency, destination validation, `UNKNOWN` reconciliation và journal đối ứng khi thất bại.
@@ -17,17 +17,14 @@ Giấy tờ định danh cá nhân không thuộc source tree và không đượ
 
 ## Chạy local
 
-Yêu cầu Node.js 22, pnpm 10.5.2 và PostgreSQL.
+Yêu cầu Node.js 22 và pnpm 10.5.2. Chỉ cần PostgreSQL khi chạy app có dữ liệu hoặc integration test.
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm dlx vercel@56.5.0 env pull .env.local --yes --environment=development
-pnpm db:deploy
-pnpm db:seed
 pnpm dev
 ```
 
-Không dùng `prisma db push` cho staging/production. Runtime dùng pooled `DATABASE_URL`; migration dùng `DIRECT_URL` hoặc biến Marketplace `DATABASE_URL_UNPOOLED`.
+Không chạy deploy migration, seed hoặc integration test nếu database chưa được chứng minh là dev/test disposable. Không dùng `prisma db push` cho staging/production. Runtime dùng pooled `DATABASE_URL`; migration dùng `DIRECT_URL` hoặc `DATABASE_URL_UNPOOLED`.
 
 ## Kiểm định
 
@@ -35,13 +32,12 @@ Không dùng `prisma db push` cho staging/production. Runtime dùng pooled `DATA
 pnpm format:check
 pnpm lint
 pnpm typecheck
-pnpm prisma validate
-pnpm test:coverage
+pnpm db:validate
+pnpm test:unit
 pnpm build
-pnpm test:e2e
 ```
 
-Integration test ledger/conversion tự chạy khi có `DATABASE_URL`, và tự skip khi máy local không có database.
+Integration chỉ chạy riêng với `TEST_DATABASE_URL`; guard yêu cầu database name có marker test/ci/tmp/disposable và từ chối database trùng runtime kể cả pooled/unpooled.
 
 ## Mô hình an toàn mặc định
 
@@ -63,10 +59,8 @@ Các bước cuối:
 
 ```bash
 NODE_ENV=production pnpm env:check
-pnpm db:deploy
-pnpm db:seed
 pnpm jobs:setup
 pnpm smoke:production
 ```
 
-CI ở `.github/workflows/ci.yml`; release production là workflow thủ công, khóa theo commit SHA và GitHub protected environment.
+Repository không chứa GitHub Actions. CI/release chạy bằng pipeline ngoài repository theo [external CI contract](docs/operations/external-ci-contract.md), khóa theo commit SHA và dùng database disposable cho migration/integration.

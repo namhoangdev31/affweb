@@ -3,11 +3,12 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   SHOPEE_RECONCILIATION_SCHEMA_VERSION,
-  parseShopeeReconciliationCsv
+  parseShopeeReconciliationCsv,
+  processShopeeReconciliationInvoice
 } from "./shopee-reconciliation";
 
-describe("Shopee Reconciliation 48-column CSV parser", () => {
-  it("parses valid Shopee 48-column reconciliation CSV fixture correctly", () => {
+describe("synthetic Shopee reconciliation parser", () => {
+  it("parses the synthetic 48-column fixture without treating it as provider evidence", () => {
     const fixturePath = path.join(
       process.cwd(),
       "tests/fixtures/shopee_reconciliation_invoice_sample.csv"
@@ -40,5 +41,20 @@ describe("Shopee Reconciliation 48-column CSV parser", () => {
     expect(() => parseShopeeReconciliationCsv(invalidContent)).toThrow(
       `CSV không khớp ${SHOPEE_RECONCILIATION_SCHEMA_VERSION}.`
     );
+  });
+
+  it("hard-disables financial processing independently of route and feature flags", async () => {
+    await expect(
+      processShopeeReconciliationInvoice({
+        actorUserId: "actor",
+        affiliateAccountId: "account",
+        filename: "synthetic.csv",
+        content: "synthetic",
+        externalReference: "synthetic",
+        invoiceTotalVnd: "0",
+        idempotencyKey: "synthetic",
+        requestHash: "synthetic"
+      })
+    ).rejects.toThrow("chưa có provider contract đã xác minh");
   });
 });

@@ -23,7 +23,7 @@ import { resolveTenantLinkPolicy } from "@/modules/links/tenant-policy";
 import { requireTenantPlan, tenantSubscriptionIsEffective } from "@/modules/tenants/plans";
 
 function createClickToken(): string {
-  return randomBytes(18).toString("base64url");
+  return randomBytes(18).toString("hex");
 }
 
 function connectorTypeForPlatform(platform: Platform): ConnectorType {
@@ -132,7 +132,7 @@ async function resolveLinkAccount(input: {
   return account;
 }
 
-type PublicShopeeProduct = Omit<ShopeeProductResult["product"], "trackingUrl">;
+type PublicShopeeProduct = ShopeeProductResult["product"];
 
 type ExistingIdempotentClick = {
   clickToken: string;
@@ -189,6 +189,7 @@ export async function createAffiliateLink(input: {
   clientIdempotencyKey?: string | undefined;
   requestHash?: string | undefined;
   tenantChannelId?: string | undefined;
+  source?: "web" | "zalo" | undefined;
 }): Promise<{
   clickToken: string;
   redirectUrl: string;
@@ -419,7 +420,13 @@ export async function createAffiliateLink(input: {
         source: "SHOPEE_FOOD_CASHBACK_DISABLED" as const,
         ruleVersionId: null
       };
-  const subIds = [clickToken, input.userId, tenantPolicy?.tenantId ?? "main", "hoantien"];
+  const subIds = [
+    "affweb",
+    clickToken,
+    input.source ?? "web",
+    tenantPolicy || input.tenantChannelId ? "tenant" : "cashback",
+    "v2"
+  ];
 
   const providerLink = await connector.createTrackingLink({
     target,

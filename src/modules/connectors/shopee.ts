@@ -15,8 +15,7 @@ export class ShopeeDirectConnector extends ConnectorBase {
 
   async healthCheck(): Promise<ConnectorHealth> {
     const startedAt = Date.now();
-    const configured =
-      loadServerEnv().ADDLIVETAG_ENABLED && Boolean(loadServerEnv().ADDLIVETAG_API_KEY);
+    const configured = Boolean(loadServerEnv().SHOPEE_AFFILIATE_ID);
     return {
       ok: configured,
       checkedAt: new Date(),
@@ -39,24 +38,15 @@ export class ShopeeDirectConnector extends ConnectorBase {
     if (!affiliateId) {
       throw new AppError("CONNECTOR_UNAVAILABLE", "Shopee connector chưa được cấu hình.", 503);
     }
-    if (input.subIds.length > 5) {
-      throw new AppError("VALIDATION_ERROR", "Shopee chỉ hỗ trợ tối đa 5 SubID.", 400);
+    if (input.subIds.length !== 5 || input.subIds.some((value) => !/^[A-Za-z0-9]+$/.test(value))) {
+      throw new AppError("VALIDATION_ERROR", "Shopee yêu cầu đúng 5 SubID chỉ gồm chữ và số.", 400);
     }
     const target = parseAllowedUrl(input.target.canonicalUrl, this.platform);
     const redirect = new URL("https://s.shopee.vn/an_redir");
     redirect.searchParams.set("origin_link", target.toString());
     redirect.searchParams.set("affiliate_id", affiliateId);
 
-    // Aggregate sub_id for Shopee Click Report table display ({clickToken}-{userId}-{tenantId}-hoantien)
-    const combinedSubId = input.subIds.filter(Boolean).join("-");
-    redirect.searchParams.set("sub_id", combinedSubId);
-
-    // Set sub_id1, sub_id2, sub_id3, sub_id4
-    input.subIds.forEach((subId, index) => {
-      if (subId) {
-        redirect.searchParams.set(`sub_id${index + 1}`, subId);
-      }
-    });
+    redirect.searchParams.set("sub_id", input.subIds.join("-"));
 
     return { url: redirect.toString() };
   }
@@ -97,14 +87,10 @@ export class ShopeeFoodConnector extends ConnectorBase {
     redirect.searchParams.set("affiliate_id", affiliateId);
     redirect.searchParams.set("source", "food");
 
-    const combinedSubId = input.subIds.filter(Boolean).join("-");
-    redirect.searchParams.set("sub_id", combinedSubId);
-
-    input.subIds.slice(0, 5).forEach((subId, index) => {
-      if (subId) {
-        redirect.searchParams.set(`sub_id${index + 1}`, subId);
-      }
-    });
+    if (input.subIds.length !== 5 || input.subIds.some((value) => !/^[A-Za-z0-9]+$/.test(value))) {
+      throw new AppError("VALIDATION_ERROR", "Shopee yêu cầu đúng 5 SubID chỉ gồm chữ và số.", 400);
+    }
+    redirect.searchParams.set("sub_id", input.subIds.join("-"));
 
     return { url: redirect.toString() };
   }

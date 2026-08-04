@@ -17,6 +17,9 @@ import { releaseCashback } from "@/modules/ledger/service";
 
 export const SHOPEE_RECONCILIATION_SCHEMA_VERSION = "SHOPEE_RECONCILIATION_DETAIL_V1_48";
 
+// Chỉ được chuyển thành true trong một thay đổi riêng sau khi contract provider được xác minh.
+const SHOPEE_RECONCILIATION_CONTRACT_VERIFIED: boolean = false;
+
 const EXPECTED_HEADERS = [
   "ID đơn hàng",
   "Trạng thái đặt hàng",
@@ -195,6 +198,14 @@ export async function processShopeeReconciliationInvoice(input: {
   idempotencyKey: string;
   requestHash: string;
 }) {
+  if (!SHOPEE_RECONCILIATION_CONTRACT_VERIFIED) {
+    throw new AppError(
+      "CONNECTOR_DISABLED",
+      "Shopee Hóa đơn đối soát chưa có provider contract đã xác minh.",
+      503
+    );
+  }
+
   const account = await db.affiliateAccount.findUnique({
     where: { id: input.affiliateAccountId }
   });

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { formatVnd } from "@/lib/utils";
-import { Award, Flame, Medal, ShieldCheck, Trophy, UserCheck } from "lucide-react";
+import { Award, Flame, Medal, Trophy, UserCheck } from "lucide-react";
 import Link from "next/link";
 
 export default async function LeaderboardPage({
