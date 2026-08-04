@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with independent order validation and settlement authority, platform-wallet cashback, and externally settled tenant channels.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "fc11e0536d0025d70ff79d10e83db101d5389e20",
+    "baseCommit": "4b8918fe1cd361e223858a2abdf9d9ca8d7e50b6",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -305,9 +305,9 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 334,
-    "sourceFiles": 227,
-    "tests": 51,
+    "mappedFiles": 337,
+    "sourceFiles": 230,
+    "tests": 52,
     "prismaModels": 57,
     "prismaEnums": 37
   },
@@ -730,8 +730,8 @@
     },
     ".understand-anything/tmp/ua-scan-results.json": {
       "category": "source",
-      "bytes": 83368,
-      "sha256": "9bcc3e8d33df8bd0bb5fd9c80e47ae12f1ba0e36a244a24dbe7a19b6754536d2",
+      "bytes": 86448,
+      "sha256": "ba551d3ae235748cd1febc6df9b5a5814c586663068915b658006a425a639750",
       "summary": "Provides ua-scan-results.json project source responsibilities."
     },
     "AGENTS.md": {
@@ -2516,8 +2516,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 549604,
-      "sha256": "202d2a97dc6b45e94c3bd852bd91c45cdd3b00792f08b0081f20dc5a379c8cd6",
+      "bytes": 559219,
+      "sha256": "1055e6586a201620dbb4f29a83aef83a9327ade6170f743d4c73133264711262",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -3393,8 +3393,8 @@
     },
     "src/app/admin/adjustments/page.tsx": {
       "category": "app-route",
-      "bytes": 4059,
-      "sha256": "cda7bea62347e1232dcf637390a219d29229f82339c2f368dbc88ade92ae77cc",
+      "bytes": 7464,
+      "sha256": "7cd52da5809e6ecc9181bca2a6972225b0ace26a4aa6eaf11e17fc55490cd00c",
       "summary": "Implements AdjustmentsPage.",
       "route": "/admin/adjustments",
       "analysis": {
@@ -3406,23 +3406,35 @@
           "@/components/ui/card",
           "@/components/ui/input",
           "@/components/ui/label",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
           "@/lib/db",
+          "@/lib/pagination",
           "@/lib/utils"
         ],
         "exports": ["AdjustmentsPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 24,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "AdjustmentsPage",
             "kind": "function",
-            "line": 14,
+            "line": 26,
             "exported": true,
             "purpose": "AdjustmentsPage."
           }
         ],
         "functionCalls": [
           "Promise.all",
-          "db.balanceAdjustment.findMany",
+          "db.balanceAdjustment.count",
           "db.user.findMany",
+          "paginationPage",
+          "db.balanceAdjustment.findMany",
           "adjustments.map",
           "formatVnd",
           "users.map"
@@ -3432,24 +3444,44 @@
     },
     "src/app/admin/audit/page.tsx": {
       "category": "app-route",
-      "bytes": 1069,
-      "sha256": "bc96e2ad166b6d3ff780d73ad529b0feab32529f9dfff28ae1c2a5e31f6407f0",
+      "bytes": 3158,
+      "sha256": "134896e10a5f5baa838422a381a337c6e724e4d442bc8838c1e1762d18610298",
       "summary": "Implements AuditPage.",
       "route": "/admin/audit",
       "analysis": {
         "runtime": "shared",
-        "imports": ["@/components/ui/badge", "@/components/ui/card", "@/lib/db"],
+        "imports": [
+          "@/components/ui/badge",
+          "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
+          "@/lib/db",
+          "@/lib/pagination"
+        ],
         "exports": ["AuditPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 15,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "AuditPage",
             "kind": "function",
-            "line": 5,
+            "line": 17,
             "exported": true,
             "purpose": "AuditPage."
           }
         ],
-        "functionCalls": ["db.auditLog.findMany", "events.map", "event.createdAt.toLocaleString"],
+        "functionCalls": [
+          "db.auditLog.count",
+          "paginationPage",
+          "db.auditLog.findMany",
+          "events.map",
+          "event.createdAt.toLocaleString"
+        ],
         "tests": []
       }
     },
@@ -3537,8 +3569,8 @@
     },
     "src/app/admin/catalog/page.tsx": {
       "category": "app-route",
-      "bytes": 9089,
-      "sha256": "a6633490e6cc03a464c8691d733f4a5326921a6588778634564f465798bf48b8",
+      "bytes": 14993,
+      "sha256": "d57fa0ac66e3feb4f47e4c295288c2e90ea63d96009eb7aa9e894fcd4be04880",
       "summary": "Implements CatalogPage.",
       "route": "/admin/catalog",
       "analysis": {
@@ -3551,21 +3583,31 @@
           "@/components/ui/card",
           "@/components/ui/input",
           "@/components/ui/label",
-          "@/lib/db"
+          "@/components/pagination-nav",
+          "@/components/ui/table",
+          "@/lib/db",
+          "@/lib/pagination"
         ],
         "exports": ["CatalogPage"],
         "declarations": [
           {
             "name": "selectClass",
             "kind": "variable",
-            "line": 14,
+            "line": 24,
             "exported": false,
             "purpose": "selectClass."
           },
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 25,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "CatalogPage",
             "kind": "function",
-            "line": 16,
+            "line": 27,
             "exported": true,
             "purpose": "CatalogPage."
           }
@@ -3573,13 +3615,18 @@
         "functionCalls": [
           "Promise.all",
           "db.merchant.findMany",
+          "db.merchant.count",
+          "db.campaign.count",
+          "db.affiliateAccount.count",
+          "paginationPage",
           "db.campaign.findMany",
           "db.affiliateAccount.findMany",
           "Object.values(Platform).map",
           "Object.values",
-          "merchants.map",
+          "merchantOptions.map",
           "Object.values(ConnectorType).map",
           "Object.values(ConnectorMode).map",
+          "merchants.map",
           "campaigns.map",
           "accounts.map"
         ],
@@ -3588,24 +3635,40 @@
     },
     "src/app/admin/connectors/page.tsx": {
       "category": "app-route",
-      "bytes": 1632,
-      "sha256": "cc328d7f5ad799cfd9800f01b8218454209d72d4b84996eb02955488bbea6d69",
+      "bytes": 4026,
+      "sha256": "506b9bdf74f588b2e177bc38a7888f702ca7d5eead13c623510439b956a7ebbc",
       "summary": "Implements ConnectorsPage.",
       "route": "/admin/connectors",
       "analysis": {
         "runtime": "shared",
-        "imports": ["@/components/ui/badge", "@/components/ui/card", "@/lib/db"],
+        "imports": [
+          "@/components/ui/badge",
+          "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
+          "@/lib/db",
+          "@/lib/pagination"
+        ],
         "exports": ["ConnectorsPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 15,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "ConnectorsPage",
             "kind": "function",
-            "line": 5,
+            "line": 17,
             "exported": true,
             "purpose": "ConnectorsPage."
           }
         ],
         "functionCalls": [
+          "db.connectorConfig.count",
+          "paginationPage",
           "db.connectorConfig.findMany",
           "configs.map",
           "config.health?.lastSuccessAt?.toLocaleString"
@@ -3674,8 +3737,8 @@
     },
     "src/app/admin/flags/page.tsx": {
       "category": "app-route",
-      "bytes": 3751,
-      "sha256": "cac00ef0a4cdcba2eaea8a931d8d558b435c1a9990b45279378716825ce25903",
+      "bytes": 5769,
+      "sha256": "ae4873e05b7d44a84fc418fee921177fccbfcd63d0ce803d1275e645eecb235e",
       "summary": "Implements FlagsPage.",
       "route": "/admin/flags",
       "analysis": {
@@ -3686,16 +3749,17 @@
           "@/components/ui/button",
           "@/components/ui/card",
           "@/components/ui/input",
+          "@/components/ui/table",
           "@/lib/db",
           "@/lib/utils"
         ],
         "exports": ["FlagsPage"],
         "declarations": [
-          { "name": "keys", "kind": "variable", "line": 9, "exported": false, "purpose": "keys." },
+          { "name": "keys", "kind": "variable", "line": 17, "exported": false, "purpose": "keys." },
           {
             "name": "FlagsPage",
             "kind": "function",
-            "line": 21,
+            "line": 29,
             "exported": true,
             "purpose": "FlagsPage."
           }
@@ -3753,29 +3817,46 @@
     },
     "src/app/admin/ledger/page.tsx": {
       "category": "app-route",
-      "bytes": 1595,
-      "sha256": "827a8ebf3a67c4feabdfc143d7f693b1c240a9897634f7a139190dae9fcdbb41",
+      "bytes": 4221,
+      "sha256": "9d89d1abfcef7ef5178404094469ba1c6d4c048baac69299d96bcf6440eb61a2",
       "summary": "Implements LedgerPage.",
       "route": "/admin/ledger",
       "analysis": {
         "runtime": "shared",
-        "imports": ["@/components/ui/badge", "@/components/ui/card", "@/lib/db", "@/lib/utils"],
+        "imports": [
+          "@/components/ui/badge",
+          "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
+          "@/lib/db",
+          "@/lib/pagination",
+          "@/lib/utils"
+        ],
         "exports": ["LedgerPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 16,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "LedgerPage",
             "kind": "function",
-            "line": 6,
+            "line": 18,
             "exported": true,
             "purpose": "LedgerPage."
           }
         ],
         "functionCalls": [
+          "db.ledgerTransaction.count",
+          "paginationPage",
           "db.ledgerTransaction.findMany",
           "transactions.map",
-          "transaction.createdAt.toLocaleString",
           "transaction.entries.map",
-          "formatVnd"
+          "formatVnd",
+          "transaction.createdAt.toLocaleString"
         ],
         "tests": []
       }
@@ -3871,8 +3952,8 @@
     },
     "src/app/admin/payouts/page.tsx": {
       "category": "app-route",
-      "bytes": 3378,
-      "sha256": "1a3c8f3fdfce98ccff4602a46b31cde5bcd5804bfac5d7826c034f56814f752a",
+      "bytes": 7358,
+      "sha256": "96caa730d61788ed7cf09cdc28836110318c551786e09963a49af240f341d37d",
       "summary": "Implements PayoutsPage.",
       "route": "/admin/payouts",
       "analysis": {
@@ -3883,20 +3964,37 @@
           "@/components/ui/button",
           "@/components/ui/card",
           "@/components/ui/input",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
           "@/lib/db",
+          "@/lib/pagination",
           "@/lib/utils"
         ],
         "exports": ["PayoutsPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 23,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "PayoutsPage",
             "kind": "function",
-            "line": 13,
+            "line": 25,
             "exported": true,
             "purpose": "PayoutsPage."
           }
         ],
-        "functionCalls": ["db.payoutTicket.findMany", "tickets.map", "formatVnd"],
+        "functionCalls": [
+          "db.payoutTicket.count",
+          "paginationPage",
+          "db.payoutTicket.findMany",
+          "tickets.map",
+          "formatVnd",
+          "[\"RESERVED\", \"REVIEWED\", \"APPROVED\"].includes"
+        ],
         "tests": []
       }
     },
@@ -4006,8 +4104,8 @@
     },
     "src/app/admin/reconciliation/page.tsx": {
       "category": "app-route",
-      "bytes": 6636,
-      "sha256": "4acc580684c3191fc4e0e2b9eaf85d24a3932ac8b7b83544586199ab6b15b59c",
+      "bytes": 14363,
+      "sha256": "3e706f0fc35b76f9ceabc42670b75ef08a4f88b2ec58bdaff1be535e6ff5adc2",
       "summary": "Implements ReconciliationPage.",
       "route": "/admin/reconciliation",
       "analysis": {
@@ -4017,25 +4115,46 @@
           "@/components/ui/button",
           "@/components/ui/card",
           "@/components/ui/input",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
           "@/lib/db",
+          "@/lib/pagination",
           "./actions"
         ],
         "exports": ["ReconciliationPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 18,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
+            "name": "PANEL_PAGE_SIZE",
+            "kind": "variable",
+            "line": 19,
+            "exported": false,
+            "purpose": "PANEL_PAGE_SIZE."
+          },
+          {
             "name": "ReconciliationPage",
             "kind": "function",
-            "line": 8,
+            "line": 21,
             "exported": true,
             "purpose": "ReconciliationPage."
           }
         ],
         "functionCalls": [
           "Promise.all",
+          "db.reconciliationCase.count",
+          "db.syncRun.count",
+          "db.rawEvidence.count",
+          "db.affiliateAccount.findMany",
+          "paginationPage",
           "db.reconciliationCase.findMany",
           "db.syncRun.findMany",
           "db.rawEvidence.findMany",
-          "db.affiliateAccount.findMany",
           "accounts.map",
           "cases.map",
           "item.createdAt.toLocaleString",
@@ -4084,8 +4203,8 @@
     },
     "src/app/admin/rules/page.tsx": {
       "category": "app-route",
-      "bytes": 4773,
-      "sha256": "e1863225202d8f31d1c69069259be480dc732537b1675e062d04be1c60f69e9e",
+      "bytes": 7241,
+      "sha256": "58f6fa37d55aab9a9e9e8837849ebd71d49074ab1e2d821d2e43cbf3e4461a46",
       "summary": "Implements RulesPage.",
       "route": "/admin/rules",
       "analysis": {
@@ -4098,24 +4217,36 @@
           "@/components/ui/card",
           "@/components/ui/input",
           "@/components/ui/label",
-          "@/lib/db"
+          "@/components/pagination-nav",
+          "@/components/ui/table",
+          "@/lib/db",
+          "@/lib/pagination"
         ],
         "exports": ["RulesPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 20,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "RulesPage",
             "kind": "function",
-            "line": 10,
+            "line": 22,
             "exported": true,
             "purpose": "RulesPage."
           }
         ],
         "functionCalls": [
           "Promise.all",
-          "db.commissionRule.findMany",
+          "db.commissionRule.count",
           "db.user.findMany",
           "db.merchant.findMany",
           "db.campaign.findMany",
+          "paginationPage",
+          "db.commissionRule.findMany",
           "rules.map",
           "Object.values(RuleScope).map",
           "Object.values",
@@ -4246,8 +4377,8 @@
     },
     "src/app/admin/tenants/page.tsx": {
       "category": "app-route",
-      "bytes": 13535,
-      "sha256": "98c13911500e2a613a07ebe06a49814af4f6866d3c1ff560ad863d0e8374edb7",
+      "bytes": 14486,
+      "sha256": "a1cb3917f8776b0d32cc96c2801140f7d9912813810c194ebcae98005d85d9c2",
       "summary": "Implements AdminTenantsPage.",
       "route": "/admin/tenants",
       "analysis": {
@@ -4256,12 +4387,15 @@
           "@/generated/prisma/client",
           "@/lib/authz",
           "@/lib/db",
+          "@/lib/pagination",
           "@/lib/utils",
           "@/components/ui/badge",
           "@/components/admin-passkey",
           "@/components/ui/button",
           "@/components/ui/card",
           "@/components/ui/input",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
           "./actions"
         ],
         "exports": ["AdminTenantsPage"],
@@ -4269,39 +4403,69 @@
           {
             "name": "PAGE_SIZE",
             "kind": "variable",
-            "line": 17,
+            "line": 27,
             "exported": false,
             "purpose": "PAGE_SIZE."
           },
           {
+            "name": "tenantInclude",
+            "kind": "variable",
+            "line": 29,
+            "exported": false,
+            "purpose": "tenantInclude."
+          },
+          {
+            "name": "TenantRow",
+            "kind": "type",
+            "line": 46,
+            "exported": false,
+            "purpose": "TenantRow."
+          },
+          {
+            "name": "TenantPlanOption",
+            "kind": "type",
+            "line": 47,
+            "exported": false,
+            "purpose": "TenantPlanOption."
+          },
+          {
             "name": "money",
             "kind": "function",
-            "line": 19,
+            "line": 49,
             "exported": false,
             "purpose": "money."
           },
           {
+            "name": "TenantControls",
+            "kind": "function",
+            "line": 53,
+            "exported": false,
+            "purpose": "TenantControls."
+          },
+          {
             "name": "AdminTenantsPage",
             "kind": "function",
-            "line": 23,
+            "line": 122,
             "exported": true,
             "purpose": "AdminTenantsPage."
           }
         ],
         "functionCalls": [
           "new Intl.NumberFormat(\"vi-VN\").format",
+          "plans.map",
+          "([\"SUSPEND\", \"RESTORE\", \"CLOSE\"] as const).map",
+          "action.toLowerCase",
           "requireRole",
           "params.q?.trim().slice",
           "params.q?.trim",
           "Object.values(TenantStatus).includes",
           "Object.values",
-          "Math.max",
-          "Number.parseInt",
           "startOfMonth.setDate",
           "startOfMonth.setHours",
+          "db.tenant.count",
+          "paginationPage",
           "Promise.all",
           "db.tenant.findMany",
-          "db.tenant.count",
           "db.saaSInvoice.aggregate",
           "db.user.findMany",
           "db.subscriptionPlan.findMany",
@@ -4311,13 +4475,8 @@
           "tenants.map",
           "getAppHostDisplay",
           "tenant.planExpiresAt.toLocaleDateString",
-          "plans.map",
-          "([\"SUSPEND\", \"RESTORE\", \"CLOSE\"] as const).map",
-          "action.toLowerCase",
           "tenant.invoices.map",
-          "invoice.createdAt.toLocaleDateString",
-          "Math.ceil",
-          "encodeURIComponent"
+          "invoice.createdAt.toLocaleDateString"
         ],
         "tests": []
       }
@@ -4462,8 +4621,8 @@
     },
     "src/app/admin/users/page.tsx": {
       "category": "app-route",
-      "bytes": 8669,
-      "sha256": "4c31c371b9dc3a4622df2567eba43d593462af3db47af4d7d925cd60d727303c",
+      "bytes": 17120,
+      "sha256": "4175df34d219013c47be9acdfff2c78b7210f24876d3e79e30505ba2894e4a14",
       "summary": "Implements AdminUsersPage.",
       "route": "/admin/users",
       "analysis": {
@@ -4474,22 +4633,34 @@
           "@/components/ui/button",
           "@/components/ui/card",
           "@/components/ui/input",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
           "@/generated/prisma/client",
           "@/lib/db",
+          "@/lib/pagination",
           "@/lib/utils",
           "./actions"
         ],
         "exports": ["AdminUsersPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 34,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "AdminUsersPage",
             "kind": "function",
-            "line": 24,
+            "line": 36,
             "exported": true,
             "purpose": "AdminUsersPage."
           }
         ],
         "functionCalls": [
+          "db.user.count",
+          "paginationPage",
           "db.user.findMany",
           "users.flatMap",
           "(await clerkClient()).users.getUserList",
@@ -4497,13 +4668,13 @@
           "clerkUsers.map",
           "users.map",
           "clerkById.get",
-          "new Date(clerkUser.lastSignInAt).toLocaleString",
-          "( [ AccountDeletionStatus.REQUESTED, AccountDeletionStatus.BLOCKED ] as AccountDeletionStatus[] ).includes",
           "user.roles.map",
+          "formatVnd",
+          "new Date(clerkUser.lastSignInAt).toLocaleString",
           "Object.values(Role).map",
           "Object.values",
-          "formatVnd",
-          "Object.values(UserStatus).map"
+          "Object.values(UserStatus).map",
+          "( [ AccountDeletionStatus.REQUESTED, AccountDeletionStatus.BLOCKED ] as AccountDeletionStatus[] ).includes"
         ],
         "tests": []
       }
@@ -6369,8 +6540,8 @@
     },
     "src/app/app/conversions/page.tsx": {
       "category": "app-route",
-      "bytes": 10449,
-      "sha256": "2909f9881164a3fd9d846869bf1488a67f8fe29e11c39df45fb761885c601f19",
+      "bytes": 15643,
+      "sha256": "704b3fd9c954a2ccf587ea0b7a0fc9403e7f4d12f788565688e081866328809f",
       "summary": "Implements ConversionsPage.",
       "route": "/app/conversions",
       "analysis": {
@@ -6379,8 +6550,11 @@
           "@/components/ui/badge",
           "@/components/ui/button",
           "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
           "@/lib/authz",
           "@/lib/db",
+          "@/lib/pagination",
           "@/lib/utils",
           "next/link",
           "lucide-react",
@@ -6389,9 +6563,16 @@
         "exports": ["ConversionsPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 21,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "ConversionsPage",
             "kind": "function",
-            "line": 11,
+            "line": 23,
             "exported": true,
             "purpose": "ConversionsPage."
           }
@@ -6400,13 +6581,16 @@
           "requireUser",
           "db.tenant.findFirst",
           "Boolean",
+          "db.conversion.count",
+          "paginationPage",
           "db.conversion.findMany",
           "formatVnd",
           "conversions.map",
-          "conversion.merchant.name.charAt",
-          "conversion.purchasedAt.toLocaleString",
           "conversion.platform.replaceAll",
-          "conversion.tenantPaidAt.toLocaleString"
+          "conversion.purchasedAt.toLocaleDateString",
+          "conversion.purchasedAt.toLocaleTimeString",
+          "conversion.tenantPaidAt.toLocaleString",
+          "conversion.purchasedAt.toLocaleString"
         ],
         "tests": []
       }
@@ -6449,8 +6633,8 @@
     },
     "src/app/app/leaderboard/page.tsx": {
       "category": "app-route",
-      "bytes": 13633,
-      "sha256": "d66263930458ff0fad37c2e50a136751f33f5307dbecc9216557cbbe4861f3de",
+      "bytes": 16947,
+      "sha256": "1e958603cb94b4e799319c4e5694f7bb58360b96b884b18142cd60fda7e59137",
       "summary": "Implements LeaderboardPage.",
       "route": "/app/leaderboard",
       "analysis": {
@@ -6459,8 +6643,11 @@
           "@/components/ui/avatar",
           "@/components/ui/badge",
           "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
           "@/lib/authz",
           "@/lib/db",
+          "@/lib/pagination",
           "@/lib/utils",
           "lucide-react",
           "next/link"
@@ -6468,9 +6655,23 @@
         "exports": ["LeaderboardPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 20,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
+            "name": "LEADERBOARD_LIMIT",
+            "kind": "variable",
+            "line": 21,
+            "exported": false,
+            "purpose": "LEADERBOARD_LIMIT."
+          },
+          {
             "name": "LeaderboardPage",
             "kind": "function",
-            "line": 10,
+            "line": 23,
             "exported": true,
             "purpose": "LeaderboardPage."
           }
@@ -6478,13 +6679,19 @@
         "functionCalls": [
           "requireUser",
           "db.tenant.findFirst",
+          "Promise.all",
+          "db.walletProjection.count",
+          "db.walletProjection.findUnique",
           "db.walletProjection.findMany",
-          "userWallets.map",
+          "Math.min",
+          "paginationPage",
           "w.user.email?.split",
           "rawName.split",
           "last.charAt",
           "rawName.substring",
-          "rankings.find",
+          "userWallets.map",
+          "toRanking",
+          "podiumWallets.map",
           "formatVnd",
           "top2.name.charAt",
           "top1.name.charAt",
@@ -6497,33 +6704,40 @@
     },
     "src/app/app/links/page.tsx": {
       "category": "app-route",
-      "bytes": 2720,
-      "sha256": "66039dcc6e1194e96aa3ee6bd46454c2ce2985038af4f1e473c7f7d766aa9e90",
+      "bytes": 3303,
+      "sha256": "986536aa9da05280dc0103a79c8f64886746b7c1759481c430fb771cdb3df015",
       "summary": "Implements LinksPage.",
       "route": "/app/links",
       "analysis": {
         "runtime": "shared",
-        "imports": ["@/components/links-workspace", "@/lib/authz", "@/lib/db"],
+        "imports": ["@/components/links-workspace", "@/lib/authz", "@/lib/db", "@/lib/pagination"],
         "exports": ["LinksPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 6,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "productFromSnapshot",
             "kind": "function",
-            "line": 5,
+            "line": 8,
             "exported": false,
             "purpose": "productFromSnapshot."
           },
           {
             "name": "taxBpsFromSnapshot",
             "kind": "function",
-            "line": 19,
+            "line": 22,
             "exported": false,
             "purpose": "taxBpsFromSnapshot."
           },
           {
             "name": "LinksPage",
             "kind": "function",
-            "line": 25,
+            "line": 28,
             "exported": true,
             "purpose": "LinksPage."
           }
@@ -6534,6 +6748,8 @@
           "requireUser",
           "Promise.all",
           "db.campaign.findMany",
+          "db.affiliateClick.count",
+          "paginationPage",
           "db.affiliateClick.findMany",
           "campaigns.map",
           "clicks.map",
@@ -6569,8 +6785,8 @@
     },
     "src/app/app/notifications/page.tsx": {
       "category": "app-route",
-      "bytes": 2090,
-      "sha256": "ef04b081af4f390600a12e15dbb5435942e9cd4fb8149319200fbb3c153a3846",
+      "bytes": 4674,
+      "sha256": "031cdb75d94bd10ee3ca6543158b7e30dba7d01f9801717423d07373e31b930b",
       "summary": "Implements NotificationsPage.",
       "route": "/app/notifications",
       "analysis": {
@@ -6579,24 +6795,36 @@
           "lucide-react",
           "@/components/ui/button",
           "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
           "@/lib/authz",
           "@/lib/db",
+          "@/lib/pagination",
           "./actions"
         ],
         "exports": ["NotificationsPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 18,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "NotificationsPage",
             "kind": "function",
-            "line": 8,
+            "line": 20,
             "exported": true,
             "purpose": "NotificationsPage."
           }
         ],
         "functionCalls": [
           "requireUser",
+          "Promise.all",
+          "db.notification.count",
+          "paginationPage",
           "db.notification.findMany",
-          "notifications.some",
           "notifications.map",
           "notification.createdAt.toLocaleString"
         ],
@@ -6699,8 +6927,8 @@
     },
     "src/app/app/reconciliation/page.tsx": {
       "category": "app-route",
-      "bytes": 5093,
-      "sha256": "4f4732844b2080a466b0cf804c80481a07148d937ed78d0dd8254b741c41809d",
+      "bytes": 12143,
+      "sha256": "3ce67607f8d9710cacd85967725711a90dcf5f63860f9ef9afd9336479fc3b12",
       "summary": "Implements ReconciliationPage.",
       "route": "/app/reconciliation",
       "analysis": {
@@ -6708,28 +6936,49 @@
         "imports": [
           "@/components/ui/badge",
           "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
           "@/lib/authz",
           "@/lib/db",
+          "@/lib/pagination",
           "@/lib/utils"
         ],
         "exports": ["ReconciliationPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 17,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
+            "name": "PANEL_PAGE_SIZE",
+            "kind": "variable",
+            "line": 18,
+            "exported": false,
+            "purpose": "PANEL_PAGE_SIZE."
+          },
+          {
             "name": "ReconciliationPage",
             "kind": "function",
-            "line": 7,
+            "line": 20,
             "exported": true,
             "purpose": "ReconciliationPage."
           }
         ],
         "functionCalls": [
           "requireUser",
-          "Promise.all",
           "db.tenant.findUnique",
+          "Promise.all",
+          "db.conversion.count",
+          "db.tenantConversionImport.count",
+          "db.settlementBatch.count",
+          "paginationPage",
           "db.conversion.findMany",
-          "tenant?.providerAccounts.flatMap",
-          "account.settlementBatches.map",
-          "tenant.conversionImports.map",
+          "db.tenantConversionImport.findMany",
+          "db.settlementBatch.findMany",
+          "imports.map",
           "item.createdAt.toLocaleString",
           "batches.map",
           "formatVnd",
@@ -6986,26 +7235,36 @@
     },
     "src/app/app/wallet/page.tsx": {
       "category": "app-route",
-      "bytes": 3075,
-      "sha256": "d00b577cfe1da87dd0eefb667068e722ed9316dbd6cdc037d522b3e83038012a",
+      "bytes": 5195,
+      "sha256": "6480979c97530b97d49796d9808f3f5552f457273a17518f1f40e78ec0b7c32d",
       "summary": "Implements WalletPage.",
       "route": "/app/wallet",
       "analysis": {
         "runtime": "shared",
         "imports": [
           "@/components/payout-form",
+          "@/components/pagination-nav",
           "@/components/ui/badge",
           "@/components/ui/card",
+          "@/components/ui/table",
           "@/lib/authz",
           "@/lib/db",
+          "@/lib/pagination",
           "@/lib/utils"
         ],
         "exports": ["WalletPage"],
         "declarations": [
           {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 18,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
             "name": "WalletPage",
             "kind": "function",
-            "line": 8,
+            "line": 20,
             "exported": true,
             "purpose": "WalletPage."
           }
@@ -7015,6 +7274,8 @@
           "Promise.all",
           "db.walletProjection.findUnique",
           "db.bankBeneficiary.findFirst",
+          "db.payoutTicket.count",
+          "paginationPage",
           "db.payoutTicket.findMany",
           "[ [\"Pending\", value.pendingVnd], [\"Available\", value.availableVnd], [\"Reserved\", value.reservedVnd], [\"Paid\", value.paidVnd] ].map",
           "String",
@@ -8157,18 +8418,20 @@
     },
     "src/components/links-workspace.tsx": {
       "category": "component",
-      "bytes": 5693,
-      "sha256": "7e7a2ac805a98296cb5348c6cce531a5f73406db56dd9ec0ab7a5b6c6499d658",
+      "bytes": 8482,
+      "sha256": "cf77a2239a8c89878578ef4ac7841c44848ca3248a1a1c3c03687c7a8594dec5",
       "summary": "Implements LinkHistoryItem, LinksWorkspace.",
       "analysis": {
         "runtime": "client",
         "imports": [
           "lucide-react",
           "@/components/link-builder",
+          "@/components/pagination-nav",
           "@/components/ui/badge",
           "@/components/ui/button",
           "@/components/ui/card",
           "@/components/ui/tabs",
+          "@/components/ui/table",
           "@/lib/utils"
         ],
         "exports": ["LinkHistoryItem", "LinksWorkspace"],
@@ -8176,21 +8439,21 @@
           {
             "name": "LinkHistoryItem",
             "kind": "type",
-            "line": 11,
+            "line": 20,
             "exported": true,
             "purpose": "LinkHistoryItem."
           },
           {
             "name": "CampaignItem",
             "kind": "type",
-            "line": 29,
+            "line": 38,
             "exported": false,
             "purpose": "CampaignItem."
           },
           {
             "name": "LinksWorkspace",
             "kind": "function",
-            "line": 36,
+            "line": 45,
             "exported": true,
             "purpose": "LinksWorkspace."
           }
@@ -8203,6 +8466,36 @@
           "BigInt",
           "navigator.clipboard.writeText",
           "new URL(item.redirectUrl, window.location.origin).toString"
+        ],
+        "tests": []
+      }
+    },
+    "src/components/pagination-nav.tsx": {
+      "category": "component",
+      "bytes": 2545,
+      "sha256": "98e36e09b87f1367e16783096ea6fc535b1d7715f525013e5c56afa530dcf389",
+      "summary": "Implements PaginationNav.",
+      "analysis": {
+        "runtime": "node",
+        "imports": ["next/link", "lucide-react", "@/components/ui/button"],
+        "exports": ["PaginationNav"],
+        "declarations": [
+          {
+            "name": "PaginationNav",
+            "kind": "function",
+            "line": 5,
+            "exported": true,
+            "purpose": "PaginationNav."
+          }
+        ],
+        "functionCalls": [
+          "Math.max",
+          "Math.ceil",
+          "Math.min",
+          "Array.from",
+          "String",
+          "href",
+          "visiblePages.map"
         ],
         "tests": []
       }
@@ -10397,6 +10690,49 @@
           "Number.isInteger",
           "cashbackFromCommission"
         ],
+        "tests": []
+      }
+    },
+    "src/lib/pagination.test.ts": {
+      "category": "test",
+      "bytes": 534,
+      "sha256": "3e705fbc3800b91775e033e8132844c6ebbc4461f00bf2aa648d52c922cee299",
+      "summary": "Verifies pagination behavior.",
+      "analysis": {
+        "runtime": "node",
+        "imports": ["vitest", "@/lib/pagination"],
+        "exports": [],
+        "declarations": [],
+        "functionCalls": [
+          "describe",
+          "it.each([ { value: undefined, total: 0, expected: 1 }, { value: \"nope\", total: 50, expected: 1 }, { value: \"0\", total: 50, expected: 1 }, { value: \"2\", total: 5",
+          "it.each",
+          "expect(paginationPage(value, total, 20)).toBe",
+          "expect",
+          "paginationPage"
+        ],
+        "tests": []
+      }
+    },
+    "src/lib/pagination.ts": {
+      "category": "library",
+      "bytes": 298,
+      "sha256": "9b13d4e4de3bdb1f4876fc81a13fa1a2bda0d0523079fb5ef0a6c3f6871e2a19",
+      "summary": "Implements paginationPage.",
+      "analysis": {
+        "runtime": "node",
+        "imports": [],
+        "exports": ["paginationPage"],
+        "declarations": [
+          {
+            "name": "paginationPage",
+            "kind": "function",
+            "line": 1,
+            "exported": true,
+            "purpose": "paginationPage."
+          }
+        ],
+        "functionCalls": ["Math.max", "Math.ceil", "/^\\d+$/.test", "Number", "Math.min"],
         "tests": []
       }
     },

@@ -1,6 +1,9 @@
 import { LinksWorkspace, type LinkHistoryItem } from "@/components/links-workspace";
 import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
+import { paginationPage } from "@/lib/pagination";
+
+const PAGE_SIZE = 20;
 
 function productFromSnapshot(value: unknown): LinkHistoryItem["product"] {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -22,21 +25,29 @@ function taxBpsFromSnapshot(value: unknown): number {
   return typeof taxBps === "number" && Number.isInteger(taxBps) ? taxBps : 0;
 }
 
-export default async function LinksPage() {
+export default async function LinksPage({
+  searchParams
+}: {
+  searchParams: Promise<{ page?: string; tab?: string }>;
+}) {
   const user = await requireUser();
-  const [campaigns, clicks] = await Promise.all([
+  const params = await searchParams;
+  const [campaigns, totalClicks] = await Promise.all([
     db.campaign.findMany({
       where: { active: true, merchant: { active: true } },
       include: { merchant: { select: { name: true, platform: true } } },
       orderBy: { name: "asc" }
     }),
-    db.affiliateClick.findMany({
-      where: { userId: user.id },
-      include: { attribution: true },
-      orderBy: { createdAt: "desc" },
-      take: 100
-    })
+    db.affiliateClick.count({ where: { userId: user.id } })
   ]);
+  const currentPage = paginationPage(params.page, totalClicks, PAGE_SIZE);
+  const clicks = await db.affiliateClick.findMany({
+    where: { userId: user.id },
+    include: { attribution: true },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    skip: (currentPage - 1) * PAGE_SIZE,
+    take: PAGE_SIZE
+  });
 
   return (
     <div className="space-y-6">
@@ -66,6 +77,10 @@ export default async function LinksPage() {
           withholdingTaxBps: taxBpsFromSnapshot(click.attribution?.snapshot),
           product: productFromSnapshot(click.productSnapshot)
         }))}
+        historyActive={params.tab === "history" || params.page !== undefined}
+        currentPage={currentPage}
+        totalHistory={totalClicks}
+        pageSize={PAGE_SIZE}
       />
     </div>
   );

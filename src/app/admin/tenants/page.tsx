@@ -1,12 +1,22 @@
-import { Role, TenantStatus } from "@/generated/prisma/client";
+import { Prisma, Role, TenantStatus } from "@/generated/prisma/client";
 import { requireRole } from "@/lib/authz";
 import { db } from "@/lib/db";
+import { paginationPage } from "@/lib/pagination";
 import { getAppHostDisplay } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { AdminPasskey } from "@/components/admin-passkey";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PaginationNav } from "@/components/pagination-nav";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
 import {
   adjustTenantPlanAdminAction,
   changeTenantStatusAdminAction,
@@ -16,8 +26,97 @@ import {
 
 const PAGE_SIZE = 25;
 
+const tenantInclude = {
+  owner: { select: { id: true, email: true, name: true } },
+  _count: { select: { users: true, clicks: true, conversions: true } },
+  invoices: {
+    orderBy: { createdAt: "desc" as const },
+    take: 3,
+    select: {
+      id: true,
+      planCode: true,
+      status: true,
+      amountVnd: true,
+      createdAt: true,
+      paidAt: true
+    }
+  }
+} satisfies Prisma.TenantInclude;
+
+type TenantRow = Prisma.TenantGetPayload<{ include: typeof tenantInclude }>;
+type TenantPlanOption = { code: string; name: string; durationDays: number | null };
+
 function money(value: bigint): string {
   return `${new Intl.NumberFormat("vi-VN").format(value)} ₫`;
+}
+
+function TenantControls({ tenant, plans }: { tenant: TenantRow; plans: TenantPlanOption[] }) {
+  return (
+    <details>
+      <summary className="cursor-pointer font-medium">Cấu hình và thao tác</summary>
+      <div className="mt-4 min-w-[560px] space-y-4">
+        <form action={updateTenantAdminAction} className="grid gap-3 md:grid-cols-4">
+          <input type="hidden" name="tenantId" value={tenant.id} />
+          <Input name="name" defaultValue={tenant.name} required />
+          <Input
+            name="brandColor"
+            type="color"
+            defaultValue={tenant.brandColor ?? "#173b31"}
+            required
+          />
+          <Input name="shopeeAffiliateId" defaultValue={tenant.shopeeAffiliateId ?? ""} required />
+          <Input
+            name="memberShareBps"
+            type="number"
+            min="100"
+            max="10000"
+            defaultValue={tenant.memberShareBps ?? 5000}
+            required
+          />
+          <Input name="reason" minLength={12} placeholder="Lý do chỉnh sửa" required />
+          <Button type="submit" variant="outline" className="md:col-span-4">
+            Lưu cấu hình
+          </Button>
+        </form>
+
+        <form action={adjustTenantPlanAdminAction} className="grid gap-3 md:grid-cols-4">
+          <input type="hidden" name="tenantId" value={tenant.id} />
+          <select name="planCode" required className="h-10 rounded-md border bg-background px-3">
+            {plans.map((plan) => (
+              <option key={plan.code} value={plan.code}>
+                {plan.name}
+              </option>
+            ))}
+          </select>
+          <Input name="extensionDays" type="number" min="1" max="3650" defaultValue="30" required />
+          <Input name="reason" minLength={12} placeholder="Lý do đổi/gia hạn plan" required />
+          <Button type="submit">Áp dụng plan adjustment</Button>
+        </form>
+
+        <div className="grid gap-3 md:grid-cols-3">
+          {(["SUSPEND", "RESTORE", "CLOSE"] as const).map((action) => (
+            <form action={changeTenantStatusAdminAction} key={action} className="space-y-2">
+              <input type="hidden" name="tenantId" value={tenant.id} />
+              <input type="hidden" name="action" value={action} />
+              <Input
+                name="reason"
+                minLength={12}
+                placeholder={`Lý do ${action.toLowerCase()}`}
+                required
+              />
+              <Button
+                type="submit"
+                variant={action === "CLOSE" ? "destructive" : "outline"}
+                className="w-full"
+              >
+                {action}
+              </Button>
+            </form>
+          ))}
+        </div>
+      </div>
+    </details>
+  );
 }
 
 export default async function AdminTenantsPage({
@@ -31,7 +130,6 @@ export default async function AdminTenantsPage({
   const status = Object.values(TenantStatus).includes(params.status as TenantStatus)
     ? (params.status as TenantStatus)
     : undefined;
-  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
@@ -48,10 +146,11 @@ export default async function AdminTenantsPage({
         }
       : {})
   };
+  const filteredTotal = await db.tenant.count({ where });
+  const page = paginationPage(params.page, filteredTotal, PAGE_SIZE);
 
   const [
     tenants,
-    filteredTotal,
     totalCount,
     activeCount,
     trialCount,
@@ -63,27 +162,11 @@ export default async function AdminTenantsPage({
   ] = await Promise.all([
     db.tenant.findMany({
       where,
-      include: {
-        owner: { select: { id: true, email: true, name: true } },
-        _count: { select: { users: true, clicks: true, conversions: true } },
-        invoices: {
-          orderBy: { createdAt: "desc" },
-          take: 3,
-          select: {
-            id: true,
-            planCode: true,
-            status: true,
-            amountVnd: true,
-            createdAt: true,
-            paidAt: true
-          }
-        }
-      },
-      orderBy: { createdAt: "desc" },
+      include: tenantInclude,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE
     }),
-    db.tenant.count({ where }),
     db.tenant.count(),
     db.tenant.count({ where: { status: "ACTIVE", planExpiresAt: { gt: effectiveNow } } }),
     db.tenant.count({ where: { status: "TRIAL", planExpiresAt: { gt: effectiveNow } } }),
@@ -224,7 +307,48 @@ export default async function AdminTenantsPage({
         <Button type="submit">Lọc</Button>
       </form>
 
-      <div className="space-y-4">
+      <Card className="hidden overflow-hidden py-0 lg:block">
+        <Table className="min-w-[1500px]">
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="pl-5">Tenant</TableHead>
+              <TableHead>Owner</TableHead>
+              <TableHead>Trạng thái / Plan</TableHead>
+              <TableHead>Thành viên</TableHead>
+              <TableHead>Click</TableHead>
+              <TableHead>Conversion</TableHead>
+              <TableHead>Hết hạn</TableHead>
+              <TableHead className="pr-5">Quản trị</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {tenants.map((tenant) => (
+              <TableRow key={tenant.id}>
+                <TableCell className="pl-5">
+                  <p className="font-medium">{tenant.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {tenant.slug}.{getAppHostDisplay()}
+                  </p>
+                </TableCell>
+                <TableCell>{tenant.owner?.email ?? "Chưa có owner"}</TableCell>
+                <TableCell>
+                  <Badge>{tenant.status}</Badge>
+                  <p className="mt-1 text-xs">{tenant.planCode ?? tenant.planId}</p>
+                </TableCell>
+                <TableCell>{tenant._count.users}</TableCell>
+                <TableCell>{tenant._count.clicks}</TableCell>
+                <TableCell>{tenant._count.conversions}</TableCell>
+                <TableCell>{tenant.planExpiresAt.toLocaleDateString("vi-VN")}</TableCell>
+                <TableCell className="pr-5">
+                  <TenantControls tenant={tenant} plans={plans} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+
+      <div className="space-y-4 lg:hidden">
         {tenants.map((tenant) => (
           <Card key={tenant.id}>
             <CardHeader>
@@ -246,94 +370,7 @@ export default async function AdminTenantsPage({
                 <span>{tenant.invoices.length} invoice gần nhất</span>
               </div>
 
-              <details>
-                <summary className="cursor-pointer font-medium">Cấu hình và thao tác</summary>
-                <div className="mt-4 space-y-4">
-                  <form action={updateTenantAdminAction} className="grid gap-3 md:grid-cols-4">
-                    <input type="hidden" name="tenantId" value={tenant.id} />
-                    <Input name="name" defaultValue={tenant.name} required />
-                    <Input
-                      name="brandColor"
-                      type="color"
-                      defaultValue={tenant.brandColor ?? "#173b31"}
-                      required
-                    />
-                    <Input
-                      name="shopeeAffiliateId"
-                      defaultValue={tenant.shopeeAffiliateId ?? ""}
-                      required
-                    />
-                    <Input
-                      name="memberShareBps"
-                      type="number"
-                      min="100"
-                      max="10000"
-                      defaultValue={tenant.memberShareBps ?? 5000}
-                      required
-                    />
-                    <Input name="reason" minLength={12} placeholder="Lý do chỉnh sửa" required />
-                    <Button type="submit" variant="outline" className="md:col-span-4">
-                      Lưu cấu hình
-                    </Button>
-                  </form>
-
-                  <form action={adjustTenantPlanAdminAction} className="grid gap-3 md:grid-cols-4">
-                    <input type="hidden" name="tenantId" value={tenant.id} />
-                    <select
-                      name="planCode"
-                      required
-                      className="h-10 rounded-md border bg-background px-3"
-                    >
-                      {plans.map((plan) => (
-                        <option key={plan.code} value={plan.code}>
-                          {plan.name}
-                        </option>
-                      ))}
-                    </select>
-                    <Input
-                      name="extensionDays"
-                      type="number"
-                      min="1"
-                      max="3650"
-                      defaultValue="30"
-                      required
-                    />
-                    <Input
-                      name="reason"
-                      minLength={12}
-                      placeholder="Lý do đổi/gia hạn plan"
-                      required
-                    />
-                    <Button type="submit">Áp dụng plan adjustment</Button>
-                  </form>
-
-                  <div className="grid gap-3 md:grid-cols-3">
-                    {(["SUSPEND", "RESTORE", "CLOSE"] as const).map((action) => (
-                      <form
-                        key={action}
-                        action={changeTenantStatusAdminAction}
-                        className="space-y-2"
-                      >
-                        <input type="hidden" name="tenantId" value={tenant.id} />
-                        <input type="hidden" name="action" value={action} />
-                        <Input
-                          name="reason"
-                          minLength={12}
-                          placeholder={`Lý do ${action.toLowerCase()}`}
-                          required
-                        />
-                        <Button
-                          type="submit"
-                          variant={action === "CLOSE" ? "destructive" : "outline"}
-                          className="w-full"
-                        >
-                          {action}
-                        </Button>
-                      </form>
-                    ))}
-                  </div>
-                </div>
-              </details>
+              <TenantControls tenant={tenant} plans={plans} />
 
               <div className="space-y-1 text-xs text-muted-foreground">
                 {tenant.invoices.map((invoice) => (
@@ -349,23 +386,16 @@ export default async function AdminTenantsPage({
         {tenants.length === 0 && <p className="text-muted-foreground">Không có tenant phù hợp.</p>}
       </div>
 
-      <div className="flex items-center justify-between text-sm">
-        <span>
-          Trang {page} / {Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE))}
-        </span>
-        <div className="flex gap-2">
-          {page > 1 && (
-            <a href={`?q=${encodeURIComponent(q)}&status=${status ?? ""}&page=${page - 1}`}>
-              Trang trước
-            </a>
-          )}
-          {page * PAGE_SIZE < filteredTotal && (
-            <a href={`?q=${encodeURIComponent(q)}&status=${status ?? ""}&page=${page + 1}`}>
-              Trang sau
-            </a>
-          )}
-        </div>
-      </div>
+      {tenants.length ? (
+        <PaginationNav
+          currentPage={page}
+          totalItems={filteredTotal}
+          pageSize={PAGE_SIZE}
+          pathname="/admin/tenants"
+          query={{ q: q || undefined, status }}
+          itemLabel="tenant"
+        />
+      ) : null}
     </div>
   );
 }

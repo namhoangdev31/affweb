@@ -1,17 +1,29 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PaginationNav } from "@/components/pagination-nav";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
 import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
+import { paginationPage } from "@/lib/pagination";
 import { formatVnd } from "@/lib/utils";
 import Link from "next/link";
-import { Building2, ShoppingBag, UserCheck } from "lucide-react";
+import { Building2, UserCheck } from "lucide-react";
 import { markTenantConversionPaidAction } from "./actions";
+
+const PAGE_SIZE = 20;
 
 export default async function ConversionsPage({
   searchParams
 }: {
-  searchParams: Promise<{ scope?: string }>;
+  searchParams: Promise<{ scope?: string; page?: string }>;
 }) {
   const user = await requireUser();
   const params = await searchParams;
@@ -26,6 +38,9 @@ export default async function ConversionsPage({
   const isTenantOwnerView = Boolean(ownedTenant && scope === "all");
   const whereClause = isTenantOwnerView ? { tenantId: ownedTenant!.id } : { userId: user.id };
 
+  const totalConversions = await db.conversion.count({ where: whereClause });
+  const currentPage = paginationPage(params.page, totalConversions, PAGE_SIZE);
+
   const conversions = await db.conversion.findMany({
     where: whereClause,
     include: {
@@ -33,10 +48,12 @@ export default async function ConversionsPage({
       items: true,
       user: { select: { name: true, email: true } },
       tenant: { select: { name: true, slug: true } },
-      click: { select: { attributionMode: true } }
+      click: { select: { attributionMode: true } },
+      externalIdentities: { select: { externalOrderId: true }, take: 1 }
     },
-    orderBy: { purchasedAt: "desc" },
-    take: 100
+    orderBy: [{ purchasedAt: "desc" }, { id: "desc" }],
+    skip: (currentPage - 1) * PAGE_SIZE,
+    take: PAGE_SIZE
   });
 
   // Calculate stats if user is a Tenant Owner
@@ -148,107 +165,200 @@ export default async function ConversionsPage({
         </div>
       ) : null}
 
-      {/* Conversion List */}
-      <div className="space-y-4">
-        {conversions.map((conversion) => {
-          const isTenantConversion = Boolean(conversion.tenantId);
-          const isTenantChannel = conversion.click?.attributionMode === "TENANT_CHANNEL";
-          return (
-            <Card key={conversion.id}>
-              <CardContent className="flex flex-wrap items-center gap-4 p-5">
-                <div className="grid size-11 place-items-center rounded-xl bg-secondary font-semibold">
-                  {conversion.merchant.name.charAt(0)}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-semibold">{conversion.merchant.name}</p>
-                    <Badge variant={conversion.status === "VALIDATED" ? "default" : "secondary"}>
-                      {conversion.status}
-                    </Badge>
-                    {isTenantOwnerView ? (
-                      <Badge variant="outline" className="text-xs">
-                        <ShoppingBag className="mr-1 size-3" />
-                        {conversion.user?.name || conversion.user?.email || "Khách mua"}
-                      </Badge>
-                    ) : null}
-                    {conversion.tenant ? (
-                      <Badge
-                        variant="outline"
-                        className="border-emerald-600/30 text-xs text-emerald-700"
-                      >
-                        Kênh: {conversion.tenant.name}
-                      </Badge>
-                    ) : null}
-                    {isTenantConversion && conversion.status === "VALIDATED" ? (
-                      <Badge
-                        variant={conversion.tenantPaidAt ? "default" : "secondary"}
-                        className={
-                          isTenantChannel
-                            ? "border-blue-500/30 bg-blue-50 text-blue-800"
-                            : conversion.tenantPaidAt
-                              ? "bg-emerald-600 text-white"
-                              : "bg-amber-100 text-amber-800"
-                        }
-                      >
-                        {isTenantChannel
-                          ? "Không cần chi member"
-                          : conversion.tenantPaidAt
-                            ? "Đã chi trả"
-                            : "Chờ admin chi trả"}
-                      </Badge>
-                    ) : null}
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Mã đơn: <span className="font-mono">{conversion.id}</span> ·{" "}
-                    {conversion.purchasedAt.toLocaleString("vi-VN")} ·{" "}
-                    {conversion.platform.replaceAll("_", " ")}
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  <p className="font-semibold">{formatVnd(conversion.cashbackVnd)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {isTenantOwnerView
-                      ? `Sau thuế: ${formatVnd(
-                          conversion.netCommissionVnd - conversion.withholdingTaxVnd
-                        )}`
-                      : isTenantChannel
-                        ? "Link cấp tenant, cashback member bằng 0"
-                        : isTenantConversion
-                          ? `${conversion.shareBps / 100}% hoa hồng sau thuế`
-                          : `${conversion.shareBps / 100}% hoa hồng chia lại`}
-                  </p>
-                  {isTenantOwnerView &&
-                  conversion.status === "VALIDATED" &&
-                  !conversion.tenantPaidAt &&
-                  conversion.cashbackVnd > 0n ? (
-                    <form action={markTenantConversionPaidAction} className="mt-3">
-                      <input type="hidden" name="conversionId" value={conversion.id} />
-                      <Button type="submit" size="sm" className="rounded-full">
-                        Đánh dấu đã chi trả
-                      </Button>
-                    </form>
+      {/* Conversion table */}
+      {conversions.length ? (
+        <div className="space-y-4">
+          <Card className="hidden overflow-hidden py-0 md:block">
+            <Table className="min-w-[1080px]">
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead className="pl-5">Đơn hàng</TableHead>
+                  <TableHead>Đối tác</TableHead>
+                  <TableHead>Người mua / Kênh</TableHead>
+                  <TableHead>Ngày mua</TableHead>
+                  <TableHead>Trạng thái</TableHead>
+                  <TableHead className="text-right">Cashback</TableHead>
+                  <TableHead>Chi trả member</TableHead>
+                  {isTenantOwnerView ? (
+                    <TableHead className="pr-5 text-right">Thao tác</TableHead>
                   ) : null}
-                  {conversion.tenantPaidAt ? (
-                    <p className="mt-1 text-xs text-emerald-600">
-                      {conversion.tenantPaidAt.toLocaleString("vi-VN")}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {conversions.map((conversion) => {
+                  const isTenantConversion = Boolean(conversion.tenantId);
+                  const isTenantChannel = conversion.click?.attributionMode === "TENANT_CHANNEL";
+                  const canMarkPaid =
+                    isTenantOwnerView &&
+                    conversion.status === "VALIDATED" &&
+                    !conversion.tenantPaidAt &&
+                    conversion.cashbackVnd > 0n &&
+                    !isTenantChannel;
+
+                  return (
+                    <TableRow key={conversion.id}>
+                      <TableCell className="max-w-56 pl-5 font-mono text-xs whitespace-normal">
+                        {conversion.externalIdentities[0]?.externalOrderId ?? conversion.id}
+                      </TableCell>
+                      <TableCell>
+                        <p className="font-medium">{conversion.merchant.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {conversion.platform.replaceAll("_", " ")}
+                        </p>
+                      </TableCell>
+                      <TableCell className="max-w-52 whitespace-normal">
+                        <p>{conversion.user?.name || conversion.user?.email || "Khách mua"}</p>
+                        {conversion.tenant ? (
+                          <p className="text-xs text-emerald-700">Kênh: {conversion.tenant.name}</p>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">Cá nhân</p>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {conversion.purchasedAt.toLocaleDateString("vi-VN")}
+                        <p className="text-xs text-muted-foreground">
+                          {conversion.purchasedAt.toLocaleTimeString("vi-VN", {
+                            hour: "2-digit",
+                            minute: "2-digit"
+                          })}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={conversion.status === "VALIDATED" ? "default" : "secondary"}
+                        >
+                          {conversion.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <p className="font-semibold tabular-nums">
+                          {formatVnd(conversion.cashbackVnd)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {isTenantOwnerView
+                            ? `Sau thuế: ${formatVnd(
+                                conversion.netCommissionVnd - conversion.withholdingTaxVnd
+                              )}`
+                            : isTenantChannel
+                              ? "Cashback member bằng 0"
+                              : `${conversion.shareBps / 100}% chia lại`}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        {isTenantConversion && conversion.status === "VALIDATED" ? (
+                          <Badge
+                            variant={conversion.tenantPaidAt ? "default" : "secondary"}
+                            className={
+                              isTenantChannel
+                                ? "border-blue-500/30 bg-blue-50 text-blue-800"
+                                : conversion.tenantPaidAt
+                                  ? "bg-emerald-600 text-white"
+                                  : "bg-amber-100 text-amber-800"
+                            }
+                          >
+                            {isTenantChannel
+                              ? "Không cần chi"
+                              : conversion.tenantPaidAt
+                                ? "Đã chi trả"
+                                : "Chờ chi trả"}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                        {conversion.tenantPaidAt ? (
+                          <p className="mt-1 text-xs text-emerald-600">
+                            {conversion.tenantPaidAt.toLocaleString("vi-VN")}
+                          </p>
+                        ) : null}
+                      </TableCell>
+                      {isTenantOwnerView ? (
+                        <TableCell className="pr-5 text-right">
+                          {canMarkPaid ? (
+                            <form action={markTenantConversionPaidAction}>
+                              <input type="hidden" name="conversionId" value={conversion.id} />
+                              <Button type="submit" size="sm" className="rounded-full">
+                                Đánh dấu đã chi trả
+                              </Button>
+                            </form>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                      ) : null}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Card>
+
+          <div className="space-y-3 md:hidden">
+            {conversions.map((conversion) => {
+              const isTenantChannel = conversion.click?.attributionMode === "TENANT_CHANNEL";
+              const canMarkPaid =
+                isTenantOwnerView &&
+                conversion.status === "VALIDATED" &&
+                !conversion.tenantPaidAt &&
+                conversion.cashbackVnd > 0n &&
+                !isTenantChannel;
+              return (
+                <Card key={conversion.id}>
+                  <CardContent className="space-y-3 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate font-medium">{conversion.merchant.name}</p>
+                        <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
+                          {conversion.externalIdentities[0]?.externalOrderId ?? conversion.id}
+                        </p>
+                      </div>
+                      <Badge variant={conversion.status === "VALIDATED" ? "default" : "secondary"}>
+                        {conversion.status}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Ngày mua</p>
+                        <p>{conversion.purchasedAt.toLocaleString("vi-VN")}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Cashback</p>
+                        <p className="font-semibold">{formatVnd(conversion.cashbackVnd)}</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {conversion.user?.name || conversion.user?.email || "Khách mua"}
+                      {conversion.tenant ? ` · Kênh ${conversion.tenant.name}` : " · Cá nhân"}
                     </p>
-                  ) : null}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                    {canMarkPaid ? (
+                      <form action={markTenantConversionPaidAction}>
+                        <input type="hidden" name="conversionId" value={conversion.id} />
+                        <Button type="submit" size="sm" className="w-full rounded-full">
+                          Đánh dấu đã chi trả
+                        </Button>
+                      </form>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
 
-        {!conversions.length ? (
-          <p className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">
-            {isTenantOwnerView
-              ? "Chưa có đơn hàng nào phát sinh trong Kênh KOC của bạn."
-              : "Bạn chưa có đơn hàng cashback nào."}
-          </p>
-        ) : null}
-      </div>
+          <PaginationNav
+            currentPage={currentPage}
+            totalItems={totalConversions}
+            pageSize={PAGE_SIZE}
+            pathname="/app/conversions"
+            query={{ scope }}
+            itemLabel="đơn hàng"
+          />
+        </div>
+      ) : (
+        <p className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">
+          {isTenantOwnerView
+            ? "Chưa có đơn hàng nào phát sinh trong Kênh KOC của bạn."
+            : "Bạn chưa có đơn hàng cashback nào."}
+        </p>
+      )}
     </div>
   );
 }

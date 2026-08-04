@@ -35,7 +35,7 @@
     {
       "path": ".understand-anything/tmp/ua-scan-results.json",
       "language": "json",
-      "sizeLines": 2808,
+      "sizeLines": 2898,
       "fileCategory": "config"
     },
     { "path": "AGENTS.md", "language": "markdown", "sizeLines": 225, "fileCategory": "docs" },
@@ -65,6 +65,12 @@
       "path": "docs/operations/evidence-retention-policy.md",
       "language": "markdown",
       "sizeLines": 31,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/operations/external-ci-contract.md",
+      "language": "markdown",
+      "sizeLines": 27,
       "fileCategory": "docs"
     },
     {
@@ -250,7 +256,7 @@
     {
       "path": "project_map.json",
       "language": "json",
-      "sizeLines": 16036,
+      "sizeLines": 16372,
       "fileCategory": "config"
     },
     {
@@ -340,13 +346,13 @@
     {
       "path": "src/app/admin/adjustments/page.tsx",
       "language": "typescript",
-      "sizeLines": 105,
+      "sizeLines": 189,
       "fileCategory": "code"
     },
     {
       "path": "src/app/admin/audit/page.tsx",
       "language": "typescript",
-      "sizeLines": 32,
+      "sizeLines": 91,
       "fileCategory": "code"
     },
     {
@@ -358,13 +364,13 @@
     {
       "path": "src/app/admin/catalog/page.tsx",
       "language": "typescript",
-      "sizeLines": 232,
+      "sizeLines": 379,
       "fileCategory": "code"
     },
     {
       "path": "src/app/admin/connectors/page.tsx",
       "language": "typescript",
-      "sizeLines": 41,
+      "sizeLines": 104,
       "fileCategory": "code"
     },
     {
@@ -376,7 +382,7 @@
     {
       "path": "src/app/admin/flags/page.tsx",
       "language": "typescript",
-      "sizeLines": 90,
+      "sizeLines": 141,
       "fileCategory": "code"
     },
     {
@@ -388,7 +394,7 @@
     {
       "path": "src/app/admin/ledger/page.tsx",
       "language": "typescript",
-      "sizeLines": 41,
+      "sizeLines": 111,
       "fileCategory": "code"
     },
     {
@@ -406,7 +412,7 @@
     {
       "path": "src/app/admin/payouts/page.tsx",
       "language": "typescript",
-      "sizeLines": 85,
+      "sizeLines": 177,
       "fileCategory": "code"
     },
     {
@@ -418,7 +424,7 @@
     {
       "path": "src/app/admin/reconciliation/page.tsx",
       "language": "typescript",
-      "sizeLines": 162,
+      "sizeLines": 350,
       "fileCategory": "code"
     },
     {
@@ -430,7 +436,7 @@
     {
       "path": "src/app/admin/rules/page.tsx",
       "language": "typescript",
-      "sizeLines": 119,
+      "sizeLines": 183,
       "fileCategory": "code"
     },
     {
@@ -442,7 +448,7 @@
     {
       "path": "src/app/admin/tenants/page.tsx",
       "language": "typescript",
-      "sizeLines": 371,
+      "sizeLines": 401,
       "fileCategory": "code"
     },
     {
@@ -454,7 +460,7 @@
     {
       "path": "src/app/admin/users/page.tsx",
       "language": "typescript",
-      "sizeLines": 201,
+      "sizeLines": 387,
       "fileCategory": "code"
     },
     {
@@ -551,6 +557,12 @@
       "path": "src/app/api/v1/imports/shopee-orders/route.ts",
       "language": "typescript",
       "sizeLines": 107,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/v1/imports/shopee-reconciliation-invoices/route.test.ts",
+      "language": "typescript",
+      "sizeLines": 12,
       "fileCategory": "code"
     },
     {
@@ -700,7 +712,7 @@
     {
       "path": "src/app/app/conversions/page.tsx",
       "language": "typescript",
-      "sizeLines": 254,
+      "sizeLines": 364,
       "fileCategory": "code"
     },
     {
@@ -712,13 +724,13 @@
     {
       "path": "src/app/app/leaderboard/page.tsx",
       "language": "typescript",
-      "sizeLines": 328,
+      "sizeLines": 417,
       "fileCategory": "code"
     },
     {
       "path": "src/app/app/links/page.tsx",
       "language": "typescript",
-      "sizeLines": 72,
+      "sizeLines": 87,
       "fileCategory": "code"
     },
     {
@@ -730,7 +742,7 @@
     {
       "path": "src/app/app/notifications/page.tsx",
       "language": "typescript",
-      "sizeLines": 53,
+      "sizeLines": 121,
       "fileCategory": "code"
     },
     {
@@ -754,7 +766,7 @@
     {
       "path": "src/app/app/reconciliation/page.tsx",
       "language": "typescript",
-      "sizeLines": 149,
+      "sizeLines": 297,
       "fileCategory": "code"
     },
     {
@@ -790,7 +802,7 @@
     {
       "path": "src/app/app/wallet/page.tsx",
       "language": "typescript",
-      "sizeLines": 80,
+      "sizeLines": 136,
       "fileCategory": "code"
     },
     {
@@ -995,7 +1007,7 @@
     {
       "path": "src/components/links-workspace.tsx",
       "language": "typescript",
-      "sizeLines": 148,
+      "sizeLines": 218,
       "fileCategory": "code"
     },
     {
@@ -1236,6 +1248,12 @@
       "fileCategory": "code"
     },
     {
+      "path": "src/lib/payos.test.ts",
+      "language": "typescript",
+      "sizeLines": 34,
+      "fileCategory": "code"
+    },
+    {
       "path": "src/lib/payos.ts",
       "language": "typescript",
       "sizeLines": 116,
@@ -1434,6 +1452,18 @@
       "fileCategory": "code"
     },
     {
+      "path": "src/modules/imports/__fixtures__/shopee-conversion-en-47-real-redacted-v1.csv",
+      "language": "unknown",
+      "sizeLines": 4,
+      "fileCategory": "data"
+    },
+    {
+      "path": "src/modules/imports/__fixtures__/shopee-conversion-vi-47-real-redacted-v1.csv",
+      "language": "unknown",
+      "sizeLines": 4,
+      "fileCategory": "data"
+    },
+    {
       "path": "src/modules/imports/__fixtures__/shopee-orders-v1.csv",
       "language": "unknown",
       "sizeLines": 2,
@@ -1515,6 +1545,18 @@
       "path": "src/modules/notifications/dispatch.ts",
       "language": "typescript",
       "sizeLines": 250,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/payout/provider-gate.test.ts",
+      "language": "typescript",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/modules/payout/provider-gate.ts",
+      "language": "typescript",
+      "sizeLines": 22,
       "fileCategory": "code"
     },
     {
@@ -1615,6 +1657,12 @@
     },
     { "path": "src/proxy.ts", "language": "typescript", "sizeLines": 136, "fileCategory": "code" },
     {
+      "path": "src/test/database-guard.test.ts",
+      "language": "typescript",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
       "path": "src/test/server-only.ts",
       "language": "typescript",
       "sizeLines": 1,
@@ -1667,6 +1715,18 @@
       "language": "typescript",
       "sizeLines": 33,
       "fileCategory": "code"
+    },
+    {
+      "path": "tests/fixtures/README.md",
+      "language": "markdown",
+      "sizeLines": 8,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "tests/fixtures/shopee_reconciliation_invoice_redacted_v1.csv",
+      "language": "unknown",
+      "sizeLines": 4,
+      "fileCategory": "data"
     },
     {
       "path": "tests/fixtures/shopee_reconciliation_invoice_sample.csv",
@@ -1785,7 +1845,7 @@
       "fileCategory": "code"
     }
   ],
-  "totalFiles": 313,
+  "totalFiles": 323,
   "filteredByIgnore": 11,
   "estimatedComplexity": "large",
   "importMap": {
@@ -1805,6 +1865,7 @@
     "docs/brd/cashback_affiliate_platform_brd_vi.md": [],
     "docs/operations/clerk-cutover.md": [],
     "docs/operations/evidence-retention-policy.md": [],
+    "docs/operations/external-ci-contract.md": [],
     "docs/operations/incident-runbook.md": [],
     "docs/operations/lazada-activation.md": [],
     "docs/operations/production-runbook.md": [],
@@ -1872,12 +1933,14 @@
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
       "src/components/ui/label.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/db.ts",
       "src/lib/utils.ts"
     ],
     "src/app/admin/audit/page.tsx": [
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/db.ts"
     ],
     "src/app/admin/catalog/actions.ts": ["src/lib/authz.ts", "src/lib/db.ts"],
@@ -1888,11 +1951,13 @@
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
       "src/components/ui/label.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/db.ts"
     ],
     "src/app/admin/connectors/page.tsx": [
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/db.ts"
     ],
     "src/app/admin/flags/actions.ts": [
@@ -1906,6 +1971,7 @@
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/db.ts",
       "src/lib/utils.ts"
     ],
@@ -1913,6 +1979,7 @@
     "src/app/admin/ledger/page.tsx": [
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/db.ts",
       "src/lib/utils.ts"
     ],
@@ -1929,6 +1996,7 @@
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/db.ts",
       "src/lib/utils.ts"
     ],
@@ -1946,6 +2014,7 @@
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/db.ts"
     ],
     "src/app/admin/rules/actions.ts": [
@@ -1960,6 +2029,7 @@
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
       "src/components/ui/label.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/db.ts"
     ],
     "src/app/admin/tenants/actions.ts": [
@@ -1977,6 +2047,7 @@
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts",
       "src/lib/utils.ts"
@@ -1993,6 +2064,7 @@
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/db.ts",
       "src/lib/utils.ts"
     ],
@@ -2087,6 +2159,9 @@
       "src/modules/flags/service.ts",
       "src/modules/imports/shopee-orders.ts",
       "src/modules/tenants/plans.ts"
+    ],
+    "src/app/api/v1/imports/shopee-reconciliation-invoices/route.test.ts": [
+      "src/app/api/v1/imports/shopee-reconciliation-invoices/route.ts"
     ],
     "src/app/api/v1/imports/shopee-reconciliation-invoices/route.ts": [
       "src/lib/errors.ts",
@@ -2232,6 +2307,7 @@
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts",
       "src/lib/utils.ts"
@@ -2241,6 +2317,7 @@
       "src/components/ui/avatar.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts",
       "src/lib/utils.ts"
@@ -2255,6 +2332,7 @@
       "src/app/app/notifications/actions.ts",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts"
     ],
@@ -2271,6 +2349,7 @@
     "src/app/app/reconciliation/page.tsx": [
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts",
       "src/lib/utils.ts"
@@ -2316,6 +2395,7 @@
       "src/components/payout-form.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
+      "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts",
       "src/lib/utils.ts"
@@ -2424,6 +2504,7 @@
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
+      "src/components/ui/table.tsx",
       "src/components/ui/tabs.tsx",
       "src/lib/utils.ts"
     ],
@@ -2514,6 +2595,7 @@
     "src/lib/lossless-json.ts": ["src/lib/errors.ts"],
     "src/lib/money.test.ts": ["src/lib/money.ts"],
     "src/lib/money.ts": ["src/lib/errors.ts"],
+    "src/lib/payos.test.ts": ["src/lib/env.ts", "src/lib/payos.ts"],
     "src/lib/payos.ts": ["src/lib/env.ts", "src/lib/errors.ts"],
     "src/lib/rate-limit.ts": ["src/lib/redis.ts"],
     "src/lib/redis.ts": ["src/lib/env.ts"],
@@ -2644,6 +2726,8 @@
       "src/lib/db.ts",
       "src/lib/errors.ts"
     ],
+    "src/modules/imports/__fixtures__/shopee-conversion-en-47-real-redacted-v1.csv": [],
+    "src/modules/imports/__fixtures__/shopee-conversion-vi-47-real-redacted-v1.csv": [],
     "src/modules/imports/__fixtures__/shopee-orders-v1.csv": [],
     "src/modules/imports/shopee-orders.test.ts": ["src/modules/imports/shopee-orders.ts"],
     "src/modules/imports/shopee-orders.ts": [
@@ -2713,6 +2797,8 @@
       "src/lib/logger.ts",
       "src/modules/push/service.ts"
     ],
+    "src/modules/payout/provider-gate.test.ts": ["src/modules/payout/provider-gate.ts"],
+    "src/modules/payout/provider-gate.ts": ["src/lib/errors.ts"],
     "src/modules/payout/service.ts": [
       "src/lib/crypto.ts",
       "src/lib/db.ts",
@@ -2722,6 +2808,7 @@
       "src/modules/admin/passkey.ts",
       "src/modules/flags/service.ts",
       "src/modules/ledger/service.ts",
+      "src/modules/payout/provider-gate.ts",
       "src/modules/payout/state-machine.ts"
     ],
     "src/modules/payout/state-machine.test.ts": ["src/modules/payout/state-machine.ts"],
@@ -2754,6 +2841,7 @@
     "src/modules/tools/tax-2026.test.ts": ["src/modules/tools/tax-2026.ts"],
     "src/modules/tools/tax-2026.ts": [],
     "src/proxy.ts": [],
+    "src/test/database-guard.test.ts": ["tests/integration/database-guard.ts"],
     "src/test/server-only.ts": [],
     "tests/e2e/all-user-journeys-desktop.spec.ts": [],
     "tests/e2e/all-user-journeys-mobile.spec.ts": [],
@@ -2763,6 +2851,8 @@
     "tests/e2e/flows.spec.ts": [],
     "tests/e2e/mobile-user-experience.spec.ts": [],
     "tests/e2e/public.spec.ts": [],
+    "tests/fixtures/README.md": [],
+    "tests/fixtures/shopee_reconciliation_invoice_redacted_v1.csv": [],
     "tests/fixtures/shopee_reconciliation_invoice_sample.csv": [],
     "tests/integration/conversion-ledger.test.ts": [
       "src/lib/db.ts",

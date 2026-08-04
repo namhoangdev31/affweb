@@ -3,6 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
 import { db } from "@/lib/db";
 import { formatVnd } from "@/lib/utils";
 
@@ -39,29 +47,72 @@ export default async function FlagsPage() {
         Tắt connector không xóa conversion cũ. Tắt release chỉ đóng băng tiền mới.
       </p>
       <div className="mt-8 space-y-3">
-        {keys.map(([key, label]) => {
-          const enabled =
-            map.get(key) ??
-            (key === "connector.shopee.enabled" || key === "connector.shopee_food.enabled");
-          return (
-            <Card key={key}>
-              <CardContent className="flex items-center gap-4 p-5">
-                <div className="flex-1">
-                  <p className="font-medium">{label}</p>
-                  <p className="font-mono text-xs text-muted-foreground">{key}</p>
-                </div>
-                <Badge variant={enabled ? "default" : "secondary"}>{enabled ? "ON" : "OFF"}</Badge>
-                <form action={toggleFlagAction}>
-                  <input type="hidden" name="key" value={key} />
-                  <input type="hidden" name="enabled" value={String(!enabled)} />
-                  <Button size="sm" variant="outline" type="submit">
-                    {enabled ? "Tắt" : "Bật"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          );
-        })}
+        <Card className="hidden overflow-hidden py-0 md:block">
+          <Table>
+            <TableHeader className="bg-muted/50">
+              <TableRow>
+                <TableHead className="pl-5">Chức năng</TableHead>
+                <TableHead>Key</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead className="pr-5 text-right">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {keys.map(([key, label]) => {
+                const enabled =
+                  map.get(key) ??
+                  (key === "connector.shopee.enabled" || key === "connector.shopee_food.enabled");
+                return (
+                  <TableRow key={key}>
+                    <TableCell className="pl-5 font-medium">{label}</TableCell>
+                    <TableCell className="font-mono text-xs">{key}</TableCell>
+                    <TableCell>
+                      <Badge variant={enabled ? "default" : "secondary"}>
+                        {enabled ? "ON" : "OFF"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="pr-5 text-right">
+                      <form action={toggleFlagAction}>
+                        <input type="hidden" name="key" value={key} />
+                        <input type="hidden" name="enabled" value={String(!enabled)} />
+                        <Button size="sm" variant="outline" type="submit">
+                          {enabled ? "Tắt" : "Bật"}
+                        </Button>
+                      </form>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </Card>
+        <div className="space-y-3 md:hidden">
+          {keys.map(([key, label]) => {
+            const enabled =
+              map.get(key) ??
+              (key === "connector.shopee.enabled" || key === "connector.shopee_food.enabled");
+            return (
+              <Card key={key}>
+                <CardContent className="flex items-center gap-4 p-5">
+                  <div className="flex-1">
+                    <p className="font-medium">{label}</p>
+                    <p className="font-mono text-xs text-muted-foreground">{key}</p>
+                  </div>
+                  <Badge variant={enabled ? "default" : "secondary"}>
+                    {enabled ? "ON" : "OFF"}
+                  </Badge>
+                  <form action={toggleFlagAction}>
+                    <input type="hidden" name="key" value={key} />
+                    <input type="hidden" name="enabled" value={String(!enabled)} />
+                    <Button size="sm" variant="outline" type="submit">
+                      {enabled ? "Tắt" : "Bật"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
         <Card>
           <CardContent className="p-5">
             <p className="font-medium">Ngân sách payout toàn hệ thống / ngày</p>

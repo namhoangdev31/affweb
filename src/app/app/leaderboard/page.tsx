@@ -1,16 +1,29 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PaginationNav } from "@/components/pagination-nav";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
 import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
+import { paginationPage } from "@/lib/pagination";
 import { formatVnd } from "@/lib/utils";
 import { Award, Flame, Medal, Trophy, UserCheck } from "lucide-react";
 import Link from "next/link";
 
+const PAGE_SIZE = 20;
+const LEADERBOARD_LIMIT = 50;
+
 export default async function LeaderboardPage({
   searchParams
 }: {
-  searchParams: Promise<{ period?: string; scope?: string }>;
+  searchParams: Promise<{ period?: string; scope?: string; page?: string }>;
 }) {
   const user = await requireUser();
   const params = await searchParams;
@@ -22,10 +35,31 @@ export default async function LeaderboardPage({
     where: { ownerUserId: user.id }
   });
 
-  // Calculate actual user rankings from Ledger / Conversions
+  const [walletCount, currentWallet, podiumWallets] = await Promise.all([
+    db.walletProjection.count(),
+    db.walletProjection.findUnique({ where: { userId: user.id } }),
+    db.walletProjection.findMany({
+      orderBy: [{ availableVnd: "desc" }, { id: "asc" }],
+      take: 3,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            tenant: { select: { name: true, slug: true } }
+          }
+        }
+      }
+    })
+  ]);
+  const rankedTotal = Math.min(walletCount, LEADERBOARD_LIMIT);
+  const currentPage = paginationPage(params.page, rankedTotal, PAGE_SIZE);
   const userWallets = await db.walletProjection.findMany({
-    orderBy: { availableVnd: "desc" },
-    take: 50,
+    orderBy: [{ availableVnd: "desc" }, { id: "asc" }],
+    skip: (currentPage - 1) * PAGE_SIZE,
+    take: Math.min(PAGE_SIZE, LEADERBOARD_LIMIT - (currentPage - 1) * PAGE_SIZE),
     include: {
       user: {
         select: {
@@ -40,7 +74,7 @@ export default async function LeaderboardPage({
   });
 
   // Anonymize user names for privacy compliance (e.g., "Nguyen V. A***")
-  const rankings = userWallets.map((w, index) => {
+  const toRanking = (w: (typeof userWallets)[number], index: number) => {
     const rawName = w.user.name || w.user.email?.split("@")[0] || "Thành viên";
     const isCurrentUser = w.userId === user.id;
 
@@ -57,7 +91,7 @@ export default async function LeaderboardPage({
     }
 
     return {
-      rank: index + 1,
+      rank: index,
       userId: w.userId,
       name: displayName,
       rawName,
@@ -66,16 +100,23 @@ export default async function LeaderboardPage({
       tenantName: w.user.tenant?.name,
       lifetimeCashbackVnd: w.availableVnd
     };
-  });
+  };
+  const rankings = userWallets.map((wallet, index) =>
+    toRanking(wallet, (currentPage - 1) * PAGE_SIZE + index + 1)
+  );
+  const podium = podiumWallets.map((wallet, index) => toRanking(wallet, index + 1));
 
   // Current logged in user ranking info
-  const currentUserRankObj = rankings.find((r) => r.isCurrentUser);
-  const currentUserRank = currentUserRankObj ? currentUserRankObj.rank : ">50";
-  const currentUserEarnings = rankings.find((r) => r.isCurrentUser)?.lifetimeCashbackVnd ?? 0n;
+  const currentUserRank = currentWallet
+    ? (await db.walletProjection.count({
+        where: { availableVnd: { gt: currentWallet.availableVnd } }
+      })) + 1
+    : "—";
+  const currentUserEarnings = currentWallet?.availableVnd ?? 0n;
 
-  const top1 = rankings[0];
-  const top2 = rankings[1];
-  const top3 = rankings[2];
+  const top1 = podium[0];
+  const top2 = podium[1];
+  const top3 = podium[2];
 
   return (
     <div className="space-y-8">
@@ -262,8 +303,46 @@ export default async function LeaderboardPage({
             <Flame className="size-5 text-amber-500" /> Bảng xếp hạng chi tiết (Top 50)
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="divide-y divide-border">
+        <CardContent className="space-y-4">
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Hạng</TableHead>
+                  <TableHead>Thành viên</TableHead>
+                  <TableHead>Kênh KOC</TableHead>
+                  <TableHead className="text-right">Cashback khả dụng</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rankings.map((item) => (
+                  <TableRow
+                    key={item.userId}
+                    className={
+                      item.isCurrentUser ? "bg-amber-50/70 dark:bg-amber-950/20" : undefined
+                    }
+                  >
+                    <TableCell className="font-bold">#{item.rank}</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center gap-2">
+                        <Avatar className="size-8">
+                          <AvatarImage src={item.image || ""} />
+                          <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <span>{item.name}</span>
+                        {item.isCurrentUser ? <Badge className="bg-emerald-600">Bạn</Badge> : null}
+                      </span>
+                    </TableCell>
+                    <TableCell>{item.tenantName ?? "—"}</TableCell>
+                    <TableCell className="text-right font-bold text-emerald-600">
+                      {formatVnd(item.lifetimeCashbackVnd)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="divide-y divide-border md:hidden">
             {rankings.map((item) => (
               <div
                 key={item.userId}
@@ -321,6 +400,16 @@ export default async function LeaderboardPage({
               </p>
             ) : null}
           </div>
+          {rankings.length ? (
+            <PaginationNav
+              currentPage={currentPage}
+              totalItems={rankedTotal}
+              pageSize={PAGE_SIZE}
+              pathname="/app/leaderboard"
+              query={{ period, scope }}
+              itemLabel="thành viên"
+            />
+          ) : null}
         </CardContent>
       </Card>
     </div>
