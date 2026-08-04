@@ -71,6 +71,12 @@ export function TenantProviderCredentials({
           error?: { message?: string };
         };
         if (!createResponse.ok || !created.data?.id) {
+          if (createResponse.status === 401) {
+            window.location.assign(
+              `/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`
+            );
+            return;
+          }
           throw new Error(created.error?.message ?? "Không thể tạo provider account.");
         }
         accountId = created.data.id;
@@ -106,6 +112,12 @@ export function TenantProviderCredentials({
         error?: { message?: string };
       };
       if (!response.ok || !body.data?.fingerprint || body.data.status !== "ACTIVE") {
+        if (response.status === 401) {
+          window.location.assign(
+            `/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`
+          );
+          return;
+        }
         throw new Error(body.error?.message ?? "Credential preflight không thành công.");
       }
       setAccounts((existing) => {
