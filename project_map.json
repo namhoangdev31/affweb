@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "21714f6c4fec65b30fe28fe4638833aeb2c0d3ec",
+    "baseCommit": "9328847fbd8d40d9f0c36b34826a61ebea572eed",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2553,7 +2553,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 667103,
-      "sha256": "462fc9f75abc5d3ff35071548fbbafea91099d3ff5f2901e5c5aed2cafb42143",
+      "sha256": "416fddaa9dadff231210854627dd84fa365fd2ab99e4ef58381b1cf76d69b900",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -8049,8 +8049,8 @@
     },
     "src/app/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 1048,
-      "sha256": "14ef83ea08243b16bb93ca9e5dca0694b095a434dbc277a9cb7733c9736c2fb3",
+      "bytes": 1118,
+      "sha256": "cc86b69ca7442e7c07f175cd4c8d661abb0ce4c86f168f09ee0dd1288dfd9a56",
       "summary": "Implements metadata, dynamic, DashboardLayout.",
       "analysis": {
         "runtime": "shared",
