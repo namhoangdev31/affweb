@@ -44,11 +44,44 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body>
         <ClerkProvider
           dynamic
+          localization={{
+            userButton: {
+              action__manageAccount: "Quản lý tài khoản",
+              action__signOut: "Đăng xuất"
+            },
+            userProfile: {
+              navbar: {
+                title: "Cấu hình tài khoản",
+                account: "Tài khoản",
+                security: "Bảo mật & Thiết bị"
+              },
+              start: {
+                profileSection: {
+                  title: "Thông tin cá nhân"
+                }
+              }
+            }
+          }}
           appearance={{
             variables: {
               colorPrimary: "#102c24",
-              colorBackground: "#fffdf7",
+              colorBackground: "#ffffff",
               borderRadius: "0.75rem"
+            },
+            elements: {
+              cardBox: "shadow-xl border border-slate-200/80 rounded-2xl overflow-hidden",
+              headerTitle: "text-slate-900 font-bold",
+              headerSubtitle: "text-slate-500",
+              navbar: "bg-slate-50 border-r border-slate-200/80",
+              navbarButton:
+                "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium rounded-xl",
+              navbarButtonActive:
+                "bg-emerald-800 text-white font-semibold rounded-xl hover:bg-emerald-900",
+              userButtonPopoverCard: "shadow-2xl border border-slate-200 rounded-2xl p-2",
+              userButtonPopoverActionButton: "hover:bg-slate-100 rounded-xl text-slate-700",
+              userButtonPopoverActionButtonText: "font-medium text-sm text-slate-800",
+              userButtonPopoverFooter: "hidden font-sans text-slate-400",
+              footer: "hidden"
             }
           }}
         >

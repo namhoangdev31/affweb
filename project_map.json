@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "a6d0a977474b711aea80092ba869e6c1db306d6c",
+    "baseCommit": "ba29a6cc5a62d8c9bc95412b5ed7bcc0a7944076",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2553,7 +2553,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 667106,
-      "sha256": "afdae851302b63649feb1db9356f7996f3b3750cb00142af67a9b096994e56d6",
+      "sha256": "dd4d72c3e7277eb80dd8d74f5e207de1ecb5017ecf69573b7018d499a3e61d40",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -8867,8 +8867,8 @@
     },
     "src/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 1806,
-      "sha256": "c34ba177e82bd55cce122698beeaac85e2e6fba6243543a2b58dd018370b0d4a",
+      "bytes": 3290,
+      "sha256": "9cb88d42e7a9c79698a40bb0cda4ecc6ad602f80a300211b257113ba4c520873",
       "summary": "Implements metadata, viewport, RootLayout.",
       "analysis": {
         "runtime": "shared",
