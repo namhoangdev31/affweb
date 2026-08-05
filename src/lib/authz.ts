@@ -79,6 +79,14 @@ export async function requireUser(): Promise<AppUser> {
     if (error instanceof AppError && error.code === "FORBIDDEN") {
       redirect("/unauthorized" as Route);
     }
+    try {
+      const { cookies } = await import("next/headers");
+      const cookieStore = await cookies();
+      cookieStore.delete("__session");
+      cookieStore.delete("__clerk_db_jwt");
+    } catch {
+      // Non-request context
+    }
     redirect("/sign-in" as Route);
   }
 }

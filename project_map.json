@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "ff6649ddb1a2a3241098fa6f3a4e5ca2965fddb1",
+    "baseCommit": "93b9898d61c155658121f23a4237dd151661981a",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 671790,
-      "sha256": "edc49fd2c688c56313b323db2e7de15c1401002bc60d7b0f3cb0bb6b5e07d89b",
+      "bytes": 671863,
+      "sha256": "883d7e5e9c08c60f098a4503b6d955de7d0384f64a32e7f8aef42745970316c9",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -11753,8 +11753,8 @@
     },
     "src/lib/authz.ts": {
       "category": "library",
-      "bytes": 4531,
-      "sha256": "2e80bef7fe800bf05e7893e2d45790987c1652ac0dcc3a001787a8a3fe664310",
+      "bytes": 4772,
+      "sha256": "4d9b771fc192c69fc3414f9fe13b90d16b37fd92895426140f6a9e7d5db3118b",
       "summary": "Implements requireUser, requireApiUser, requireApiRecentUser, requireRole, requireApiRole.",
       "analysis": {
         "runtime": "server",
@@ -11830,28 +11830,28 @@
           {
             "name": "requireApiUser",
             "kind": "function",
-            "line": 86,
+            "line": 94,
             "exported": true,
             "purpose": "requireApiUser."
           },
           {
             "name": "requireApiRecentUser",
             "kind": "function",
-            "line": 90,
+            "line": 98,
             "exported": true,
             "purpose": "requireApiRecentUser."
           },
           {
             "name": "requireRole",
             "kind": "function",
-            "line": 112,
+            "line": 120,
             "exported": true,
             "purpose": "requireRole."
           },
           {
             "name": "requireApiRole",
             "kind": "function",
-            "line": 125,
+            "line": 133,
             "exported": true,
             "purpose": "requireApiRole."
           }
@@ -11875,6 +11875,9 @@
           "resolveAppUser",
           "apiUserWithIdentity",
           "redirect",
+          "import",
+          "cookies",
+          "cookieStore.delete",
           "apiUserWithIdentity().catch",
           "user.roles.some",
           "allowed.includes",
@@ -11963,8 +11966,8 @@
     },
     "src/lib/clerk-identity.ts": {
       "category": "library",
-      "bytes": 7355,
-      "sha256": "8f8e68901912b212f4c59ff284933ea8dfb595a3fa777922c7bf6b64df4ca3fe",
+      "bytes": 7541,
+      "sha256": "1e2b9e0f7438241d9a887e8b118d296cf4994df1b323c0074073379453292297",
       "summary": "Implements AppUser, findActiveAppUser, reconcileClerkUser, resolveAppUser.",
       "analysis": {
         "runtime": "server",

@@ -233,7 +233,12 @@ export async function resolveAppUser(clerkUserId: string): Promise<AppUser> {
   const active = await findActiveAppUser(clerkUserId);
   if (active) return active;
 
-  const client = await clerkClient();
-  const clerkUser = await client.users.getUser(clerkUserId);
-  return reconcileClerkUser(clerkUser);
+  try {
+    const client = await clerkClient();
+    const clerkUser = await client.users.getUser(clerkUserId);
+    return await reconcileClerkUser(clerkUser);
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError("AUTH_REQUIRED", "Không thể tìm thấy tài khoản Clerk.", 401);
+  }
 }
