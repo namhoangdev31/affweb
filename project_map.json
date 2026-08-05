@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "93b9898d61c155658121f23a4237dd151661981a",
+    "baseCommit": "30e9d8609d520c3f592ec7daf15c8c49ba306163",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -330,8 +330,8 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 397,
-    "sourceFiles": 282,
+    "mappedFiles": 398,
+    "sourceFiles": 283,
     "tests": 57,
     "prismaModels": 57,
     "prismaEnums": 37
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 671863,
-      "sha256": "883d7e5e9c08c60f098a4503b6d955de7d0384f64a32e7f8aef42745970316c9",
+      "bytes": 672901,
+      "sha256": "680ac86a4869d61d7bd649f01462fd533c071c0920f6b607cd908e3a5af504c5",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -8479,8 +8479,8 @@
     },
     "src/app/app/profile/[[...user-profile]]/page.tsx": {
       "category": "app-route",
-      "bytes": 1002,
-      "sha256": "bd37f6b7d32a712faeeb7b730dc86063e1217aa86e4a85e146ab5e1d996f571c",
+      "bytes": 556,
+      "sha256": "88a56a4e62cdf3186c851cbbeae8985896b82fb22fc83dfde07e419b8a1ab210",
       "summary": "Implements metadata, ProfilePage.",
       "route": "/app/profile/:[...user-profile]",
       "analysis": {
@@ -8981,8 +8981,8 @@
     },
     "src/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 3482,
-      "sha256": "8a03b425582a45765ebf65e36e48cb579d712039abbcd8f74248e4ec24cff24e",
+      "bytes": 3290,
+      "sha256": "9cb88d42e7a9c79698a40bb0cda4ecc6ad602f80a300211b257113ba4c520873",
       "summary": "Implements metadata, viewport, RootLayout.",
       "analysis": {
         "runtime": "shared",
@@ -9430,26 +9430,26 @@
     },
     "src/app/sign-in/[[...sign-in]]/page.tsx": {
       "category": "app-route",
-      "bytes": 357,
-      "sha256": "9564b7e10f05d3f45ae3c1afa32d6c33fa9789eba642b6b8d656c79c1939a77a",
+      "bytes": 467,
+      "sha256": "3fa3a7858e8e0c76c6ddcb57c681dff7323a75db02f4d78eed596ffae3a4c438",
       "summary": "Implements metadata, SignInPage.",
       "route": "/sign-in/:[...sign-in]",
       "analysis": {
         "runtime": "shared",
-        "imports": ["@clerk/nextjs"],
+        "imports": ["@clerk/nextjs", "@/components/clerk-session-sanitizer"],
         "exports": ["metadata", "SignInPage"],
         "declarations": [
           {
             "name": "metadata",
             "kind": "variable",
-            "line": 3,
+            "line": 4,
             "exported": true,
             "purpose": "metadata."
           },
           {
             "name": "SignInPage",
             "kind": "function",
-            "line": 5,
+            "line": 6,
             "exported": true,
             "purpose": "SignInPage."
           }
@@ -9460,26 +9460,26 @@
     },
     "src/app/sign-up/[[...sign-up]]/page.tsx": {
       "category": "app-route",
-      "bytes": 354,
-      "sha256": "05dcd1db61492ce7ba3a1097fd885ceb97d4329a591fd2d8a804cd7061dab52e",
+      "bytes": 464,
+      "sha256": "d191f057974c20a11d958c91d04137eed28b35348a03da365754e70248d097ad",
       "summary": "Implements metadata, SignUpPage.",
       "route": "/sign-up/:[...sign-up]",
       "analysis": {
         "runtime": "shared",
-        "imports": ["@clerk/nextjs"],
+        "imports": ["@clerk/nextjs", "@/components/clerk-session-sanitizer"],
         "exports": ["metadata", "SignUpPage"],
         "declarations": [
           {
             "name": "metadata",
             "kind": "variable",
-            "line": 3,
+            "line": 4,
             "exported": true,
             "purpose": "metadata."
           },
           {
             "name": "SignUpPage",
             "kind": "function",
-            "line": 5,
+            "line": 6,
             "exported": true,
             "purpose": "SignUpPage."
           }
@@ -10178,6 +10178,35 @@
           "form.get",
           "response.json",
           "setMessage"
+        ],
+        "tests": []
+      }
+    },
+    "src/components/clerk-session-sanitizer.tsx": {
+      "category": "component",
+      "bytes": 638,
+      "sha256": "e4650b2bf4fb3e5660772b338a4ebc57be794358b536a90ab89bbe906fc71217",
+      "summary": "Implements ClerkSessionSanitizer.",
+      "analysis": {
+        "runtime": "client",
+        "imports": ["@clerk/nextjs", "react"],
+        "exports": ["ClerkSessionSanitizer"],
+        "declarations": [
+          {
+            "name": "ClerkSessionSanitizer",
+            "kind": "function",
+            "line": 6,
+            "exported": true,
+            "purpose": "ClerkSessionSanitizer."
+          }
+        ],
+        "functionCalls": [
+          "useClerk",
+          "useEffect",
+          "session .getToken() .then((token) => { if (!token && mounted) { signOut({ redirectUrl: \"/sign-in\" }); } }) .catch",
+          "session .getToken() .then",
+          "session .getToken",
+          "signOut"
         ],
         "tests": []
       }
