@@ -11,12 +11,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Building2, CheckCircle2, Crown, Sparkles, Store, Zap } from "lucide-react";
-import { requireMasterMemberContext } from "@/modules/tenants/persona";
 
 async function createTenantAction(formData: FormData) {
   "use server";
   const user = await requireUser();
-  await requireMasterMemberContext(user.id);
   const parsed = z
     .object({
       name: z.string().trim().min(2).max(120),
@@ -86,7 +84,6 @@ export default async function TenantOnboardingPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const user = await requireUser();
-  await requireMasterMemberContext(user.id);
   const params = await searchParams;
 
   // Check if user is already a Tenant Owner

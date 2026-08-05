@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "6425775645d3288dfcc59135dee526945f650e67",
+    "baseCommit": "21714f6c4fec65b30fe28fe4638833aeb2c0d3ec",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2552,8 +2552,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 667398,
-      "sha256": "f7a22745b9b3d77587d27ea163f99033a70b70aae5e81b4c234551a958599b87",
+      "bytes": 667103,
+      "sha256": "462fc9f75abc5d3ff35071548fbbafea91099d3ff5f2901e5c5aed2cafb42143",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -5984,8 +5984,8 @@
     },
     "src/app/api/saas/register/route.ts": {
       "category": "api-route",
-      "bytes": 2125,
-      "sha256": "74bd5588670adda653fc64e5d958df5c8f31796fa545350eebadba6804e48894",
+      "bytes": 2006,
+      "sha256": "386fa9602a505e8b69aceccd6cdffa7ca959fd92c16b60931b35a5fe59a11e89",
       "summary": "Implements runtime, POST.",
       "route": "/api/saas/register",
       "analysis": {
@@ -5996,26 +5996,25 @@
           "@/lib/db",
           "@/lib/errors",
           "@/lib/request",
-          "@/lib/tenant",
-          "@/modules/tenants/persona"
+          "@/lib/tenant"
         ],
         "exports": ["runtime", "POST"],
         "declarations": [
           {
             "name": "runtime",
             "kind": "variable",
-            "line": 9,
+            "line": 8,
             "exported": true,
             "purpose": "runtime."
           },
           {
             "name": "inputSchema",
             "kind": "variable",
-            "line": 11,
+            "line": 10,
             "exported": false,
             "purpose": "inputSchema."
           },
-          { "name": "POST", "kind": "function", "line": 27, "exported": true, "purpose": "POST." }
+          { "name": "POST", "kind": "function", "line": 26, "exported": true, "purpose": "POST." }
         ],
         "functionCalls": [
           "z.object",
@@ -6037,7 +6036,6 @@
           "requestId",
           "assertTrustedOrigin",
           "requireApiUser",
-          "requireMasterMemberContext",
           "inputSchema.parse",
           "readJson",
           "db.tenant.findUnique",
@@ -8051,8 +8049,8 @@
     },
     "src/app/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 1665,
-      "sha256": "48f980cd52c5d118d6497f60022d33723dd7f46f64232189b709d2d0ea2e8222",
+      "bytes": 1048,
+      "sha256": "14ef83ea08243b16bb93ca9e5dca0694b095a434dbc277a9cb7733c9736c2fb3",
       "summary": "Implements metadata, dynamic, DashboardLayout.",
       "analysis": {
         "runtime": "shared",
@@ -8063,30 +8061,28 @@
           "@/components/app-shell",
           "@/lib/authz",
           "@/lib/db",
-          "@/lib/tenant",
-          "@/modules/tenants/persona",
-          "@/lib/errors"
+          "@/lib/tenant"
         ],
         "exports": ["metadata", "dynamic", "DashboardLayout"],
         "declarations": [
           {
             "name": "metadata",
             "kind": "variable",
-            "line": 12,
+            "line": 10,
             "exported": true,
             "purpose": "metadata."
           },
           {
             "name": "dynamic",
             "kind": "variable",
-            "line": 13,
+            "line": 11,
             "exported": true,
             "purpose": "dynamic."
           },
           {
             "name": "DashboardLayout",
             "kind": "function",
-            "line": 15,
+            "line": 13,
             "exported": true,
             "purpose": "DashboardLayout."
           }
@@ -8097,8 +8093,6 @@
           "headers",
           "getTenantByHost",
           "redirect",
-          "requireMasterMemberContext",
-          "db.user.findUnique",
           "db.tenant.findFirst",
           "Boolean"
         ],
@@ -9036,8 +9030,8 @@
     },
     "src/app/onboarding/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 17552,
-      "sha256": "919cb7ef4270aa87e907e0199e6b90a417dc2af719935eb09f36f831b44ba187",
+      "bytes": 17390,
+      "sha256": "fba843aab154b6433eb20498d3b89321c9d58f0ecfd557bfdac3e7391ad5d9c8",
       "summary": "Implements TenantOnboardingPage.",
       "route": "/onboarding/tenant",
       "analysis": {
@@ -9055,29 +9049,27 @@
           "@/components/ui/card",
           "@/components/ui/input",
           "@/components/ui/label",
-          "lucide-react",
-          "@/modules/tenants/persona"
+          "lucide-react"
         ],
         "exports": ["TenantOnboardingPage"],
         "declarations": [
           {
             "name": "createTenantAction",
             "kind": "function",
-            "line": 16,
+            "line": 15,
             "exported": false,
             "purpose": "createTenantAction."
           },
           {
             "name": "TenantOnboardingPage",
             "kind": "function",
-            "line": 83,
+            "line": 81,
             "exported": true,
             "purpose": "TenantOnboardingPage."
           }
         ],
         "functionCalls": [
           "requireUser",
-          "requireMasterMemberContext",
           "z .object({ name: z.string().trim().min(2).max(120), slug: z .string() .trim() .toLowerCase() .min(3) .max(63) .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), shopeeAffil",
           "z .object",
           "z.string().trim().min(2).max",
