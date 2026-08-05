@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "9328847fbd8d40d9f0c36b34826a61ebea572eed",
+    "baseCommit": "a6d0a977474b711aea80092ba869e6c1db306d6c",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2552,8 +2552,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 667103,
-      "sha256": "416fddaa9dadff231210854627dd84fa365fd2ab99e4ef58381b1cf76d69b900",
+      "bytes": 667106,
+      "sha256": "afdae851302b63649feb1db9356f7996f3b3750cb00142af67a9b096994e56d6",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -10617,11 +10617,11 @@
     },
     "src/components/site-header.tsx": {
       "category": "component",
-      "bytes": 3397,
-      "sha256": "0624a4991b7201450b6431d34cd87b78bde81e5c36403f906426889ddeebd409",
+      "bytes": 3729,
+      "sha256": "aee6163e5641e7d2bfca23b696dd6e5106ced16f2a03bfdc9905348aaa76b1bc",
       "summary": "Implements SiteHeader.",
       "analysis": {
-        "runtime": "node",
+        "runtime": "client",
         "imports": [
           "@clerk/nextjs",
           "next",
@@ -10636,14 +10636,14 @@
           {
             "name": "links",
             "kind": "variable",
-            "line": 9,
+            "line": 11,
             "exported": false,
             "purpose": "links."
           },
           {
             "name": "SiteHeader",
             "kind": "function",
-            "line": 16,
+            "line": 18,
             "exported": true,
             "purpose": "SiteHeader."
           }

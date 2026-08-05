@@ -1,3 +1,5 @@
+"use client";
+
 import { Show, UserButton } from "@clerk/nextjs";
 import type { Route } from "next";
 import Image from "next/image";
@@ -42,8 +44,8 @@ export function SiteHeader() {
             </Button>
           </Show>
           <Show when="signed-in">
-            <Button variant="ghost" asChild>
-              <Link href="/app">Dashboard</Link>
+            <Button variant="outline" asChild>
+              <Link href="/app">Vào Dashboard</Link>
             </Button>
             <UserButton userProfileUrl="/app/profile" />
           </Show>
@@ -74,8 +76,12 @@ export function SiteHeader() {
               </Show>
               <Show when="signed-in">
                 <Button asChild className="mt-4">
-                  <Link href="/app">Mở dashboard</Link>
+                  <Link href="/app">Vào Dashboard</Link>
                 </Button>
+                <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-800">
+                  <span className="text-sm font-medium text-muted-foreground">Tài khoản</span>
+                  <UserButton userProfileUrl="/app/profile" />
+                </div>
               </Show>
             </nav>
           </SheetContent>
