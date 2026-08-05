@@ -5,7 +5,9 @@ import {
   AccountDeletionStatus,
   ConversionStatus,
   PayoutStatus,
-  RiskHoldStatus
+  RiskHoldStatus,
+  TenantObligationStatus,
+  TenantPayoutStatus
 } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
 import { AppError } from "@/lib/errors";
@@ -21,7 +23,15 @@ const OPEN_PAYOUT_STATUSES: PayoutStatus[] = [
 ];
 
 export async function deletionBlockers(userId: string): Promise<string[]> {
-  const [wallet, openConversions, openPayouts, activeHolds] = await Promise.all([
+  const [
+    wallet,
+    openConversions,
+    openPayouts,
+    activeHolds,
+    tenantWallets,
+    openTenantPayouts,
+    ownedTenant
+  ] = await Promise.all([
     db.walletProjection.findUnique({
       where: { userId },
       select: { pendingVnd: true, availableVnd: true, reservedVnd: true }
@@ -46,6 +56,64 @@ export async function deletionBlockers(userId: string): Promise<string[]> {
         userId,
         status: { in: [RiskHoldStatus.HELD, RiskHoldStatus.REVIEW_REQUIRED] }
       }
+    }),
+    db.tenantMemberWalletProjection.findMany({
+      where: { userId },
+      select: {
+        pendingFundingVnd: true,
+        availableVnd: true,
+        reservedVnd: true,
+        recoveryVnd: true
+      }
+    }),
+    db.tenantPayout.count({
+      where: {
+        userId,
+        status: {
+          in: [
+            TenantPayoutStatus.RESERVED,
+            TenantPayoutStatus.SUBMITTED,
+            TenantPayoutStatus.PROCESSING,
+            TenantPayoutStatus.UNKNOWN
+          ]
+        }
+      }
+    }),
+    db.tenant.findUnique({
+      where: { ownerUserId: userId },
+      select: {
+        treasury: {
+          select: { availableVnd: true, reservedVnd: true }
+        },
+        _count: {
+          select: {
+            cashbackObligations: {
+              where: {
+                status: {
+                  in: [
+                    TenantObligationStatus.PENDING_FUNDING,
+                    TenantObligationStatus.AVAILABLE,
+                    TenantObligationStatus.RESERVED,
+                    TenantObligationStatus.RECOVERY_REQUIRED
+                  ]
+                }
+              }
+            },
+            payouts: {
+              where: {
+                status: {
+                  in: [
+                    TenantPayoutStatus.RESERVED,
+                    TenantPayoutStatus.SUBMITTED,
+                    TenantPayoutStatus.PROCESSING,
+                    TenantPayoutStatus.UNKNOWN
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
     })
   ]);
 
@@ -59,6 +127,30 @@ export async function deletionBlockers(userId: string): Promise<string[]> {
   if (openConversions > 0) blockers.push("Còn conversion chưa kết thúc.");
   if (openPayouts > 0) blockers.push("Còn payout đang xử lý.");
   if (activeHolds > 0) blockers.push("Còn khoản cashback đang bị giữ để rà soát.");
+  if (
+    tenantWallets.some(
+      (tenantWallet) =>
+        tenantWallet.pendingFundingVnd !== 0n ||
+        tenantWallet.availableVnd !== 0n ||
+        tenantWallet.reservedVnd !== 0n ||
+        tenantWallet.recoveryVnd !== 0n
+    )
+  ) {
+    blockers.push("Ví tenant còn số dư hoặc nghĩa vụ recovery.");
+  }
+  if (openTenantPayouts > 0) blockers.push("Còn payout tenant đang xử lý.");
+  if (
+    ownedTenant?.treasury &&
+    (ownedTenant.treasury.availableVnd !== 0n || ownedTenant.treasury.reservedVnd !== 0n)
+  ) {
+    blockers.push("Treasury của tenant còn số dư available hoặc reserved.");
+  }
+  if (ownedTenant && ownedTenant._count.cashbackObligations > 0) {
+    blockers.push("Tenant còn nghĩa vụ cashback chưa kết thúc.");
+  }
+  if (ownedTenant && ownedTenant._count.payouts > 0) {
+    blockers.push("Tenant còn payout hoặc rút treasury đang xử lý.");
+  }
   return blockers;
 }
 

@@ -3,18 +3,18 @@ dotenv.config({ path: ".env.local" });
 dotenv.config();
 
 import { execFileSync } from "node:child_process";
-import { requireDisposableTestDatabase } from "./database-guard";
+import { requireDisposableTestDatabasePair } from "./database-guard";
 
 export default function setup(): void {
-  const testDatabaseUrl = requireDisposableTestDatabase();
+  const { pooledUrl, directUrl } = requireDisposableTestDatabasePair();
 
   execFileSync("pnpm", ["exec", "prisma", "migrate", "deploy"], {
     cwd: process.cwd(),
     env: {
       ...process.env,
-      DATABASE_URL: testDatabaseUrl,
-      DIRECT_URL: testDatabaseUrl,
-      DATABASE_URL_UNPOOLED: testDatabaseUrl
+      DATABASE_URL: pooledUrl,
+      DIRECT_URL: directUrl,
+      DATABASE_URL_UNPOOLED: directUrl
     },
     stdio: "inherit"
   });

@@ -19,6 +19,20 @@ export async function GET(): Promise<Response> {
       }
     }
     await db.$queryRaw`SELECT 1`;
+    if (env.MASTER_TENANT_ID) {
+      const master = await db.tenant.findFirst({
+        where: {
+          id: env.MASTER_TENANT_ID,
+          kind: "MASTER",
+          ownerUserId: { not: null },
+          status: { in: ["TRIAL", "ACTIVE"] }
+        },
+        select: { id: true }
+      });
+      if (!master) {
+        throw new AppError("CONNECTOR_UNAVAILABLE", "Master tenant is not ready.", 503);
+      }
+    }
     return Response.json(
       { status: "ready", database: "ok", timestamp: new Date().toISOString() },
       { headers: { "Cache-Control": "no-store" } }

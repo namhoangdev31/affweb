@@ -1,0 +1,161 @@
+name: Quality gates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: affweb_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d affweb_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_ENV: test
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/affweb_ci
+      TEST_DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/affweb_ci
+      ALLOW_TEST_DATABASE_RESET: "true"
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+      APP_BASE_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm db:validate
+      - name: Empty database migration
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+          DIRECT_URL: ${{ env.TEST_DIRECT_URL }}
+        run: pnpm db:deploy
+      - name: Baseline upgrade migration contract
+        env:
+          PGPASSWORD: postgres
+        run: |
+          createdb -h 127.0.0.1 -U postgres affweb_baseline_ci
+          for migration in $(find prisma/migrations -mindepth 2 -maxdepth 2 -name migration.sql | sort); do
+            if [ "$migration" = "prisma/migrations/202608050001_hierarchical_finance/migration.sql" ]; then
+              continue
+            fi
+            psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d affweb_baseline_ci -f "$migration"
+          done
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d affweb_baseline_ci -f prisma/migrations/202608050001_hierarchical_finance/migration.sql
+      - name: Deterministic seed
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+          DIRECT_URL: ${{ env.TEST_DIRECT_URL }}
+        run: pnpm db:seed
+      - run: pnpm test:unit
+      - name: PostgreSQL financial integration and concurrency
+        run: pnpm test:integration
+      - name: Build
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+          DIRECT_URL: ${{ env.TEST_DIRECT_URL }}
+        run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Authenticated browser tests
+        run: pnpm test:e2e --project=chromium
+      - run: pnpm audit --prod
+      - run: git diff --check
+
+  neon-preproduction:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: neon-preproduction
+    env:
+      NODE_ENV: test
+      TEST_DATABASE_URL: ${{ secrets.NEON_TEST_DATABASE_URL }}
+      TEST_DIRECT_URL: ${{ secrets.NEON_TEST_DIRECT_URL }}
+      TEST_DATABASE_HOST_ALLOWLIST: ${{ vars.NEON_TEST_DATABASE_HOST_ALLOWLIST }}
+      ALLOW_TEST_DATABASE_RESET: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate required isolated Neon secrets
+        run: test -n "$TEST_DATABASE_URL" && test -n "$TEST_DIRECT_URL" && test -n "$TEST_DATABASE_HOST_ALLOWLIST"
+      - run: pnpm test:integration
+
+  preview:
+    if: github.event_name == 'pull_request'
+    needs: [verify, neon-preproduction]
+    runs-on: ubuntu-latest
+    environment: vercel-preview
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - name: Deploy exact tested commit
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: pnpm dlx vercel@58.0.0 deploy --yes --token "$VERCEL_TOKEN"
+
+  production:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [verify, neon-preproduction]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - name: Deploy exact tested commit after environment approval
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: pnpm dlx vercel@58.0.0 deploy --prod --yes --token "$VERCEL_TOKEN"

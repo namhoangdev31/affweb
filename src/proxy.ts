@@ -14,6 +14,7 @@ export default clerkMiddleware(
       "www",
       "admin",
       "app",
+      "tenant",
       "api",
       "t",
       "deals",

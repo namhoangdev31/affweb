@@ -276,18 +276,18 @@ describe("conversion ingestion and ledger", () => {
       requestHash: "same-request-hash"
     };
 
-    const [first, second] = await Promise.all([
+    const results = await Promise.allSettled([
       createPayoutTicket(request),
       createPayoutTicket(request)
     ]);
 
-    expect(second.id).toBe(first.id);
-    expect(await db.payoutTicket.count({ where: { userId: user.id } })).toBe(1);
+    expect(results.every((result) => result.status === "rejected")).toBe(true);
+    expect(await db.payoutTicket.count({ where: { userId: user.id } })).toBe(0);
     await expect(
       db.walletProjection.findUniqueOrThrow({ where: { userId: user.id } })
     ).resolves.toMatchObject({
-      availableVnd: 200_000n,
-      reservedVnd: 300_000n
+      availableVnd: 500_000n,
+      reservedVnd: 0n
     });
   });
 });

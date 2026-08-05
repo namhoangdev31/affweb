@@ -1,7 +1,8 @@
 # External CI contract
 
-Repository không chứa GitHub Actions. Pipeline ngoài repository phải khóa theo commit SHA và dùng
-Node 22.x, pnpm 10.5.2 cùng `pnpm install --frozen-lockfile`.
+Repository có `.github/workflows/quality-gates.yml`. Pipeline khóa theo commit SHA và dùng Node 22.x,
+pnpm 10.5.2 cùng `pnpm install --frozen-lockfile`. Vercel Git auto-deploy phải tắt; Preview và
+Production chỉ được deploy từ job phụ thuộc mọi gate.
 
 ## Pull request / pre-merge
 
@@ -13,7 +14,8 @@ Node 22.x, pnpm 10.5.2 cùng `pnpm install --frozen-lockfile`.
 ## Integration
 
 1. Tạo PostgreSQL disposable có database name chứa `test`, `ci`, `tmp` hoặc `disposable`.
-2. Chỉ truyền URL đó qua `TEST_DATABASE_URL`; không dùng runtime/migration production URL.
+2. Truyền pooled URL qua `TEST_DATABASE_URL`, direct URL qua `TEST_DIRECT_URL`, bật
+   `ALLOW_TEST_DATABASE_RESET=true` và allowlist hostname. Không inject production URL vào process.
 3. Chạy `pnpm test:integration`; global setup tự chạy `prisma migrate deploy`.
 4. Hủy database/branch sau job; giữ test report, không giữ payload/PII.
 
@@ -23,5 +25,6 @@ Node 22.x, pnpm 10.5.2 cùng `pnpm install --frozen-lockfile`.
 2. Authenticated suite dùng Clerk staging storage state và fixture database disposable.
 3. Trước release, chạy migration trên database staging trống và clone staging hiện tại, provider
    shadow smoke, restore drill và `pnpm smoke:production`.
-4. PayOS payout/billing dùng hai credential sandbox riêng. Shopee reconciliation luôn off tới khi
+4. Billing, funding và payout dùng chung duy nhất bộ `PAYOS_CLIENT_ID`, `PAYOS_API_KEY`,
+   `PAYOS_CHECKSUM_KEY`; capability vẫn có kill switch riêng. Shopee reconciliation luôn off tới khi
    fixture hóa đơn thật và exact tie-out được review.

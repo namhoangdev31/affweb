@@ -152,6 +152,16 @@ export async function reconcileClerkUser(user: ClerkUserLike): Promise<AppUser> 
         } catch {
           // Non-request context fallback
         }
+        if (!initialTenantId) {
+          const masterTenantId = loadServerEnv().MASTER_TENANT_ID;
+          if (masterTenantId) {
+            const master = await tx.tenant.findFirst({
+              where: { id: masterTenantId, kind: "MASTER" },
+              select: { id: true }
+            });
+            initialTenantId = master?.id;
+          }
+        }
       }
 
       const data = {

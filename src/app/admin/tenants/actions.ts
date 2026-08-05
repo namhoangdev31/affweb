@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Prisma, Role, TenantStatus, UserStatus } from "@/generated/prisma/client";
 import { requireRole } from "@/lib/authz";
 import { db } from "@/lib/db";
+import { loadServerEnv } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 import { registerTenantWithTrial } from "@/lib/tenant";
 import { requireRecentFinancePasskey } from "@/modules/admin/passkey";
@@ -47,11 +48,12 @@ export async function createTenantAdminAction(formData: FormData) {
       if (
         owner.status !== UserStatus.ACTIVE ||
         !owner.emailVerified ||
+        owner.tenantId !== loadServerEnv().MASTER_TENANT_ID ||
         (await tx.tenant.count({ where: { ownerUserId: owner.id } })) > 0
       ) {
         throw new AppError(
           "CONFLICT",
-          "Owner phải active, có email verified và chưa sở hữu tenant.",
+          "Owner phải là master member active, có email verified và chưa sở hữu tenant.",
           409
         );
       }
@@ -65,7 +67,6 @@ export async function createTenantAdminAction(formData: FormData) {
         },
         tx
       );
-      await tx.user.update({ where: { id: owner.id }, data: { tenantId: tenant.id } });
       await tx.auditLog.create({
         data: {
           actorUserId: actor.id,
@@ -82,6 +83,69 @@ export async function createTenantAdminAction(formData: FormData) {
     },
     { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
   );
+  revalidatePath("/admin/tenants");
+}
+
+export async function updateTenantFinanceFlagsAdminAction(formData: FormData) {
+  const actor = await adminWithPasskey();
+  const raw = Object.fromEntries(formData);
+  const input = z
+    .object({
+      tenantId: z.string().cuid(),
+      financeEnabled: z.boolean(),
+      topupEnabled: z.boolean(),
+      autoPayoutEnabled: z.boolean(),
+      reason: reasonSchema
+    })
+    .parse({
+      tenantId: raw.tenantId,
+      financeEnabled: raw.financeEnabled === "on",
+      topupEnabled: raw.topupEnabled === "on",
+      autoPayoutEnabled: raw.autoPayoutEnabled === "on",
+      reason: raw.reason
+    });
+  if (!input.financeEnabled && (input.topupEnabled || input.autoPayoutEnabled)) {
+    throw new AppError("VALIDATION_ERROR", "Top-up/payout yêu cầu finance tenant được bật.", 400);
+  }
+  await db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "Tenant" WHERE id = ${input.tenantId} FOR UPDATE`;
+    const current = await tx.tenant.findUniqueOrThrow({ where: { id: input.tenantId } });
+    if (current.kind !== "STANDARD" || current.status === "CLOSED") {
+      throw new AppError("CONFLICT", "Chỉ tenant thường đang tồn tại mới được bật tài chính.", 409);
+    }
+    const updated = await tx.tenant.update({
+      where: { id: current.id },
+      data: {
+        financeEnabled: input.financeEnabled,
+        topupEnabled: input.topupEnabled,
+        autoPayoutEnabled: input.autoPayoutEnabled
+      }
+    });
+    await tx.tenantTreasuryProjection.upsert({
+      where: { tenantId: current.id },
+      create: { tenantId: current.id },
+      update: {}
+    });
+    await tx.auditLog.create({
+      data: {
+        actorUserId: actor.id,
+        action: "tenant.finance.flags.updated",
+        entityType: "Tenant",
+        entityId: current.id,
+        before: {
+          financeEnabled: current.financeEnabled,
+          topupEnabled: current.topupEnabled,
+          autoPayoutEnabled: current.autoPayoutEnabled
+        },
+        after: {
+          financeEnabled: updated.financeEnabled,
+          topupEnabled: updated.topupEnabled,
+          autoPayoutEnabled: updated.autoPayoutEnabled,
+          reason: input.reason
+        }
+      }
+    });
+  });
   revalidatePath("/admin/tenants");
 }
 

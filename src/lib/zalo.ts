@@ -12,6 +12,7 @@ import { db } from "@/lib/db";
 import { loadServerEnv } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 import { requestPayloadHash } from "@/lib/request";
+import { rateLimit } from "@/lib/rate-limit";
 import { featureEnabled } from "@/modules/flags/service";
 import { createAffiliateLink } from "@/modules/links/service";
 import { requireTenantPlan, tenantSubscriptionIsEffective } from "@/modules/tenants/plans";
@@ -64,6 +65,129 @@ export async function createZaloBindingCode(input: {
     })
   ]);
   return { code, expiresAt };
+}
+
+export async function createZaloUserBindingToken(input: {
+  tenantId: string;
+  userId: string;
+}): Promise<{ token: string; expiresAt: Date }> {
+  await requireZaloEnabled();
+  const membership = await db.user.findFirst({
+    where: { id: input.userId, tenantId: input.tenantId, status: "ACTIVE" },
+    select: { id: true }
+  });
+  if (!membership) {
+    throw new AppError("FORBIDDEN", "Tài khoản không thuộc tenant này.", 403);
+  }
+  const token = `ZU-${randomBytes(18).toString("base64url")}`;
+  const expiresAt = new Date(Date.now() + loadServerEnv().ZALO_BIND_TOKEN_TTL_MINUTES * 60_000);
+  await db.$transaction([
+    db.zaloUserBindingToken.updateMany({
+      where: { tenantId: input.tenantId, userId: input.userId, consumedAt: null },
+      data: { consumedAt: new Date() }
+    }),
+    db.zaloUserBindingToken.create({
+      data: {
+        tenantId: input.tenantId,
+        userId: input.userId,
+        tokenHash: stableHash(token),
+        expiresAt
+      }
+    })
+  ]);
+  return { token, expiresAt };
+}
+
+async function bindZaloUser(input: {
+  token: string;
+  zaloUserId: string;
+  expectedTenantId: string;
+}): Promise<{ tenantId: string; userId: string }> {
+  const tokenHash = stableHash(input.token);
+  return db.$transaction(
+    async (tx) => {
+      const token = await tx.zaloUserBindingToken.findUnique({ where: { tokenHash } });
+      if (!token) throw new AppError("VALIDATION_ERROR", "Mã liên kết user không hợp lệ.", 400);
+      await tx.$queryRaw`SELECT id FROM "ZaloUserBindingToken" WHERE id = ${token.id} FOR UPDATE`;
+      const current = await tx.zaloUserBindingToken.findUniqueOrThrow({ where: { id: token.id } });
+      if (current.consumedAt || current.expiresAt <= new Date()) {
+        throw new AppError("CONFLICT", "Mã liên kết user đã dùng hoặc hết hạn.", 409);
+      }
+      if (current.tenantId !== input.expectedTenantId) {
+        throw new AppError("FORBIDDEN", "Mã user không thuộc tenant của group này.", 403);
+      }
+      const zaloUserIdHash = hashZaloIdentifier(input.zaloUserId);
+      await tx.zaloUserBinding.updateMany({
+        where: {
+          OR: [
+            { activeIdentityKey: zaloUserIdHash },
+            { tenantId: current.tenantId, userId: current.userId, unboundAt: null }
+          ]
+        },
+        data: { activeIdentityKey: null, unboundAt: new Date() }
+      });
+      await tx.zaloUserBinding.create({
+        data: {
+          tenantId: current.tenantId,
+          userId: current.userId,
+          zaloUserIdHash,
+          zaloUserIdCipher: Uint8Array.from(encryptZaloIdentifier(input.zaloUserId)),
+          activeIdentityKey: zaloUserIdHash,
+          expiresAt: new Date(
+            Date.now() + loadServerEnv().ZALO_BINDING_TTL_DAYS * 24 * 60 * 60 * 1000
+          )
+        }
+      });
+      await tx.zaloUserBindingToken.update({
+        where: { id: current.id },
+        data: { consumedAt: new Date() }
+      });
+      await tx.auditLog.create({
+        data: {
+          actorUserId: current.userId,
+          actorRole: "TENANT_USER",
+          targetTenantId: current.tenantId,
+          targetUserId: current.userId,
+          source: "ZALO",
+          action: "zalo.identity.bound",
+          entityType: "ZaloUserBinding",
+          entityId: zaloUserIdHash,
+          metadata: { zaloUserIdHash }
+        }
+      });
+      return { tenantId: current.tenantId, userId: current.userId };
+    },
+    { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+  );
+}
+
+async function createZaloFinancialPortalGrant(input: {
+  tenantId: string;
+  userId: string;
+  action: "WALLET_LOOKUP" | "PAYOUT_REQUEST";
+  baseUrl: string;
+  tenantSlug: string;
+  messageKey: string;
+}): Promise<string> {
+  const token = `ZG-${input.messageKey}`;
+  const expiresAt = new Date(
+    Date.now() + loadServerEnv().ZALO_FINANCIAL_GRANT_TTL_MINUTES * 60_000
+  );
+  await db.zaloFinancialGrant.upsert({
+    where: { tokenHash: stableHash(token) },
+    create: {
+      tenantId: input.tenantId,
+      userId: input.userId,
+      tokenHash: stableHash(token),
+      action: input.action,
+      payloadHash: stableHash(`${input.tenantId}:${input.userId}:${input.action}`),
+      expiresAt
+    },
+    update: {}
+  });
+  const url = new URL(`/${input.tenantSlug}/app/zalo-confirm`, input.baseUrl);
+  url.searchParams.set("grant", token);
+  return url.toString();
 }
 
 async function bindGroup(input: {
@@ -161,8 +285,26 @@ async function queueReply(input: {
   });
 }
 
+async function recordZaloReceipt(messageKey: string, requestHash: string): Promise<void> {
+  await db.idempotencyRecord.upsert({
+    where: {
+      namespace_idempotencyKey: { namespace: "zalo.webhook", idempotencyKey: messageKey }
+    },
+    create: {
+      namespace: "zalo.webhook",
+      idempotencyKey: messageKey,
+      requestHash,
+      responseStatus: 200,
+      responseBody: { replied: true },
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    },
+    update: {}
+  });
+}
+
 export async function handleZaloBotIncomingUpdate(input: {
   chatId: string;
+  senderId: string;
   messageId: string;
   messageText: string;
   groupName?: string;
@@ -172,6 +314,7 @@ export async function handleZaloBotIncomingUpdate(input: {
   const messageKey = hashZaloIdentifier(input.messageId);
   const requestHash = requestPayloadHash({
     chatIdHash: hashZaloIdentifier(input.chatId),
+    senderIdHash: hashZaloIdentifier(input.senderId),
     messageText: input.messageText
   });
   const receipt = await db.idempotencyRecord.findUnique({
@@ -219,21 +362,153 @@ export async function handleZaloBotIncomingUpdate(input: {
     return { replied: true };
   }
 
+  const userBindingCommand = input.messageText.trim().match(/^\/bind\s+(ZU-[A-Za-z0-9_-]+)$/);
+  if (userBindingCommand?.[1]) {
+    const group = await db.zaloGroupBinding.findUnique({
+      where: { chatIdHash: hashZaloIdentifier(input.chatId) }
+    });
+    if (!group?.active) throw new AppError("FORBIDDEN", "Group chưa liên kết tenant.", 403);
+    await bindZaloUser({
+      token: userBindingCommand[1],
+      zaloUserId: input.senderId,
+      expectedTenantId: group.tenantId
+    });
+    await queueReply({
+      bindingId: group.id,
+      messageKey,
+      text: "Đã liên kết tài khoản. Thông tin tài chính chỉ được xem và xác nhận trong portal bảo mật."
+    });
+    await db.idempotencyRecord.create({
+      data: {
+        namespace: "zalo.webhook",
+        idempotencyKey: messageKey,
+        requestHash,
+        responseStatus: 200,
+        responseBody: { replied: true },
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      }
+    });
+    try {
+      await dispatchZaloOutbox();
+    } catch {
+      // Persisted outbox remains available for recovery.
+    }
+    return { replied: true };
+  }
+
   const binding = await db.zaloGroupBinding.findUnique({
     where: { chatIdHash: hashZaloIdentifier(input.chatId) },
     include: { tenant: true }
   });
   if (!binding?.active || !binding.tenant.ownerUserId) return { replied: false };
   if (!tenantSubscriptionIsEffective(binding.tenant)) return { replied: false };
+  const senderHash = hashZaloIdentifier(input.senderId);
+  const groupHash = hashZaloIdentifier(input.chatId);
+  const [senderRate, groupRate, tenantRate] = await Promise.all([
+    rateLimit(`zalo:sender:${binding.tenantId}:${senderHash}`, 30, 60),
+    rateLimit(`zalo:group:${binding.tenantId}:${groupHash}`, 120, 60),
+    rateLimit(`zalo:tenant:${binding.tenantId}`, 300, 60)
+  ]);
+  if (!senderRate.allowed || !groupRate.allowed || !tenantRate.allowed) {
+    await db.auditLog.create({
+      data: {
+        targetTenantId: binding.tenantId,
+        source: "ZALO",
+        action: "zalo.command.rate_limited",
+        entityType: "ZaloGroupBinding",
+        entityId: binding.id,
+        metadata: { senderHash, groupHash }
+      }
+    });
+    throw new AppError("RATE_LIMITED", "Zalo command vượt giới hạn.", 429);
+  }
+  const identity = await db.zaloUserBinding.findFirst({
+    where: {
+      activeIdentityKey: senderHash,
+      tenantId: binding.tenantId,
+      unboundAt: null,
+      expiresAt: { gt: new Date() }
+    }
+  });
+  const financialCommand = input.messageText.trim().match(/^\/(wallet|withdraw|payout)$/i)?.[1];
+  if (financialCommand) {
+    if (!identity) {
+      await queueReply({
+        bindingId: binding.id,
+        messageKey,
+        text: "Hãy đăng nhập portal và tạo mã liên kết Zalo trước khi dùng lệnh tài chính."
+      });
+      try {
+        await dispatchZaloOutbox();
+      } catch {
+        // Persisted outbox remains available for recovery.
+      }
+      await recordZaloReceipt(messageKey, requestHash);
+      return { replied: true };
+    }
+    const walletCommand = financialCommand.toLowerCase() === "wallet";
+    const commandEnabled = walletCommand
+      ? binding.tenant.zaloWalletEnabled &&
+        (await featureEnabled("tenant.zalo_wallet.enabled", false))
+      : binding.tenant.zaloPayoutEnabled &&
+        (await featureEnabled("tenant.zalo_payout.enabled", false));
+    if (!commandEnabled) {
+      await queueReply({
+        bindingId: binding.id,
+        messageKey,
+        text: "Lệnh tài chính này đang tạm khóa."
+      });
+      try {
+        await dispatchZaloOutbox();
+      } catch {
+        // Persisted outbox remains available for recovery.
+      }
+      await recordZaloReceipt(messageKey, requestHash);
+      return { replied: true };
+    }
+    const portalUrl = await createZaloFinancialPortalGrant({
+      tenantId: binding.tenantId,
+      userId: identity.userId,
+      action: walletCommand ? "WALLET_LOOKUP" : "PAYOUT_REQUEST",
+      baseUrl: input.baseUrl,
+      tenantSlug: binding.tenant.slug,
+      messageKey
+    });
+    await queueReply({
+      bindingId: binding.id,
+      messageKey,
+      text: `Vì lý do bảo mật, vui lòng xem hoặc xác nhận tại portal: ${portalUrl}`
+    });
+    try {
+      await dispatchZaloOutbox();
+    } catch {
+      // Persisted outbox remains available for recovery.
+    }
+    await recordZaloReceipt(messageKey, requestHash);
+    return { replied: true };
+  }
   const url = input.messageText.match(/https:\/\/[^\s]+/i)?.[0];
   if (!url) return { replied: false };
+  if (!identity) {
+    await queueReply({
+      bindingId: binding.id,
+      messageKey,
+      text: "Link cashback yêu cầu tài khoản Zalo đã liên kết với user của tenant."
+    });
+    try {
+      await dispatchZaloOutbox();
+    } catch {
+      // Persisted outbox remains available for recovery.
+    }
+    await recordZaloReceipt(messageKey, requestHash);
+    return { replied: true };
+  }
   if (binding.routingMode === "ACCESSTRADE_CAMPAIGN" && !binding.accessTradeCampaignId) {
     throw new AppError("CONNECTOR_UNAVAILABLE", "Group chưa cấu hình AccessTrade campaign.", 503);
   }
 
   const result = await createAffiliateLink({
-    userId: binding.tenant.ownerUserId,
-    tenantChannelId: binding.tenantId,
+    userId: identity.userId,
     url,
     ...(binding.routingMode === "ACCESSTRADE_CAMPAIGN"
       ? { campaignId: binding.accessTradeCampaignId! }
@@ -241,14 +516,14 @@ export async function handleZaloBotIncomingUpdate(input: {
     clientIdempotencyKey: `zalo:${messageKey}`,
     source: "zalo",
     requestHash: stableHash(
-      `${binding.tenantId}:${binding.routingMode}:${binding.accessTradeCampaignId ?? ""}:${url}`
+      `${binding.tenantId}:${identity.userId}:${binding.routingMode}:${binding.accessTradeCampaignId ?? ""}:${url}`
     )
   });
   const trackingUrl = new URL(result.redirectUrl, input.baseUrl).toString();
   await queueReply({
     bindingId: binding.id,
     messageKey,
-    text: `Link ${result.platform.replaceAll("_", " ")} của kênh ${binding.tenant.name}: ${trackingUrl}\nHoa hồng được ghi nhận trực tiếp cho tenant owner; link này không có cashback member.`
+    text: `Link ${result.platform.replaceAll("_", " ")} của ${binding.tenant.name}: ${trackingUrl}`
   });
   try {
     await dispatchZaloOutbox();

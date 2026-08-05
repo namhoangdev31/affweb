@@ -48,7 +48,8 @@ export function LinksWorkspace({
   historyActive,
   currentPage,
   totalHistory,
-  pageSize
+  pageSize,
+  pathname = "/app/links"
 }: {
   campaigns: CampaignItem[];
   history: LinkHistoryItem[];
@@ -56,6 +57,7 @@ export function LinksWorkspace({
   currentPage: number;
   totalHistory: number;
   pageSize: number;
+  pathname?: string;
 }) {
   return (
     <Tabs defaultValue={historyActive ? "history" : "create"} className="gap-6">
@@ -207,7 +209,7 @@ export function LinksWorkspace({
             currentPage={currentPage}
             totalItems={totalHistory}
             pageSize={pageSize}
-            pathname="/app/links"
+            pathname={pathname}
             query={{ tab: "history" }}
             itemLabel="link"
           />

@@ -4,7 +4,7 @@ Tài liệu này là bản đồ tư duy cấp cao của dự án. Đọc cùng 
 
 ## 1. Mục tiêu sản phẩm
 
-`affweb` là web app/PWA affiliate cashback tại Việt Nam. Người dùng tạo link affiliate, đi qua redirect nội bộ có attribution và hệ thống đồng bộ conversion từ nhiều nguồn. Flow nền tảng dùng ledger/wallet/payOS; flow member thuộc tenant dùng Affiliate ID của tenant owner, chỉ tính/ghi nhận khoản chia và để owner thanh toán bên ngoài hệ thống.
+`affweb` là web app/PWA affiliate cashback tại Việt Nam. Người dùng tạo link affiliate, đi qua redirect nội bộ có attribution và hệ thống đồng bộ conversion từ nhiều nguồn. Flow master dùng ledger/wallet/payOS core; flow tenant sau cutover dùng treasury, nghĩa vụ cashback, ví member và payout aggregate riêng, còn lịch sử tenant external-settlement trước cutover được giữ nguyên.
 
 Các nền tảng hiện có:
 
@@ -24,12 +24,10 @@ Stack chính:
 - PostgreSQL/Neon, Prisma 7 và `@prisma/adapter-pg`.
 - Clerk cho identity; role và trạng thái nghiệp vụ nằm trong PostgreSQL.
 - Upstash Redis + QStash cho cache/rate limit/job.
-- payOS cho payout; PayOS SDK với credential billing riêng cho subscription; Resend cho email; Web Push cho PWA.
+- PayOS cho billing/funding/payout dùng chung một credential set hiện có nhưng kill switch nghiệp vụ độc lập; Resend cho email; Web Push cho PWA.
 - AWS S3 Object Lock cho raw evidence production; Sentry cho observability.
-- Tenant/KOC SaaS dùng path/slug, plan catalog trong PostgreSQL, PayOS subscription invoice và một
-  Zalo Bot trung tâm. Business có thể dùng tenant-managed Lazada/AccessTrade credential sau preflight;
-  tiền và nghĩa vụ member vẫn nằm ngoài ledger nền tảng.
-- Vercel là runtime/deployment target. Workflow GitHub Actions đã bị xóa khỏi repository trong code vừa pull; kiểm định hiện phải được chạy chủ động hoặc do pipeline ngoài repository đảm nhiệm.
+- Tenant/KOC SaaS dùng master tenant, path/slug, plan catalog trong PostgreSQL, PayOS subscription invoice và một Zalo Bot trung tâm. Business có thể dùng tenant-managed Lazada/AccessTrade credential sau preflight. Tenant finance có journal/projection riêng và chỉ hoạt động khi cả env, global DB flag và tenant flag đều bật.
+- Vercel là runtime/deployment target. GitHub Actions quality gate dùng PostgreSQL 16 và Neon test branch trước Preview/Production; Vercel Git auto-deploy phải tắt.
 
 ## 2. Kiến trúc
 
@@ -67,7 +65,8 @@ Ranh giới phụ thuộc mong muốn:
 - Thao tác cạnh tranh trên wallet/payout phải nằm trong transaction, dùng lock và isolation phù hợp.
 - Tenant owner nhận hoa hồng vào tài khoản Affiliate riêng; nền tảng chỉ thu phí gói, không thu phần trăm hoa hồng tenant.
 - Cashback tenant = `round_down((netCommissionVnd - round_down(netCommissionVnd × 10%)) × memberShareBps)`.
-- Conversion tenant không được post vào ledger/wallet/payout nền tảng. `tenantPaidAt` chỉ là xác nhận owner đã chi trả bên ngoài và phải có audit.
+- Conversion tenant sau cutover không post vào `WalletProjection` hoặc payout core. Khi tenant finance được bật, conversion `VALIDATED` tạo `TenantCashbackObligation` deterministic và được cấp vốn từ `TenantTreasuryProjection` sang `TenantMemberWalletProjection`. Lịch sử `tenantPaidAt` trước cutover vẫn là external settlement có audit và không được chuyển đổi hồi tố.
+- Mọi journal tenant phải balanced, line dương, idempotent và cập nhật projection/obligation trong cùng Serializable transaction; correction luôn dùng compensating journal hoặc recovery, không sửa ledger cũ và không cho ví âm.
 
 ### Conversion và evidence
 
@@ -85,7 +84,7 @@ Ranh giới phụ thuộc mong muốn:
 
 - Payout phải vượt qua cả env credentials và DB flag `payout.enabled`.
 - Beta: tối thiểu 100.000 VND; tối đa 500.000 VND/ticket và user/ngày.
-- Bank beneficiary mới/đổi bị hold 72 giờ.
+- Bank beneficiary mới/đổi chịu security hold theo `BENEFICIARY_HOLD_HOURS`; payout không tạo hold riêng.
 - Creator, reviewer và approver phải tách biệt theo rule hiện tại.
 - Finance action cần passkey dùng trong 10 phút gần nhất.
 - Timeout/provider ambiguity chuyển `UNKNOWN`; reconcile trước, không tự gửi tiền lần hai.
@@ -97,7 +96,7 @@ Ranh giới phụ thuộc mong muốn:
 - Outbound link chỉ dùng HTTPS và phải qua URL policy/allowlist.
 - API browser mutation phải kiểm tra origin, giới hạn body và trả `AppError` an toàn.
 - Admin cần role, email allowlist, Clerk session mới, Google connection đã verify và Redis cache hợp lệ.
-- Service worker không cache `/api`, auth, `/app`, `/admin`, `/go`.
+- Service worker không cache `/api`, auth, `/admin`, `/app`, `/tenant`, `/<slug>/app` hoặc `/go`.
 - Giấy tờ định danh cá nhân không thuộc source tree và không được app lưu.
 
 ## 4. Luồng nghiệp vụ chính
@@ -126,7 +125,7 @@ Ranh giới phụ thuộc mong muốn:
 
 ### Withdrawal → payOS
 
-1. User lưu beneficiary; dữ liệu mã hóa và hold 72 giờ.
+1. User lưu beneficiary; dữ liệu mã hóa và áp dụng security hold cấu hình tập trung.
 2. Tạo payout lock wallet, kiểm tra số dư/limit/system budget rồi chuyển available → reserved.
 3. Finance reviewer và approver xử lý độc lập, có recent passkey.
 4. Submission dùng một payOS idempotency key cho attempt.
@@ -141,22 +140,18 @@ Ranh giới phụ thuộc mong muốn:
 4. Clerk webhook dùng Svix signature + idempotency record.
 5. Account deletion kiểm tra financial blockers trước khi gọi Clerk delete.
 
-### Tenant/KOC SaaS Core v1
+### Tenant/KOC SaaS Core v2
 
-1. Mọi tài khoản là member nền tảng. Một member có thể mua gói để sở hữu tối đa một `Tenant`; `Tenant.ownerUserId` là admin nhóm, không phải role quản trị hệ thống.
-2. Onboarding bắt buộc Shopee Affiliate ID và tỷ lệ hoàn member từ 1–100%; tenant bắt đầu trial 14 ngày và owner được gắn `tenantId`.
-3. Public channel dùng `/<slug>`. Join explicit đi qua `POST /api/v1/tenants/{slug}/join`; Clerk cookie onboarding gọi cùng domain service, khóa tenant và kiểm tra subscription/config/quota. User đã thuộc tenant khác không bị chuyển âm thầm.
-4. Owner tạo link mua cá nhân luôn đi theo Affiliate ID/rate nền tảng để tránh tự mua bằng Affiliate ID của chính mình. Member tenant chỉ tạo link Shopee bằng Affiliate ID của owner khi gói còn hiệu lực và cấu hình đầy đủ; không fallback âm thầm về ID nền tảng.
-5. Packet Shopee SubID v2 là `["affweb", clickToken alphanumeric, "web" | "zalo", "cashback" | "tenant", "v2"]`; không đưa user/tenant ID hoặc PII vào URL. Principal `PLATFORM_USER`, `TENANT_MEMBER`, `TENANT_CHANNEL`, idempotency key, product snapshot, rate và thuế được persist tại link time. Entitlement và click quota được kiểm tra lại trong transaction ghi click.
-6. Conversion tenant propagate `tenantId`, trừ 10% thuế ước tính rồi chia theo immutable
-   `shareBps`. Không tạo ledger posting hay wallet projection của nền tảng; owner đánh dấu external
-   payment bằng endpoint idempotent có audit.
-7. Tenant owner xem các conversion của nhóm tại `/app/conversions?scope=all` và chỉ được đánh dấu đơn `VALIDATED` là đã chi trả ngoài hệ thống; thao tác được audit và không có chức năng hoàn tác tùy tiện.
-8. Subscription lấy giá/duration/capability từ `SubscriptionPlan`, tạo `SaaSInvoice` idempotent và gọi PayOS SDK bằng credential billing riêng. Chỉ webhook có chữ ký, invoice `PENDING` và mọi snapshot khớp mới gia hạn từ `max(now, currentExpiry)`; invoice không tồn tại hoặc snapshot mismatch không mutate subscription và tạo outbox alert idempotent cho `SUPER_ADMIN`.
-9. Zalo owner tạo binding code dùng một lần, TTL 10 phút. `/link CODE` bind group bằng chat hash +
-   ciphertext. Routing là `DIRECT` cho Shopee/Lazada hoặc `ACCESSTRADE_CAMPAIGN` explicit; không
-   fallback ngầm. Link là `TENANT_CHANNEL`, không map sender sang Clerk và không có cashback member.
-10. Admin tenant dùng dữ liệu PostgreSQL thật, `SUPER_ADMIN`, fresh Clerk session, recent passkey, reason và audit. Manual plan/expiry adjustment append-only, không tạo doanh thu invoice.
+1. Hệ thống có đúng một tenant loại `MASTER` do `MASTER_TENANT_ID` xác định. `OWNER` là owner master; `MASTER_MEMBER` là member master; `TENANT_MASTER` là master member đồng thời sở hữu tối đa một tenant `STANDARD`; `TENANT_USER` là member của đúng một tenant standard. Persona được suy ra từ database, không persist role dẫn xuất.
+2. Ownership và membership độc lập. Khi master member tạo tenant, `User.tenantId` vẫn là master; tenant user không được rời tenant để tạo tenant con. Backfill đưa core user và owner tenant standard về master, giữ nguyên member standard và lịch sử finance.
+3. Portal được tách shell/navigation/data: `/admin` cho Owner/staff, `/app` cho cashback cá nhân của master member, `/tenant` cho Tenant Master, `/<slug>/app` cho Tenant User; `/<slug>` là landing public. Custom domain `/app` resolve tenant server-side. Route/API không tin slug, tenant ID, owner ID hoặc wallet ID do client gửi.
+4. `/app` luôn dùng Affiliate ID/rate master; `/<slug>/app` dùng Affiliate ID/rate của tenant còn hiệu lực; `/tenant` chỉ tạo tenant-channel link khi chức năng chỉ rõ. Packet Shopee SubID v2 vẫn là `["affweb", clickToken alphanumeric, source, mode, "v2"]` và không chứa PII.
+5. Tài chính tenant tách khỏi core bằng `TenantTreasuryProjection`, `TenantMemberWalletProjection`, `TenantCashbackObligation`, `TenantFundingOrder`, `TenantPayout` và `TenantPayoutAttempt`. Top-up PayOS chỉ credit khi signature/order/payment link/amount/currency khớp; funding sau đó phân bổ FIFO ổn định theo `createdAt,id`.
+6. Hệ thống tài chính phân cấp Owner → Tenant Master → Tenant User hoạt động trên hai trục lifecycle độc lập: `ApprovalStatus` (`PENDING → APPROVED | REJECTED | CANCELLED`) và `SettlementStatus` (`NOT_STARTED → PROCESSING → PAID | FAILED | UNKNOWN`). `TenantPayout.status` được duy trì như mirror đọc tương thích cho legacy consumers.
+7. Mọi thao tác tài chính đi qua `FinancialActorContext` xác định actor role (`OWNER`, `TENANT_MASTER`, `TENANT_USER`, `SYSTEM_WORKER`) và `targetTenantId`. Dữ liệu thụ hưởng ngân hàng được snapshot mã hóa. Thao tác duyệt không trực tiếp gọi PayOS; `executeApprovedPayosPayout` chạy inline sau khi approval transaction commit, khởi tạo `TenantPayoutExecutionIntent` duy nhất và `TenantPayoutAttempt` (SUBMIT) đơn lẻ.
+8. Platform self-approval áp dụng hạn mức `PLATFORM_SELF_APPROVAL_LIMIT_VND` (mặc định 0 VND fail-closed). Trường hợp chuyển khoản thủ công có two-eye guard `MANUAL_NO_SEND_SELF_CONFIRM_LIMIT_VND`. Route `/external-payment` trả HTTP 410 Gone vĩnh viễn. Các QStash recurring schedules 5-15 phút bị loại bỏ, thay bằng một Vercel daily safety sweep cron duy nhất (`/api/internal/cron/finance-safety-sweep`).
+9. Mọi gate tenant mặc định off: `TENANT_FINANCE_ENABLED`, `TENANT_TOPUP_ENABLED`, `TENANT_AUTO_PAYOUT_ENABLED`, `PAYOS_PAYOUT_ENABLED`, global DB flags tương ứng và per-tenant flags. SaaS billing, tenant funding và tenant payout dùng chung duy nhất một bộ credentials PayOS (`PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`).
+10. Zalo dùng một bot trung tâm. Group binding resolve tenant server-side; user binding dùng sender ID provider đã hash/mã hóa và one-time token có expiry. Link cashback yêu cầu binding đúng tenant. Lệnh wallet/payout trong group chỉ trả portal confirmation link, không hiển thị số dư/ngân hàng và không reserve/approve/submit payout.
 
 Các release blocker còn mở:
 
@@ -168,7 +163,7 @@ Các release blocker còn mở:
   tie-out. Không dùng ảnh chụp, tổng invoice hoặc Payment History để release.
 - PayOS billing và Zalo cần credential sandbox/staging thật để chạy contract smoke. Return/cancel URL không thay đổi subscription.
 - Authenticated Chromium E2E cần Clerk staging storage state, disposable DB fixtures và provider stubs/credentials; repository hiện chỉ chứng minh unit/build và public/auth-boundary E2E.
-- Migration baseline tenant/SaaS/Zalo và migration expand Core v1 đã được thêm, nhưng vẫn phải chứng minh `prisma migrate deploy` trên PostgreSQL disposable trống và clone trạng thái hiện tại trước deploy.
+- Migration baseline tenant/SaaS/Zalo, expand Core v1 và additive tenant finance/portal v2 đã được thêm, nhưng vẫn phải chứng minh `prisma migrate deploy` trên PostgreSQL disposable trống và clone trạng thái hiện tại trước deploy. Script backfill master tenant không được chạy trước khi xác nhận `MASTER_TENANT_ID`, migration lineage và database target.
 - Migration hiện là expand-only: cột legacy `planId`, `isTrial`, invoice `amount` và Zalo scaffold chưa bị xóa. Contract migration chỉ được tạo sau dual-read/backfill consistency sạch.
 - Lazada/AccessTrade code path dùng contract chính thức và mặc định tắt. Chỉ active sau credential
   preflight, identity match, fixture/round-trip và controlled staging smoke. AccessTrade credential
@@ -185,6 +180,7 @@ Các release blocker còn mở:
   `SettlementLine`.
 - Rate/finance: `CommissionRule`, `CommissionRuleVersion`, `LedgerAccount`, `LedgerTransaction`, `LedgerEntry`, `WalletProjection`.
 - Payout: `BankBeneficiary`, `BeneficiaryChange`, `PayoutTicket`, `PayoutApproval`, `PayoutAttempt`, `BalanceAdjustment`.
+- Tenant finance: `TenantTreasuryProjection`, `TenantMemberWalletProjection`, `TenantCashbackObligation`, `TenantFundingOrder`, `TenantPayout`, `TenantPayoutAttempt`.
 - Messaging/operations: `Notification`, `NotificationDelivery`, `PushSubscription`, `OutboxEvent`, `IdempotencyRecord`, `FeatureFlag`, `AuditLog`.
 
 Chi tiết field, relation, enum, line number và purpose nằm trong `project_map.json`.
@@ -232,6 +228,7 @@ Database trong file hiện trỏ tới một Neon database tên chung `neondb`. 
 - Integration test chỉ chạy qua `pnpm test:integration`, bắt buộc `TEST_DATABASE_URL` khác mọi runtime/migration URL và tên database có marker test/ci/tmp/disposable.
 - `prisma migrate status` ngày 2026-07-28 xác nhận hai migration cũ đã được ghi nhận và migration `202607280001_tenant_affiliate_member_sharing` đang pending. Read-only diff xác nhận DB đã có tenant tables/fields nền dù repository không có migration tạo baseline tenant; phải xử lý migration lineage trước khi dựng database mới từ đầu.
 - Không chạy `db:deploy` cho đến khi xác nhận Neon hiện tại là branch dev/staging phù hợp và đã review dữ liệu owner trùng lặp/constraint compatibility.
+- Không chạy `tenant:configure-master` nếu migration tenant finance chưa deploy hoặc database chưa được chứng minh disposable/staging; script yêu cầu xác nhận backfill exact-match và không phải công cụ runtime.
 - An toàn nhất: tạo Neon branch/database riêng cho mỗi developer/test, sau đó đặt `DATABASE_URL` và `DIRECT_URL` của branch đó trong `.env`.
 - Không bao giờ dùng `prisma db push` cho staging/production.
 
@@ -304,7 +301,7 @@ Lệnh này được phép fail ở local khi các integration production như C
 
 ## 9. Vercel và release
 
-- Repository hiện không còn `.github/workflows/ci.yml`; push `main` không được code trong repository này chứng minh là sẽ chạy secret scan, lint, typecheck, integration, build hay E2E trước deploy.
+- `.github/workflows/quality-gates.yml` provision PostgreSQL 16, migrate/seed, chạy unit + integration/concurrency + build + Chromium + audit, sau đó kiểm chứng Neon test branch trước Preview/Production. Các GitHub environment/secrets và Vercel Git auto-deploy vẫn phải được cấu hình ngoài repo.
 - Vercel đọc env theo từng environment; `.env` local không được push.
 - Runtime dùng pooled URL; migration dùng direct/unpooled URL.
 - Production release phải theo `docs/operations/production-runbook.md`.

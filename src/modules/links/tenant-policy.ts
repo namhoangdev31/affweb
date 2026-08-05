@@ -1,9 +1,10 @@
-import type { Platform, TenantStatus } from "@/generated/prisma/client";
+import type { Platform, TenantKind, TenantStatus } from "@/generated/prisma/client";
 import { AppError } from "@/lib/errors";
 import { TENANT_AFFILIATE_TAX_BPS } from "@/lib/money";
 
 export type TenantLinkConfig = {
   id: string;
+  kind: TenantKind;
   status: TenantStatus;
   planExpiresAt: Date;
   shopeeAffiliateId: string | null;
@@ -21,7 +22,10 @@ export function resolveTenantLinkPolicy(input: {
   shareBps: number;
   withholdingTaxBps: number;
 } | null {
-  if (input.userOwnsTenant || !input.memberTenant) return null;
+  if (!input.memberTenant) return null;
+  if (input.userOwnsTenant && input.memberTenant.kind !== "MASTER") {
+    throw new AppError("FORBIDDEN", "Tenant owner phải giữ membership tại Platform Tenant.", 403);
+  }
 
   const tenant = input.memberTenant;
   const subscriptionActive =

@@ -65,6 +65,7 @@ export async function POST(request: Request): Promise<Response> {
     const groupName = message.chat.name ?? message.chat.display_name;
     const result = await handleZaloBotIncomingUpdate({
       chatId: String(message.chat.id),
+      senderId: String(message.from.id),
       messageId: String(message.message_id),
       messageText: message.text,
       baseUrl: loadServerEnv().APP_BASE_URL,

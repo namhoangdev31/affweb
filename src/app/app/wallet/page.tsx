@@ -1,4 +1,4 @@
-import { PayoutForm } from "@/components/payout-form";
+import { TenantMemberPayoutForm } from "@/components/tenant-member-payout-form";
 import { PaginationNav } from "@/components/pagination-nav";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { paginationPage } from "@/lib/pagination";
 import { formatVnd } from "@/lib/utils";
+import { requireMasterMemberContext } from "@/modules/tenants/persona";
 
 const PAGE_SIZE = 10;
 
@@ -23,28 +24,51 @@ export default async function WalletPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const user = await requireUser();
+  const tenantContext = await requireMasterMemberContext(user.id);
+  const tenantId = tenantContext.masterTenant.id;
   const params = await searchParams;
-  const [wallet, beneficiary, totalTickets] = await Promise.all([
-    db.walletProjection.findUnique({ where: { userId: user.id } }),
+  const payoutWhere = { tenantId, userId: user.id, type: "MEMBER_WITHDRAWAL" as const };
+  const [wallet, beneficiary, totalTickets, availableObligations] = await Promise.all([
+    db.tenantMemberWalletProjection.findUnique({
+      where: { tenantId_userId: { tenantId, userId: user.id } }
+    }),
     db.bankBeneficiary.findFirst({ where: { userId: user.id, active: true, status: "VERIFIED" } }),
-    db.payoutTicket.count({ where: { userId: user.id } })
+    db.tenantPayout.count({ where: payoutWhere }),
+    db.tenantCashbackObligation.findMany({
+      where: { tenantId, userId: user.id, status: "AVAILABLE" },
+      select: { fundedVnd: true, reservedVnd: true, paidVnd: true }
+    })
   ]);
   const currentPage = paginationPage(params.page, totalTickets, PAGE_SIZE);
-  const tickets = await db.payoutTicket.findMany({
-    where: { userId: user.id },
+  const tickets = await db.tenantPayout.findMany({
+    where: payoutWhere,
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     skip: (currentPage - 1) * PAGE_SIZE,
     take: PAGE_SIZE
   });
-  const value = wallet ?? { pendingVnd: 0n, availableVnd: 0n, reservedVnd: 0n, paidVnd: 0n };
+  const value = wallet ?? {
+    pendingFundingVnd: 0n,
+    availableVnd: 0n,
+    reservedVnd: 0n,
+    paidVnd: 0n,
+    recoveryVnd: 0n
+  };
+  const obligationAvailableVnd = availableObligations.reduce(
+    (total, obligation) =>
+      total + obligation.fundedVnd - obligation.reservedVnd - obligation.paidVnd,
+    0n
+  );
+  const withdrawableVnd =
+    value.availableVnd < obligationAvailableVnd ? value.availableVnd : obligationAvailableVnd;
   return (
     <div>
       <p className="text-sm text-muted-foreground">Ledger là nguồn sự thật</p>
       <h1 className="display-type mt-1 text-4xl">Ví cashback.</h1>
       <div className="mt-8 grid gap-4 md:grid-cols-4">
         {[
-          ["Pending", value.pendingVnd],
+          ["Pending", value.pendingFundingVnd],
           ["Available", value.availableVnd],
+          ["Withdrawable", withdrawableVnd],
           ["Reserved", value.reservedVnd],
           ["Paid", value.paidVnd]
         ].map(([label, amount]) => (
@@ -62,9 +86,9 @@ export default async function WalletPage({
             <CardTitle>Tạo payout</CardTitle>
           </CardHeader>
           <CardContent>
-            <PayoutForm
+            <TenantMemberPayoutForm
               beneficiaryId={beneficiary?.id ?? null}
-              availableVnd={value.availableVnd.toString()}
+              availableVnd={withdrawableVnd.toString()}
             />
           </CardContent>
         </Card>
@@ -89,7 +113,10 @@ export default async function WalletPage({
                       <TableCell className="font-medium">{ticket.reference}</TableCell>
                       <TableCell>{ticket.createdAt.toLocaleDateString("vi-VN")}</TableCell>
                       <TableCell>
-                        <Badge variant="secondary">{ticket.status}</Badge>
+                        <div className="flex gap-1">
+                          <Badge variant="secondary">{ticket.approvalStatus}</Badge>
+                          <Badge variant="outline">{ticket.settlementStatus}</Badge>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right font-semibold">
                         {formatVnd(ticket.amountVnd)}
@@ -110,7 +137,10 @@ export default async function WalletPage({
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold">{formatVnd(ticket.amountVnd)}</p>
-                    <Badge variant="secondary">{ticket.status}</Badge>
+                    <div className="flex gap-1">
+                      <Badge variant="secondary">{ticket.approvalStatus}</Badge>
+                      <Badge variant="outline">{ticket.settlementStatus}</Badge>
+                    </div>
                   </div>
                 </div>
               ))}

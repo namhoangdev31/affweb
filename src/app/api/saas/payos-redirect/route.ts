@@ -22,7 +22,7 @@ async function handleRedirect(request: Request): Promise<Response> {
   const searchParams = url.searchParams.toString();
 
   const targetUrl = new URL(
-    `/app/settings/tenant${searchParams ? `?${searchParams}` : ""}`,
+    `/tenant/settings${searchParams ? `?${searchParams}` : ""}`,
     env.APP_BASE_URL
   );
 

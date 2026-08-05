@@ -27,8 +27,58 @@ const DEFAULT_FLAGS = [
   },
   {
     key: "payout.enabled",
-    enabled: true,
-    description: "Enable Payout ticket creation and processing"
+    enabled: false,
+    description: "Legacy core payout kill switch; remains disabled after tenant finance cutover"
+  },
+  {
+    key: "tenant.finance.enabled",
+    enabled: false,
+    description: "Enable tenant financial ledger commands"
+  },
+  {
+    key: "tenant.payout_request.enabled",
+    enabled: false,
+    description: "Enable tenant member payout requests"
+  },
+  {
+    key: "tenant.payout_approval.enabled",
+    enabled: false,
+    description: "Enable tenant member payout approval"
+  },
+  {
+    key: "tenant.treasury_withdrawal.enabled",
+    enabled: false,
+    description: "Enable tenant treasury withdrawal requests"
+  },
+  {
+    key: "tenant.manual_payout.enabled",
+    enabled: false,
+    description: "Enable request-driven manual tenant payouts"
+  },
+  {
+    key: "tenant.auto_payout.enabled",
+    enabled: false,
+    description: "Enable internal PayOS execution after tenant payout approval"
+  },
+  {
+    key: "tenant.auto_reconciliation.enabled",
+    enabled: false,
+    description: "Enable finite provider reconciliation"
+  },
+  {
+    key: "qstash.recovery.enabled",
+    enabled: false,
+    description: "Enable record-scoped QStash finance recovery"
+  },
+  {
+    key: "tenant.zalo_wallet.enabled",
+    enabled: false,
+    description: "Enable tenant wallet lookup through bound Zalo identities"
+  },
+  {
+    key: "tenant.zalo_payout.enabled",
+    enabled: false,
+    description: "Enable tenant payout confirmation links from Zalo"
   },
   {
     key: "zalo.bot.enabled",

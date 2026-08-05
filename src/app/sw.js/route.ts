@@ -19,6 +19,7 @@ const PRIVATE_PREFIXES = [
   "/login",
   "/app",
   "/admin",
+  "/tenant",
   "/go/"
 ];
 
@@ -39,7 +40,8 @@ self.addEventListener("message", (event) => {
 });
 
 function isPrivate(url) {
-  return PRIVATE_PREFIXES.some((prefix) => url.pathname.startsWith(prefix));
+  return PRIVATE_PREFIXES.some((prefix) => url.pathname.startsWith(prefix)) ||
+    /^\\/[^/]+\\/app(?:\\/|$)/.test(url.pathname);
 }
 
 self.addEventListener("fetch", (event) => {

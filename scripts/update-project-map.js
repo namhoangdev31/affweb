@@ -8,6 +8,7 @@ import prettier from "prettier";
 const root = process.cwd();
 const mapPath = path.join(root, "project_map.json");
 const mapData = JSON.parse(fs.readFileSync(mapPath, "utf8"));
+const packageData = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 const SELF_HASH_PLACEHOLDER = "0".repeat(64);
 
 function gitFiles(args) {
@@ -212,11 +213,37 @@ nextFiles["project_map.json"] = {
 mapData.files = Object.fromEntries(
   Object.entries(nextFiles).sort(([left], [right]) => left.localeCompare(right))
 );
+mapData.project.purpose =
+  "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.";
+mapData.architecture.criticalFlows.tenant =
+  "MASTER tenant membership -> TENANT_MASTER ownership of one STANDARD tenant -> isolated /tenant and /<slug>/app portals -> tenant obligation/treasury/member-wallet journals -> approval-gated payout ticket.";
+mapData.externalServices.payOS =
+  "One shared PAYOS_CLIENT_ID/API_KEY/CHECKSUM_KEY set for SaaS billing, tenant funding, and payout; each operation remains behind separate fail-closed flags.";
+mapData.commands = packageData.scripts;
+const envTemplate = fs.readFileSync(path.join(root, ".env.example"), "utf8");
+mapData.environment.variableNames = [
+  ...new Set(
+    envTemplate
+      .split(/\r?\n/)
+      .map((line) => line.match(/^([A-Z][A-Z0-9_]*)=/)?.[1])
+      .filter(Boolean)
+  )
+];
 mapData.project.baseCommit = execFileSync("git", ["rev-parse", "HEAD"], {
   cwd: root,
   encoding: "utf8"
 }).trim();
 mapData.nonNegotiableInvariants = [...new Set(mapData.nonNegotiableInvariants ?? [])];
+mapData.nonNegotiableInvariants = mapData.nonNegotiableInvariants.filter(
+  (value) =>
+    value !==
+    "Tenant conversions never post platform ledger/wallet/payout; external payment confirmation is owner-scoped and audited."
+);
+mapData.nonNegotiableInvariants.push(
+  "Tenant finance uses separate treasury/member projections and balanced append-only journals; pre-cutover external settlements are not rewritten.",
+  "Tenant User payout tickets require Tenant Master approval, and Tenant Master treasury withdrawals require Owner approval before provider submission."
+);
+mapData.nonNegotiableInvariants = [...new Set(mapData.nonNegotiableInvariants)];
 mapData.statistics = {
   ...mapData.statistics,
   mappedFiles: activeFiles.length,

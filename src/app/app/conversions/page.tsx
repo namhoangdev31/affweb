@@ -31,7 +31,7 @@ export default async function ConversionsPage({
 
   // Check if current user is a Tenant Owner (KOC)
   const ownedTenant = await db.tenant.findFirst({
-    where: { ownerUserId: user.id }
+    where: { ownerUserId: user.id, kind: "MASTER" }
   });
 
   // Query filter based on user role and selected scope tab

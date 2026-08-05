@@ -21,6 +21,7 @@ import {
   adjustTenantPlanAdminAction,
   changeTenantStatusAdminAction,
   createTenantAdminAction,
+  updateTenantFinanceFlagsAdminAction,
   updateTenantAdminAction
 } from "./actions";
 
@@ -92,6 +93,37 @@ function TenantControls({ tenant, plans }: { tenant: TenantRow; plans: TenantPla
           <Input name="reason" minLength={12} placeholder="Lý do đổi/gia hạn plan" required />
           <Button type="submit">Áp dụng plan adjustment</Button>
         </form>
+
+        {tenant.kind === "STANDARD" ? (
+          <form action={updateTenantFinanceFlagsAdminAction} className="grid gap-3 md:grid-cols-4">
+            <input type="hidden" name="tenantId" value={tenant.id} />
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" name="financeEnabled" defaultChecked={tenant.financeEnabled} />{" "}
+              Finance
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" name="topupEnabled" defaultChecked={tenant.topupEnabled} />{" "}
+              Top-up
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="autoPayoutEnabled"
+                defaultChecked={tenant.autoPayoutEnabled}
+              />{" "}
+              Auto payout
+            </label>
+            <Input
+              name="reason"
+              minLength={12}
+              placeholder="Lý do thay đổi finance flags"
+              required
+            />
+            <Button type="submit" variant="outline" className="md:col-span-4">
+              Lưu finance flags
+            </Button>
+          </form>
+        ) : null}
 
         <div className="grid gap-3 md:grid-cols-3">
           {(["SUSPEND", "RESTORE", "CLOSE"] as const).map((action) => (

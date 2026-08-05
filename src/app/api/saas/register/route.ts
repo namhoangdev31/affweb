@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { errorResponse } from "@/lib/errors";
 import { assertTrustedOrigin, readJson, requestId } from "@/lib/request";
 import { registerTenantWithTrial } from "@/lib/tenant";
+import { requireMasterMemberContext } from "@/modules/tenants/persona";
 
 export const runtime = "nodejs";
 
@@ -28,6 +29,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     assertTrustedOrigin(request);
     const user = await requireApiUser();
+    await requireMasterMemberContext(user.id);
     const input = inputSchema.parse(await readJson(request));
     const existing = await db.tenant.findUnique({
       where: { ownerUserId: user.id },
@@ -57,10 +59,6 @@ export async function POST(request: Request): Promise<Response> {
         },
         tx
       );
-      await tx.user.update({
-        where: { id: user.id },
-        data: { tenantId: created.id }
-      });
       return created;
     });
 

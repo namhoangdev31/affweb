@@ -17,7 +17,7 @@ const faqs = [
     "Khi số dư khả dụng từ 100.000 ₫. Beta giới hạn tối đa 500.000 ₫ mỗi ticket và mỗi người mỗi ngày."
   ],
   [
-    "Vì sao đổi tài khoản ngân hàng bị khóa 72 giờ?",
+    "Vì sao đổi tài khoản ngân hàng tạm khóa payout?",
     "Đây là khoảng bảo vệ chống chiếm đoạt tài khoản. Không ai, kể cả admin, có thể bỏ qua mà không để lại audit."
   ],
   [

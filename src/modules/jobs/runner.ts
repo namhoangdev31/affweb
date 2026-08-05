@@ -22,7 +22,6 @@ import {
 import { storeRawEvidence, verifyEvidenceIntegrity } from "@/modules/evidence/service";
 import { verifyLedgerBalance } from "@/modules/ledger/service";
 import { dispatchNotifications } from "@/modules/notifications/dispatch";
-import { reconcilePayout } from "@/modules/payout/service";
 import { expireSaaSInvoicesAndTenants } from "@/lib/tenant";
 import { dispatchZaloOutbox } from "@/lib/zalo";
 import { featureEnabled } from "@/modules/flags/service";
@@ -605,23 +604,12 @@ export async function syncOffersJob() {
 }
 
 export async function payoutReconciliationJob() {
-  const tickets = await db.payoutTicket.findMany({
-    where: { status: { in: ["SUBMITTED", "PROCESSING", "UNKNOWN"] } },
-    select: { id: true },
-    take: 100
-  });
-  const results = [];
-  for (const ticket of tickets) {
-    try {
-      results.push(await reconcilePayout(ticket.id));
-    } catch (error) {
-      logger.error("payout_reconciliation_failed", {
-        payoutTicketId: ticket.id,
-        error: error instanceof Error ? error.message : "unknown"
-      });
-    }
-  }
-  return { reconciled: results.length };
+  return {
+    reconciled: 0,
+    tenantReconciled: 0,
+    disabled: true,
+    reason: "Global payout polling is disabled; use record-scoped reconciliation."
+  };
 }
 
 export async function runJob(name: string) {

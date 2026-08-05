@@ -3,8 +3,7 @@ import "server-only";
 import { db } from "@/lib/db";
 import { encryptSensitiveValue } from "@/lib/crypto";
 import { AppError } from "@/lib/errors";
-
-const BENEFICIARY_HOLD_MS = 72 * 60 * 60 * 1000;
+import { loadServerEnv } from "@/lib/env";
 
 export async function saveBeneficiary(input: {
   userId: string;
@@ -45,7 +44,9 @@ export async function saveBeneficiary(input: {
         verifiedAt: new Date()
       }
     });
-    const holdUntil = new Date(Date.now() + BENEFICIARY_HOLD_MS);
+    const holdUntil = new Date(
+      Date.now() + loadServerEnv().BENEFICIARY_HOLD_HOURS * 60 * 60 * 1000
+    );
     await tx.beneficiaryChange.create({
       data: {
         userId: input.userId,

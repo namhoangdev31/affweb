@@ -25,7 +25,7 @@ export default async function ReconciliationPage({
   const user = await requireUser();
   const params = await searchParams;
   const tenant = await db.tenant.findUnique({
-    where: { ownerUserId: user.id },
+    where: { ownerUserId: user.id, kind: "MASTER" },
     select: { id: true }
   });
   const [totalConversions, totalImports, totalBatches] = await Promise.all([

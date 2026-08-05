@@ -36,6 +36,25 @@ const optionalBoolean = z.preprocess((value) => {
   return cleaned === "true";
 }, z.boolean().optional());
 
+const optionalBigInt = (defaultValue: bigint) =>
+  z.preprocess((val) => {
+    const cleaned = emptyToUndefined(val);
+    if (cleaned === undefined) return defaultValue;
+    try {
+      return BigInt(cleaned);
+    } catch {
+      return defaultValue;
+    }
+  }, z.bigint().default(defaultValue));
+
+const optionalNumber = (defaultValue: number) =>
+  z.preprocess((val) => {
+    const cleaned = emptyToUndefined(val);
+    if (cleaned === undefined) return defaultValue;
+    const parsed = Number(cleaned);
+    return Number.isFinite(parsed) ? parsed : defaultValue;
+  }, z.number().int().positive().default(defaultValue));
+
 const serverEnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   APP_BASE_URL: optionalUrl.default("http://localhost:3000"),
@@ -100,11 +119,29 @@ const serverEnvSchema = z.object({
   PAYOS_CHECKSUM_KEY: optionalString,
   PAYOS_WEBHOOK_URL: optionalUrl,
   SAAS_BILLING_ENABLED: optionalBoolean.default(false),
-  PAYOS_BILLING_CLIENT_ID: optionalString,
-  PAYOS_BILLING_API_KEY: optionalString,
-  PAYOS_BILLING_CHECKSUM_KEY: optionalString,
 
+  MASTER_TENANT_ID: optionalString,
+  TENANT_FINANCE_ENABLED: optionalBoolean.default(false),
+  TENANT_TOPUP_ENABLED: optionalBoolean.default(false),
+  TENANT_AUTO_PAYOUT_ENABLED: optionalBoolean.default(false),
   TENANT_IMPORT_ENABLED: optionalBoolean.default(false),
+
+  PLATFORM_SELF_APPROVAL_LIMIT_VND: optionalBigInt(0n),
+  MANUAL_NO_SEND_SELF_CONFIRM_LIMIT_VND: optionalBigInt(0n),
+
+  QSTASH_DAILY_SOFT_LIMIT: optionalNumber(800),
+  QSTASH_DAILY_HARD_LIMIT: optionalNumber(950),
+  FINANCE_RECONCILIATION_DELAYS_SECONDS: optionalString.default("60,300,900,3600"),
+
+  FINANCE_SWEEP_BATCH_SIZE: optionalNumber(100),
+  FINANCE_APPROVED_STALE_MINUTES: optionalNumber(10),
+  FINANCE_PROCESSING_STALE_MINUTES: optionalNumber(15),
+  FINANCE_UNKNOWN_SLA_MINUTES: optionalNumber(240),
+  FINANCE_RESERVATION_STALE_MINUTES: optionalNumber(1440),
+
+  ZALO_BINDING_TTL_DAYS: optionalNumber(90),
+  ZALO_BIND_TOKEN_TTL_MINUTES: optionalNumber(10),
+  ZALO_FINANCIAL_GRANT_TTL_MINUTES: optionalNumber(5),
 
   UPSTASH_REDIS_REST_URL: optionalUrl,
   UPSTASH_REDIS_REST_TOKEN: optionalString,
@@ -121,6 +158,7 @@ const serverEnvSchema = z.object({
   VAPID_SUBJECT: optionalString,
 
   BANK_DATA_ENCRYPTION_KEY_V1: optionalString,
+  BENEFICIARY_HOLD_HOURS: optionalNumber(72),
   PROVIDER_CREDENTIAL_ENCRYPTION_KEY_V1: optionalString,
   AWS_ROLE_ARN: optionalString,
   AWS_REGION: optionalString.default("ap-southeast-1"),
@@ -141,6 +179,29 @@ let cachedEnv: ServerEnv | undefined;
 export function loadServerEnv(): ServerEnv {
   cachedEnv ??= serverEnvSchema.parse(process.env);
   return cachedEnv;
+}
+
+export function financeReconciliationDelaysSeconds(env = loadServerEnv()): readonly number[] {
+  const values = env.FINANCE_RECONCILIATION_DELAYS_SECONDS.split(",").map((value) =>
+    Number(value.trim())
+  );
+  if (
+    values.length === 0 ||
+    values.length > 8 ||
+    values.some((value) => !Number.isSafeInteger(value) || value <= 0)
+  ) {
+    throw new Error(
+      "FINANCE_RECONCILIATION_DELAYS_SECONDS must contain 1-8 positive integer seconds."
+    );
+  }
+  return values;
+}
+
+export function assertFinanceRuntimeConfig(env = loadServerEnv()): void {
+  if (env.QSTASH_DAILY_SOFT_LIMIT >= env.QSTASH_DAILY_HARD_LIMIT) {
+    throw new Error("QSTASH_DAILY_SOFT_LIMIT must be lower than QSTASH_DAILY_HARD_LIMIT.");
+  }
+  financeReconciliationDelaysSeconds(env);
 }
 
 export function hasDatabase(env = loadServerEnv()): boolean {
@@ -245,9 +306,31 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
   }
   if (
     env.SAAS_BILLING_ENABLED &&
-    (!env.PAYOS_BILLING_CLIENT_ID || !env.PAYOS_BILLING_API_KEY || !env.PAYOS_BILLING_CHECKSUM_KEY)
+    (!env.PAYOS_CLIENT_ID || !env.PAYOS_API_KEY || !env.PAYOS_CHECKSUM_KEY)
   ) {
-    issues.push("SaaS billing is enabled without complete payOS billing credentials.");
+    issues.push("SaaS billing is enabled without complete shared payOS credentials.");
+  }
+  if (!env.MASTER_TENANT_ID) {
+    issues.push("MASTER_TENANT_ID is required.");
+  }
+  if (
+    env.TENANT_FINANCE_ENABLED &&
+    env.TENANT_TOPUP_ENABLED &&
+    (!env.PAYOS_CLIENT_ID || !env.PAYOS_API_KEY || !env.PAYOS_CHECKSUM_KEY)
+  ) {
+    issues.push("Tenant top-up is enabled without complete shared payOS credentials.");
+  }
+  if (
+    env.TENANT_FINANCE_ENABLED &&
+    env.TENANT_AUTO_PAYOUT_ENABLED &&
+    (!env.PAYOS_PAYOUT_ENABLED ||
+      !env.PAYOS_CLIENT_ID ||
+      !env.PAYOS_API_KEY ||
+      !env.PAYOS_CHECKSUM_KEY)
+  ) {
+    issues.push(
+      "Tenant auto payout is enabled without the shared payOS payout gate and credentials."
+    );
   }
   if (
     env.ZALO_BOT_ENABLED &&

@@ -183,6 +183,13 @@ enum LedgerTransactionType {
   PAYOUT_RELEASE
   PAYOUT_PAID
   MANUAL_ADJUSTMENT
+  TENANT_FUNDING
+  TENANT_WALLET_ALLOCATION
+  TENANT_WALLET_TRANSFER
+  TENANT_PAYOUT_RESERVE
+  TENANT_PAYOUT_RELEASE
+  TENANT_PAYOUT_PAID
+  TENANT_RECOVERY
 }
 
 enum RiskHoldStatus {
@@ -205,6 +212,113 @@ enum TenantStatus {
   PAST_DUE
   SUSPENDED
   CLOSED
+}
+
+enum TenantKind {
+  MASTER
+  STANDARD
+}
+
+enum TenantObligationStatus {
+  PENDING_FUNDING
+  LOCKED
+  AVAILABLE
+  RESERVED
+  PAID
+  CANCELLED
+  RECOVERY_REQUIRED
+}
+
+enum TenantFundingOrderStatus {
+  PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+  FAILED
+  UNKNOWN
+}
+
+enum TenantPayoutKind {
+  MEMBER_WITHDRAWAL
+  TREASURY_WITHDRAWAL
+}
+
+enum TenantPayoutType {
+  MEMBER_WITHDRAWAL
+  TENANT_TREASURY_WITHDRAWAL
+}
+
+enum PayoutApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum PayoutSettlementStatus {
+  NOT_STARTED
+  PROCESSING
+  PAID
+  FAILED
+  UNKNOWN
+}
+
+enum PayoutMethod {
+  PAYOS
+  MANUAL_BANK_TRANSFER
+}
+
+enum TenantPayoutIntentDispatchStatus {
+  NOT_REQUIRED
+  PENDING
+  PUBLISHED
+  FAILED
+  EXHAUSTED
+}
+
+enum TenantPayoutIntentExecutionStatus {
+  READY
+  CLAIMED
+  REQUESTED
+  CONFIRMED
+  FAILED
+  UNKNOWN
+}
+
+enum TenantPayoutAttemptOperation {
+  SUBMIT
+  RECONCILE
+}
+
+enum TenantPayoutAttemptStatus {
+  CREATED
+  REQUESTED
+  SUCCEEDED
+  FAILED
+  UNKNOWN
+}
+
+enum ManualPayoutResolution {
+  CONFIRMED_PAID
+  CONFIRMED_NOT_SENT
+  REMAIN_UNKNOWN
+}
+
+enum LegacyPayoutResolutionStatus {
+  NOT_REQUIRED
+  PENDING
+  RESOLVED
+  MANUAL_REVIEW
+}
+
+enum TenantPayoutStatus {
+  RESERVED
+  SUBMITTED
+  PROCESSING
+  PAID
+  FAILED
+  UNKNOWN
+  CANCELLED
 }
 
 enum SaaSInvoiceStatus {
@@ -345,6 +459,20 @@ model User {
   invitationsCreated  IdentityInvitation[]           @relation("InvitationCreator")
   deletionRequests    AccountDeletionRequest[]       @relation("DeletionOwner")
   deletionsApproved   AccountDeletionRequest[]       @relation("DeletionApprover")
+  tenantMemberWallets TenantMemberWalletProjection[]
+  tenantObligations   TenantCashbackObligation[]
+  tenantFundingOrders TenantFundingOrder[]           @relation("TenantFundingOrderCreator")
+  tenantPayouts              TenantPayout[]                 @relation("TenantPayoutUser")
+  tenantPayoutsRequested     TenantPayout[]                 @relation("TenantPayoutRequester")
+  tenantPayoutsApproved      TenantPayout[]                 @relation("TenantPayoutApprover")
+  tenantPayoutsRejected      TenantPayout[]                 @relation("TenantPayoutRejecter")
+  tenantPayoutsCancelled     TenantPayout[]                 @relation("TenantPayoutCanceller")
+  tenantPayoutsManualStarted  TenantPayout[]                 @relation("TenantPayoutManualStarter")
+  tenantPayoutsManualCompleted TenantPayout[]               @relation("TenantPayoutManualCompleter")
+  tenantPayoutsManualResolved TenantPayout[]                @relation("TenantPayoutManualResolver")
+  zaloUserBindings            ZaloUserBinding[]              @relation("ZaloBoundUser")
+  zaloUserBindingTokens       ZaloUserBindingToken[]         @relation("ZaloBindingTokenUser")
+  zaloFinancialGrants         ZaloFinancialGrant[]           @relation("ZaloFinancialGrantUser")
 
   @@index([tenantId])
 }
@@ -755,49 +883,50 @@ model ExternalConversionIdentity {
 }
 
 model Conversion {
-  id                    String                       @id @default(cuid())
-  userId                String?
-  clickId               String?
-  merchantId            String
-  campaignId            String?
-  platform              Platform
-  status                ConversionStatus             @default(DISCOVERED)
-  orderValidationStatus OrderValidationStatus        @default(TRACKED)
-  settlementStatus      SettlementStatus             @default(UNBILLED)
-  sourceAuthority       EvidenceAuthority
-  grossCommissionVnd    BigInt
-  netCommissionVnd      BigInt
-  cashbackVnd           BigInt
-  shareBps              Int
-  withholdingTaxBps     Int                          @default(0)
-  withholdingTaxVnd     BigInt                       @default(0)
-  tenantPaidAt          DateTime?
-  currency              String                       @default("VND")
-  purchasedAt           DateTime
-  clickedAt             DateTime?
-  validatedAt           DateTime?
-  deliveredAt           DateTime?
-  validationDueAt       DateTime?
-  validationHoldDays    Int?
-  rawOrderStatus        String?
-  orderStatusUpdatedAt  DateTime?
-  availableAt           DateTime?
-  rejectedAt            DateTime?
-  rawEvidenceId         String
-  tenantId              String?
-  createdAt             DateTime                     @default(now())
-  updatedAt             DateTime                     @updatedAt
-  user                  User?                        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  click                 AffiliateClick?              @relation(fields: [clickId], references: [id], onDelete: SetNull)
-  merchant              Merchant                     @relation(fields: [merchantId], references: [id], onDelete: Restrict)
-  campaign              Campaign?                    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  rawEvidence           RawEvidence                  @relation(fields: [rawEvidenceId], references: [id], onDelete: Restrict)
-  tenant                Tenant?                      @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-  externalIdentities    ExternalConversionIdentity[]
-  items                 ConversionItem[]
-  revisions             ConversionRevision[]
-  riskHold              RiskHold?
-  settlementLines       SettlementLine[]
+  id                       String                       @id @default(cuid())
+  userId                   String?
+  clickId                  String?
+  merchantId               String
+  campaignId               String?
+  platform                 Platform
+  status                   ConversionStatus             @default(DISCOVERED)
+  orderValidationStatus    OrderValidationStatus        @default(TRACKED)
+  settlementStatus         SettlementStatus             @default(UNBILLED)
+  sourceAuthority          EvidenceAuthority
+  grossCommissionVnd       BigInt
+  netCommissionVnd         BigInt
+  cashbackVnd              BigInt
+  shareBps                 Int
+  withholdingTaxBps        Int                          @default(0)
+  withholdingTaxVnd        BigInt                       @default(0)
+  tenantPaidAt             DateTime?
+  currency                 String                       @default("VND")
+  purchasedAt              DateTime
+  clickedAt                DateTime?
+  validatedAt              DateTime?
+  deliveredAt              DateTime?
+  validationDueAt          DateTime?
+  validationHoldDays       Int?
+  rawOrderStatus           String?
+  orderStatusUpdatedAt     DateTime?
+  availableAt              DateTime?
+  rejectedAt               DateTime?
+  rawEvidenceId            String
+  tenantId                 String?
+  createdAt                DateTime                     @default(now())
+  updatedAt                DateTime                     @updatedAt
+  user                     User?                        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  click                    AffiliateClick?              @relation(fields: [clickId], references: [id], onDelete: SetNull)
+  merchant                 Merchant                     @relation(fields: [merchantId], references: [id], onDelete: Restrict)
+  campaign                 Campaign?                    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  rawEvidence              RawEvidence                  @relation(fields: [rawEvidenceId], references: [id], onDelete: Restrict)
+  tenant                   Tenant?                      @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  externalIdentities       ExternalConversionIdentity[]
+  items                    ConversionItem[]
+  revisions                ConversionRevision[]
+  riskHold                 RiskHold?
+  settlementLines          SettlementLine[]
+  tenantCashbackObligation TenantCashbackObligation?
 
   @@index([userId, status, purchasedAt])
   @@index([platform, status, purchasedAt])
@@ -1048,6 +1177,7 @@ model BankBeneficiary {
   user                 User                @relation(fields: [userId], references: [id], onDelete: Restrict)
   changes              BeneficiaryChange[]
   payoutTickets        PayoutTicket[]
+  tenantPayouts        TenantPayout[]
 
   @@index([userId, active])
 }
@@ -1211,22 +1341,29 @@ model FeatureFlag {
 }
 
 model AuditLog {
-  id          String   @id @default(cuid())
-  actorUserId String?
-  action      String
-  entityType  String
-  entityId    String?
-  requestId   String?
-  ipHash      String?
-  before      Json?
-  after       Json?
-  metadata    Json?
-  createdAt   DateTime @default(now())
-  actor       User?    @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  id             String   @id @default(cuid())
+  actorUserId    String?
+  actorRole      String?
+  targetTenantId String?
+  targetUserId   String?
+  source         String?
+  action         String
+  entityType     String
+  entityId       String?
+  requestId      String?
+  ipHash         String?
+  userAgent      String?
+  reason         String?
+  before         Json?
+  after          Json?
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  actor          User?    @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
 
   @@index([actorUserId, createdAt])
   @@index([entityType, entityId])
   @@index([requestId])
+  @@index([targetTenantId, createdAt])
 }
 
 model BalanceAdjustment {
@@ -1255,6 +1392,7 @@ model Tenant {
   id                String       @id @default(cuid())
   slug              String       @unique
   name              String
+  kind              TenantKind   @default(STANDARD)
   customDomain      String?      @unique
   logoUrl           String?
   brandColor        String?      @default("#173b31")
@@ -1269,6 +1407,16 @@ model Tenant {
   memberShareBps    Int?
   zaloBotToken      String?
   zaloOAId          String?
+  financeEnabled    Boolean      @default(false)
+  topupEnabled      Boolean      @default(false)
+  autoPayoutEnabled Boolean      @default(false)
+  payoutRequestEnabled       Boolean @default(false)
+  payoutApprovalEnabled      Boolean @default(false)
+  treasuryWithdrawalEnabled  Boolean @default(false)
+  manualPayoutEnabled        Boolean @default(false)
+  autoReconciliationEnabled  Boolean @default(false)
+  zaloWalletEnabled          Boolean @default(false)
+  zaloPayoutEnabled          Boolean @default(false)
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 
@@ -1284,11 +1432,266 @@ model Tenant {
   subscriptionAdjustments TenantSubscriptionAdjustment[]
   zaloBindingCodes        ZaloBindingCode[]
   providerAccounts        AffiliateAccount[]
+  treasury                TenantTreasuryProjection?
+  memberWallets           TenantMemberWalletProjection[]
+  cashbackObligations     TenantCashbackObligation[]
+  fundingOrders           TenantFundingOrder[]
+  payouts                 TenantPayout[]
+  zaloUserBindings        ZaloUserBinding[]
+  zaloUserBindingTokens   ZaloUserBindingToken[]
+  zaloFinancialGrants     ZaloFinancialGrant[]
 
   @@index([slug])
   @@index([customDomain])
   @@index([status])
+  @@index([kind])
   @@index([planCode])
+}
+
+model TenantTreasuryProjection {
+  id           String   @id @default(cuid())
+  tenantId     String   @unique
+  availableVnd BigInt   @default(0)
+  reservedVnd  BigInt   @default(0)
+  paidVnd      BigInt   @default(0)
+  withdrawnVnd BigInt   @default(0)
+  version      BigInt   @default(0)
+  updatedAt    DateTime @updatedAt
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+}
+
+model TenantMemberWalletProjection {
+  id                String   @id @default(cuid())
+  tenantId          String
+  userId            String
+  pendingFundingVnd BigInt   @default(0)
+  availableVnd      BigInt   @default(0)
+  reservedVnd       BigInt   @default(0)
+  paidVnd           BigInt   @default(0)
+  recoveryVnd       BigInt   @default(0)
+  version           BigInt   @default(0)
+  updatedAt         DateTime @updatedAt
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, userId])
+  @@index([userId])
+}
+
+model TenantCashbackObligation {
+  id                  String                   @id @default(cuid())
+  tenantId            String
+  userId              String
+  conversionId        String                   @unique
+  amountVnd           BigInt
+  fundedVnd           BigInt                   @default(0)
+  recoveredVnd        BigInt                   @default(0)
+  recoveryRequiredVnd BigInt                   @default(0)
+  reservedVnd         BigInt                   @default(0)
+  paidVnd             BigInt                   @default(0)
+  status              TenantObligationStatus   @default(PENDING_FUNDING)
+  fundedAt            DateTime?
+  reservedAt          DateTime?
+  paidAt              DateTime?
+  cancelledAt         DateTime?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  tenant              Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user                User                     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  conversion          Conversion               @relation(fields: [conversionId], references: [id], onDelete: Restrict)
+  payoutAllocations   TenantPayoutAllocation[]
+
+  @@index([tenantId, status, createdAt, id])
+  @@index([userId, status])
+}
+
+model TenantFundingOrder {
+  id                   String                   @id @default(cuid())
+  tenantId             String
+  createdByUserId      String
+  orderCode            Int                      @unique
+  amountVnd            BigInt
+  currency             String                   @default("VND")
+  status               TenantFundingOrderStatus @default(PENDING)
+  description          String
+  paymentLinkId        String?
+  checkoutUrl          String?
+  qrCode               String?
+  clientIdempotencyKey String
+  requestHash          String
+  expiresAt            DateTime
+  paidAt               DateTime?
+  reconciliationSequence Int                    @default(0)
+  lastReconciledAt      DateTime?
+  requiresManualReview  Boolean                 @default(false)
+  reviewReason          String?
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+  tenant               Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  createdBy            User                     @relation("TenantFundingOrderCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, clientIdempotencyKey])
+  @@index([tenantId, createdAt])
+  @@index([status, expiresAt])
+}
+
+model TenantPayout {
+  id                          String                       @id @default(cuid())
+  reference                   String                       @unique
+  tenantId                    String
+  userId                      String
+  beneficiaryId               String
+  kind                        TenantPayoutKind             @default(MEMBER_WITHDRAWAL)
+  type                        TenantPayoutType             @default(MEMBER_WITHDRAWAL)
+  approvalStatus              PayoutApprovalStatus         @default(PENDING)
+  settlementStatus            PayoutSettlementStatus       @default(NOT_STARTED)
+  method                      PayoutMethod?
+  status                      TenantPayoutStatus           @default(RESERVED)
+  amountVnd                   BigInt
+  clientIdempotencyKey        String
+  requestHash                 String
+  bankBinSnapshot             String
+  accountLast4Snapshot        String
+  accountNumberCipherSnapshot String
+  accountNameCipherSnapshot   String
+  requestedByUserId           String?
+  approvedByUserId            String?
+  approvedAt                  DateTime?
+  approvalNote                String?
+  rejectedByUserId            String?
+  rejectedAt                  DateTime?
+  rejectionReason             String?
+  cancelledByUserId           String?
+  cancelledAt                 DateTime?
+  cancellationReason          String?
+  reservationJournalId        String?
+  terminalJournalId           String?
+  requiresManualReview        Boolean                      @default(false)
+  reviewReason                String?
+  riskScore                   Int?
+  isPlatformSelfApproved      Boolean                      @default(false)
+  platformSelfApprovalReason  String?
+  manualStartedByUserId       String?
+  manualStartedAt             DateTime?
+  manualCompletedByUserId     String?
+  manualCompletedAt           DateTime?
+  manualTransferReference     String?
+  manualEvidenceReference     String?
+  manualResolutionType        ManualPayoutResolution?
+  manualResolvedByUserId      String?
+  manualResolvedAt            DateTime?
+  legacySourceType            String?
+  legacySourceId              String?
+  legacySourceStatus          String?
+  legacyImportedAt            DateTime?
+  legacyResolutionStatus      LegacyPayoutResolutionStatus @default(NOT_REQUIRED)
+  failureCode                 String?
+  failureMessage              String?
+  submittedAt                 DateTime?
+  paidAt                      DateTime?
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @updatedAt
+  tenant                      Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user                        User                         @relation("TenantPayoutUser", fields: [userId], references: [id], onDelete: Restrict)
+  requestedBy                 User?                        @relation("TenantPayoutRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+  approvedBy                  User?                        @relation("TenantPayoutApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+  rejectedBy                  User?                        @relation("TenantPayoutRejecter", fields: [rejectedByUserId], references: [id], onDelete: Restrict)
+  cancelledBy                 User?                        @relation("TenantPayoutCanceller", fields: [cancelledByUserId], references: [id], onDelete: Restrict)
+  manualStartedBy             User?                        @relation("TenantPayoutManualStarter", fields: [manualStartedByUserId], references: [id], onDelete: Restrict)
+  manualCompletedBy           User?                        @relation("TenantPayoutManualCompleter", fields: [manualCompletedByUserId], references: [id], onDelete: Restrict)
+  manualResolvedBy            User?                        @relation("TenantPayoutManualResolver", fields: [manualResolvedByUserId], references: [id], onDelete: Restrict)
+  beneficiary                 BankBeneficiary              @relation(fields: [beneficiaryId], references: [id], onDelete: Restrict)
+  executionIntent             TenantPayoutExecutionIntent?
+  attempts                    TenantPayoutAttempt[]
+  allocations                 TenantPayoutAllocation[]
+
+  @@unique([tenantId, userId, clientIdempotencyKey])
+  @@unique([legacySourceType, legacySourceId])
+  @@index([tenantId, approvalStatus, settlementStatus, createdAt])
+  @@index([tenantId, status, createdAt])
+  @@index([userId, createdAt])
+}
+
+model TenantPayoutExecutionIntent {
+  id                     String                @id @default(cuid())
+  tenantPayoutId         String                @unique
+  providerReference      String                @unique
+  providerIdempotencyKey String                @unique
+  requestFingerprint     String
+  dispatchStatus         TenantPayoutIntentDispatchStatus  @default(NOT_REQUIRED)
+  executionStatus        TenantPayoutIntentExecutionStatus @default(READY)
+  lastDispatchError      String?
+  claimedAt              DateTime?
+  submittedAt            DateTime?
+  completedAt            DateTime?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  tenantPayout           TenantPayout          @relation(fields: [tenantPayoutId], references: [id], onDelete: Restrict)
+  attempts               TenantPayoutAttempt[]
+}
+
+model TenantPayoutAttempt {
+  id                  String                       @id @default(cuid())
+  intentId            String?
+  tenantPayoutId      String
+  attemptNumber       Int                          @default(1)
+  operation           TenantPayoutAttemptOperation @default(SUBMIT)
+  status              TenantPayoutAttemptStatus    @default(CREATED)
+  sequence            Int                          @default(1)
+  idempotencyKey      String                       @unique
+  providerPayoutId    String?
+  providerState       String?
+  providerResponseCode String?
+  providerResponseStatus String?
+  requestFingerprint  String?
+  requestEvidenceId   String?
+  responseEvidenceId  String?
+  errorClassification String?
+  actorUserId         String?
+  workerIdentity      String?
+  submittedAt         DateTime?
+  reconciledAt        DateTime?
+  completedAt         DateTime?
+  createdAt           DateTime                     @default(now())
+  intent              TenantPayoutExecutionIntent? @relation(fields: [intentId], references: [id], onDelete: Restrict)
+  tenantPayout        TenantPayout                 @relation(fields: [tenantPayoutId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantPayoutId, attemptNumber])
+  @@unique([intentId, operation, sequence])
+}
+
+model QStashUsageDaily {
+  id             String   @id @default(cuid())
+  usageDate      DateTime @db.Date
+  purpose        String
+  publishedCount Int      @default(0)
+  rejectedCount  Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([usageDate, purpose])
+  @@index([usageDate])
+}
+
+model FinanceSafetySweepState {
+  id              String   @id @default("finance")
+  cursorCreatedAt DateTime?
+  cursorId        String?
+  lastRunAt       DateTime?
+  updatedAt       DateTime @updatedAt
+}
+
+model TenantPayoutAllocation {
+  id             String                   @id @default(cuid())
+  tenantPayoutId String
+  obligationId   String
+  amountVnd      BigInt
+  createdAt      DateTime                 @default(now())
+  tenantPayout   TenantPayout             @relation(fields: [tenantPayoutId], references: [id], onDelete: Restrict)
+  obligation     TenantCashbackObligation @relation(fields: [obligationId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantPayoutId, obligationId])
+  @@index([obligationId])
 }
 
 model SubscriptionPlan {
@@ -1377,6 +1780,55 @@ model ZaloBindingCode {
   createdBy       User      @relation("ZaloBindingCodeCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
 
   @@index([tenantId, expiresAt])
+}
+
+model ZaloUserBinding {
+  id                String    @id @default(cuid())
+  tenantId          String
+  userId            String
+  zaloUserIdHash    String
+  zaloUserIdCipher  Bytes
+  activeIdentityKey String?   @unique
+  expiresAt         DateTime
+  boundAt           DateTime  @default(now())
+  unboundAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  tenant            Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user              User      @relation("ZaloBoundUser", fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, userId, expiresAt])
+  @@index([zaloUserIdHash, boundAt])
+}
+
+model ZaloUserBindingToken {
+  id         String    @id @default(cuid())
+  tenantId   String
+  userId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user       User      @relation("ZaloBindingTokenUser", fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, userId, expiresAt])
+}
+
+model ZaloFinancialGrant {
+  id          String    @id @default(cuid())
+  tenantId    String
+  userId      String
+  tokenHash   String    @unique
+  action      String
+  payloadHash String
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user        User      @relation("ZaloFinancialGrantUser", fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, userId, expiresAt])
 }
 
 model TenantConversionImport {

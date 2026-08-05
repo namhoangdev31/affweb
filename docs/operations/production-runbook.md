@@ -105,8 +105,8 @@ cashback.release.enabled=false
 Không bật `shopee.reconciliation_import.enabled` trong release này: route vẫn cố ý fail-closed cho
 tới khi parser có fixture chi tiết hóa đơn thật đã redacted.
 
-PayOS subscription dùng `PAYOS_BILLING_CLIENT_ID`, `PAYOS_BILLING_API_KEY`,
-`PAYOS_BILLING_CHECKSUM_KEY`, tách khỏi credential payout. Zalo dùng token/secret bot trung tâm và
+PayOS subscription, tenant funding và payout dùng chung `PAYOS_CLIENT_ID`, `PAYOS_API_KEY`,
+`PAYOS_CHECKSUM_KEY`; từng luồng vẫn có kill switch riêng. Zalo dùng token/secret bot trung tâm và
 `ZALO_DATA_ENCRYPTION_KEY_V1`; không lưu các secret này trong `Tenant`.
 
 Không bật route webhook payout cho tới khi payOS xác nhận contract webhook dành riêng cho Payout
@@ -142,23 +142,21 @@ connector.shopee_food_cashback=false
 
 ## 5. QStash
 
-Sau khi domain production trả `/api/health/ready` thành công:
+Sau khi domain production trả `/api/health/ready` thành công, chạy kiểm tra cấu hình:
 
 ```bash
 pnpm jobs:setup
 ```
 
-Script upsert queue concurrency 1 và các schedule:
+Script không tạo recurring queue/schedule. Payout thành công chạy inline sau approval commit. Chỉ
+payout/funding cụ thể ở `UNKNOWN` hoặc recovery mới publish chuỗi QStash hữu hạn theo
+`FINANCE_RECONCILIATION_DELAYS_SECONDS`. Không publish lại SUBMIT; invocation sau chỉ query provider.
+`QSTASH_DAILY_SOFT_LIMIT`/`QSTASH_DAILY_HARD_LIMIT` bảo toàn quota; hết quota giữ reservation và
+đưa record vào manual review.
 
-- health/payOS reconciliation: 5 phút;
-- AddLiveTag/Shopee: 10 phút;
-- AccessTrade/Lazada: 15 phút;
-- AccessTrade order/product/detail reconciliation: 02:30 giờ Việt Nam (`19:30 UTC`);
-- notification/release: mỗi giờ hoặc ngắn hơn;
-- Zalo outbox: 5 phút; SaaS invoice/tenant expiry: 15 phút;
-- backfill 90 ngày: 02:00 giờ Việt Nam (`19:00 UTC`);
-- ledger invariant: 03:00 giờ Việt Nam (`20:00 UTC`);
-- evidence integrity: Chủ nhật 04:00 giờ Việt Nam (`21:00 UTC` thứ Bảy).
+Vercel chỉ có một cron ngày: `/api/internal/cron/finance-safety-sweep`. Cron giới hạn batch, không
+gọi PayOS hàng loạt và không thay thế business flow. Health thường ngày được xem on-demand tại
+`/admin/finance/health`.
 
 QStash request và failure callback bắt buộc signature. Body/header bị redact; exhausted retry gọi
 `/api/internal/qstash-failure`, chỉ lưu SHA-256/kích thước payload và gửi cảnh báo in-app cho admin,
@@ -171,7 +169,8 @@ không lưu payload callback.
    `TEST_DATABASE_URL` disposable; test global setup tự deploy migration vào đúng URL này.
 3. Chạy live provider smoke ở shadow mode.
 4. Tạo Neon checkpoint/backup.
-5. Chạy pipeline release bên ngoài repository với SHA bất biến; repository hiện không có GitHub workflow release.
+5. Workflow `.github/workflows/quality-gates.yml` phải xanh trên PostgreSQL 16 và Neon test branch;
+   Preview/Production chỉ deploy đúng SHA đã vượt gate. Tắt Vercel Git auto-deploy để không vượt CI.
 6. Production protected environment cần approver thủ công.
 7. Chạy:
 
@@ -180,6 +179,9 @@ APP_BASE_URL=https://your-domain.example pnpm smoke:production
 ```
 
 8. Theo dõi ít nhất 60 phút: error, p95, DB pool, connector lag, raw evidence, ledger mismatch và payout `UNKNOWN`.
+
+Production thương mại yêu cầu Vercel Pro hoặc backend hosting tương đương; Hobby không phải runtime
+production được hỗ trợ cho affiliate/payment.
 
 ## 7. Beta tiền thật
 

@@ -74,6 +74,17 @@ const flags = [
   ],
   ["cashback.release.enabled", false, "Kill switch phát hành cashback qua settlement."],
   ["payout.enabled", false, "Kill switch gửi payout thật."],
+  ["tenant.finance.enabled", false, "Kill switch tenant financial ledger."],
+  ["tenant.topup.enabled", false, "Kill switch tenant treasury funding."],
+  ["tenant.payout_request.enabled", false, "Kill switch tenant payout request."],
+  ["tenant.payout_approval.enabled", false, "Kill switch tenant payout approval."],
+  ["tenant.treasury_withdrawal.enabled", false, "Kill switch treasury withdrawal."],
+  ["tenant.manual_payout.enabled", false, "Kill switch manual payout workflow."],
+  ["tenant.auto_payout.enabled", false, "Kill switch internal PayOS execution."],
+  ["tenant.auto_reconciliation.enabled", false, "Kill switch payout reconciliation."],
+  ["qstash.recovery.enabled", false, "Kill switch QStash finance recovery."],
+  ["tenant.zalo_wallet.enabled", false, "Kill switch Zalo wallet lookup."],
+  ["tenant.zalo_payout.enabled", false, "Kill switch Zalo payout confirmation."],
   ["connector.shopee_food_cashback", false, "Chỉ bật sau khi SubID round-trip đạt nghiệm thu."]
 ] as const;
 

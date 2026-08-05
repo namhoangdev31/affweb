@@ -17,7 +17,28 @@ export function canonicalDatabaseIdentity(value: string): string {
   return `${host}:${port}/${databaseName}`;
 }
 
-export function requireDisposableTestDatabase(): string {
+function assertTestHostAllowed(url: string): void {
+  const hostname = new URL(url).hostname.toLowerCase();
+  if (hostname === "127.0.0.1" || hostname === "localhost" || hostname === "postgres") return;
+  const allowlist = (process.env.TEST_DATABASE_HOST_ALLOWLIST ?? "neon.tech")
+    .split(",")
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
+  if (!allowlist.some((entry) => hostname === entry || hostname.endsWith(`.${entry}`))) {
+    throw new Error("Test database hostname is not in TEST_DATABASE_HOST_ALLOWLIST.");
+  }
+}
+
+export function requireDisposableTestDatabasePair(): {
+  pooledUrl: string;
+  directUrl: string;
+} {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error("Database reset and integration tests require NODE_ENV=test.");
+  }
+  if (process.env.ALLOW_TEST_DATABASE_RESET !== "true") {
+    throw new Error("Database reset requires ALLOW_TEST_DATABASE_RESET=true.");
+  }
   const testDatabaseUrl = process.env.TEST_DATABASE_URL;
   if (!testDatabaseUrl) {
     throw new Error(
@@ -25,6 +46,7 @@ export function requireDisposableTestDatabase(): string {
     );
   }
 
+  const directUrl = process.env.TEST_DIRECT_URL ?? testDatabaseUrl;
   const runtimeUrls = [
     process.env.DATABASE_URL,
     process.env.DIRECT_URL,
@@ -32,15 +54,24 @@ export function requireDisposableTestDatabase(): string {
   ].filter((value): value is string => Boolean(value));
 
   const testIdentity = canonicalDatabaseIdentity(testDatabaseUrl);
+  const directIdentity = canonicalDatabaseIdentity(directUrl);
+  if (testIdentity !== directIdentity) {
+    throw new Error("TEST_DATABASE_URL and TEST_DIRECT_URL must identify the same database.");
+  }
   if (runtimeUrls.some((value) => canonicalDatabaseIdentity(value) === testIdentity)) {
     throw new Error("TEST_DATABASE_URL must differ from every runtime or migration database URL.");
   }
 
-  const databaseName = testIdentity.slice(testIdentity.indexOf("/") + 1);
-  if (!/(^|[_-])(test|ci|tmp|disposable)([_-]|$)/.test(databaseName)) {
+  if (process.env.PRODUCTION_DATABASE_URL || process.env.PRODUCTION_DIRECT_URL) {
     throw new Error(
-      "TEST_DATABASE_URL database name must contain a test, ci, tmp, or disposable marker."
+      "Production database credentials must not be present in the integration process."
     );
   }
-  return testDatabaseUrl;
+  assertTestHostAllowed(testDatabaseUrl);
+  assertTestHostAllowed(directUrl);
+  return { pooledUrl: testDatabaseUrl, directUrl };
+}
+
+export function requireDisposableTestDatabase(): string {
+  return requireDisposableTestDatabasePair().pooledUrl;
 }

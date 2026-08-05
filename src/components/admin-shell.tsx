@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import {
   Activity,
@@ -23,6 +24,7 @@ const nav = [
   ["/admin/reconciliation", "Đối soát", FileSearch2],
   ["/admin/ledger", "Ledger", BookOpen],
   ["/admin/payouts", "Payout", CircleDollarSign],
+  ["/admin/finance/health", "Finance health", Activity],
   ["/admin/adjustments", "Adjustments", Scale],
   ["/admin/audit", "Audit log", ReceiptText],
   ["/admin/flags", "Kill switches", Settings2]
@@ -39,7 +41,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           {nav.map(([href, label, Icon]) => (
             <Link
               key={href}
-              href={href}
+              href={href as Route}
               className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/65 hover:bg-white/8 hover:text-white"
             >
               <Icon className="size-4" /> {label}

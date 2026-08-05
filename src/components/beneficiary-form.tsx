@@ -31,7 +31,7 @@ export function BeneficiaryForm({
     const body = (await response.json()) as { error?: { message?: string } };
     setMessage(
       response.ok
-        ? "Đã lưu an toàn. Payout bị khóa 72 giờ kể từ thay đổi này."
+        ? "Đã lưu an toàn. Payout tạm khóa theo thời gian bảo vệ sau thay đổi."
         : (body.error?.message ?? "Không thể lưu tài khoản.")
     );
     setLoading(false);

@@ -32,7 +32,7 @@ export default async function LeaderboardPage({
 
   // Owned tenant check
   const ownedTenant = await db.tenant.findFirst({
-    where: { ownerUserId: user.id }
+    where: { ownerUserId: user.id, kind: "MASTER" }
   });
 
   const [walletCount, currentWallet, podiumWallets] = await Promise.all([

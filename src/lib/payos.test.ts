@@ -9,15 +9,12 @@ afterEach(() => {
   resetEnvCacheForTests();
 });
 
-describe("PayOS billing credential boundary", () => {
-  it("does not fall back to payout credentials", async () => {
+describe("PayOS shared credential boundary", () => {
+  it("requires the shared PAYOS credential set", async () => {
     process.env.SAAS_BILLING_ENABLED = "true";
-    process.env.PAYOS_CLIENT_ID = "payout-client";
-    process.env.PAYOS_API_KEY = "payout-api";
-    process.env.PAYOS_CHECKSUM_KEY = "payout-checksum";
-    delete process.env.PAYOS_BILLING_CLIENT_ID;
-    delete process.env.PAYOS_BILLING_API_KEY;
-    delete process.env.PAYOS_BILLING_CHECKSUM_KEY;
+    delete process.env.PAYOS_CLIENT_ID;
+    delete process.env.PAYOS_API_KEY;
+    delete process.env.PAYOS_CHECKSUM_KEY;
     resetEnvCacheForTests();
 
     await expect(

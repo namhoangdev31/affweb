@@ -2,13 +2,15 @@ import { describe, expect, it } from "vitest";
 import { GET } from "@/app/sw.js/route";
 
 describe("service worker financial cache policy", () => {
-  it("keeps API, auth, dashboard, admin and redirect routes network-only", async () => {
+  it("keeps API, auth, every portal and redirect routes network-only", async () => {
     const source = await GET().text();
     expect(source).toContain('"/__clerk"');
     expect(source).toContain('"/sign-in"');
     expect(source).toContain('"/sign-up"');
     expect(source).toContain('"/app"');
     expect(source).toContain('"/admin"');
+    expect(source).toContain('"/tenant"');
+    expect(source).toContain("/app(?:\\/|$)");
     expect(source).not.toMatch(/caches\.put\([^)]*\/api/);
     expect(source).not.toContain("backgroundSync");
   });

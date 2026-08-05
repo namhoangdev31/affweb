@@ -5,21 +5,27 @@ import { startAuthentication, startRegistration } from "@simplewebauthn/browser"
 import { Fingerprint, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function AdminPasskey() {
+export function AdminPasskey({
+  apiBase = "/api/admin/passkeys",
+  description = "Bắt buộc trước review, approve và adjustment."
+}: {
+  apiBase?: string;
+  description?: string;
+} = {}) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   async function register() {
     setLoading(true);
     try {
-      const optionsResponse = await fetch("/api/admin/passkeys/register/options", {
+      const optionsResponse = await fetch(`${apiBase}/register/options`, {
         method: "POST"
       });
       const optionsJSON = await optionsResponse.json();
       if (!optionsResponse.ok)
         throw new Error(optionsJSON.error?.message ?? "Không thể tạo challenge.");
       const response = await startRegistration({ optionsJSON });
-      const verification = await fetch("/api/admin/passkeys/register/verify", {
+      const verification = await fetch(`${apiBase}/register/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(response)
@@ -36,14 +42,14 @@ export function AdminPasskey() {
   async function stepUp() {
     setLoading(true);
     try {
-      const optionsResponse = await fetch("/api/admin/passkeys/authenticate/options", {
+      const optionsResponse = await fetch(`${apiBase}/authenticate/options`, {
         method: "POST"
       });
       const optionsJSON = await optionsResponse.json();
       if (!optionsResponse.ok)
         throw new Error(optionsJSON.error?.message ?? "Hãy đăng ký passkey trước.");
       const response = await startAuthentication({ optionsJSON });
-      const verification = await fetch("/api/admin/passkeys/authenticate/verify", {
+      const verification = await fetch(`${apiBase}/authenticate/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(response)
@@ -62,9 +68,7 @@ export function AdminPasskey() {
       <Fingerprint className="size-6 text-primary" />
       <div className="min-w-0 flex-1">
         <p className="font-medium">Finance passkey</p>
-        <p className="text-sm text-muted-foreground">
-          {message ?? "Bắt buộc trước review, approve và adjustment."}
-        </p>
+        <p className="text-sm text-muted-foreground">{message ?? description}</p>
       </div>
       <Button type="button" variant="outline" onClick={register} disabled={loading}>
         Đăng ký

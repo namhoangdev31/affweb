@@ -2,7 +2,7 @@
   "scriptCompleted": true,
   "name": "affweb",
   "rawDescription": "",
-  "readmeHead": "# Hoàn Tiền\n\nWeb App/PWA affiliate cashback cho Shopee, ShopeeFood, AccessTrade và Lazada, xây bằng Next.js 16 App Router, React 19, Prisma 7, Clerk và PostgreSQL. Hệ thống dùng double-entry ledger, payout payOS có phân tách reviewer/approver, immutable evidence và các kill switch độc lập.\n\n## Trạng thái triển khai\n\n- Shopee direct link dùng packet `sub_id=affweb-<click>-<source>-<mode>-v2`; CSV Báo cáo chuyển đổi có contract Việt/Anh 47 cột. Hóa đơn đối soát vẫn hard-disabled tới khi có export thật.\n- AccessTrade dùng Publisher API chính thức: product-link, transaction pagination, overlap và SubID.\n- Lazada đã có signing, link/product/conversion contract, fixture test và mode `credential_ready`; chỉ chuyển `active` sau khi xác minh operation từ portal authenticated.\n- Payout payOS dùng batch payout, idempotency, destination validation, `UNKNOWN` reconciliation và journal đối ứng khi thất bại.",
+  "readmeHead": "# Hoàn Tiền\n\nWeb App/PWA affiliate cashback cho Shopee, ShopeeFood, AccessTrade và Lazada, xây bằng Next.js 16 App Router, React 19, Prisma 7, Clerk và PostgreSQL. Hệ thống dùng double-entry ledger, payout payOS có phân tách reviewer/approver, immutable evidence và các kill switch độc lập.\n\n## Trạng thái triển khai\n\n- Shopee direct link dùng packet `sub_id=affweb-<click>-<source>-<mode>-v2`; CSV Báo cáo chuyển đổi có contract Việt/Anh 47 cột. Hóa đơn đối soát vẫn hard-disabled tới khi có export thật.\n- AccessTrade dùng Publisher API chính thức: product-link, transaction pagination, overlap và SubID.\n- Lazada đã có signing, link/product/conversion contract, fixture test và mode `credential_ready`; chỉ chuyển `active` sau khi xác minh operation từ portal authenticated.\n- Payout có approval/settlement độc lập, execution intent duy nhất, inline PayOS ngoài transaction và `UNKNOWN` chỉ reconcile, không resend.",
   "languages": [
     "config",
     "css",
@@ -16,7 +16,7 @@
   ],
   "frameworks": ["Next.js", "Prisma", "React", "Tailwind CSS", "TypeScript", "Vitest"],
   "files": [
-    { "path": ".env.example", "language": "config", "sizeLines": 107, "fileCategory": "config" },
+    { "path": ".env.example", "language": "config", "sizeLines": 132, "fileCategory": "config" },
     { "path": ".gitleaks.toml", "language": "toml", "sizeLines": 8, "fileCategory": "config" },
     { "path": ".node-version", "language": "unknown", "sizeLines": 1, "fileCategory": "code" },
     { "path": ".npmrc", "language": "unknown", "sizeLines": 3, "fileCategory": "code" },
@@ -35,13 +35,13 @@
     {
       "path": ".understand-anything/tmp/ua-scan-results.json",
       "language": "json",
-      "sizeLines": 2898,
+      "sizeLines": 2930,
       "fileCategory": "config"
     },
     { "path": "AGENTS.md", "language": "markdown", "sizeLines": 225, "fileCategory": "docs" },
-    { "path": "README.md", "language": "markdown", "sizeLines": 66, "fileCategory": "docs" },
+    { "path": "README.md", "language": "markdown", "sizeLines": 73, "fileCategory": "docs" },
     { "path": "components.json", "language": "json", "sizeLines": 22, "fileCategory": "config" },
-    { "path": "context.md", "language": "markdown", "sizeLines": 345, "fileCategory": "docs" },
+    { "path": "context.md", "language": "markdown", "sizeLines": 342, "fileCategory": "docs" },
     { "path": "docs/README.md", "language": "markdown", "sizeLines": 85, "fileCategory": "docs" },
     {
       "path": "docs/brd/cashback_affiliate_platform_brd_en.md",
@@ -70,13 +70,13 @@
     {
       "path": "docs/operations/external-ci-contract.md",
       "language": "markdown",
-      "sizeLines": 27,
+      "sizeLines": 30,
       "fileCategory": "docs"
     },
     {
       "path": "docs/operations/incident-runbook.md",
       "language": "markdown",
-      "sizeLines": 38,
+      "sizeLines": 41,
       "fileCategory": "docs"
     },
     {
@@ -88,7 +88,7 @@
     {
       "path": "docs/operations/production-runbook.md",
       "language": "markdown",
-      "sizeLines": 192,
+      "sizeLines": 194,
       "fileCategory": "docs"
     },
     {
@@ -173,7 +173,7 @@
     { "path": "lighthouserc.cjs", "language": "unknown", "sizeLines": 26, "fileCategory": "code" },
     { "path": "next-env.d.ts", "language": "typescript", "sizeLines": 6, "fileCategory": "code" },
     { "path": "next.config.ts", "language": "typescript", "sizeLines": 71, "fileCategory": "code" },
-    { "path": "package.json", "language": "json", "sizeLines": 100, "fileCategory": "config" },
+    { "path": "package.json", "language": "json", "sizeLines": 104, "fileCategory": "config" },
     {
       "path": "playwright.config.ts",
       "language": "typescript",
@@ -244,19 +244,19 @@
     {
       "path": "prisma/schema.prisma",
       "language": "unknown",
-      "sizeLines": 1421,
+      "sizeLines": 1873,
       "fileCategory": "data"
     },
     {
       "path": "prisma/seed.ts",
       "language": "typescript",
-      "sizeLines": 196,
+      "sizeLines": 207,
       "fileCategory": "code"
     },
     {
       "path": "project_map.json",
       "language": "json",
-      "sizeLines": 16372,
+      "sizeLines": 19672,
       "fileCategory": "config"
     },
     {
@@ -280,7 +280,7 @@
     {
       "path": "scripts/bootstrap-feature-flags.ts",
       "language": "typescript",
-      "sizeLines": 115,
+      "sizeLines": 165,
       "fileCategory": "code"
     },
     {
@@ -310,7 +310,7 @@
     {
       "path": "scripts/setup-qstash.ts",
       "language": "typescript",
-      "sizeLines": 55,
+      "sizeLines": 17,
       "fileCategory": "code"
     },
     {
@@ -322,7 +322,7 @@
     {
       "path": "scripts/update-project-map.js",
       "language": "javascript",
-      "sizeLines": 259,
+      "sizeLines": 286,
       "fileCategory": "code"
     },
     {
@@ -334,7 +334,7 @@
     {
       "path": "src/app/[slug]/page.tsx",
       "language": "typescript",
-      "sizeLines": 194,
+      "sizeLines": 195,
       "fileCategory": "code"
     },
     {
@@ -376,13 +376,13 @@
     {
       "path": "src/app/admin/flags/actions.ts",
       "language": "typescript",
-      "sizeLines": 81,
+      "sizeLines": 92,
       "fileCategory": "code"
     },
     {
       "path": "src/app/admin/flags/page.tsx",
       "language": "typescript",
-      "sizeLines": 141,
+      "sizeLines": 152,
       "fileCategory": "code"
     },
     {
@@ -406,13 +406,13 @@
     {
       "path": "src/app/admin/payouts/actions.ts",
       "language": "typescript",
-      "sizeLines": 32,
+      "sizeLines": 173,
       "fileCategory": "code"
     },
     {
       "path": "src/app/admin/payouts/page.tsx",
       "language": "typescript",
-      "sizeLines": 177,
+      "sizeLines": 347,
       "fileCategory": "code"
     },
     {
@@ -442,13 +442,13 @@
     {
       "path": "src/app/admin/tenants/actions.ts",
       "language": "typescript",
-      "sizeLines": 260,
+      "sizeLines": 324,
       "fileCategory": "code"
     },
     {
       "path": "src/app/admin/tenants/page.tsx",
       "language": "typescript",
-      "sizeLines": 401,
+      "sizeLines": 433,
       "fileCategory": "code"
     },
     {
@@ -496,7 +496,7 @@
     {
       "path": "src/app/api/health/ready/route.ts",
       "language": "typescript",
-      "sizeLines": 29,
+      "sizeLines": 43,
       "fileCategory": "code"
     },
     {
@@ -526,7 +526,7 @@
     {
       "path": "src/app/api/saas/register/route.ts",
       "language": "typescript",
-      "sizeLines": 78,
+      "sizeLines": 76,
       "fileCategory": "code"
     },
     {
@@ -580,7 +580,7 @@
     {
       "path": "src/app/api/v1/payout-tickets/route.ts",
       "language": "typescript",
-      "sizeLines": 65,
+      "sizeLines": 35,
       "fileCategory": "code"
     },
     {
@@ -628,7 +628,7 @@
     {
       "path": "src/app/api/v1/tenant/conversions/[id]/external-payment/route.ts",
       "language": "typescript",
-      "sizeLines": 144,
+      "sizeLines": 23,
       "fileCategory": "code"
     },
     {
@@ -700,7 +700,7 @@
     {
       "path": "src/app/api/webhooks/zalo/route.ts",
       "language": "typescript",
-      "sizeLines": 82,
+      "sizeLines": 83,
       "fileCategory": "code"
     },
     {
@@ -718,7 +718,7 @@
     {
       "path": "src/app/app/layout.tsx",
       "language": "typescript",
-      "sizeLines": 21,
+      "sizeLines": 32,
       "fileCategory": "code"
     },
     {
@@ -784,7 +784,7 @@
     {
       "path": "src/app/app/settings/tenant/page.tsx",
       "language": "typescript",
-      "sizeLines": 71,
+      "sizeLines": 6,
       "fileCategory": "code"
     },
     {
@@ -802,7 +802,7 @@
     {
       "path": "src/app/app/wallet/page.tsx",
       "language": "typescript",
-      "sizeLines": 136,
+      "sizeLines": 166,
       "fileCategory": "code"
     },
     {
@@ -869,7 +869,7 @@
     {
       "path": "src/app/onboarding/tenant/page.tsx",
       "language": "typescript",
-      "sizeLines": 385,
+      "sizeLines": 384,
       "fileCategory": "code"
     },
     {
@@ -929,13 +929,13 @@
     {
       "path": "src/app/sw.js/route.ts",
       "language": "typescript",
-      "sizeLines": 126,
+      "sizeLines": 128,
       "fileCategory": "code"
     },
     {
       "path": "src/app/sw.test.ts",
       "language": "typescript",
-      "sizeLines": 22,
+      "sizeLines": 24,
       "fileCategory": "code"
     },
     {
@@ -959,13 +959,13 @@
     {
       "path": "src/components/admin-passkey.tsx",
       "language": "typescript",
-      "sizeLines": 77,
+      "sizeLines": 81,
       "fileCategory": "code"
     },
     {
       "path": "src/components/admin-shell.tsx",
       "language": "typescript",
-      "sizeLines": 59,
+      "sizeLines": 61,
       "fileCategory": "code"
     },
     {
@@ -1007,7 +1007,13 @@
     {
       "path": "src/components/links-workspace.tsx",
       "language": "typescript",
-      "sizeLines": 218,
+      "sizeLines": 220,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/pagination-nav.tsx",
+      "language": "typescript",
+      "sizeLines": 83,
       "fileCategory": "code"
     },
     {
@@ -1061,7 +1067,7 @@
     {
       "path": "src/components/tenant-provider-credentials.tsx",
       "language": "typescript",
-      "sizeLines": 314,
+      "sizeLines": 326,
       "fileCategory": "code"
     },
     {
@@ -1181,7 +1187,7 @@
     {
       "path": "src/lib/clerk-identity.ts",
       "language": "typescript",
-      "sizeLines": 222,
+      "sizeLines": 232,
       "fileCategory": "code"
     },
     {
@@ -1207,7 +1213,7 @@
     {
       "path": "src/lib/env.ts",
       "language": "typescript",
-      "sizeLines": 336,
+      "sizeLines": 419,
       "fileCategory": "code"
     },
     {
@@ -1248,15 +1254,27 @@
       "fileCategory": "code"
     },
     {
+      "path": "src/lib/pagination.test.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/pagination.ts",
+      "language": "typescript",
+      "sizeLines": 5,
+      "fileCategory": "code"
+    },
+    {
       "path": "src/lib/payos.test.ts",
       "language": "typescript",
-      "sizeLines": 34,
+      "sizeLines": 31,
       "fileCategory": "code"
     },
     {
       "path": "src/lib/payos.ts",
       "language": "typescript",
-      "sizeLines": 116,
+      "sizeLines": 222,
       "fileCategory": "code"
     },
     {
@@ -1304,7 +1322,7 @@
     {
       "path": "src/lib/zalo.ts",
       "language": "typescript",
-      "sizeLines": 373,
+      "sizeLines": 648,
       "fileCategory": "code"
     },
     {
@@ -1334,7 +1352,7 @@
     {
       "path": "src/modules/beneficiaries/service.ts",
       "language": "typescript",
-      "sizeLines": 70,
+      "sizeLines": 71,
       "fileCategory": "code"
     },
     {
@@ -1424,7 +1442,7 @@
     {
       "path": "src/modules/conversions/service.ts",
       "language": "typescript",
-      "sizeLines": 780,
+      "sizeLines": 815,
       "fileCategory": "code"
     },
     {
@@ -1442,7 +1460,7 @@
     {
       "path": "src/modules/identity/deletion.ts",
       "language": "typescript",
-      "sizeLines": 175,
+      "sizeLines": 267,
       "fileCategory": "code"
     },
     {
@@ -1490,19 +1508,19 @@
     {
       "path": "src/modules/imports/shopee-reconciliation.ts",
       "language": "typescript",
-      "sizeLines": 456,
+      "sizeLines": 467,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/jobs/qstash.ts",
       "language": "typescript",
-      "sizeLines": 26,
+      "sizeLines": 23,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/jobs/runner.ts",
       "language": "typescript",
-      "sizeLines": 662,
+      "sizeLines": 650,
       "fileCategory": "code"
     },
     {
@@ -1526,19 +1544,19 @@
     {
       "path": "src/modules/links/service.ts",
       "language": "typescript",
-      "sizeLines": 607,
+      "sizeLines": 608,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/links/tenant-policy.test.ts",
       "language": "typescript",
-      "sizeLines": 77,
+      "sizeLines": 98,
       "fileCategory": "code"
     },
     {
       "path": "src/modules/links/tenant-policy.ts",
       "language": "typescript",
-      "sizeLines": 54,
+      "sizeLines": 58,
       "fileCategory": "code"
     },
     {
@@ -1562,7 +1580,7 @@
     {
       "path": "src/modules/payout/service.ts",
       "language": "typescript",
-      "sizeLines": 679,
+      "sizeLines": 51,
       "fileCategory": "code"
     },
     {
@@ -1604,7 +1622,7 @@
     {
       "path": "src/modules/settlement/service.ts",
       "language": "typescript",
-      "sizeLines": 296,
+      "sizeLines": 307,
       "fileCategory": "code"
     },
     {
@@ -1655,11 +1673,11 @@
       "sizeLines": 74,
       "fileCategory": "code"
     },
-    { "path": "src/proxy.ts", "language": "typescript", "sizeLines": 136, "fileCategory": "code" },
+    { "path": "src/proxy.ts", "language": "typescript", "sizeLines": 137, "fileCategory": "code" },
     {
       "path": "src/test/database-guard.test.ts",
       "language": "typescript",
-      "sizeLines": 58,
+      "sizeLines": 86,
       "fileCategory": "code"
     },
     {
@@ -1743,7 +1761,7 @@
     {
       "path": "tests/integration/database-guard.ts",
       "language": "typescript",
-      "sizeLines": 46,
+      "sizeLines": 83,
       "fileCategory": "code"
     },
     {
@@ -1831,7 +1849,7 @@
       "fileCategory": "code"
     },
     { "path": "tsconfig.json", "language": "json", "sizeLines": 36, "fileCategory": "config" },
-    { "path": "vercel.json", "language": "json", "sizeLines": 27, "fileCategory": "config" },
+    { "path": "vercel.json", "language": "json", "sizeLines": 15, "fileCategory": "config" },
     {
       "path": "vitest.config.ts",
       "language": "typescript",
@@ -1845,7 +1863,7 @@
       "fileCategory": "code"
     }
   ],
-  "totalFiles": 323,
+  "totalFiles": 326,
   "filteredByIgnore": 11,
   "estimatedComplexity": "large",
   "importMap": {
@@ -1928,6 +1946,7 @@
     ],
     "src/app/admin/adjustments/page.tsx": [
       "src/app/admin/adjustments/actions.ts",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
@@ -1935,30 +1954,37 @@
       "src/components/ui/label.tsx",
       "src/components/ui/table.tsx",
       "src/lib/db.ts",
+      "src/lib/pagination.ts",
       "src/lib/utils.ts"
     ],
     "src/app/admin/audit/page.tsx": [
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/table.tsx",
-      "src/lib/db.ts"
+      "src/lib/db.ts",
+      "src/lib/pagination.ts"
     ],
     "src/app/admin/catalog/actions.ts": ["src/lib/authz.ts", "src/lib/db.ts"],
     "src/app/admin/catalog/page.tsx": [
       "src/app/admin/catalog/actions.ts",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
       "src/components/ui/label.tsx",
       "src/components/ui/table.tsx",
-      "src/lib/db.ts"
+      "src/lib/db.ts",
+      "src/lib/pagination.ts"
     ],
     "src/app/admin/connectors/page.tsx": [
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/table.tsx",
-      "src/lib/db.ts"
+      "src/lib/db.ts",
+      "src/lib/pagination.ts"
     ],
     "src/app/admin/flags/actions.ts": [
       "src/lib/authz.ts",
@@ -1977,10 +2003,12 @@
     ],
     "src/app/admin/layout.tsx": ["src/components/admin-shell.tsx", "src/lib/authz.ts"],
     "src/app/admin/ledger/page.tsx": [
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/table.tsx",
       "src/lib/db.ts",
+      "src/lib/pagination.ts",
       "src/lib/utils.ts"
     ],
     "src/app/admin/page.tsx": [
@@ -1989,15 +2017,17 @@
       "src/lib/db.ts",
       "src/lib/utils.ts"
     ],
-    "src/app/admin/payouts/actions.ts": ["src/lib/authz.ts", "src/modules/payout/service.ts"],
+    "src/app/admin/payouts/actions.ts": ["src/lib/authz.ts", "src/lib/request.ts"],
     "src/app/admin/payouts/page.tsx": [
       "src/app/admin/payouts/actions.ts",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
       "src/components/ui/table.tsx",
       "src/lib/db.ts",
+      "src/lib/pagination.ts",
       "src/lib/utils.ts"
     ],
     "src/app/admin/reconciliation/actions.ts": [
@@ -2010,12 +2040,14 @@
     ],
     "src/app/admin/reconciliation/page.tsx": [
       "src/app/admin/reconciliation/actions.ts",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
       "src/components/ui/table.tsx",
-      "src/lib/db.ts"
+      "src/lib/db.ts",
+      "src/lib/pagination.ts"
     ],
     "src/app/admin/rules/actions.ts": [
       "src/lib/authz.ts",
@@ -2024,17 +2056,20 @@
     ],
     "src/app/admin/rules/page.tsx": [
       "src/app/admin/rules/actions.ts",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
       "src/components/ui/label.tsx",
       "src/components/ui/table.tsx",
-      "src/lib/db.ts"
+      "src/lib/db.ts",
+      "src/lib/pagination.ts"
     ],
     "src/app/admin/tenants/actions.ts": [
       "src/lib/authz.ts",
       "src/lib/db.ts",
+      "src/lib/env.ts",
       "src/lib/errors.ts",
       "src/lib/tenant.ts",
       "src/modules/admin/passkey.ts",
@@ -2043,6 +2078,7 @@
     "src/app/admin/tenants/page.tsx": [
       "src/app/admin/tenants/actions.ts",
       "src/components/admin-passkey.tsx",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
@@ -2050,6 +2086,7 @@
       "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts",
+      "src/lib/pagination.ts",
       "src/lib/utils.ts"
     ],
     "src/app/admin/users/actions.ts": [
@@ -2060,12 +2097,14 @@
     ],
     "src/app/admin/users/page.tsx": [
       "src/app/admin/users/actions.ts",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/input.tsx",
       "src/components/ui/table.tsx",
       "src/lib/db.ts",
+      "src/lib/pagination.ts",
       "src/lib/utils.ts"
     ],
     "src/app/api/admin/passkeys/authenticate/options/route.ts": [
@@ -2179,10 +2218,7 @@
       "src/lib/authz.ts",
       "src/lib/db.ts",
       "src/lib/errors.ts",
-      "src/lib/json.ts",
-      "src/lib/rate-limit.ts",
-      "src/lib/request.ts",
-      "src/modules/payout/service.ts"
+      "src/lib/json.ts"
     ],
     "src/app/api/v1/provider-accounts/[id]/credential/route.ts": [
       "src/lib/authz.ts",
@@ -2227,12 +2263,7 @@
       "src/lib/request.ts",
       "src/modules/flags/service.ts"
     ],
-    "src/app/api/v1/tenant/conversions/[id]/external-payment/route.ts": [
-      "src/lib/authz.ts",
-      "src/lib/db.ts",
-      "src/lib/errors.ts",
-      "src/lib/request.ts"
-    ],
+    "src/app/api/v1/tenant/conversions/[id]/external-payment/route.ts": ["src/lib/request.ts"],
     "src/app/api/v1/tenant/settings/route.ts": [
       "src/lib/authz.ts",
       "src/lib/db.ts",
@@ -2304,37 +2335,49 @@
     ],
     "src/app/app/conversions/page.tsx": [
       "src/app/app/conversions/actions.ts",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts",
+      "src/lib/pagination.ts",
       "src/lib/utils.ts"
     ],
-    "src/app/app/layout.tsx": ["src/components/app-shell.tsx", "src/lib/authz.ts", "src/lib/db.ts"],
+    "src/app/app/layout.tsx": [
+      "src/components/app-shell.tsx",
+      "src/lib/authz.ts",
+      "src/lib/db.ts",
+      "src/lib/tenant.ts"
+    ],
     "src/app/app/leaderboard/page.tsx": [
+      "src/components/pagination-nav.tsx",
       "src/components/ui/avatar.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts",
+      "src/lib/pagination.ts",
       "src/lib/utils.ts"
     ],
     "src/app/app/links/page.tsx": [
       "src/components/links-workspace.tsx",
       "src/lib/authz.ts",
-      "src/lib/db.ts"
+      "src/lib/db.ts",
+      "src/lib/pagination.ts"
     ],
     "src/app/app/notifications/actions.ts": ["src/lib/authz.ts", "src/lib/db.ts"],
     "src/app/app/notifications/page.tsx": [
       "src/app/app/notifications/actions.ts",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/table.tsx",
       "src/lib/authz.ts",
-      "src/lib/db.ts"
+      "src/lib/db.ts",
+      "src/lib/pagination.ts"
     ],
     "src/app/app/onboarding/tenant/page.tsx": [],
     "src/app/app/page.tsx": [
@@ -2347,11 +2390,13 @@
     ],
     "src/app/app/profile/[[...user-profile]]/page.tsx": [],
     "src/app/app/reconciliation/page.tsx": [
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts",
+      "src/lib/pagination.ts",
       "src/lib/utils.ts"
     ],
     "src/app/app/settings/actions.ts": [
@@ -2372,15 +2417,7 @@
       "src/lib/env.ts",
       "src/lib/utils.ts"
     ],
-    "src/app/app/settings/tenant/page.tsx": [
-      "src/app/app/settings/tenant/tenant-settings-client.tsx",
-      "src/lib/authz.ts",
-      "src/lib/db.ts",
-      "src/lib/env.ts",
-      "src/lib/tenant.ts",
-      "src/modules/flags/service.ts",
-      "src/modules/tenants/plans.ts"
-    ],
+    "src/app/app/settings/tenant/page.tsx": [],
     "src/app/app/settings/tenant/tenant-settings-client.tsx": [
       "src/components/tenant-provider-credentials.tsx",
       "src/components/ui/badge.tsx",
@@ -2392,12 +2429,13 @@
     ],
     "src/app/app/tools/page.tsx": ["src/components/internal-tools.tsx"],
     "src/app/app/wallet/page.tsx": [
-      "src/components/payout-form.tsx",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/card.tsx",
       "src/components/ui/table.tsx",
       "src/lib/authz.ts",
       "src/lib/db.ts",
+      "src/lib/pagination.ts",
       "src/lib/utils.ts"
     ],
     "src/app/cashback-policy/page.tsx": ["src/components/legal-page.tsx"],
@@ -2501,6 +2539,7 @@
     ],
     "src/components/links-workspace.tsx": [
       "src/components/link-builder.tsx",
+      "src/components/pagination-nav.tsx",
       "src/components/ui/badge.tsx",
       "src/components/ui/button.tsx",
       "src/components/ui/card.tsx",
@@ -2508,6 +2547,7 @@
       "src/components/ui/tabs.tsx",
       "src/lib/utils.ts"
     ],
+    "src/components/pagination-nav.tsx": ["src/components/ui/button.tsx"],
     "src/components/payout-form.tsx": [
       "src/components/ui/alert.tsx",
       "src/components/ui/button.tsx",
@@ -2595,6 +2635,8 @@
     "src/lib/lossless-json.ts": ["src/lib/errors.ts"],
     "src/lib/money.test.ts": ["src/lib/money.ts"],
     "src/lib/money.ts": ["src/lib/errors.ts"],
+    "src/lib/pagination.test.ts": ["src/lib/pagination.ts"],
+    "src/lib/pagination.ts": [],
     "src/lib/payos.test.ts": ["src/lib/env.ts", "src/lib/payos.ts"],
     "src/lib/payos.ts": ["src/lib/env.ts", "src/lib/errors.ts"],
     "src/lib/rate-limit.ts": ["src/lib/redis.ts"],
@@ -2620,6 +2662,7 @@
       "src/lib/db.ts",
       "src/lib/env.ts",
       "src/lib/errors.ts",
+      "src/lib/rate-limit.ts",
       "src/lib/request.ts",
       "src/modules/flags/service.ts",
       "src/modules/links/service.ts",
@@ -2637,6 +2680,7 @@
     "src/modules/beneficiaries/service.ts": [
       "src/lib/crypto.ts",
       "src/lib/db.ts",
+      "src/lib/env.ts",
       "src/lib/errors.ts"
     ],
     "src/modules/connectors/accesstrade.ts": [
@@ -2765,8 +2809,7 @@
       "src/modules/evidence/service.ts",
       "src/modules/flags/service.ts",
       "src/modules/ledger/service.ts",
-      "src/modules/notifications/dispatch.ts",
-      "src/modules/payout/service.ts"
+      "src/modules/notifications/dispatch.ts"
     ],
     "src/modules/ledger/invariants.test.ts": ["src/modules/ledger/invariants.ts"],
     "src/modules/ledger/invariants.ts": [],
@@ -2799,18 +2842,7 @@
     ],
     "src/modules/payout/provider-gate.test.ts": ["src/modules/payout/provider-gate.ts"],
     "src/modules/payout/provider-gate.ts": ["src/lib/errors.ts"],
-    "src/modules/payout/service.ts": [
-      "src/lib/crypto.ts",
-      "src/lib/db.ts",
-      "src/lib/env.ts",
-      "src/lib/errors.ts",
-      "src/lib/money.ts",
-      "src/modules/admin/passkey.ts",
-      "src/modules/flags/service.ts",
-      "src/modules/ledger/service.ts",
-      "src/modules/payout/provider-gate.ts",
-      "src/modules/payout/state-machine.ts"
-    ],
+    "src/modules/payout/service.ts": ["src/lib/errors.ts"],
     "src/modules/payout/state-machine.test.ts": ["src/modules/payout/state-machine.ts"],
     "src/modules/payout/state-machine.ts": [],
     "src/modules/push/service.ts": [

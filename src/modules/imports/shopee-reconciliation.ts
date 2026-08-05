@@ -14,6 +14,7 @@ import { AppError } from "@/lib/errors";
 import { BETA_DAILY_AVAILABLE_LIMIT_VND, parseVndAmount, startOfVietnamDay } from "@/lib/money";
 import { storeRawEvidence } from "@/modules/evidence/service";
 import { releaseCashback } from "@/modules/ledger/service";
+import { syncTenantCashbackObligation } from "@/modules/tenants/finance";
 
 export const SHOPEE_RECONCILIATION_SCHEMA_VERSION = "SHOPEE_RECONCILIATION_DETAIL_V1_48";
 
@@ -401,7 +402,17 @@ export async function processShopeeReconciliationInvoice(input: {
         const current = await tx.conversion.findUniqueOrThrow({
           where: { id: conversion.id }
         });
-        if (current.cashbackVnd > 0n) {
+        if (current.cashbackVnd > 0n && current.tenantId && current.userId) {
+          await syncTenantCashbackObligation(tx, {
+            conversionId: current.id,
+            tenantId: current.tenantId,
+            userId: current.userId,
+            cashbackVnd: current.cashbackVnd,
+            payable: current.status === "VALIDATED",
+            released: true,
+            eventKey: `shopee-settlement:${batch.id}`
+          });
+        } else if (current.cashbackVnd > 0n) {
           await releaseCashback(tx, {
             userId: current.userId!,
             conversionId: current.id,

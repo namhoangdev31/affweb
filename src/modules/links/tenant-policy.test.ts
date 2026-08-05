@@ -3,6 +3,7 @@ import { resolveTenantLinkPolicy, type TenantLinkConfig } from "@/modules/links/
 
 const activeTenant: TenantLinkConfig = {
   id: "tenant-1",
+  kind: "STANDARD",
   status: "ACTIVE",
   planExpiresAt: new Date("2026-08-31T00:00:00.000Z"),
   shopeeAffiliateId: "17330520179",
@@ -10,15 +11,35 @@ const activeTenant: TenantLinkConfig = {
 };
 
 describe("resolveTenantLinkPolicy", () => {
-  it("luôn dùng flow nền tảng khi user là owner của một tenant", () => {
+  it("scope tenant owner tại Platform Tenant khi tự mua", () => {
     expect(
       resolveTenantLinkPolicy({
         userOwnsTenant: true,
-        memberTenant: activeTenant,
+        memberTenant: { ...activeTenant, id: "master", kind: "MASTER" },
         platform: "SHOPEE_MARKETPLACE",
         now: new Date("2026-07-28T00:00:00.000Z")
       })
-    ).toBeNull();
+    ).toEqual({
+      tenantId: "master",
+      affiliateId: "17330520179",
+      shareBps: 7_000,
+      withholdingTaxBps: 1_000
+    });
+  });
+
+  it("scope member của master tenant vào Platform Tenant finance", () => {
+    expect(
+      resolveTenantLinkPolicy({
+        userOwnsTenant: false,
+        memberTenant: { ...activeTenant, kind: "MASTER" },
+        platform: "SHOPEE_MARKETPLACE"
+      })
+    ).toEqual({
+      tenantId: "tenant-1",
+      affiliateId: "17330520179",
+      shareBps: 7_000,
+      withholdingTaxBps: 1_000
+    });
   });
 
   it("dùng Affiliate ID và tỷ lệ riêng cho member tenant", () => {

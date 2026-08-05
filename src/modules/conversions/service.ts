@@ -24,6 +24,7 @@ import {
 import type { NormalizedConversion, NormalizedValidation } from "@/modules/connectors/types";
 import { storeRawEvidence } from "@/modules/evidence/service";
 import { postJournal, postPendingCashback } from "@/modules/ledger/service";
+import { syncTenantCashbackObligation } from "@/modules/tenants/finance";
 
 const AUTHORITY_WEIGHT: Record<EvidenceAuthority, number> = {
   AUXILIARY: 1,
@@ -357,6 +358,23 @@ async function applyConversionRevision(
       rawEvidenceId: input.rawEvidenceId
     }
   });
+  if (input.current.tenantId && input.current.userId && input.current.clickId) {
+    const click = await tx.affiliateClick.findUnique({
+      where: { id: input.current.clickId },
+      select: { attributionMode: true }
+    });
+    if (click?.attributionMode === "TENANT_MEMBER") {
+      await syncTenantCashbackObligation(tx, {
+        conversionId: input.current.id,
+        tenantId: input.current.tenantId,
+        userId: input.current.userId,
+        cashbackVnd: effectiveCashback,
+        payable: nextStatus === ConversionStatus.VALIDATED && effectiveCashback > 0n,
+        released: Boolean(input.current.availableAt),
+        eventKey: `revision:${sequence}`
+      });
+    }
+  }
 }
 
 export async function ingestConversion(input: {
@@ -601,6 +619,23 @@ export async function ingestConversion(input: {
           conversionId: conversion.id,
           grossCommissionVnd: input.conversion.grossCommissionVnd,
           cashbackVnd
+        });
+      }
+      if (
+        click?.userId &&
+        click.tenantId &&
+        click.attributionMode === "TENANT_MEMBER" &&
+        cashbackVnd > 0n &&
+        status === ConversionStatus.VALIDATED
+      ) {
+        await syncTenantCashbackObligation(tx, {
+          conversionId: conversion.id,
+          tenantId: click.tenantId,
+          userId: click.userId,
+          cashbackVnd,
+          payable: true,
+          released: false,
+          eventKey: "initial"
         });
       }
       return { conversionId: conversion.id, created: true, deduplicated: false };

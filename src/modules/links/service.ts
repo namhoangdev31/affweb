@@ -287,6 +287,7 @@ export async function createAffiliateLink(input: {
         tenant: {
           select: {
             id: true,
+            kind: true,
             status: true,
             planExpiresAt: true,
             shopeeAffiliateId: true,

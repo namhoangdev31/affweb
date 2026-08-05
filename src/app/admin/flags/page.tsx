@@ -23,7 +23,18 @@ const keys = [
   ["provider.credentials.enabled", "Provider credential management"],
   ["shopee.orders_import.enabled", "Shopee Orders CSV import"],
   ["cashback.release.enabled", "Cashback release"],
-  ["payout.enabled", "payOS payout"]
+  ["payout.enabled", "payOS payout"],
+  ["tenant.finance.enabled", "Tenant finance ledger"],
+  ["tenant.topup.enabled", "Tenant treasury top-up"],
+  ["tenant.payout_request.enabled", "Tenant payout request"],
+  ["tenant.payout_approval.enabled", "Tenant payout approval"],
+  ["tenant.treasury_withdrawal.enabled", "Tenant treasury withdrawal"],
+  ["tenant.manual_payout.enabled", "Tenant manual payout"],
+  ["tenant.auto_payout.enabled", "Tenant PayOS execution"],
+  ["tenant.auto_reconciliation.enabled", "Tenant payout reconciliation"],
+  ["qstash.recovery.enabled", "QStash finance recovery"],
+  ["tenant.zalo_wallet.enabled", "Zalo wallet lookup"],
+  ["tenant.zalo_payout.enabled", "Zalo payout confirmation"]
 ] as const;
 
 export default async function FlagsPage() {

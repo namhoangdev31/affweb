@@ -63,7 +63,7 @@ export default async function SettingsPage() {
                   size="sm"
                   className="mt-1 border-emerald-600/30 text-emerald-700 hover:bg-emerald-50"
                 >
-                  <Link href={"/app/settings/tenant" as Route}>
+                  <Link href={"/tenant/settings" as Route}>
                     Quản lý Kênh & Cấu hình Zalo Bot 🤖
                   </Link>
                 </Button>

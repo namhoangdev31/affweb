@@ -16,7 +16,18 @@ const mutableFlagSchema = z.enum([
   "provider.credentials.enabled",
   "shopee.orders_import.enabled",
   "cashback.release.enabled",
-  "payout.enabled"
+  "payout.enabled",
+  "tenant.finance.enabled",
+  "tenant.topup.enabled",
+  "tenant.payout_request.enabled",
+  "tenant.payout_approval.enabled",
+  "tenant.treasury_withdrawal.enabled",
+  "tenant.manual_payout.enabled",
+  "tenant.auto_payout.enabled",
+  "tenant.auto_reconciliation.enabled",
+  "qstash.recovery.enabled",
+  "tenant.zalo_wallet.enabled",
+  "tenant.zalo_payout.enabled"
 ]);
 
 export async function toggleFlagAction(formData: FormData) {

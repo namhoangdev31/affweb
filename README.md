@@ -7,8 +7,10 @@ Web App/PWA affiliate cashback cho Shopee, ShopeeFood, AccessTrade và Lazada, x
 - Shopee direct link dùng packet `sub_id=affweb-<click>-<source>-<mode>-v2`; CSV Báo cáo chuyển đổi có contract Việt/Anh 47 cột. Hóa đơn đối soát vẫn hard-disabled tới khi có export thật.
 - AccessTrade dùng Publisher API chính thức: product-link, transaction pagination, overlap và SubID.
 - Lazada đã có signing, link/product/conversion contract, fixture test và mode `credential_ready`; chỉ chuyển `active` sau khi xác minh operation từ portal authenticated.
-- Payout payOS dùng batch payout, idempotency, destination validation, `UNKNOWN` reconciliation và journal đối ứng khi thất bại.
+- Payout có approval/settlement độc lập, execution intent duy nhất, inline PayOS ngoài transaction và `UNKNOWN` chỉ reconcile, không resend.
 - Clerk quản lý identity, Google/email OTP, invitation, hồ sơ, session và thiết bị; Prisma vẫn quản lý role, trạng thái nghiệp vụ, wallet, ledger và payout.
+- Bốn portal có shell và quyền dữ liệu riêng: `/admin` cho Owner, `/app` cho member của master tenant, `/tenant` cho Tenant Master và `/<slug>/app` cho Tenant User. Persona được suy ra server-side từ membership và ownership, không nhận `tenantId` từ client.
+- Tài chính tenant dùng treasury, ví member, nghĩa vụ cashback và payout aggregate riêng. Các luồng nạp/rút/cấp vốn mặc định tắt; toàn hệ thống dùng một bộ credential `PAYOS_*` hiện có, còn từng nghiệp vụ được tách bằng kill switch.
 - Admin có Clerk invite/ban/unban/revoke-session, user-role control, rate versioning, three-person positive adjustment, payout budget, reconciliation case, raw evidence và CSV import có passkey.
 - PWA có manifest, service worker, offline public shell, update prompt và opt-in Web Push; route tài chính luôn network-only.
 - Production build và test không cần credential thật. Việc phát hành tiền thật vẫn fail-closed cho tới khi env, hạ tầng và feature flags được cấu hình.
@@ -37,7 +39,7 @@ pnpm test:unit
 pnpm build
 ```
 
-Integration chỉ chạy riêng với `TEST_DATABASE_URL`; guard yêu cầu database name có marker test/ci/tmp/disposable và từ chối database trùng runtime kể cả pooled/unpooled.
+Integration chỉ chạy riêng với `TEST_DATABASE_URL` + `TEST_DIRECT_URL`; guard yêu cầu explicit reset authority, database marker test/ci/tmp/disposable, host allowlist và từ chối database trùng runtime kể cả pooled/unpooled.
 
 ## Mô hình an toàn mặc định
 
@@ -46,10 +48,15 @@ Integration chỉ chạy riêng với `TEST_DATABASE_URL`; guard yêu cầu data
 - `payout.enabled=false`
 - `connector.lazada.enabled=false`
 - `connector.shopee_food_cashback=false`
+- `tenant.finance.enabled=false` cùng `TENANT_FINANCE_ENABLED=false`
+- `tenant.topup.enabled=false` cùng `TENANT_TOPUP_ENABLED=false`
+- `tenant.auto_payout.enabled=false` cùng `TENANT_AUTO_PAYOUT_ENABLED=false`
 - Payout tối thiểu 100.000 VND, tối đa 500.000 VND/ticket và user/ngày.
-- Thay tài khoản ngân hàng khóa payout 72 giờ.
+- Thay tài khoản ngân hàng áp dụng security hold cấu hình bằng `BENEFICIARY_HOLD_HOURS`; payout không thêm hold riêng và chỉ dùng obligation `AVAILABLE`.
 - Finance action cần passkey trong 10 phút; creator/reviewer/approver được tách biệt.
 - Secret, affiliate cookie và bank account không xuất hiện trong Prisma/log/client bundle.
+
+`MASTER_TENANT_ID` phải trỏ tới đúng một tenant loại `MASTER`, đang hoạt động và có owner hợp lệ. Script `pnpm tenant:configure-master` chỉ được chạy sau migration trên database disposable/staging đã xác minh và yêu cầu xác nhận backfill tường minh; tuyệt đối không chạy trên database không rõ mục đích.
 
 ## Production
 
@@ -63,4 +70,4 @@ pnpm jobs:setup
 pnpm smoke:production
 ```
 
-Repository không chứa GitHub Actions. CI/release chạy bằng pipeline ngoài repository theo [external CI contract](docs/operations/external-ci-contract.md), khóa theo commit SHA và dùng database disposable cho migration/integration.
+Workflow `.github/workflows/quality-gates.yml` khóa theo commit SHA, chạy PostgreSQL + Neon pre-production trước khi deploy Vercel. Production thương mại yêu cầu Vercel Pro hoặc backend hosting tương đương; Vercel Git auto-deploy phải tắt để không vượt gate.

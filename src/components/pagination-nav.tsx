@@ -33,8 +33,8 @@ export function PaginationNav({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm text-muted-foreground">
-        Hiển thị {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, totalItems)}{" "}
-        trong tổng số {totalItems} {itemLabel}
+        Hiển thị {totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1}–
+        {Math.min(currentPage * pageSize, totalItems)} trong tổng số {totalItems} {itemLabel}
       </p>
       <nav aria-label={`Phân trang ${itemLabel}`} className="flex items-center gap-1">
         {currentPage > 1 ? (
