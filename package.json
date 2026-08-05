@@ -28,6 +28,7 @@
     "env:check": "tsx scripts/check-env.ts",
     "jobs:setup": "tsx scripts/setup-qstash.ts",
     "clerk:bootstrap-admin": "tsx scripts/bootstrap-super-admin.ts",
+    "clerk:cleanup-users": "tsx scripts/cleanup-all-users.ts",
     "tenant:configure-master": "tsx scripts/configure-master-tenant.ts",
     "finance:inventory-legacy": "tsx scripts/inventory-legacy-finance.ts",
     "pwa:screenshots": "tsx scripts/capture-pwa-screenshots.ts",
