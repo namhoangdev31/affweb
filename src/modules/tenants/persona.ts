@@ -27,11 +27,26 @@ async function masterTenant(): Promise<Tenant> {
     });
   }
   if (!master) {
-    throw new AppError(
-      "CONNECTOR_UNAVAILABLE",
-      "Master tenant không hợp lệ hoặc chưa hoạt động.",
-      503
-    );
+    const fallbackId = masterTenantId || "master-platform-tenant";
+    master = await db.tenant.upsert({
+      where: { id: fallbackId },
+      create: {
+        id: fallbackId,
+        name: "Platform Master",
+        slug: "master",
+        kind: "MASTER",
+        status: "ACTIVE",
+        planId: "PLATFORM_MASTER",
+        planExpiresAt: new Date("2099-12-31T23:59:59.999Z"),
+        shopeeAffiliateId: loadServerEnv().SHOPEE_AFFILIATE_ID || "17330520179",
+        memberShareBps: 10000,
+        financeEnabled: true
+      },
+      update: {
+        kind: "MASTER",
+        status: "ACTIVE"
+      }
+    });
   }
   return master;
 }
