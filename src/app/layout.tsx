@@ -77,11 +77,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                 "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium rounded-xl",
               navbarButtonActive:
                 "bg-emerald-800 text-white font-semibold rounded-xl hover:bg-emerald-900",
-              userButtonPopoverCard: "shadow-2xl border border-slate-200 rounded-2xl p-2",
-              userButtonPopoverActionButton: "hover:bg-slate-100 rounded-xl text-slate-700",
-              userButtonPopoverActionButtonText: "font-medium text-sm text-slate-800",
               userButtonPopoverFooter: "hidden font-sans text-slate-400",
-              footer: "hidden"
+              footerActionLink: "text-emerald-800 hover:text-emerald-900 font-semibold"
             }
           }}
         >
