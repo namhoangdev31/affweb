@@ -81,7 +81,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
               userButtonPopoverActionButton: "hover:bg-slate-100 rounded-xl text-slate-700",
               userButtonPopoverActionButtonText: "font-medium text-sm text-slate-800",
               userButtonPopoverFooter: "hidden font-sans text-slate-400",
-              footer: "hidden"
+              footer: "hidden",
+              navbarButton__apiKeys: "!hidden",
+              profilePage__apiKeys: "!hidden",
+              navbarButton__api_keys: "!hidden",
+              profilePage__api_keys: "!hidden"
             }
           }}
         >
