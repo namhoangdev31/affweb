@@ -1,8 +1,6 @@
 # External CI contract
 
-Repository có `.github/workflows/quality-gates.yml`. Pipeline khóa theo commit SHA và dùng Node 22.x,
-pnpm 10.5.2 cùng `pnpm install --frozen-lockfile`. Vercel Git auto-deploy phải tắt; Preview và
-Production chỉ được deploy từ job phụ thuộc mọi gate.
+Dự án không sử dụng GitHub Actions. Quy trình kiểm soát chất lượng (Quality Gate) được thực thi local bằng Node 22.x, pnpm 10.5.2 qua `pnpm verify` và `pnpm test:integration`.
 
 ## Pull request / pre-merge
 

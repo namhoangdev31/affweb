@@ -169,8 +169,7 @@ không lưu payload callback.
    `TEST_DATABASE_URL` disposable; test global setup tự deploy migration vào đúng URL này.
 3. Chạy live provider smoke ở shadow mode.
 4. Tạo Neon checkpoint/backup.
-5. Workflow `.github/workflows/quality-gates.yml` phải xanh trên PostgreSQL 16 và Neon test branch;
-   Preview/Production chỉ deploy đúng SHA đã vượt gate. Tắt Vercel Git auto-deploy để không vượt CI.
+5. Bộ kiểm tra local `pnpm verify` và `pnpm test:integration` phải thành công trước khi deploy lên Vercel.
 6. Production protected environment cần approver thủ công.
 7. Chạy:
 

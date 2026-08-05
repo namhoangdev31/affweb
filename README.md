@@ -70,4 +70,4 @@ pnpm jobs:setup
 pnpm smoke:production
 ```
 
-Workflow `.github/workflows/quality-gates.yml` khóa theo commit SHA, chạy PostgreSQL + Neon pre-production trước khi deploy Vercel. Production thương mại yêu cầu Vercel Pro hoặc backend hosting tương đương; Vercel Git auto-deploy phải tắt để không vượt gate.
+Toàn bộ quy trình kiểm tra chất lượng (lint, typecheck, test, build) được thực thi local bằng bộ lệnh `pnpm verify`. Vercel được sử dụng làm deployment target.

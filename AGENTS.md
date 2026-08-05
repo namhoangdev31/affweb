@@ -150,6 +150,11 @@ Chọn mức kiểm định theo rủi ro, không chạy full suite vô nghĩa c
 
 ## 8. Test và lệnh chuẩn
 
+Quy tắc CI/CD & Automation:
+
+- **Không sử dụng GitHub Actions**. Không tạo, khôi phục hay duy trì các workflow trong `.github/workflows/`.
+- Mọi kiểm tra quality gate (lint, typecheck, DB validation, unit/integration/E2E test, build) phải thực hiện qua lệnh `pnpm` local hoặc môi trường dev/test tiêu chuẩn.
+
 Toolchain:
 
 - Node 22.x.

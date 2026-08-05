@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "a883dc347527dfc40d7495577d978697504776ea",
+    "baseCommit": "63c5c654c4aceeeebfe3851d8271722413949327",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -329,7 +329,7 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 397,
+    "mappedFiles": 396,
     "sourceFiles": 282,
     "tests": 57,
     "prismaModels": 57,
@@ -341,12 +341,6 @@
       "bytes": 3497,
       "sha256": "bb8681e9f03e92cc7d8d97523655803b37e2a42d716cb035abb2d49f8fd03213",
       "summary": "Provides .env.example project configuration responsibilities."
-    },
-    ".github/workflows/quality-gates.yml": {
-      "category": "configuration",
-      "bytes": 5429,
-      "sha256": "b7b6adc4079d373e1e9b6cabbb946c8608338644d1db87a3e3b1c7f30ea24d9c",
-      "summary": "Provides quality-gates.yml project configuration responsibilities."
     },
     ".gitignore": {
       "category": "source",
@@ -761,13 +755,13 @@
     ".understand-anything/tmp/ua-scan-results.json": {
       "category": "source",
       "bytes": 87530,
-      "sha256": "55644cdad9c305ab640f260b52358648d8ac0453f2728fc3fd7ace2ab5fc0f1c",
+      "sha256": "2c3f2b6dfeebf06981fd4ce1885cf669a62ab0f8a14e9a77fcf9b7b647e15575",
       "summary": "Provides ua-scan-results.json project source responsibilities."
     },
     "AGENTS.md": {
       "category": "documentation",
-      "bytes": 10518,
-      "sha256": "80cd716335d2a9303bba357f8580f021d18ed84acbcb8b9da501686f89ca33d6",
+      "bytes": 10863,
+      "sha256": "d99916ac1b55117e3d3ee58226a4cdf093890a9683dbd41b6b8f1307574ce7fc",
       "summary": "Documents AGENTS."
     },
     "components.json": {
@@ -778,8 +772,8 @@
     },
     "context.md": {
       "category": "documentation",
-      "bytes": 25034,
-      "sha256": "c8785327418a02ed557decb494d7a0d52443b6d57fb48cb8ae8dbe7a2684e1e0",
+      "bytes": 24963,
+      "sha256": "8c85bdbdf5b7899a4dbef3648c07bfd3d7ec658b9a37ae6baf337ba5c371fad9",
       "summary": "Documents context."
     },
     "docs/brd/cashback_affiliate_platform_brd_en.md": {
@@ -808,8 +802,8 @@
     },
     "docs/operations/external-ci-contract.md": {
       "category": "documentation",
-      "bytes": 1683,
-      "sha256": "591ee0b7a2b3c04d4ab141797defacb7eff1d61f13554308a68cf743dd13d0bb",
+      "bytes": 1610,
+      "sha256": "fdaaac23cef0f30dddc40abf7c48302c9cbda82f7263df53cb4620af6038a738",
       "summary": "Documents external-ci-contract."
     },
     "docs/operations/incident-runbook.md": {
@@ -826,8 +820,8 @@
     },
     "docs/operations/production-runbook.md": {
       "category": "documentation",
-      "bytes": 8347,
-      "sha256": "e3bec96485dd187d4457b99b950f4a0ccda2a643b15c0b09d1ddc2071d46296e",
+      "bytes": 8244,
+      "sha256": "9f2ed60f3d62710f7df4daec72d6f0b59134d1f4e6368ce9df9dc654abbecf00",
       "summary": "Documents production-runbook."
     },
     "docs/operations/provider-contract-status.md": {
@@ -1123,8 +1117,8 @@
     },
     "prisma/migrations/202608050001_hierarchical_finance/migration.sql": {
       "category": "database",
-      "bytes": 14108,
-      "sha256": "3614615945bd613ea4957db0562ec0a20eb58d670654ed01d00267ef5dc7f38b",
+      "bytes": 14304,
+      "sha256": "63b63f52090d2884f1116aadad9a26cf05228f436959b470293e34f7019ced82",
       "summary": "Provides migration.sql project database responsibilities."
     },
     "prisma/migrations/migration_lock.toml": {
@@ -2558,8 +2552,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 667460,
-      "sha256": "3b42510510d090aed9d1f4cfb03f5d46358650970e2dbbc912743adb7bfda0a0",
+      "bytes": 667082,
+      "sha256": "6d4f7bce3f697e81fb032765ce9436beedc8686f1a9090dd3e68da7fe530b860",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -2618,8 +2612,8 @@
     },
     "README.md": {
       "category": "documentation",
-      "bytes": 5180,
-      "sha256": "1bff7cc298775b2480ab2e53637052dec6dfee0f0321bd8ae4662b7ce40abfb8",
+      "bytes": 5082,
+      "sha256": "fedb7cb882610335737a1db8b3f1f9e767ad47260fec29ea0bfb64ea65060787",
       "summary": "Documents README."
     },
     "scratch/debug-video.ts": {
@@ -2918,8 +2912,8 @@
     },
     "scripts/check-disposable-test-db.ts": {
       "category": "source",
-      "bytes": 1677,
-      "sha256": "78c31906f1d2a3413e7b4593ec39d531cb4db61c33151b459fb87077fc913f87",
+      "bytes": 1634,
+      "sha256": "0e6ca112424b19dace76b105457aaa6aa1ce0bb0edbcd47da4b99a9a7bd7421d",
       "summary": "Implements redactedDatabaseLabel.",
       "analysis": {
         "runtime": "node",
@@ -2929,7 +2923,7 @@
           {
             "name": "redactedDatabaseLabel",
             "kind": "function",
-            "line": 11,
+            "line": 12,
             "exported": false,
             "purpose": "redactedDatabaseLabel."
           }
@@ -3116,8 +3110,8 @@
     },
     "scripts/run-disposable-integration.ts": {
       "category": "source",
-      "bytes": 1842,
-      "sha256": "b0e41f6b0d33ebdaaad8521c7d1e8edd0717d77ac40f76f60f73f5a7dc915afe",
+      "bytes": 1771,
+      "sha256": "23a6b20787526bd609c5e0a793262d7d5c424a3d4084f00091024ce495d4a356",
       "summary": "Implements pooledUrl, directUrl, testArgs, vitestArgs.",
       "analysis": {
         "runtime": "node",
@@ -3127,14 +3121,14 @@
           {
             "name": "pooledUrl",
             "kind": "variable",
-            "line": 12,
+            "line": 13,
             "exported": false,
             "purpose": "pooledUrl."
           },
           {
             "name": "directUrl",
             "kind": "variable",
-            "line": 13,
+            "line": 14,
             "exported": false,
             "purpose": "directUrl."
           },
@@ -19138,8 +19132,8 @@
     },
     "tests/integration/database-guard.ts": {
       "category": "test",
-      "bytes": 3308,
-      "sha256": "b49a7d98ec09140e279f268d2be845213b1d421a5035ae4d5340be4cffdf60e4",
+      "bytes": 3047,
+      "sha256": "e2d70e7a7186a57e7348ab82f60a932d3bf9c5b4c20ddc95732470a158fc9b2d",
       "summary": "Verifies database-guard.ts behavior.",
       "analysis": {
         "runtime": "node",
@@ -19174,7 +19168,7 @@
           {
             "name": "requireDisposableTestDatabase",
             "kind": "function",
-            "line": 81,
+            "line": 75,
             "exported": true,
             "purpose": "requireDisposableTestDatabase."
           }
@@ -19187,9 +19181,9 @@
           "parsed.hostname.toLowerCase().replace",
           "parsed.hostname.toLowerCase",
           "new URL(url).hostname.toLowerCase",
-          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"\") .split(\",\") .map((entry) => entry.trim().toLowerCase()) .filter",
-          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"\") .split(\",\") .map",
-          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"\") .split",
+          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"neon.tech\") .split(\",\") .map((entry) => entry.trim().toLowerCase()) .filter",
+          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"neon.tech\") .split(\",\") .map",
+          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"neon.tech\") .split",
           "entry.trim().toLowerCase",
           "entry.trim",
           "allowlist.some",
@@ -19198,9 +19192,6 @@
           "Boolean",
           "canonicalDatabaseIdentity",
           "runtimeUrls.some",
-          "testIdentity.slice",
-          "testIdentity.indexOf",
-          "/(^|[_-])(test|ci|tmp|disposable)([_-]|$)/.test",
           "assertTestHostAllowed",
           "requireDisposableTestDatabasePair"
         ],

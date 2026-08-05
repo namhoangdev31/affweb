@@ -27,7 +27,7 @@ Stack chính:
 - PayOS cho billing/funding/payout dùng chung một credential set hiện có nhưng kill switch nghiệp vụ độc lập; Resend cho email; Web Push cho PWA.
 - AWS S3 Object Lock cho raw evidence production; Sentry cho observability.
 - Tenant/KOC SaaS dùng master tenant, path/slug, plan catalog trong PostgreSQL, PayOS subscription invoice và một Zalo Bot trung tâm. Business có thể dùng tenant-managed Lazada/AccessTrade credential sau preflight. Tenant finance có journal/projection riêng và chỉ hoạt động khi cả env, global DB flag và tenant flag đều bật.
-- Vercel là runtime/deployment target. GitHub Actions quality gate dùng PostgreSQL 16 và Neon test branch trước Preview/Production; Vercel Git auto-deploy phải tắt.
+- Vercel là runtime/deployment target. Không sử dụng GitHub Actions; chất lượng code (quality gate) được kiểm soát hoàn toàn thông qua các lệnh `pnpm` local trước khi release.
 
 ## 2. Kiến trúc
 
@@ -301,7 +301,7 @@ Lệnh này được phép fail ở local khi các integration production như C
 
 ## 9. Vercel và release
 
-- `.github/workflows/quality-gates.yml` provision PostgreSQL 16, migrate/seed, chạy unit + integration/concurrency + build + Chromium + audit, sau đó kiểm chứng Neon test branch trước Preview/Production. Các GitHub environment/secrets và Vercel Git auto-deploy vẫn phải được cấu hình ngoài repo.
+- Repository không sử dụng GitHub Actions (`.github/workflows`). Mọi thao tác quality gate (lint, typecheck, DB validation, test, build) được kiểm tra local qua bộ lệnh `pnpm` trước khi deploy Vercel.
 - Vercel đọc env theo từng environment; `.env` local không được push.
 - Runtime dùng pooled URL; migration dùng direct/unpooled URL.
 - Production release phải theo `docs/operations/production-runbook.md`.
