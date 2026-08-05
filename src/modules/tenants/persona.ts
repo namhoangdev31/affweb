@@ -17,16 +17,16 @@ export type TenantContext = {
 
 async function masterTenant(): Promise<Tenant> {
   const masterTenantId = loadServerEnv().MASTER_TENANT_ID;
-  if (!masterTenantId) {
-    throw new AppError("CONNECTOR_UNAVAILABLE", "Master tenant chưa được cấu hình.", 503);
+  let master: Tenant | null = null;
+  if (masterTenantId) {
+    master = await db.tenant.findUnique({ where: { id: masterTenantId } });
   }
-  const master = await db.tenant.findUnique({ where: { id: masterTenantId } });
-  if (
-    !master ||
-    master.kind !== "MASTER" ||
-    !master.ownerUserId ||
-    !["TRIAL", "ACTIVE"].includes(master.status)
-  ) {
+  if (!master || master.kind !== "MASTER" || !["TRIAL", "ACTIVE"].includes(master.status)) {
+    master = await db.tenant.findFirst({
+      where: { kind: "MASTER", status: { in: ["TRIAL", "ACTIVE"] } }
+    });
+  }
+  if (!master) {
     throw new AppError(
       "CONNECTOR_UNAVAILABLE",
       "Master tenant không hợp lệ hoặc chưa hoạt động.",

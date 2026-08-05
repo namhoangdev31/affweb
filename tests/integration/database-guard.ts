@@ -58,6 +58,16 @@ export function requireDisposableTestDatabasePair(): {
   if (testIdentity !== directIdentity) {
     throw new Error("TEST_DATABASE_URL and TEST_DIRECT_URL must identify the same database.");
   }
+  const databaseName = decodeURIComponent(
+    new URL(testDatabaseUrl).pathname.replace(/^\//, "")
+  ).toLowerCase();
+  const DISPOSABLE_DB_PATTERNS = ["test", "ci", "tmp", "disposable"];
+  if (!DISPOSABLE_DB_PATTERNS.some((pattern) => databaseName.includes(pattern))) {
+    throw new Error(
+      "Integration test database name must contain 'test', 'ci', 'tmp', or 'disposable'."
+    );
+  }
+
   if (runtimeUrls.some((value) => canonicalDatabaseIdentity(value) === testIdentity)) {
     throw new Error("TEST_DATABASE_URL must differ from every runtime or migration database URL.");
   }

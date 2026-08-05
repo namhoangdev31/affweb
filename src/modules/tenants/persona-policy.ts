@@ -9,9 +9,9 @@ export function deriveTenantPersona(input: {
   ownsStandardTenant: boolean;
 }): DerivedTenantPersona {
   if (input.userId === input.masterOwnerUserId) return "OWNER";
-  if (input.membershipTenantId === input.masterTenantId && input.membershipKind === "MASTER") {
-    return input.ownsStandardTenant ? "TENANT_MASTER" : "MASTER_MEMBER";
+  if (input.ownsStandardTenant) return "TENANT_MASTER";
+  if (input.membershipKind === "STANDARD" && input.membershipTenantId !== input.masterTenantId) {
+    return "TENANT_USER";
   }
-  if (input.membershipKind === "STANDARD" && !input.ownsStandardTenant) return "TENANT_USER";
-  throw new Error("Invalid tenant hierarchy");
+  return "MASTER_MEMBER";
 }

@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "63c5c654c4aceeeebfe3851d8271722413949327",
+    "baseCommit": "d90179bac11a4dce37e2e741da186d5229851ac7",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -1061,15 +1061,15 @@
     },
     "prisma.config.ts": {
       "category": "configuration",
-      "bytes": 421,
-      "sha256": "d0d628b6c7ef9de9331a7220db1ef29b7dee01d633ef490344df8c586d3063ff",
+      "bytes": 515,
+      "sha256": "d678a0410d986e4684942ebd6712db1815324782b7042c5e451449a6ca201ed9",
       "summary": "Provides prisma.config.ts project configuration responsibilities.",
       "analysis": {
         "runtime": "node",
-        "imports": ["dotenv/config", "prisma/config"],
+        "imports": ["dotenv", "prisma/config"],
         "exports": ["default"],
         "declarations": [],
-        "functionCalls": ["defineConfig"],
+        "functionCalls": ["dotenv.config", "defineConfig"],
         "tests": []
       }
     },
@@ -2552,8 +2552,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 667082,
-      "sha256": "6d4f7bce3f697e81fb032765ce9436beedc8686f1a9090dd3e68da7fe530b860",
+      "bytes": 667366,
+      "sha256": "3f063bde07ce5f1fe63416e82b2d057d8721ff2e218df4b9749e1981e3ece246",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -8051,8 +8051,8 @@
     },
     "src/app/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 1165,
-      "sha256": "cc7c2631e85ca65ad1d93245832a977a7c1085285471e2521afa8fcbe56e1ef8",
+      "bytes": 1665,
+      "sha256": "48f980cd52c5d118d6497f60022d33723dd7f46f64232189b709d2d0ea2e8222",
       "summary": "Implements metadata, dynamic, DashboardLayout.",
       "analysis": {
         "runtime": "shared",
@@ -8064,28 +8064,29 @@
           "@/lib/authz",
           "@/lib/db",
           "@/lib/tenant",
-          "@/modules/tenants/persona"
+          "@/modules/tenants/persona",
+          "@/lib/errors"
         ],
         "exports": ["metadata", "dynamic", "DashboardLayout"],
         "declarations": [
           {
             "name": "metadata",
             "kind": "variable",
-            "line": 11,
+            "line": 12,
             "exported": true,
             "purpose": "metadata."
           },
           {
             "name": "dynamic",
             "kind": "variable",
-            "line": 12,
+            "line": 13,
             "exported": true,
             "purpose": "dynamic."
           },
           {
             "name": "DashboardLayout",
             "kind": "function",
-            "line": 14,
+            "line": 15,
             "exported": true,
             "purpose": "DashboardLayout."
           }
@@ -8097,6 +8098,7 @@
           "getTenantByHost",
           "redirect",
           "requireMasterMemberContext",
+          "db.user.findUnique",
           "db.tenant.findFirst",
           "Boolean"
         ],
@@ -11855,8 +11857,8 @@
     },
     "src/lib/clerk-identity.ts": {
       "category": "library",
-      "bytes": 7120,
-      "sha256": "0d2c482c1c68f0b2949cac0d6e65522acfd6d9d46c37b2b7d63b829dbc40f77b",
+      "bytes": 7355,
+      "sha256": "8f8e68901912b212f4c59ff284933ea8dfb595a3fa777922c7bf6b64df4ca3fe",
       "summary": "Implements AppUser, findActiveAppUser, reconcileClerkUser, resolveAppUser.",
       "analysis": {
         "runtime": "server",
@@ -11910,7 +11912,7 @@
           {
             "name": "resolveAppUser",
             "kind": "function",
-            "line": 225,
+            "line": 232,
             "exported": true,
             "purpose": "resolveAppUser."
           }
@@ -18170,8 +18172,8 @@
     },
     "src/modules/tenants/persona-policy.test.ts": {
       "category": "test",
-      "bytes": 1403,
-      "sha256": "4814304b2e5020be82b063ac38f95621548e3d3c7d990dbbbd859f5ea5d39c2a",
+      "bytes": 1378,
+      "sha256": "afa04643a5318b7415bd59f22f9279229fd71f9bdef4ab2aea016df6c6dadd4b",
       "summary": "Verifies persona-policy behavior.",
       "analysis": {
         "runtime": "node",
@@ -18189,16 +18191,16 @@
           "expect(deriveTenantPersona(base)).toBe",
           "expect(deriveTenantPersona({ ...base, ownsStandardTenant: true })).toBe",
           "expect( deriveTenantPersona({ ...base, membershipTenantId: \"child\", membershipKind: \"STANDARD\" }) ).toBe",
-          "expect(() => deriveTenantPersona({ ...base, membershipTenantId: \"child\", membershipKind: \"STANDARD\", ownsStandardTenant: true }) ).toThrow",
-          "expect(() => deriveTenantPersona({ ...base, membershipTenantId: null, membershipKind: null }) ).toThrow"
+          "expect( deriveTenantPersona({ ...base, membershipTenantId: \"child\", membershipKind: \"STANDARD\", ownsStandardTenant: true }) ).toBe",
+          "expect( deriveTenantPersona({ ...base, membershipTenantId: null, membershipKind: null }) ).toBe"
         ],
         "tests": []
       }
     },
     "src/modules/tenants/persona-policy.ts": {
       "category": "domain-module",
-      "bytes": 738,
-      "sha256": "90a8e566b60936165bf6a64027163bfa0a2cab0d3ac8fab751ca8b16cc33e041",
+      "bytes": 634,
+      "sha256": "2550d317235716209bc4ee1e2b8498fd7b9877dc2a1ba099e1992fe72ce9b6c7",
       "summary": "Implements DerivedTenantPersona, deriveTenantPersona.",
       "analysis": {
         "runtime": "node",
@@ -18226,8 +18228,8 @@
     },
     "src/modules/tenants/persona.ts": {
       "category": "domain-module",
-      "bytes": 8127,
-      "sha256": "1022072854ef59027179e9f2ae3562bd3f231b21e6a3efd620f23a372728aad4",
+      "bytes": 8155,
+      "sha256": "7ab9432f825bd903cdef4667db005a714d11ab56b914494a80b5e5b145760c3e",
       "summary": "Implements TenantPersona, TenantContext, resolveTenantContext, FinancialActorRole, FinancialActorContext, resolveFinancialActorContext.",
       "analysis": {
         "runtime": "server",
@@ -18334,6 +18336,7 @@
           "loadServerEnv",
           "db.tenant.findUnique",
           "[\"TRIAL\", \"ACTIVE\"].includes",
+          "db.tenant.findFirst",
           "masterTenant",
           "db.user.findUnique",
           "user.roles.some",
@@ -19132,8 +19135,8 @@
     },
     "tests/integration/database-guard.ts": {
       "category": "test",
-      "bytes": 3047,
-      "sha256": "e2d70e7a7186a57e7348ab82f60a932d3bf9c5b4c20ddc95732470a158fc9b2d",
+      "bytes": 3442,
+      "sha256": "e4fb1d1dd09af5125a28e77b037c9d48581d3990e2cef1f8df8bbf8508ae1c19",
       "summary": "Verifies database-guard.ts behavior.",
       "analysis": {
         "runtime": "node",
@@ -19168,7 +19171,7 @@
           {
             "name": "requireDisposableTestDatabase",
             "kind": "function",
-            "line": 75,
+            "line": 85,
             "exported": true,
             "purpose": "requireDisposableTestDatabase."
           }
@@ -19191,6 +19194,9 @@
           "[ process.env.DATABASE_URL, process.env.DIRECT_URL, process.env.DATABASE_URL_UNPOOLED ].filter",
           "Boolean",
           "canonicalDatabaseIdentity",
+          "decodeURIComponent( new URL(testDatabaseUrl).pathname.replace(/^\\//, \"\") ).toLowerCase",
+          "new URL(testDatabaseUrl).pathname.replace",
+          "DISPOSABLE_DB_PATTERNS.some",
           "runtimeUrls.some",
           "assertTestHostAllowed",
           "requireDisposableTestDatabasePair"

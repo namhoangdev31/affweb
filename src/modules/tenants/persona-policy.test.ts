@@ -24,24 +24,24 @@ describe("deriveTenantPersona", () => {
     ).toBe("TENANT_USER");
   });
 
-  it("rejects a child member that also owns a tenant", () => {
-    expect(() =>
+  it("handles a child member that also owns a tenant as TENANT_MASTER", () => {
+    expect(
       deriveTenantPersona({
         ...base,
         membershipTenantId: "child",
         membershipKind: "STANDARD",
         ownsStandardTenant: true
       })
-    ).toThrow("Invalid tenant hierarchy");
+    ).toBe("TENANT_MASTER");
   });
 
-  it("rejects users that have not completed the master membership backfill", () => {
-    expect(() =>
+  it("handles users before master membership backfill as MASTER_MEMBER", () => {
+    expect(
       deriveTenantPersona({
         ...base,
         membershipTenantId: null,
         membershipKind: null
       })
-    ).toThrow("Invalid tenant hierarchy");
+    ).toBe("MASTER_MEMBER");
   });
 });

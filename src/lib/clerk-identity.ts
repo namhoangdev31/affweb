@@ -161,6 +161,13 @@ export async function reconcileClerkUser(user: ClerkUserLike): Promise<AppUser> 
             });
             initialTenantId = master?.id;
           }
+          if (!initialTenantId) {
+            const master = await tx.tenant.findFirst({
+              where: { kind: "MASTER" },
+              select: { id: true }
+            });
+            initialTenantId = master?.id;
+          }
         }
       }
 
