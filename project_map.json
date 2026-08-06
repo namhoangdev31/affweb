@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "1918515b212254aaec098ac0894a190275faccff",
+    "baseCommit": "4849ee6b7a40939acefd347386134b9cc41f8658",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2554,7 +2554,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 671498,
-      "sha256": "b03af9a54961f156c71c75aa14dc3591c68001a5c4851a4e75acc24249368dd4",
+      "sha256": "82925602995253a07a4315d6b3095d09cf97a54547d360f05f72de473a3799b1",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -8877,8 +8877,8 @@
     },
     "src/app/globals.css": {
       "category": "app-route",
-      "bytes": 3819,
-      "sha256": "7c2cf9147b6b94468de58dce9266a68cf092e8acca5a6372752688993ef38422",
+      "bytes": 3778,
+      "sha256": "281166cbdb9047e656b104e5c8797eb1d9e2d1d728884835e37229226a301009",
       "summary": "Provides globals.css project app route responsibilities."
     },
     "src/app/go/[clickToken]/route.ts": {
@@ -8915,8 +8915,8 @@
     },
     "src/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 3919,
-      "sha256": "6dae8fea84a76133dc41c35f620a69a440767a5bdae75bd5a51523c4cee860b5",
+      "bytes": 3881,
+      "sha256": "0351ecfea42275d86c3a8906fdaa23b9182d98c5f5a5965d187582184ddf9439",
       "summary": "Implements metadata, viewport, RootLayout.",
       "analysis": {
         "runtime": "shared",

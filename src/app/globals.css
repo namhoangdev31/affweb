@@ -161,6 +161,5 @@ body {
 }
 
 .cl-userButtonPopoverFooter {
-  border-top-color: #1e293b !important;
-  color: #64748b !important;
+  display: none !important;
 }

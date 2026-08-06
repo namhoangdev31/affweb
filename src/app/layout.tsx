@@ -86,8 +86,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                 "hover:bg-slate-800/90 text-slate-100 rounded-xl px-3 py-2 transition-colors",
               userButtonPopoverActionButtonText: "font-semibold text-xs text-slate-100",
               userButtonPopoverActionButtonIcon: "text-emerald-400 size-4",
-              userButtonPopoverFooter:
-                "border-t border-slate-800/80 text-slate-500 pt-2 text-[10px]"
+              userButtonPopoverFooter: "hidden",
+              footer: "hidden"
             }
           }}
         >
