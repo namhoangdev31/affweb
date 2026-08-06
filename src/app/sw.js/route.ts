@@ -19,6 +19,7 @@ const PRIVATE_PREFIXES = [
   "/login",
   "/app",
   "/admin",
+  "/shop",
   "/tenant",
   "/go/"
 ];

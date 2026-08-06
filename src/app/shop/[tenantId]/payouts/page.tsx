@@ -24,23 +24,29 @@ import {
 
 const PAGE_SIZE = 20;
 
-export default async function TenantPayoutQueue({
+export default async function ShopTenantPayoutQueue({
+  params,
   searchParams
 }: {
+  params: Promise<{ tenantId: string }>;
   searchParams: Promise<{ page?: string; status?: string }>;
 }) {
+  const { tenantId: paramId } = await params;
   const user = await requireUser();
-  const tenant = (await requireTenantMasterContext(user.id)).ownedTenant!;
-  const params = await searchParams;
+  const tenantObj = await db.tenant.findFirst({
+    where: { OR: [{ id: paramId }, { slug: paramId.toLowerCase() }] }
+  });
+  const tenant = (await requireTenantMasterContext(user.id, tenantObj?.id)).ownedTenant!;
+  const query = await searchParams;
   const where = {
     tenantId: tenant.id,
     kind: "MEMBER_WITHDRAWAL" as const,
-    ...(params.status
-      ? { approvalStatus: params.status as "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" }
+    ...(query.status
+      ? { approvalStatus: query.status as "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" }
       : {})
   };
   const total = await db.tenantPayout.count({ where });
-  const page = paginationPage(params.page, total, PAGE_SIZE);
+  const page = paginationPage(query.page, total, PAGE_SIZE);
   const payouts = await db.tenantPayout.findMany({
     where,
     include: { user: { select: { email: true } } },
@@ -109,7 +115,7 @@ export default async function TenantPayoutQueue({
         currentPage={page}
         totalItems={total}
         pageSize={PAGE_SIZE}
-        pathname="/tenant/payouts"
+        pathname={`/shop/${tenant.id}/payouts`}
         itemLabel="payout"
       />
     </div>

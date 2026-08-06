@@ -42,7 +42,7 @@ export async function tenantApprovePayoutAction(formData: FormData) {
     method as PayoutMethod,
     String(formData.get("note") ?? "")
   );
-  revalidatePath("/tenant/payouts");
+  revalidatePath("/shop/[tenantId]/payouts", "page");
 }
 
 export async function tenantRejectPayoutAction(formData: FormData) {
@@ -51,7 +51,7 @@ export async function tenantRejectPayoutAction(formData: FormData) {
     String(formData.get("payoutId")),
     String(formData.get("reason") ?? "")
   );
-  revalidatePath("/tenant/payouts");
+  revalidatePath("/shop/[tenantId]/payouts", "page");
 }
 
 export async function tenantPayoutOperationAction(formData: FormData) {
@@ -83,5 +83,5 @@ export async function tenantPayoutOperationAction(formData: FormData) {
       note: String(formData.get("note") ?? "")
     });
   } else throw new Error("Invalid payout operation");
-  revalidatePath("/tenant/payouts");
+  revalidatePath("/shop/[tenantId]/payouts", "page");
 }

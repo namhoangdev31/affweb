@@ -16,14 +16,20 @@ import { requireTenantMasterContext } from "@/modules/tenants/persona";
 
 const PAGE_SIZE = 20;
 
-export default async function TenantMembersPage({
+export default async function ShopTenantMembersPage({
+  params,
   searchParams
 }: {
+  params: Promise<{ tenantId: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
+  const { tenantId: paramId } = await params;
   const user = await requireUser();
   const query = await searchParams;
-  const context = await requireTenantMasterContext(user.id);
+  const tenant = await db.tenant.findFirst({
+    where: { OR: [{ id: paramId }, { slug: paramId.toLowerCase() }] }
+  });
+  const context = await requireTenantMasterContext(user.id, tenant?.id);
   const where = { tenantId: context.ownedTenant!.id };
   const total = await db.user.count({ where });
   const currentPage = paginationPage(query.page, total, PAGE_SIZE);
@@ -135,7 +141,7 @@ export default async function TenantMembersPage({
         currentPage={currentPage}
         totalItems={total}
         pageSize={PAGE_SIZE}
-        pathname="/tenant/members"
+        pathname={`/shop/${context.ownedTenant!.id}/members`}
         itemLabel="thành viên"
       />
     </div>

@@ -9,6 +9,7 @@ describe("service worker financial cache policy", () => {
     expect(source).toContain('"/sign-up"');
     expect(source).toContain('"/app"');
     expect(source).toContain('"/admin"');
+    expect(source).toContain('"/shop"');
     expect(source).toContain('"/tenant"');
     expect(source).toContain("/app(?:\\/|$)");
     expect(source).not.toMatch(/caches\.put\([^)]*\/api/);

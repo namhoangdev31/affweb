@@ -665,8 +665,8 @@ export async function createTenantFundingOrder(input: {
       orderCode,
       amountVnd: input.amountVnd,
       description,
-      returnUrl: `${input.baseUrl}/tenant/treasury?funding=success`,
-      cancelUrl: `${input.baseUrl}/tenant/treasury?funding=cancelled`,
+      returnUrl: `${input.baseUrl}/shop/${order.tenantId}/treasury?funding=success`,
+      cancelUrl: `${input.baseUrl}/shop/${order.tenantId}/treasury?funding=cancelled`,
       expiresAt
     });
     return await db.tenantFundingOrder.update({

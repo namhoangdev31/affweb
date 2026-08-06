@@ -7,9 +7,17 @@ import { featureEnabled } from "@/modules/flags/service";
 import { requireTenantPlan } from "@/modules/tenants/plans";
 import { requireTenantMasterContext } from "@/modules/tenants/persona";
 
-export default async function TenantSettingsPage() {
+export default async function ShopTenantSettingsPage({
+  params
+}: {
+  params: Promise<{ tenantId: string }>;
+}) {
+  const { tenantId: paramId } = await params;
   const user = await requireUser();
-  const context = await requireTenantMasterContext(user.id);
+  const tenantObj = await db.tenant.findFirst({
+    where: { OR: [{ id: paramId }, { slug: paramId.toLowerCase() }] }
+  });
+  const context = await requireTenantMasterContext(user.id, tenantObj?.id);
   const tenant = context.ownedTenant!;
   const env = loadServerEnv();
   const [plan, credentialFeatureEnabled, providerAccounts] = await Promise.all([

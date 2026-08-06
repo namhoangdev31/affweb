@@ -19,14 +19,20 @@ import { requireTenantMasterContext } from "@/modules/tenants/persona";
 
 const PAGE_SIZE = 10;
 
-export default async function TenantTreasuryPage({
+export default async function ShopTenantTreasuryPage({
+  params,
   searchParams
 }: {
+  params: Promise<{ tenantId: string }>;
   searchParams: Promise<{ fundingPage?: string; withdrawalPage?: string }>;
 }) {
+  const { tenantId: paramId } = await params;
   const user = await requireUser();
   const query = await searchParams;
-  const context = await requireTenantMasterContext(user.id);
+  const tenant = await db.tenant.findFirst({
+    where: { OR: [{ id: paramId }, { slug: paramId.toLowerCase() }] }
+  });
+  const context = await requireTenantMasterContext(user.id, tenant?.id);
   const tenantId = context.ownedTenant!.id;
   const [totalOrders, totalPayouts] = await Promise.all([
     db.tenantFundingOrder.count({ where: { tenantId } }),
@@ -60,6 +66,7 @@ export default async function TenantTreasuryPage({
     paidVnd: 0n,
     withdrawnVnd: 0n
   };
+  const pathname = `/shop/${tenantId}/treasury`;
   return (
     <div className="space-y-7">
       <div>
@@ -154,7 +161,7 @@ export default async function TenantTreasuryPage({
                 currentPage={fundingPage}
                 totalItems={totalOrders}
                 pageSize={PAGE_SIZE}
-                pathname="/tenant/treasury"
+                pathname={pathname}
                 query={{ withdrawalPage: String(withdrawalPage) }}
                 pageParam="fundingPage"
                 itemLabel="funding order"
@@ -210,7 +217,7 @@ export default async function TenantTreasuryPage({
                 currentPage={withdrawalPage}
                 totalItems={totalPayouts}
                 pageSize={PAGE_SIZE}
-                pathname="/tenant/treasury"
+                pathname={pathname}
                 query={{ fundingPage: String(fundingPage) }}
                 pageParam="withdrawalPage"
                 itemLabel="yêu cầu rút"

@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "8db3344efbc82938031f0581adf55e5b4f8b5774",
+    "baseCommit": "734a88d9bcf1f79442c850f37eefe2259f1f0e5a",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -330,8 +330,8 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 398,
-    "sourceFiles": 283,
+    "mappedFiles": 399,
+    "sourceFiles": 284,
     "tests": 57,
     "prismaModels": 57,
     "prismaEnums": 37
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 669710,
-      "sha256": "5b357149863086f049fac4f9fdb2571e6b07fbfe3ba6c800d66cd107d6f3d280",
+      "bytes": 671498,
+      "sha256": "fd93331264b8469cf4822bf47de6166af468c803a8d443869d8bd96153b881ef",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -9327,6 +9327,443 @@
         "tests": []
       }
     },
+    "src/app/shop/[tenantId]/conversions/page.tsx": {
+      "category": "app-route",
+      "bytes": 5015,
+      "sha256": "7e6d82e878ca2e722a5bdc77066047313b67f3c5fccfac58d6ecb704c4b2c1ac",
+      "summary": "Implements ShopTenantConversionsPage.",
+      "route": "/shop/:tenantId/conversions",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@/components/ui/badge",
+          "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/pagination",
+          "@/lib/utils",
+          "@/modules/tenants/persona"
+        ],
+        "exports": ["ShopTenantConversionsPage"],
+        "declarations": [
+          {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 18,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
+            "name": "ShopTenantConversionsPage",
+            "kind": "function",
+            "line": 20,
+            "exported": true,
+            "purpose": "ShopTenantConversionsPage."
+          }
+        ],
+        "functionCalls": [
+          "requireUser",
+          "db.tenant.findFirst",
+          "paramId.toLowerCase",
+          "requireTenantMasterContext",
+          "db.tenantCashbackObligation.count",
+          "paginationPage",
+          "db.tenantCashbackObligation.findMany",
+          "obligations.map",
+          "obligation.conversion.purchasedAt.toLocaleString",
+          "formatVnd"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/shop/[tenantId]/layout.tsx": {
+      "category": "app-route",
+      "bytes": 1053,
+      "sha256": "11928b6b614d1a3e535d0f0cc4e055bc93a98118abbab82560018971d83a69a3",
+      "summary": "Implements metadata, dynamic, ShopTenantMasterLayout.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "next",
+          "next/navigation",
+          "@/components/tenant-master-shell",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/modules/tenants/persona"
+        ],
+        "exports": ["metadata", "dynamic", "ShopTenantMasterLayout"],
+        "declarations": [
+          {
+            "name": "metadata",
+            "kind": "variable",
+            "line": 8,
+            "exported": true,
+            "purpose": "metadata."
+          },
+          {
+            "name": "dynamic",
+            "kind": "variable",
+            "line": 12,
+            "exported": true,
+            "purpose": "dynamic."
+          },
+          {
+            "name": "ShopTenantMasterLayout",
+            "kind": "function",
+            "line": 14,
+            "exported": true,
+            "purpose": "ShopTenantMasterLayout."
+          }
+        ],
+        "functionCalls": [
+          "requireUser",
+          "db.tenant.findFirst",
+          "tenantId.toLowerCase",
+          "notFound",
+          "requireTenantMasterContext"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/shop/[tenantId]/members/page.tsx": {
+      "category": "app-route",
+      "bytes": 5366,
+      "sha256": "5551b96ee474f9209a6f237880ea67f94f3db3a02efb9b8965120c60f49c1732",
+      "summary": "Implements ShopTenantMembersPage.",
+      "route": "/shop/:tenantId/members",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/pagination",
+          "@/lib/utils",
+          "@/modules/tenants/persona"
+        ],
+        "exports": ["ShopTenantMembersPage"],
+        "declarations": [
+          {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 17,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
+            "name": "ShopTenantMembersPage",
+            "kind": "function",
+            "line": 19,
+            "exported": true,
+            "purpose": "ShopTenantMembersPage."
+          }
+        ],
+        "functionCalls": [
+          "requireUser",
+          "db.tenant.findFirst",
+          "paramId.toLowerCase",
+          "requireTenantMasterContext",
+          "db.user.count",
+          "paginationPage",
+          "db.user.findMany",
+          "members.map",
+          "formatVnd"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/shop/[tenantId]/page.tsx": {
+      "category": "app-route",
+      "bytes": 2941,
+      "sha256": "c1c519c3c44946e2f15d38fcbb3b387756e201bd9b44835be6ba93080e77c284",
+      "summary": "Implements ShopTenantMasterDashboard.",
+      "route": "/shop/:tenantId",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "lucide-react",
+          "@/components/ui/card",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/utils",
+          "@/modules/tenants/persona"
+        ],
+        "exports": ["ShopTenantMasterDashboard"],
+        "declarations": [
+          {
+            "name": "ShopTenantMasterDashboard",
+            "kind": "function",
+            "line": 8,
+            "exported": true,
+            "purpose": "ShopTenantMasterDashboard."
+          }
+        ],
+        "functionCalls": [
+          "requireUser",
+          "db.tenant.findFirst",
+          "paramId.toLowerCase",
+          "requireTenantMasterContext",
+          "Promise.all",
+          "db.tenantTreasuryProjection.findUnique",
+          "db.user.count",
+          "db.conversion.count",
+          "db.tenantMemberWalletProjection.aggregate",
+          "formatVnd",
+          "members.toLocaleString",
+          "conversions.toLocaleString",
+          "cards.map"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/shop/[tenantId]/payouts/actions.ts": {
+      "category": "source",
+      "bytes": 3090,
+      "sha256": "1aa6895089afd12cdb23a4fc69e592192a7fda15fa5d9e8e56d6ca21a8f712bb",
+      "summary": "Implements tenantApprovePayoutAction, tenantRejectPayoutAction, tenantPayoutOperationAction.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "next/cache",
+          "@/generated/prisma/client",
+          "@/lib/authz",
+          "@/lib/request",
+          "@/modules/tenants/manual",
+          "@/modules/tenants/payout",
+          "@/modules/tenants/persona"
+        ],
+        "exports": [
+          "tenantApprovePayoutAction",
+          "tenantRejectPayoutAction",
+          "tenantPayoutOperationAction"
+        ],
+        "declarations": [
+          {
+            "name": "tenantMasterActor",
+            "kind": "function",
+            "line": 24,
+            "exported": false,
+            "purpose": "tenantMasterActor."
+          },
+          {
+            "name": "tenantApprovePayoutAction",
+            "kind": "function",
+            "line": 35,
+            "exported": true,
+            "purpose": "tenantApprovePayoutAction."
+          },
+          {
+            "name": "tenantRejectPayoutAction",
+            "kind": "function",
+            "line": 48,
+            "exported": true,
+            "purpose": "tenantRejectPayoutAction."
+          },
+          {
+            "name": "tenantPayoutOperationAction",
+            "kind": "function",
+            "line": 57,
+            "exported": true,
+            "purpose": "tenantPayoutOperationAction."
+          }
+        ],
+        "functionCalls": [
+          "requireUser",
+          "requireTenantMasterContext",
+          "resolveFinancialActorContext",
+          "requestId",
+          "String",
+          "formData.get",
+          "Object.values(PayoutMethod).includes",
+          "Object.values",
+          "approvePayout",
+          "tenantMasterActor",
+          "revalidatePath",
+          "rejectPayout",
+          "resumePayoutExecution",
+          "requestPayoutReconciliation",
+          "startManualPayout",
+          "completeManualPayout",
+          "markManualPayoutUnknown",
+          "resolveManualPayoutUnknown"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/shop/[tenantId]/payouts/page.tsx": {
+      "category": "app-route",
+      "bytes": 8241,
+      "sha256": "440130bbe552477fa4bacf3d2cb135252027663b2755457d1cfd36d3b51171df",
+      "summary": "Implements ShopTenantPayoutQueue.",
+      "route": "/shop/:tenantId/payouts",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@/components/ui/badge",
+          "@/components/ui/button",
+          "@/components/ui/card",
+          "@/components/ui/input",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/pagination",
+          "@/lib/utils",
+          "@/modules/tenants/persona",
+          "./actions"
+        ],
+        "exports": ["ShopTenantPayoutQueue"],
+        "declarations": [
+          {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 25,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
+            "name": "ShopTenantPayoutQueue",
+            "kind": "function",
+            "line": 27,
+            "exported": true,
+            "purpose": "ShopTenantPayoutQueue."
+          },
+          {
+            "name": "PayoutActions",
+            "kind": "function",
+            "line": 125,
+            "exported": false,
+            "purpose": "PayoutActions."
+          }
+        ],
+        "functionCalls": [
+          "requireUser",
+          "db.tenant.findFirst",
+          "paramId.toLowerCase",
+          "requireTenantMasterContext",
+          "db.tenantPayout.count",
+          "paginationPage",
+          "db.tenantPayout.findMany",
+          "payouts.map",
+          "formatVnd"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/shop/[tenantId]/settings/page.tsx": {
+      "category": "app-route",
+      "bytes": 2931,
+      "sha256": "513106831649d697bff4b409424942f194d56083945d583dcf72906b77806e6b",
+      "summary": "Implements ShopTenantSettingsPage.",
+      "route": "/shop/:tenantId/settings",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@/app/app/settings/tenant/tenant-settings-client",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/env",
+          "@/lib/tenant",
+          "@/modules/flags/service",
+          "@/modules/tenants/plans",
+          "@/modules/tenants/persona"
+        ],
+        "exports": ["ShopTenantSettingsPage"],
+        "declarations": [
+          {
+            "name": "ShopTenantSettingsPage",
+            "kind": "function",
+            "line": 10,
+            "exported": true,
+            "purpose": "ShopTenantSettingsPage."
+          }
+        ],
+        "functionCalls": [
+          "requireUser",
+          "db.tenant.findFirst",
+          "paramId.toLowerCase",
+          "requireTenantMasterContext",
+          "loadServerEnv",
+          "Promise.all",
+          "requireTenantPlan",
+          "featureEnabled",
+          "db.affiliateAccount.findMany",
+          "Boolean",
+          "canTenantUseZaloBot",
+          "providerAccounts.map",
+          "tenant.trialEndsAt?.toLocaleDateString"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/shop/[tenantId]/treasury/page.tsx": {
+      "category": "app-route",
+      "bytes": 8902,
+      "sha256": "0ae86e3c5c8e3264b139f8f7e953d3938d0073a0a94d775e0cb217b8a5552fcb",
+      "summary": "Implements ShopTenantTreasuryPage.",
+      "route": "/shop/:tenantId/treasury",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@/components/admin-passkey",
+          "@/components/tenant-treasury-actions",
+          "@/components/ui/badge",
+          "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/pagination",
+          "@/lib/utils",
+          "@/modules/tenants/persona"
+        ],
+        "exports": ["ShopTenantTreasuryPage"],
+        "declarations": [
+          {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 20,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
+            "name": "ShopTenantTreasuryPage",
+            "kind": "function",
+            "line": 22,
+            "exported": true,
+            "purpose": "ShopTenantTreasuryPage."
+          }
+        ],
+        "functionCalls": [
+          "requireUser",
+          "db.tenant.findFirst",
+          "paramId.toLowerCase",
+          "requireTenantMasterContext",
+          "Promise.all",
+          "db.tenantFundingOrder.count",
+          "db.tenantPayout.count",
+          "paginationPage",
+          "db.tenantTreasuryProjection.findUnique",
+          "db.walletProjection.findUnique",
+          "db.bankBeneficiary.findFirst",
+          "db.tenantFundingOrder.findMany",
+          "db.tenantPayout.findMany",
+          "[ [\"Khả dụng\", value.availableVnd], [\"Đang reserve\", value.reservedVnd], [\"Đã chi member\", value.paidVnd], [\"Đã rút\", value.withdrawnVnd] ].map",
+          "String",
+          "formatVnd",
+          "(masterWallet?.availableVnd ?? 0n).toString",
+          "orders.map",
+          "order.createdAt.toLocaleString",
+          "payouts.map",
+          "payout.createdAt.toLocaleString"
+        ],
+        "tests": []
+      }
+    },
     "src/app/shopee-lookup/page.tsx": {
       "category": "app-route",
       "bytes": 1897,
@@ -9450,8 +9887,8 @@
     },
     "src/app/sw.js/route.ts": {
       "category": "api-route",
-      "bytes": 3998,
-      "sha256": "77ceaf8a75506922a1fabb3f0e3c2a5c120af5bc8ad04fea057013c9bc292e07",
+      "bytes": 4009,
+      "sha256": "c12e86007512b9f945aa460bc4bf960f219ec725003938049b1d505d36ee6727",
       "summary": "Implements dynamic, GET.",
       "route": "/sw.js",
       "analysis": {
@@ -9474,8 +9911,8 @@
     },
     "src/app/sw.test.ts": {
       "category": "test",
-      "bytes": 996,
-      "sha256": "ea7e3b8100f75ab18e9e369c9339e7f91e97bbf70a1320b301de337127ffcd72",
+      "bytes": 1037,
+      "sha256": "0425669c2de23faae32fa141973e4d51e4fb4842344486a67182e26b91c062d0",
       "summary": "Verifies sw behavior.",
       "analysis": {
         "runtime": "shared",
@@ -9518,420 +9955,33 @@
         "tests": []
       }
     },
-    "src/app/tenant/conversions/page.tsx": {
+    "src/app/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 4754,
-      "sha256": "ddca48194ee8375b16d11b39e68a050a94dc3bd5dc3a795ac71b08e69331ba3d",
-      "summary": "Implements TenantConversionsPage.",
-      "route": "/tenant/conversions",
+      "bytes": 517,
+      "sha256": "845729649f181d8ac5a68bc4d0d98c7e2e2c4b8879dfe2f4f88cbddc82a6cbb9",
+      "summary": "Implements dynamic, LegacyTenantPageRedirect.",
+      "route": "/tenant",
       "analysis": {
         "runtime": "shared",
-        "imports": [
-          "@/components/ui/badge",
-          "@/components/ui/card",
-          "@/components/pagination-nav",
-          "@/components/ui/table",
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/pagination",
-          "@/lib/utils",
-          "@/modules/tenants/persona"
-        ],
-        "exports": ["TenantConversionsPage"],
+        "imports": ["next", "next/navigation", "@/lib/authz", "@/modules/tenants/persona"],
+        "exports": ["dynamic", "LegacyTenantPageRedirect"],
         "declarations": [
-          {
-            "name": "PAGE_SIZE",
-            "kind": "variable",
-            "line": 18,
-            "exported": false,
-            "purpose": "PAGE_SIZE."
-          },
-          {
-            "name": "TenantConversionsPage",
-            "kind": "function",
-            "line": 20,
-            "exported": true,
-            "purpose": "TenantConversionsPage."
-          }
-        ],
-        "functionCalls": [
-          "requireUser",
-          "requireTenantMasterContext",
-          "db.tenantCashbackObligation.count",
-          "paginationPage",
-          "db.tenantCashbackObligation.findMany",
-          "obligations.map",
-          "obligation.conversion.purchasedAt.toLocaleString",
-          "formatVnd"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/tenant/layout.tsx": {
-      "category": "app-route",
-      "bytes": 691,
-      "sha256": "873e301968b16b7f39a601be23ba089536e97d401e863b887ca2e66f9b0d1db0",
-      "summary": "Implements metadata, dynamic, TenantMasterLayout.",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "next",
-          "@/components/tenant-master-shell",
-          "@/lib/authz",
-          "@/modules/tenants/persona"
-        ],
-        "exports": ["metadata", "dynamic", "TenantMasterLayout"],
-        "declarations": [
-          {
-            "name": "metadata",
-            "kind": "variable",
-            "line": 6,
-            "exported": true,
-            "purpose": "metadata."
-          },
           {
             "name": "dynamic",
             "kind": "variable",
-            "line": 10,
+            "line": 6,
             "exported": true,
             "purpose": "dynamic."
           },
           {
-            "name": "TenantMasterLayout",
-            "kind": "function",
-            "line": 12,
-            "exported": true,
-            "purpose": "TenantMasterLayout."
-          }
-        ],
-        "functionCalls": ["requireUser", "requireTenantMasterContext"],
-        "tests": []
-      }
-    },
-    "src/app/tenant/members/page.tsx": {
-      "category": "app-route",
-      "bytes": 5105,
-      "sha256": "d1cc1c2c7e7f85a40d488dad986202c2a8a162c03c590c448d14e6469411eb33",
-      "summary": "Implements TenantMembersPage.",
-      "route": "/tenant/members",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "@/components/ui/card",
-          "@/components/pagination-nav",
-          "@/components/ui/table",
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/pagination",
-          "@/lib/utils",
-          "@/modules/tenants/persona"
-        ],
-        "exports": ["TenantMembersPage"],
-        "declarations": [
-          {
-            "name": "PAGE_SIZE",
-            "kind": "variable",
-            "line": 17,
-            "exported": false,
-            "purpose": "PAGE_SIZE."
-          },
-          {
-            "name": "TenantMembersPage",
-            "kind": "function",
-            "line": 19,
-            "exported": true,
-            "purpose": "TenantMembersPage."
-          }
-        ],
-        "functionCalls": [
-          "requireUser",
-          "requireTenantMasterContext",
-          "db.user.count",
-          "paginationPage",
-          "db.user.findMany",
-          "members.map",
-          "formatVnd"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/tenant/page.tsx": {
-      "category": "app-route",
-      "bytes": 2595,
-      "sha256": "3073046675f8be3002241d30e35a4c8810ef8149b5bfa47016143689522b2edb",
-      "summary": "Implements TenantMasterDashboard.",
-      "route": "/tenant",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "lucide-react",
-          "@/components/ui/card",
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/utils",
-          "@/modules/tenants/persona"
-        ],
-        "exports": ["TenantMasterDashboard"],
-        "declarations": [
-          {
-            "name": "TenantMasterDashboard",
+            "name": "LegacyTenantPageRedirect",
             "kind": "function",
             "line": 8,
             "exported": true,
-            "purpose": "TenantMasterDashboard."
+            "purpose": "LegacyTenantPageRedirect."
           }
         ],
-        "functionCalls": [
-          "requireUser",
-          "requireTenantMasterContext",
-          "Promise.all",
-          "db.tenantTreasuryProjection.findUnique",
-          "db.user.count",
-          "db.conversion.count",
-          "db.tenantMemberWalletProjection.aggregate",
-          "formatVnd",
-          "members.toLocaleString",
-          "conversions.toLocaleString",
-          "cards.map"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/tenant/payouts/actions.ts": {
-      "category": "source",
-      "bytes": 3039,
-      "sha256": "072d5bf61e4e0fa4de0131a71cc59c0e0617a8f0ef9205cce9bafcff421bfd11",
-      "summary": "Implements tenantApprovePayoutAction, tenantRejectPayoutAction, tenantPayoutOperationAction.",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "next/cache",
-          "@/generated/prisma/client",
-          "@/lib/authz",
-          "@/lib/request",
-          "@/modules/tenants/manual",
-          "@/modules/tenants/payout",
-          "@/modules/tenants/persona"
-        ],
-        "exports": [
-          "tenantApprovePayoutAction",
-          "tenantRejectPayoutAction",
-          "tenantPayoutOperationAction"
-        ],
-        "declarations": [
-          {
-            "name": "tenantMasterActor",
-            "kind": "function",
-            "line": 24,
-            "exported": false,
-            "purpose": "tenantMasterActor."
-          },
-          {
-            "name": "tenantApprovePayoutAction",
-            "kind": "function",
-            "line": 35,
-            "exported": true,
-            "purpose": "tenantApprovePayoutAction."
-          },
-          {
-            "name": "tenantRejectPayoutAction",
-            "kind": "function",
-            "line": 48,
-            "exported": true,
-            "purpose": "tenantRejectPayoutAction."
-          },
-          {
-            "name": "tenantPayoutOperationAction",
-            "kind": "function",
-            "line": 57,
-            "exported": true,
-            "purpose": "tenantPayoutOperationAction."
-          }
-        ],
-        "functionCalls": [
-          "requireUser",
-          "requireTenantMasterContext",
-          "resolveFinancialActorContext",
-          "requestId",
-          "String",
-          "formData.get",
-          "Object.values(PayoutMethod).includes",
-          "Object.values",
-          "approvePayout",
-          "tenantMasterActor",
-          "revalidatePath",
-          "rejectPayout",
-          "resumePayoutExecution",
-          "requestPayoutReconciliation",
-          "startManualPayout",
-          "completeManualPayout",
-          "markManualPayoutUnknown",
-          "resolveManualPayoutUnknown"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/tenant/payouts/page.tsx": {
-      "category": "app-route",
-      "bytes": 7992,
-      "sha256": "80c85fab08ce5af13af4d0fe6b62bc5aa5c0da02559653d07acac10a19337376",
-      "summary": "Implements TenantPayoutQueue.",
-      "route": "/tenant/payouts",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "@/components/ui/badge",
-          "@/components/ui/button",
-          "@/components/ui/card",
-          "@/components/ui/input",
-          "@/components/pagination-nav",
-          "@/components/ui/table",
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/pagination",
-          "@/lib/utils",
-          "@/modules/tenants/persona",
-          "./actions"
-        ],
-        "exports": ["TenantPayoutQueue"],
-        "declarations": [
-          {
-            "name": "PAGE_SIZE",
-            "kind": "variable",
-            "line": 25,
-            "exported": false,
-            "purpose": "PAGE_SIZE."
-          },
-          {
-            "name": "TenantPayoutQueue",
-            "kind": "function",
-            "line": 27,
-            "exported": true,
-            "purpose": "TenantPayoutQueue."
-          },
-          {
-            "name": "PayoutActions",
-            "kind": "function",
-            "line": 119,
-            "exported": false,
-            "purpose": "PayoutActions."
-          }
-        ],
-        "functionCalls": [
-          "requireUser",
-          "requireTenantMasterContext",
-          "db.tenantPayout.count",
-          "paginationPage",
-          "db.tenantPayout.findMany",
-          "payouts.map",
-          "formatVnd"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/tenant/settings/page.tsx": {
-      "category": "app-route",
-      "bytes": 2684,
-      "sha256": "0523899084cd140136f1a7a979514164741495d68219e38463dbd9f9a50469c1",
-      "summary": "Implements TenantSettingsPage.",
-      "route": "/tenant/settings",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "@/app/app/settings/tenant/tenant-settings-client",
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/env",
-          "@/lib/tenant",
-          "@/modules/flags/service",
-          "@/modules/tenants/plans",
-          "@/modules/tenants/persona"
-        ],
-        "exports": ["TenantSettingsPage"],
-        "declarations": [
-          {
-            "name": "TenantSettingsPage",
-            "kind": "function",
-            "line": 10,
-            "exported": true,
-            "purpose": "TenantSettingsPage."
-          }
-        ],
-        "functionCalls": [
-          "requireUser",
-          "requireTenantMasterContext",
-          "loadServerEnv",
-          "Promise.all",
-          "requireTenantPlan",
-          "featureEnabled",
-          "db.affiliateAccount.findMany",
-          "Boolean",
-          "canTenantUseZaloBot",
-          "providerAccounts.map",
-          "tenant.trialEndsAt?.toLocaleDateString"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/tenant/treasury/page.tsx": {
-      "category": "app-route",
-      "bytes": 8635,
-      "sha256": "873f324f5e0443eb6b04524f519fb7e2c8c63ee7caf4d988593baed83d6895c9",
-      "summary": "Implements TenantTreasuryPage.",
-      "route": "/tenant/treasury",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "@/components/admin-passkey",
-          "@/components/tenant-treasury-actions",
-          "@/components/ui/badge",
-          "@/components/ui/card",
-          "@/components/pagination-nav",
-          "@/components/ui/table",
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/pagination",
-          "@/lib/utils",
-          "@/modules/tenants/persona"
-        ],
-        "exports": ["TenantTreasuryPage"],
-        "declarations": [
-          {
-            "name": "PAGE_SIZE",
-            "kind": "variable",
-            "line": 20,
-            "exported": false,
-            "purpose": "PAGE_SIZE."
-          },
-          {
-            "name": "TenantTreasuryPage",
-            "kind": "function",
-            "line": 22,
-            "exported": true,
-            "purpose": "TenantTreasuryPage."
-          }
-        ],
-        "functionCalls": [
-          "requireUser",
-          "requireTenantMasterContext",
-          "Promise.all",
-          "db.tenantFundingOrder.count",
-          "db.tenantPayout.count",
-          "paginationPage",
-          "db.tenantTreasuryProjection.findUnique",
-          "db.walletProjection.findUnique",
-          "db.bankBeneficiary.findFirst",
-          "db.tenantFundingOrder.findMany",
-          "db.tenantPayout.findMany",
-          "[ [\"Khả dụng\", value.availableVnd], [\"Đang reserve\", value.reservedVnd], [\"Đã chi member\", value.paidVnd], [\"Đã rút\", value.withdrawnVnd] ].map",
-          "String",
-          "formatVnd",
-          "(masterWallet?.availableVnd ?? 0n).toString",
-          "orders.map",
-          "order.createdAt.toLocaleString",
-          "payouts.map",
-          "payout.createdAt.toLocaleString"
-        ],
+        "functionCalls": ["requireUser", "resolveTenantContext", "redirect"],
         "tests": []
       }
     },
@@ -10731,8 +10781,8 @@
     },
     "src/components/tenant-master-shell.tsx": {
       "category": "component",
-      "bytes": 4908,
-      "sha256": "c0ad159eb48cf93d128f7389487d6e2b2b0554c7f832033cbbb0ea9de3652928",
+      "bytes": 5137,
+      "sha256": "d23e652f484e085d77ad298374c26a1d672aa85a3c1b1cacd352f19389f44326",
       "summary": "Implements TenantMasterShell.",
       "analysis": {
         "runtime": "node",
@@ -10740,11 +10790,11 @@
         "exports": ["TenantMasterShell"],
         "declarations": [
           {
-            "name": "navigation",
+            "name": "navItems",
             "kind": "variable",
             "line": 15,
             "exported": false,
-            "purpose": "navigation."
+            "purpose": "navItems."
           },
           {
             "name": "TenantMasterShell",
@@ -10757,7 +10807,7 @@
         "functionCalls": [
           "tenant.name.charAt(0).toUpperCase",
           "tenant.name.charAt",
-          "navigation.map"
+          "navItems.map"
         ],
         "tests": []
       }
@@ -17365,8 +17415,8 @@
     },
     "src/modules/tenants/finance.ts": {
       "category": "domain-module",
-      "bytes": 31894,
-      "sha256": "556317522ec5a1051218455e80d39ca208bcfebea777fc460205b4f0263706f7",
+      "bytes": 31926,
+      "sha256": "0a7646a03bb74157d46add452a333af495af5be7ac2dbab342ad8cb672fddc2d",
       "summary": "Implements assertTenantFinanceGate, settleTenantRecovery, allocatePendingTenantCashback, syncTenantCashbackObligation, createTenantFundingOrder, creditTenantFundingOrder.",
       "analysis": {
         "runtime": "server",
