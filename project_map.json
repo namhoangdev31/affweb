@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "fbebd54995cb98e79da1a37a150ff35e82e74a64",
+    "baseCommit": "9c097b6be06879a4d1169c28c94fa504c84ec824",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -330,8 +330,8 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 399,
-    "sourceFiles": 284,
+    "mappedFiles": 402,
+    "sourceFiles": 287,
     "tests": 57,
     "prismaModels": 57,
     "prismaEnums": 37
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 671498,
-      "sha256": "2f18e4e8d056945d595af843edc21b19d47a3a90b87160d6f3d6017b9c6f0f39",
+      "bytes": 675119,
+      "sha256": "65849455641ab8a23fd8e684e11323c1608b2fa1491c5c227583a3ead04204fa",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -3952,8 +3952,8 @@
     },
     "src/app/[slug]/page.tsx": {
       "category": "app-route",
-      "bytes": 7394,
-      "sha256": "0fc0b39634f0eb3235ead273fcacc8a2542a69d046f32bd6fbeaac60746c1339",
+      "bytes": 7404,
+      "sha256": "db07adcef94326a49d3f9269eda0163a25fd25ee5914279855eb4f20d5558b44",
       "summary": "Implements TenantDirectSlugPage.",
       "route": "/:slug",
       "analysis": {
@@ -3981,7 +3981,7 @@
           {
             "name": "TenantDirectSlugPage",
             "kind": "function",
-            "line": 36,
+            "line": 37,
             "exported": true,
             "purpose": "TenantDirectSlugPage."
           }
@@ -3994,6 +3994,94 @@
           "getTenantBySlug",
           "tenant.name.charAt",
           "getAppHostDisplay"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/[slug]/sign-in/page.tsx": {
+      "category": "app-route",
+      "bytes": 2901,
+      "sha256": "c11f45aa96cd418c5e410836d86a2cd5c5cf68e50c034c3cd9b903e413a81e71",
+      "summary": "Implements TenantMemberSignInPage.",
+      "route": "/:slug/sign-in",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@clerk/nextjs",
+          "next/navigation",
+          "next/link",
+          "@/lib/tenant",
+          "@/components/clerk-session-sanitizer",
+          "lucide-react",
+          "@/components/ui/badge"
+        ],
+        "exports": ["TenantMemberSignInPage"],
+        "declarations": [
+          {
+            "name": "SYSTEM_RESERVED_SLUGS",
+            "kind": "variable",
+            "line": 9,
+            "exported": false,
+            "purpose": "SYSTEM_RESERVED_SLUGS."
+          },
+          {
+            "name": "TenantMemberSignInPage",
+            "kind": "function",
+            "line": 31,
+            "exported": true,
+            "purpose": "TenantMemberSignInPage."
+          }
+        ],
+        "functionCalls": [
+          "slug.toLowerCase().trim",
+          "slug.toLowerCase",
+          "SYSTEM_RESERVED_SLUGS.has",
+          "notFound",
+          "getTenantBySlug"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/[slug]/sign-up/page.tsx": {
+      "category": "app-route",
+      "bytes": 2881,
+      "sha256": "0ebf07bfa8cbacfbc6bfcd2acde19c7fa89c6fd7d865db42133f664a8af061a5",
+      "summary": "Implements TenantMemberSignUpPage.",
+      "route": "/:slug/sign-up",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@clerk/nextjs",
+          "next/navigation",
+          "next/link",
+          "@/lib/tenant",
+          "@/components/clerk-session-sanitizer",
+          "lucide-react",
+          "@/components/ui/badge"
+        ],
+        "exports": ["TenantMemberSignUpPage"],
+        "declarations": [
+          {
+            "name": "SYSTEM_RESERVED_SLUGS",
+            "kind": "variable",
+            "line": 9,
+            "exported": false,
+            "purpose": "SYSTEM_RESERVED_SLUGS."
+          },
+          {
+            "name": "TenantMemberSignUpPage",
+            "kind": "function",
+            "line": 31,
+            "exported": true,
+            "purpose": "TenantMemberSignUpPage."
+          }
+        ],
+        "functionCalls": [
+          "slug.toLowerCase().trim",
+          "slug.toLowerCase",
+          "SYSTEM_RESERVED_SLUGS.has",
+          "notFound",
+          "getTenantBySlug"
         ],
         "tests": []
       }
@@ -9764,6 +9852,42 @@
         "tests": []
       }
     },
+    "src/app/shop/sign-in/page.tsx": {
+      "category": "app-route",
+      "bytes": 2404,
+      "sha256": "3726062bcafc31635cce3f0aed9d47f1fcc028acdf2ad1aff70632b65354afde",
+      "summary": "Implements metadata, TenantMasterSignInPage.",
+      "route": "/shop/sign-in",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@clerk/nextjs",
+          "next/link",
+          "@/components/clerk-session-sanitizer",
+          "lucide-react",
+          "@/components/ui/badge"
+        ],
+        "exports": ["metadata", "TenantMasterSignInPage"],
+        "declarations": [
+          {
+            "name": "metadata",
+            "kind": "variable",
+            "line": 7,
+            "exported": true,
+            "purpose": "metadata."
+          },
+          {
+            "name": "TenantMasterSignInPage",
+            "kind": "function",
+            "line": 12,
+            "exported": true,
+            "purpose": "TenantMasterSignInPage."
+          }
+        ],
+        "functionCalls": [],
+        "tests": []
+      }
+    },
     "src/app/shopee-lookup/page.tsx": {
       "category": "app-route",
       "bytes": 1897,
@@ -9801,8 +9925,8 @@
     },
     "src/app/sign-in/[[...sign-in]]/page.tsx": {
       "category": "app-route",
-      "bytes": 1456,
-      "sha256": "00f03289303fc3ac1366216e2d3d31a5d704e3124a38523867912e083327182d",
+      "bytes": 1453,
+      "sha256": "9c485d0e43f82627f29e58a9f78ca8435b99ae856a8a5fac04a7ca2061b1a493",
       "summary": "Implements metadata, SignInPage.",
       "route": "/sign-in/:[...sign-in]",
       "analysis": {

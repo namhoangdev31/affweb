@@ -11,6 +11,7 @@ import Link from "next/link";
 const SYSTEM_RESERVED_SLUGS = new Set([
   "admin",
   "app",
+  "shop",
   "tenant",
   "api",
   "t",
