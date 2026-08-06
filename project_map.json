@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "4849ee6b7a40939acefd347386134b9cc41f8658",
+    "baseCommit": "05506a08db7f79f33687e6238920e1bb44176e58",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -1062,8 +1062,8 @@
     },
     "prisma.config.ts": {
       "category": "configuration",
-      "bytes": 515,
-      "sha256": "d678a0410d986e4684942ebd6712db1815324782b7042c5e451449a6ca201ed9",
+      "bytes": 626,
+      "sha256": "29ea4fe22ebbdb29547271b5e94d2b9c8a20f0bb85d2bd88e1ee0608674e1514",
       "summary": "Provides prisma.config.ts project configuration responsibilities.",
       "analysis": {
         "runtime": "node",
@@ -2497,8 +2497,8 @@
     },
     "prisma/seed.ts": {
       "category": "database",
-      "bytes": 7561,
-      "sha256": "7c3aeb7915daccf00a814808d3bb789de60a55bc8e817a3cad517899460a9966",
+      "bytes": 7664,
+      "sha256": "ddcacb285060e2ae990847465d06d49d72e51abeed2ad48ed40b0aa7e0814aa2",
       "summary": "Implements connectionString, prisma, merchants, flags.",
       "analysis": {
         "runtime": "node",
@@ -2515,28 +2515,28 @@
           {
             "name": "prisma",
             "kind": "variable",
-            "line": 14,
+            "line": 16,
             "exported": false,
             "purpose": "prisma."
           },
           {
             "name": "merchants",
             "kind": "variable",
-            "line": 18,
+            "line": 20,
             "exported": false,
             "purpose": "merchants."
           },
           {
             "name": "flags",
             "kind": "variable",
-            "line": 62,
+            "line": 64,
             "exported": false,
             "purpose": "flags."
           },
           {
             "name": "accounts",
             "kind": "variable",
-            "line": 113,
+            "line": 115,
             "exported": false,
             "purpose": "accounts."
           }
@@ -2554,7 +2554,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 671498,
-      "sha256": "82925602995253a07a4315d6b3095d09cf97a54547d360f05f72de473a3799b1",
+      "sha256": "7012af49b21133923beccf452f8e49becbf8fef63e57ebeae601fa151d28dffb",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -12395,8 +12395,8 @@
     },
     "src/lib/env.ts": {
       "category": "library",
-      "bytes": 15000,
-      "sha256": "f7ff956cd488fdf6b7263e8867f23260d1066a6f3f8b9c893b4e87c65b1c0d97",
+      "bytes": 15783,
+      "sha256": "25fcb21266fd54488374a7d2e32d93e444297fbc50756d8e83995f0de54e4a89",
       "summary": "Implements ServerEnv, loadServerEnv, financeReconciliationDelaysSeconds, assertFinanceRuntimeConfig, hasDatabase, adminEmailAllowlist.",
       "analysis": {
         "runtime": "node",
@@ -12464,63 +12464,63 @@
           {
             "name": "ServerEnv",
             "kind": "type",
-            "line": 175,
+            "line": 196,
             "exported": true,
             "purpose": "ServerEnv."
           },
           {
             "name": "cachedEnv",
             "kind": "variable",
-            "line": 177,
+            "line": 198,
             "exported": false,
             "purpose": "cachedEnv."
           },
           {
             "name": "loadServerEnv",
             "kind": "function",
-            "line": 179,
+            "line": 200,
             "exported": true,
             "purpose": "loadServerEnv."
           },
           {
             "name": "financeReconciliationDelaysSeconds",
             "kind": "function",
-            "line": 184,
+            "line": 205,
             "exported": true,
             "purpose": "financeReconciliationDelaysSeconds."
           },
           {
             "name": "assertFinanceRuntimeConfig",
             "kind": "function",
-            "line": 200,
+            "line": 221,
             "exported": true,
             "purpose": "assertFinanceRuntimeConfig."
           },
           {
             "name": "hasDatabase",
             "kind": "function",
-            "line": 207,
+            "line": 228,
             "exported": true,
             "purpose": "hasDatabase."
           },
           {
             "name": "adminEmailAllowlist",
             "kind": "function",
-            "line": 211,
+            "line": 232,
             "exported": true,
             "purpose": "adminEmailAllowlist."
           },
           {
             "name": "productionReadinessIssues",
             "kind": "function",
-            "line": 220,
+            "line": 241,
             "exported": true,
             "purpose": "productionReadinessIssues."
           },
           {
             "name": "resetEnvCacheForTests",
             "kind": "function",
-            "line": 417,
+            "line": 438,
             "exported": true,
             "purpose": "resetEnvCacheForTests."
           }

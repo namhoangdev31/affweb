@@ -62,9 +62,30 @@ const serverEnvSchema = z.object({
   NEXT_PUBLIC_BUILD_SHA: optionalString.default("development"),
   REGISTRATION_MODE: z.enum(["invite", "public", "closed"]).default("invite"),
 
-  DATABASE_URL: optionalString,
-  DIRECT_URL: optionalString,
-  DATABASE_URL_UNPOOLED: optionalString,
+  NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL: optionalString,
+  NEXT_JS_DB_PRISMA_POSTGRES_URL: optionalString,
+
+  DATABASE_URL: z.preprocess(
+    (val) =>
+      emptyToUndefined(val) ??
+      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL) ??
+      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL),
+    z.string().min(1).optional()
+  ),
+  DIRECT_URL: z.preprocess(
+    (val) =>
+      emptyToUndefined(val) ??
+      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL) ??
+      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL),
+    z.string().min(1).optional()
+  ),
+  DATABASE_URL_UNPOOLED: z.preprocess(
+    (val) =>
+      emptyToUndefined(val) ??
+      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL) ??
+      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL),
+    z.string().min(1).optional()
+  ),
 
   CLERK_APPLICATION_ID: optionalString,
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: optionalString,

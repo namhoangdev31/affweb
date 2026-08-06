@@ -7,6 +7,8 @@ import {
 } from "../src/generated/prisma/client";
 
 const connectionString =
+  process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL ??
+  process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL ??
   process.env.DIRECT_URL ??
   process.env.DATABASE_URL ??
   "postgresql://postgres:postgres@127.0.0.1:5432/affweb";
