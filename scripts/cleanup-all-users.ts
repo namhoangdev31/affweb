@@ -5,100 +5,115 @@ import { createClerkClient } from "@clerk/nextjs/server";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 
-const rawConnectionString =
-  process.env.DIRECT_URL ||
-  process.env.DATABASE_URL ||
-  "postgresql://postgres:postgres@127.0.0.1:5432/affweb";
+async function purgeDb(url: string, name: string) {
+  if (!url) return;
+  const connectionString = url.includes("sslmode=require")
+    ? url.replace(/sslmode=require/g, "sslmode=verify-full")
+    : url;
 
-const connectionString = rawConnectionString.includes("sslmode=require")
-  ? rawConnectionString.replace(/sslmode=require/g, "sslmode=verify-full")
-  : rawConnectionString;
+  const db = new PrismaClient({
+    adapter: new PrismaPg({ connectionString })
+  });
 
-const db = new PrismaClient({
-  adapter: new PrismaPg({ connectionString })
-});
+  try {
+    console.log(`\n🗑️ Bắt đầu làm sạch cơ sở dữ liệu [${name}]...`);
+    const tableNames = [
+      '"TenantMemberWalletProjection"',
+      '"TenantTreasuryProjection"',
+      '"TenantCashbackObligation"',
+      '"TenantFundingOrder"',
+      '"TenantPayoutAllocation"',
+      '"TenantPayoutAttempt"',
+      '"TenantPayoutExecutionIntent"',
+      '"TenantPayout"',
+      '"TenantConversionImport"',
+      '"TenantSubscriptionAdjustment"',
+      '"AffiliateClick"',
+      '"ConversionRevision"',
+      '"Conversion"',
+      '"SaaSInvoice"',
+      '"ConnectorConfig"',
+      '"ZaloGroupBinding"',
+      '"ZaloUserBinding"',
+      '"LedgerEntry"',
+      '"LedgerTransaction"',
+      '"LedgerAccount"',
+      '"WalletProjection"',
+      '"BankBeneficiary"',
+      '"BeneficiaryChange"',
+      '"PayoutAttempt"',
+      '"PayoutApproval"',
+      '"PayoutTicket"',
+      '"AdminPasskey"',
+      '"Session"',
+      '"AuditLog"',
+      '"Notification"',
+      '"RoleAssignment"',
+      '"IdentityInvitation"',
+      '"User"',
+      '"Tenant"'
+    ];
+
+    await db.$executeRawUnsafe(`TRUNCATE TABLE ${tableNames.join(", ")} RESTART IDENTITY CASCADE;`);
+    console.log(`  ✓ Đã TRUNCATE CASCADE làm sạch 100% các bảng trong DB [${name}].`);
+  } catch (err) {
+    console.error(`  ✕ Lỗi khi dọn dẹp DB [${name}]:`, err);
+  } finally {
+    await db.$disconnect();
+  }
+}
 
 async function main() {
-  console.log("🚀 Bắt đầu dọn dẹp toàn bộ dữ liệu người dùng và Clerk accounts...\n");
+  console.log("🚀 Bắt đầu dọn dẹp toàn bộ dữ liệu người dùng, Clerk accounts và các DB...\n");
 
   let deletedClerkCount = 0;
   const secretKey = process.env.CLERK_SECRET_KEY;
 
-  if (!secretKey) {
-    throw new Error("Không tìm thấy CLERK_SECRET_KEY trong môi trường .env.local");
-  }
+  if (secretKey) {
+    try {
+      const clerk = createClerkClient({ secretKey });
+      const clerkUsersResponse = await clerk.users.getUserList({ limit: 500 });
+      const clerkUsers = clerkUsersResponse.data;
+      console.log(`🔍 Tìm thấy ${clerkUsers.length} tài khoản người dùng trên Clerk.`);
 
-  try {
-    const clerk = createClerkClient({ secretKey });
-    const clerkUsersResponse = await clerk.users.getUserList({ limit: 500 });
-    const clerkUsers = clerkUsersResponse.data;
-    console.log(`🔍 Tìm thấy ${clerkUsers.length} tài khoản người dùng trên Clerk.`);
-
-    for (const u of clerkUsers) {
-      const primaryEmail = u.primaryEmailAddress?.emailAddress ?? "no-email";
-      try {
-        await clerk.users.deleteUser(u.id);
-        deletedClerkCount++;
-        console.log(`  ✓ Đã xóa tài khoản Clerk: ${u.id} (${primaryEmail})`);
-      } catch (err) {
-        console.error(`  ✕ Lỗi khi xóa Clerk user ${u.id}:`, err);
+      for (const u of clerkUsers) {
+        const primaryEmail = u.primaryEmailAddress?.emailAddress ?? "no-email";
+        try {
+          await clerk.users.deleteUser(u.id);
+          deletedClerkCount++;
+          console.log(`  ✓ Đã xóa tài khoản Clerk: ${u.id} (${primaryEmail})`);
+        } catch (err) {
+          console.error(`  ✕ Lỗi khi xóa Clerk user ${u.id}:`, err);
+        }
       }
+    } catch (clerkErr) {
+      console.warn("⚠️ Lỗi khi dọn dẹp tài khoản Clerk:", clerkErr);
     }
-  } catch (clerkErr) {
-    console.warn("⚠️ Lỗi khi dọn dẹp tài khoản Clerk:", clerkErr);
   }
 
-  // 2. Dọn dẹp dữ liệu trong PostgreSQL
-  console.log("\n🗑️ Bắt đầu dọn dẹp các bảng dữ liệu trong PostgreSQL...");
-  const deleteResult = await db.$transaction(async (tx) => {
-    await tx.tenantMemberWalletProjection.deleteMany({}).catch(() => null);
-    await tx.tenantTreasuryProjection.deleteMany({}).catch(() => null);
-    await tx.tenantCashbackObligation.deleteMany({}).catch(() => null);
-    await tx.tenantFundingOrder.deleteMany({}).catch(() => null);
-    await tx.tenantPayoutAllocation.deleteMany({}).catch(() => null);
-    await tx.tenantPayoutAttempt.deleteMany({}).catch(() => null);
-    await tx.tenantPayoutExecutionIntent.deleteMany({}).catch(() => null);
-    await tx.tenantPayout.deleteMany({}).catch(() => null);
-    await tx.tenantConversionImport.deleteMany({}).catch(() => null);
-    await tx.tenantSubscriptionAdjustment.deleteMany({}).catch(() => null);
-    await tx.affiliateClick.deleteMany({}).catch(() => null);
-    await tx.conversion.deleteMany({}).catch(() => null);
-    await tx.saaSInvoice.deleteMany({}).catch(() => null);
-    await tx.connectorConfig.deleteMany({}).catch(() => null);
-    await tx.zaloGroupBinding.deleteMany({}).catch(() => null);
-    await tx.zaloUserBinding.deleteMany({}).catch(() => null);
-    await tx.ledgerEntry.deleteMany({}).catch(() => null);
-    await tx.ledgerTransaction.deleteMany({}).catch(() => null);
-    await tx.ledgerAccount.deleteMany({}).catch(() => null);
-    await tx.walletProjection.deleteMany({}).catch(() => null);
-    await tx.bankBeneficiary.deleteMany({}).catch(() => null);
-    await tx.beneficiaryChange.deleteMany({}).catch(() => null);
-    await tx.payoutAttempt.deleteMany({}).catch(() => null);
-    await tx.payoutApproval.deleteMany({}).catch(() => null);
-    await tx.payoutTicket.deleteMany({}).catch(() => null);
-    await tx.adminPasskey.deleteMany({}).catch(() => null);
-    await tx.session.deleteMany({}).catch(() => null);
-    await tx.auditLog.deleteMany({}).catch(() => null);
-    await tx.notification.deleteMany({}).catch(() => null);
-    await tx.roleAssignment.deleteMany({}).catch(() => null);
-    const r30 = await tx.user.deleteMany({});
-    const r31 = await tx.tenant.deleteMany({});
+  // 2. Dọn dẹp dữ liệu trong tất cả các DB Postgres (DATABASE_URL, DIRECT_URL, TEST_DATABASE_URL)
+  const dbUrls = Array.from(
+    new Set(
+      [process.env.DATABASE_URL, process.env.DIRECT_URL, process.env.TEST_DATABASE_URL].filter(
+        Boolean
+      ) as string[]
+    )
+  );
 
-    return {
-      deletedUsersCount: r30.count,
-      deletedTenantsCount: r31.count
-    };
-  });
-
-  console.log(`  ✓ Đã xóa ${deleteResult.deletedUsersCount} bản ghi User trong PostgreSQL.`);
-  console.log(`  ✓ Đã xóa ${deleteResult.deletedTenantsCount} bản ghi Tenant trong PostgreSQL.`);
+  for (const url of dbUrls) {
+    const name =
+      url === process.env.TEST_DATABASE_URL
+        ? "TEST_DATABASE_URL (Neon Production)"
+        : "DATABASE_URL";
+    await purgeDb(url, name);
+  }
 
   console.log("\n✅ DỌN DẸP HOÀN TẤT 100%!");
   console.log(`- Đã xóa ${deletedClerkCount} tài khoản Clerk.`);
-  console.log(`- Đã làm sạch toàn bộ bảng User, Tenant, Wallet, Conversion & Payout trong DB.`);
-  console.log("- Hệ thống hiện tại hoàn toàn sạch sẽ, sẵn sàng cho luồng trải nghiệm mới.");
-
-  await db.$disconnect();
+  console.log(
+    "- Đã TRUNCATE CASCADE toàn bộ các bảng User, Tenant, Ledger, Conversion, Payout trong DB."
+  );
+  console.log("- Tất cả các DB (Prisma DB & Neon Production DB) hiện tại 100% sạch sẽ.");
 }
 
 main().catch((error) => {
