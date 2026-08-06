@@ -45,7 +45,7 @@ export function SiteHeader() {
           </Show>
           <Show when="signed-in">
             <Button variant="outline" asChild>
-              <Link href="/app">Vào Dashboard</Link>
+              <Link href="/tenant">Vào Dashboard</Link>
             </Button>
             <UserButton userProfileUrl="/app/profile" />
           </Show>
@@ -76,7 +76,7 @@ export function SiteHeader() {
               </Show>
               <Show when="signed-in">
                 <Button asChild className="mt-4">
-                  <Link href="/app">Vào Dashboard</Link>
+                  <Link href="/tenant">Vào Dashboard</Link>
                 </Button>
                 <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-800">
                   <span className="text-sm font-medium text-muted-foreground">Tài khoản</span>

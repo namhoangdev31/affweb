@@ -126,3 +126,41 @@ body {
   background-color: var(--card);
   border: 1px solid var(--border);
 }
+
+/* Clerk UserButton Popover Contrast Fixes */
+.cl-userButtonPopoverCard {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border: 1px solid #1e293b !important;
+}
+
+.cl-userPreviewMainIdentifier {
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+}
+
+.cl-userPreviewSecondaryIdentifier {
+  color: #94a3b8 !important;
+}
+
+.cl-userButtonPopoverActionButton {
+  color: #f8fafc !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.cl-userButtonPopoverActionButtonText {
+  color: #f8fafc !important;
+  font-weight: 600 !important;
+}
+
+.cl-userButtonPopoverActionButtonIcon {
+  color: #34d399 !important;
+}
+
+.cl-userButtonPopoverFooter {
+  border-top-color: #1e293b !important;
+  color: #64748b !important;
+}

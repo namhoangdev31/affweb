@@ -79,9 +79,15 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                 "bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-500 rounded-xl focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 h-11",
               footerActionLink: "text-emerald-400 hover:text-emerald-300 font-semibold",
               userButtonPopoverCard:
-                "shadow-2xl border border-slate-800 bg-slate-900 text-slate-100 rounded-2xl p-2",
-              userButtonPopoverActionButton: "hover:bg-slate-800 rounded-xl text-slate-200",
-              userButtonPopoverActionButtonText: "font-medium text-sm text-slate-200"
+                "shadow-2xl border border-slate-800 bg-slate-900 text-slate-100 rounded-2xl p-2 z-50",
+              userPreviewMainIdentifier: "text-slate-100 font-bold text-sm",
+              userPreviewSecondaryIdentifier: "text-slate-400 text-xs",
+              userButtonPopoverActionButton:
+                "hover:bg-slate-800/90 text-slate-100 rounded-xl px-3 py-2 transition-colors",
+              userButtonPopoverActionButtonText: "font-semibold text-xs text-slate-100",
+              userButtonPopoverActionButtonIcon: "text-emerald-400 size-4",
+              userButtonPopoverFooter:
+                "border-t border-slate-800/80 text-slate-500 pt-2 text-[10px]"
             }
           }}
         >
