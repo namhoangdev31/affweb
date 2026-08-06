@@ -127,39 +127,53 @@ body {
   border: 1px solid var(--border);
 }
 
-/* Clerk UserButton Popover Contrast Fixes */
+/* Clerk Light Theme Clean Overrides */
+.cl-card,
 .cl-userButtonPopoverCard {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border: 1px solid #1e293b !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.08),
+    0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
 }
 
+.cl-headerTitle,
 .cl-userPreviewMainIdentifier {
-  color: #f8fafc !important;
+  color: #0f172a !important;
   font-weight: 700 !important;
 }
 
-.cl-userPreviewSecondaryIdentifier {
-  color: #94a3b8 !important;
+.cl-headerSubtitle,
+.cl-userPreviewSecondaryIdentifier,
+.cl-formFieldLabel {
+  color: #64748b !important;
 }
 
 .cl-userButtonPopoverActionButton {
-  color: #f8fafc !important;
+  color: #0f172a !important;
 }
 
 .cl-userButtonPopoverActionButton:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: #f1f5f9 !important;
 }
 
 .cl-userButtonPopoverActionButtonText {
-  color: #f8fafc !important;
+  color: #0f172a !important;
   font-weight: 600 !important;
 }
 
 .cl-userButtonPopoverActionButtonIcon {
-  color: #34d399 !important;
+  color: #059669 !important;
 }
 
-.cl-userButtonPopoverFooter {
+.cl-userButtonPopoverFooter,
+.cl-footer,
+.cl-footerAction,
+.cl-footerPages,
+.cl-footerActionText,
+.cl-cardFooter,
+[class*="cl-footer"],
+[class*="userButtonPopoverFooter"] {
   display: none !important;
 }

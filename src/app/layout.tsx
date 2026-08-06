@@ -65,29 +65,32 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           appearance={{
             variables: {
               colorPrimary: "#059669",
-              colorBackground: "#0f172a",
+              colorBackground: "#ffffff",
               borderRadius: "0.85rem"
             },
             elements: {
               cardBox:
-                "shadow-2xl border border-slate-800/80 bg-slate-900/90 rounded-2xl overflow-hidden backdrop-blur-xl",
-              headerTitle: "text-slate-100 font-extrabold text-xl tracking-tight",
-              headerSubtitle: "text-slate-400 text-sm",
+                "shadow-xl border border-slate-200 bg-white rounded-2xl overflow-hidden backdrop-blur-xl",
+              headerTitle: "text-slate-900 font-extrabold text-xl tracking-tight",
+              headerSubtitle: "text-slate-500 text-sm",
               formButtonPrimary:
-                "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-950/50 rounded-xl transition-all h-11 text-base",
+                "bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-600/20 rounded-xl transition-all h-11 text-base",
               formFieldInput:
-                "bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-500 rounded-xl focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 h-11",
-              footerActionLink: "text-emerald-400 hover:text-emerald-300 font-semibold",
+                "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 h-11",
+              footerActionLink: "text-emerald-600 hover:text-emerald-700 font-semibold",
               userButtonPopoverCard:
-                "shadow-2xl border border-slate-800 bg-slate-900 text-slate-100 rounded-2xl p-2 z-50",
-              userPreviewMainIdentifier: "text-slate-100 font-bold text-sm",
-              userPreviewSecondaryIdentifier: "text-slate-400 text-xs",
+                "shadow-xl border border-slate-200 bg-white text-slate-900 rounded-2xl p-2 z-50",
+              userPreviewMainIdentifier: "text-slate-900 font-bold text-sm",
+              userPreviewSecondaryIdentifier: "text-slate-500 text-xs",
               userButtonPopoverActionButton:
-                "hover:bg-slate-800/90 text-slate-100 rounded-xl px-3 py-2 transition-colors",
-              userButtonPopoverActionButtonText: "font-semibold text-xs text-slate-100",
-              userButtonPopoverActionButtonIcon: "text-emerald-400 size-4",
+                "hover:bg-slate-100 text-slate-800 rounded-xl px-3 py-2 transition-colors",
+              userButtonPopoverActionButtonText: "font-semibold text-xs text-slate-800",
+              userButtonPopoverActionButtonIcon: "text-emerald-600 size-4",
               userButtonPopoverFooter: "hidden",
-              footer: "hidden"
+              footer: "hidden",
+              footerAction: "hidden",
+              footerPages: "hidden",
+              footerActionText: "hidden"
             }
           }}
         >
