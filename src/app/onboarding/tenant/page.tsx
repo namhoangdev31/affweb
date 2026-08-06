@@ -54,7 +54,7 @@ async function createTenantAction(formData: FormData) {
   if (existingSlug) {
     redirect("/onboarding/tenant?error=slug_taken" as Route);
   }
-  if (existingOwner) redirect("/tenant/settings" as Route);
+  if (existingOwner) redirect(`/shop/${existingOwner.id}/settings` as Route);
 
   await db.$transaction(async (tx) => {
     const tenant = await registerTenantWithTrial(
