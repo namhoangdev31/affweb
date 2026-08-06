@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "9c097b6be06879a4d1169c28c94fa504c84ec824",
+    "baseCommit": "64728db8f60543e8a8c469e348b559f76ea33f17",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2554,7 +2554,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 675119,
-      "sha256": "65849455641ab8a23fd8e684e11323c1608b2fa1491c5c227583a3ead04204fa",
+      "sha256": "84e78af17ee80f9540525ffef33a8b8d96dcdf2746ab2a63da02567e693d6be7",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -3952,8 +3952,8 @@
     },
     "src/app/[slug]/page.tsx": {
       "category": "app-route",
-      "bytes": 7404,
-      "sha256": "db07adcef94326a49d3f9269eda0163a25fd25ee5914279855eb4f20d5558b44",
+      "bytes": 7518,
+      "sha256": "1031f2c61f53261d4e2a9315473f6b94414e2e37a3056483d19fe6b5baec6eea",
       "summary": "Implements TenantDirectSlugPage.",
       "route": "/:slug",
       "analysis": {
@@ -10134,8 +10134,8 @@
     },
     "src/app/unauthorized/page.tsx": {
       "category": "app-route",
-      "bytes": 559,
-      "sha256": "e3f9d2db000a159f27c988526dce34ff443be1e3360c5c07c6c7cec22a4c118a",
+      "bytes": 562,
+      "sha256": "a6019adc06e07411451b79d0036b224a3ae6374c3927e1dfd195fb7779d97b14",
       "summary": "Implements UnauthorizedPage.",
       "route": "/unauthorized",
       "analysis": {
@@ -10188,8 +10188,8 @@
     },
     "src/components/admin-shell.tsx": {
       "category": "component",
-      "bytes": 1949,
-      "sha256": "af5e1a1f1d47d918199367b1643ee23bf701a61ce0a564a8126a5cb13e6b3a5b",
+      "bytes": 1952,
+      "sha256": "245bf3ceec09ef68ba7cbb2e7d4f72a66910dfad9f1d01b63ed1838564cce450",
       "summary": "Implements AdminShell.",
       "analysis": {
         "runtime": "node",
@@ -10905,8 +10905,8 @@
     },
     "src/components/tenant-master-shell.tsx": {
       "category": "component",
-      "bytes": 5137,
-      "sha256": "d23e652f484e085d77ad298374c26a1d672aa85a3c1b1cacd352f19389f44326",
+      "bytes": 5411,
+      "sha256": "5cc3fa619f8c9be85793d33433e71ca6a2337a0d9a521e541eebb9eb63eeb034",
       "summary": "Implements TenantMasterShell.",
       "analysis": {
         "runtime": "node",
@@ -10916,14 +10916,14 @@
           {
             "name": "navItems",
             "kind": "variable",
-            "line": 15,
+            "line": 16,
             "exported": false,
             "purpose": "navItems."
           },
           {
             "name": "TenantMasterShell",
             "kind": "function",
-            "line": 24,
+            "line": 25,
             "exported": true,
             "purpose": "TenantMasterShell."
           }

@@ -96,14 +96,14 @@ export default async function TenantDirectSlugPage({
               size="sm"
               className="border-slate-700 text-slate-200 hover:bg-slate-800"
             >
-              <Link href="/sign-in">Đăng nhập</Link>
+              <Link href={`/${tenant.slug}/sign-in`}>Đăng nhập</Link>
             </Button>
             <Button
               asChild
               size="sm"
               className="bg-emerald-600 font-semibold text-white hover:bg-emerald-500"
             >
-              <Link href="/sign-up">Đăng ký thành viên</Link>
+              <Link href={`/${tenant.slug}/sign-up`}>Đăng ký thành viên</Link>
             </Button>
           </div>
         </div>
@@ -137,7 +137,11 @@ export default async function TenantDirectSlugPage({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form action="/app/links" method="GET" className="flex flex-col sm:flex-row gap-3">
+              <form
+                action={`/${tenant.slug}/app/links`}
+                method="GET"
+                className="flex flex-col sm:flex-row gap-3"
+              >
                 <Input
                   name="url"
                   placeholder="Dán đường dẫn sản phẩm Shopee tại đây..."

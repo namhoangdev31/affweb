@@ -49,7 +49,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <Link
-          href="/app"
+          href="/tenant"
           className="mt-10 flex items-center gap-2 px-3 text-sm text-white/45 hover:text-white"
         >
           <ArrowLeft className="size-4" /> User dashboard

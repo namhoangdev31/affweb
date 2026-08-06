@@ -8,6 +8,7 @@ import {
   LogOut,
   ReceiptText,
   Settings,
+  Store,
   Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -93,9 +94,14 @@ export function TenantMasterShell({
           </p>
           <div className="flex items-center gap-3">
             <Button asChild variant="outline" size="sm" className="rounded-xl border-border">
+              <Link href={`/${tenant.slug}`} target="_blank">
+                <Store className="mr-1.5 size-4 text-amber-500" /> Xem Kênh Săn Sale
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="rounded-xl">
               <Link href="/app">
                 <CircleDollarSign className="mr-1.5 size-4 text-emerald-600 dark:text-emerald-400" />{" "}
-                Ví cá nhân
+                Ví B2C
               </Link>
             </Button>
             <UserButton userProfileUrl="/app/profile" />

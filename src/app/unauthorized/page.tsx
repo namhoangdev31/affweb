@@ -9,7 +9,7 @@ export default function UnauthorizedPage() {
         <ShieldX className="mx-auto size-12 text-destructive" />
         <h1 className="display-type mt-5 text-5xl">Không có quyền truy cập.</h1>
         <Button asChild className="mt-7">
-          <Link href="/app">Về dashboard</Link>
+          <Link href="/tenant">Về dashboard</Link>
         </Button>
       </div>
     </main>
