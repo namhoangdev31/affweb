@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "82d679a47f683fc58df3220d6f995bf7a97ed24b",
+    "baseCommit": "e8f853cbcf08076007ae40e3864ea1cd472771cb",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2554,7 +2554,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 669710,
-      "sha256": "dec5888bbdcaba605a859c99d83c4178ad70f2eac315477bd3760388efefe176",
+      "sha256": "7e989039d20fc0c90f064ec5c1814e3498beafc9f37161916393760121397ea7",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -8877,8 +8877,8 @@
     },
     "src/app/globals.css": {
       "category": "app-route",
-      "bytes": 2215,
-      "sha256": "22e9638f7db6ff7236de6475a7a69f2e7b9ea10d08bc5dfe2013d6225a954a46",
+      "bytes": 3022,
+      "sha256": "8b70338bb0097f32223a4d56210f404c4d6d204f64f43f605d7cb130349fa2bf",
       "summary": "Provides globals.css project app route responsibilities."
     },
     "src/app/go/[clickToken]/route.ts": {
@@ -9078,8 +9078,8 @@
     },
     "src/app/onboarding/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 19955,
-      "sha256": "6cf20aa5d92a9dc7f8a057a06cbcd22a656b45c4878be78375119e26398c5b61",
+      "bytes": 20572,
+      "sha256": "bf8618224d9f80ebf52cc5684282155b14c88e024be2d07baa9d0da6e773dbff",
       "summary": "Implements TenantOnboardingPage.",
       "route": "/onboarding/tenant",
       "analysis": {
@@ -9364,8 +9364,8 @@
     },
     "src/app/sign-in/[[...sign-in]]/page.tsx": {
       "category": "app-route",
-      "bytes": 1378,
-      "sha256": "61f67ca90324f7621358ffd7646eb2425c93f5a8926c8c1248a8cb754a0595af",
+      "bytes": 1426,
+      "sha256": "8b0bfa4c4f341eac3826b879b86c8a9ff74e6f93768591c049698e91cc604a12",
       "summary": "Implements metadata, SignInPage.",
       "route": "/sign-in/:[...sign-in]",
       "analysis": {
@@ -9394,8 +9394,8 @@
     },
     "src/app/sign-up/[[...sign-up]]/page.tsx": {
       "category": "app-route",
-      "bytes": 1363,
-      "sha256": "cf0608ac0523dcfc96fa748c8453c3bab855880a3323bdf777411cac3187d9bb",
+      "bytes": 1411,
+      "sha256": "fb0142e5d04461b25a97ab7ab5530172c948a7cfb9fac26a62c69f509230ccad",
       "summary": "Implements metadata, SignUpPage.",
       "route": "/sign-up/:[...sign-up]",
       "analysis": {
