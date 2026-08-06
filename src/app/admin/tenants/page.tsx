@@ -232,7 +232,7 @@ export default async function AdminTenantsPage({
     })
   ]);
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-6 lg:p-10">
+    <div className="w-full space-y-6 p-6 lg:p-10">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Quản lý Tenants</h1>
         <p className="text-muted-foreground">

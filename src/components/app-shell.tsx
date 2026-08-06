@@ -48,39 +48,41 @@ export function AppShell({
   hasTenant?: boolean;
 }) {
   return (
-    <div className="min-h-screen bg-[#f5f3ec]">
-      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r bg-[#102c24] p-5 text-white lg:block">
+    <div className="min-h-screen bg-background text-foreground transition-colors">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-slate-800 bg-slate-950 p-5 text-white lg:block z-40">
         <Link href="/app" className="flex items-center gap-2.5">
           <Image src="/brand-mark.svg" alt="" width={38} height={38} />
-          <span className="font-semibold">Hoàn Tiền</span>
+          <span className="font-bold text-white text-base">Hoàn Tiền</span>
         </Link>
-        <nav className="mt-10 grid gap-1" aria-label="Dashboard">
+        <nav className="mt-9 grid gap-1.5" aria-label="Dashboard">
           {desktopNav.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/70 transition-colors hover:bg-white/8 hover:text-white"
+              className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-900 hover:text-white"
             >
-              <Icon className="size-4" /> {label}
+              <Icon className="size-4 text-emerald-400" /> {label}
             </Link>
           ))}
         </nav>
         <div className="absolute inset-x-5 bottom-5">
-          <Separator className="mb-4 bg-white/10" />
-          <p className="truncate text-sm font-medium">{user.name ?? "Thành viên"}</p>
-          <p className="truncate text-xs text-white/45">{user.email}</p>
+          <Separator className="mb-4 bg-slate-800" />
+          <p className="truncate text-sm font-semibold text-slate-200">
+            {user.name ?? "Thành viên"}
+          </p>
+          <p className="truncate text-xs text-slate-400">{user.email}</p>
           <SignOutButton redirectUrl="/">
             <Button
               variant="ghost"
               size="sm"
-              className="mt-3 w-full justify-start text-white/60 hover:bg-white/10 hover:text-white"
+              className="mt-3 w-full justify-start text-slate-400 hover:bg-slate-900 hover:text-white"
             >
-              <LogOut /> Đăng xuất
+              <LogOut className="mr-2 size-4" /> Đăng xuất
             </Button>
           </SignOutButton>
         </div>
       </aside>
-      <div className="lg:pl-64">
+      <div className="lg:pl-64 flex flex-col min-h-screen">
         {/* Global Sticky Banner for Direct Users without KOC Channel */}
         {!hasTenant ? (
           <div className="sticky top-0 z-40 bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 px-4 py-2.5 text-white text-xs sm:text-sm font-medium flex flex-wrap items-center justify-between gap-3 shadow-lg border-b border-emerald-700/40">
@@ -104,35 +106,41 @@ export function AppShell({
           </div>
         ) : null}
 
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-[#f5f3ec]/90 px-5 backdrop-blur lg:px-8">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur lg:px-10">
           <Link href="/app" className="flex items-center gap-2 lg:hidden">
             <Image src="/brand-mark.svg" alt="" width={34} height={34} />
-            <span className="font-semibold">Hoàn Tiền</span>
+            <span className="font-bold">Hoàn Tiền</span>
           </Link>
-          <p className="hidden text-sm text-muted-foreground lg:block">Cashback dashboard</p>
+          <p className="hidden text-sm font-medium text-muted-foreground lg:block">
+            Cashback dashboard
+          </p>
           <div className="flex items-center gap-3">
-            <Button asChild size="sm">
+            <Button
+              asChild
+              size="sm"
+              className="bg-primary text-primary-foreground hover:bg-emerald-600 dark:hover:bg-emerald-500 rounded-xl font-bold"
+            >
               <Link href="/app/links">
-                <Link2 /> Tạo link
+                <Link2 className="mr-1.5 size-4" /> Tạo link
               </Link>
             </Button>
             <Button
               asChild
               variant="outline"
               size="icon"
-              className="relative h-9 w-9 rounded-xl border-emerald-950/10"
+              className="relative h-9 w-9 rounded-xl border-border"
             >
               <Link href="/app/notifications" title="Thông báo">
-                <Bell className="size-4 text-emerald-950" />
+                <Bell className="size-4 text-foreground" />
                 <span className="sr-only">Thông báo</span>
               </Link>
             </Button>
             <UserButton userProfileUrl="/app/profile" />
           </div>
         </header>
-        <main className="mx-auto max-w-7xl p-5 pb-28 lg:p-8">{children}</main>
+        <main className="w-full flex-1 p-6 pb-28 lg:p-10">{children}</main>
         <nav
-          className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card px-2 py-2 lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-card px-2 py-2 lg:hidden"
           aria-label="Điều hướng di động"
         >
           {mobileBottomNav.map(({ href, label, icon: Icon }) => (
@@ -141,7 +149,7 @@ export function AppShell({
               href={href}
               className="grid justify-items-center gap-1 py-1 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
             >
-              <Icon className="size-5" /> {label}
+              <Icon className="size-5 text-emerald-600 dark:text-emerald-400" /> {label}
             </Link>
           ))}
         </nav>
