@@ -64,21 +64,24 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           }}
           appearance={{
             variables: {
-              colorPrimary: "#102c24",
-              colorBackground: "#ffffff",
-              borderRadius: "0.75rem"
+              colorPrimary: "#059669",
+              colorBackground: "#0f172a",
+              borderRadius: "0.85rem"
             },
             elements: {
-              cardBox: "shadow-xl border border-slate-200/80 rounded-2xl overflow-hidden",
-              headerTitle: "text-slate-900 font-bold",
-              headerSubtitle: "text-slate-500",
-              navbar: "bg-slate-50 border-r border-slate-200/80",
-              navbarButton:
-                "text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium rounded-xl",
-              navbarButtonActive:
-                "bg-emerald-800 text-white font-semibold rounded-xl hover:bg-emerald-900",
-              userButtonPopoverFooter: "hidden font-sans text-slate-400",
-              footerActionLink: "text-emerald-800 hover:text-emerald-900 font-semibold"
+              cardBox:
+                "shadow-2xl border border-slate-800/80 bg-slate-900/90 rounded-2xl overflow-hidden backdrop-blur-xl",
+              headerTitle: "text-slate-100 font-extrabold text-xl tracking-tight",
+              headerSubtitle: "text-slate-400 text-sm",
+              formButtonPrimary:
+                "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-950/50 rounded-xl transition-all h-11 text-base",
+              formFieldInput:
+                "bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-500 rounded-xl focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 h-11",
+              footerActionLink: "text-emerald-400 hover:text-emerald-300 font-semibold",
+              userButtonPopoverCard:
+                "shadow-2xl border border-slate-800 bg-slate-900 text-slate-100 rounded-2xl p-2",
+              userButtonPopoverActionButton: "hover:bg-slate-800 rounded-xl text-slate-200",
+              userButtonPopoverActionButtonText: "font-medium text-sm text-slate-200"
             }
           }}
         >
