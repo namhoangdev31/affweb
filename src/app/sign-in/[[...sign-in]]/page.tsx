@@ -13,7 +13,7 @@ export default function SignInPage() {
 
       <ClerkSessionSanitizer />
       <div className="relative z-10 flex flex-col items-center w-full max-w-md">
-        <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" />
+        <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" fallbackRedirectUrl="/tenant" />
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Chưa có tài khoản?{" "}
           <Link

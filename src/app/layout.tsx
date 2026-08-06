@@ -44,6 +44,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body>
         <ClerkProvider
           dynamic
+          signInFallbackRedirectUrl="/tenant"
+          signUpFallbackRedirectUrl="/tenant"
           localization={{
             userButton: {
               action__manageAccount: "Quản lý tài khoản",

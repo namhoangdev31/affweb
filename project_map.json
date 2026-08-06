@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "0b43ca4b4f42557b35b540f9d55fcf1b8243d56a",
+    "baseCommit": "fbebd54995cb98e79da1a37a150ff35e82e74a64",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2554,7 +2554,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 671498,
-      "sha256": "8b69d7e111c9aaef84522a3ec62b17ced6adc342d554c08b4f4183930bdb78a7",
+      "sha256": "2f18e4e8d056945d595af843edc21b19d47a3a90b87160d6f3d6017b9c6f0f39",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -8915,8 +8915,8 @@
     },
     "src/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 3921,
-      "sha256": "8fe4f2b19c292e0ab215b5cdf67e6e6aedc49905b5f69456bb67c89cfd43d077",
+      "bytes": 4013,
+      "sha256": "6f6f53e9d30ecd762bb5eac82856aa32e4bf9e3cb6059aad24d7329b6254ace9",
       "summary": "Implements metadata, viewport, RootLayout.",
       "analysis": {
         "runtime": "shared",
@@ -9801,8 +9801,8 @@
     },
     "src/app/sign-in/[[...sign-in]]/page.tsx": {
       "category": "app-route",
-      "bytes": 1426,
-      "sha256": "8b0bfa4c4f341eac3826b879b86c8a9ff74e6f93768591c049698e91cc604a12",
+      "bytes": 1456,
+      "sha256": "00f03289303fc3ac1366216e2d3d31a5d704e3124a38523867912e083327182d",
       "summary": "Implements metadata, SignInPage.",
       "route": "/sign-in/:[...sign-in]",
       "analysis": {
@@ -9831,8 +9831,8 @@
     },
     "src/app/sign-up/[[...sign-up]]/page.tsx": {
       "category": "app-route",
-      "bytes": 1411,
-      "sha256": "fb0142e5d04461b25a97ab7ab5530172c948a7cfb9fac26a62c69f509230ccad",
+      "bytes": 1441,
+      "sha256": "1e9092df31646749836a9469656fc1f3c402a663874d6fd786ff0b616fb5d2bd",
       "summary": "Implements metadata, SignUpPage.",
       "route": "/sign-up/:[...sign-up]",
       "analysis": {
@@ -12395,8 +12395,8 @@
     },
     "src/lib/env.ts": {
       "category": "library",
-      "bytes": 15783,
-      "sha256": "25fcb21266fd54488374a7d2e32d93e444297fbc50756d8e83995f0de54e4a89",
+      "bytes": 15789,
+      "sha256": "f286459a3ea926caeb3263bdaa07ca4cf50600eccdec15c4abe0b51ffa00b25d",
       "summary": "Implements ServerEnv, loadServerEnv, financeReconciliationDelaysSeconds, assertFinanceRuntimeConfig, hasDatabase, adminEmailAllowlist.",
       "analysis": {
         "runtime": "node",
