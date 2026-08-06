@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "64728db8f60543e8a8c469e348b559f76ea33f17",
+    "baseCommit": "de59752121d0898efc7de3b2bf1de025db5e2575",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 675119,
-      "sha256": "84e78af17ee80f9540525ffef33a8b8d96dcdf2746ab2a63da02567e693d6be7",
+      "bytes": 675115,
+      "sha256": "73f395308b428ef79793ad2ea81e7296dbfd3e17bdcfb4985861890c7d9e8da2",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -8185,8 +8185,8 @@
     },
     "src/app/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 1118,
-      "sha256": "cc86b69ca7442e7c07f175cd4c8d661abb0ce4c86f168f09ee0dd1288dfd9a56",
+      "bytes": 1048,
+      "sha256": "14ef83ea08243b16bb93ca9e5dca0694b095a434dbc277a9cb7733c9736c2fb3",
       "summary": "Implements metadata, dynamic, DashboardLayout.",
       "analysis": {
         "runtime": "shared",
@@ -8452,8 +8452,8 @@
     },
     "src/app/app/page.tsx": {
       "category": "app-route",
-      "bytes": 7887,
-      "sha256": "ab8505f17f3edfb021b3b0e3bdf01c64377f8ec744335ca3e4dd4fd8a0ac6688",
+      "bytes": 8907,
+      "sha256": "42bf754e9b945629cc0f1ccb26d9e3f8e5516e4549824857c34f737d4958a44d",
       "summary": "Implements DashboardPage.",
       "route": "/app",
       "analysis": {
@@ -8695,8 +8695,8 @@
     },
     "src/app/app/settings/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 176,
-      "sha256": "dc19d4b6ed0d76779136099af5d37b3437d824e1497c79d8b56c136232fd8a93",
+      "bytes": 167,
+      "sha256": "69a96f3a23dc18ea8147d6890dcf49e84c30063552de923f8e600657cc947c05",
       "summary": "Implements LegacyTenantSettingsPage.",
       "route": "/app/settings/tenant",
       "analysis": {
@@ -10081,14 +10081,14 @@
     },
     "src/app/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 517,
-      "sha256": "845729649f181d8ac5a68bc4d0d98c7e2e2c4b8879dfe2f4f88cbddc82a6cbb9",
-      "summary": "Implements dynamic, LegacyTenantPageRedirect.",
+      "bytes": 595,
+      "sha256": "7c4757915888e9a3961b1edce138f0fb87d50e48153be35c8c8d98c354639891",
+      "summary": "Implements dynamic, SmartTenantPageRedirect.",
       "route": "/tenant",
       "analysis": {
         "runtime": "shared",
         "imports": ["next", "next/navigation", "@/lib/authz", "@/modules/tenants/persona"],
-        "exports": ["dynamic", "LegacyTenantPageRedirect"],
+        "exports": ["dynamic", "SmartTenantPageRedirect"],
         "declarations": [
           {
             "name": "dynamic",
@@ -10098,11 +10098,11 @@
             "purpose": "dynamic."
           },
           {
-            "name": "LegacyTenantPageRedirect",
+            "name": "SmartTenantPageRedirect",
             "kind": "function",
             "line": 8,
             "exported": true,
-            "purpose": "LegacyTenantPageRedirect."
+            "purpose": "SmartTenantPageRedirect."
           }
         ],
         "functionCalls": ["requireUser", "resolveTenantContext", "redirect"],
@@ -10211,8 +10211,8 @@
     },
     "src/components/app-shell.tsx": {
       "category": "component",
-      "bytes": 6704,
-      "sha256": "ecbdaad622a634652acd1ab0cea54f625aacc11993f5aaf3dddeab2c22616922",
+      "bytes": 7188,
+      "sha256": "5939822388fb966112ba6deace5a5038e0f3a0602ccd4efad3a2c91e541921e4",
       "summary": "Implements AppShell.",
       "analysis": {
         "runtime": "node",
@@ -10229,21 +10229,21 @@
           {
             "name": "desktopNav",
             "kind": "variable",
-            "line": 21,
+            "line": 22,
             "exported": false,
             "purpose": "desktopNav."
           },
           {
             "name": "mobileBottomNav",
             "kind": "variable",
-            "line": 33,
+            "line": 34,
             "exported": false,
             "purpose": "mobileBottomNav."
           },
           {
             "name": "AppShell",
             "kind": "function",
-            "line": 41,
+            "line": 42,
             "exported": true,
             "purpose": "AppShell."
           }
@@ -10868,8 +10868,8 @@
     },
     "src/components/site-header.tsx": {
       "category": "component",
-      "bytes": 3735,
-      "sha256": "cc4071c8c233e73731001e3d57da6a0228b21fe50fcca08b16b397d4122135ac",
+      "bytes": 3725,
+      "sha256": "ac174f10d9182e09649a80ce38a3f36c98a8b0a4c23904dde735bf7dd1f1bb48",
       "summary": "Implements SiteHeader.",
       "analysis": {
         "runtime": "client",
@@ -10905,8 +10905,8 @@
     },
     "src/components/tenant-master-shell.tsx": {
       "category": "component",
-      "bytes": 5411,
-      "sha256": "5cc3fa619f8c9be85793d33433e71ca6a2337a0d9a521e541eebb9eb63eeb034",
+      "bytes": 5417,
+      "sha256": "e80ac6cce1745e68f8a256688c9da7d949910d29243125f20e2351d2978e8f9a",
       "summary": "Implements TenantMasterShell.",
       "analysis": {
         "runtime": "node",
@@ -18904,8 +18904,8 @@
     },
     "src/proxy.ts": {
       "category": "source",
-      "bytes": 3866,
-      "sha256": "839e8411fab41de7bba15fe5a02be769ac2d7ceb63677c1ea93aa00940b727e0",
+      "bytes": 3880,
+      "sha256": "720783a2dce73b82738cd2a5c5801c55e14ab0bd470f3fcfd36b2e752e397da3",
       "summary": "Implements config.",
       "analysis": {
         "runtime": "node",
@@ -18915,7 +18915,7 @@
           {
             "name": "config",
             "kind": "variable",
-            "line": 132,
+            "line": 133,
             "exported": true,
             "purpose": "config."
           }

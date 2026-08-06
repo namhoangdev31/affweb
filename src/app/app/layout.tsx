@@ -22,10 +22,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
   });
   const hasTenant = Boolean(ownedTenant);
 
-  if (!hasTenant) {
-    redirect("/onboarding/tenant" as Route);
-  }
-
   return (
     <AppShell user={user} hasTenant={hasTenant}>
       {children}

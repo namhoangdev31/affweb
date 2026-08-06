@@ -96,6 +96,29 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       ) : null}
+
+      {hasTenant && ownedTenant ? (
+        <Card className="border-amber-500/40 bg-amber-950/20 p-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-xl bg-amber-500/20 text-amber-400 font-bold">
+              👑
+            </div>
+            <div>
+              <p className="font-bold text-base text-white">
+                Bạn đang sở hữu Kênh KOC: /{ownedTenant.slug}
+              </p>
+              <p className="text-xs text-slate-300">
+                Quản lý Quỹ Treasury, Payout và Shopee Affiliate ID của Kênh.
+              </p>
+            </div>
+          </div>
+          <Button asChild className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold">
+            <Link href={`/shop/${ownedTenant.id}`}>
+              Vào Quản Trị Kênh <ArrowRight className="ml-1.5 size-4" />
+            </Link>
+          </Button>
+        </Card>
+      ) : null}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-muted-foreground">

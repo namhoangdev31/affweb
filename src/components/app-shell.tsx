@@ -13,7 +13,8 @@ import {
   Settings,
   Wrench,
   Sparkles,
-  Trophy
+  Trophy,
+  Store
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -115,6 +116,18 @@ export function AppShell({
             Cashback dashboard
           </p>
           <div className="flex items-center gap-3">
+            {hasTenant ? (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="rounded-xl border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 font-bold"
+              >
+                <Link href="/tenant">
+                  <Store className="mr-1.5 size-4 text-amber-500" /> Quản trị Kênh KOC
+                </Link>
+              </Button>
+            ) : null}
             <Button
               asChild
               size="sm"

@@ -104,7 +104,7 @@ export function TenantMasterShell({
                 Ví B2C
               </Link>
             </Button>
-            <UserButton userProfileUrl="/app/profile" />
+            <UserButton userProfileUrl={`${root}/settings`} />
           </div>
         </header>
         <main className="w-full flex-1 p-6 pb-28 lg:p-10">{children}</main>
