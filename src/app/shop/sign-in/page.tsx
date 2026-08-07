@@ -1,7 +1,7 @@
 import { SignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { ClerkSessionSanitizer } from "@/components/clerk-session-sanitizer";
-import { Shield, Store } from "lucide-react";
+import { Store } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = {
@@ -38,15 +38,12 @@ export default function TenantMasterSignInPage() {
           fallbackRedirectUrl="/shop"
         />
 
-        <div className="flex items-center justify-between w-full pt-4 border-t border-slate-800/80 text-xs text-slate-400">
+        <div className="flex items-center justify-center w-full pt-4 border-t border-slate-800/80 text-sm text-slate-400">
           <Link
-            href="/sign-in"
-            className="hover:text-emerald-400 transition-colors flex items-center gap-1"
+            href="/onboarding/tenant"
+            className="font-bold text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1.5 transition-colors"
           >
-            <Shield className="size-3.5" /> Đăng nhập Ví Cashback Cá nhân (/app)
-          </Link>
-          <Link href="/onboarding/tenant" className="font-bold text-amber-400 hover:underline">
-            Mở Kênh KOC mới
+            <Store className="size-4" /> Chưa có Kênh? Đăng ký mở Kênh KOC mới (Dùng thử 14 ngày)
           </Link>
         </div>
       </div>

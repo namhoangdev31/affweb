@@ -40,7 +40,7 @@ export function SiteHeader() {
               <Link href={"/shop/sign-in" as Route}>Đăng nhập</Link>
             </Button>
             <Button asChild>
-              <Link href={"/shop/sign-in" as Route}>Bắt đầu nhận tiền</Link>
+              <Link href={"/onboarding/tenant" as Route}>Bắt đầu nhận tiền</Link>
             </Button>
           </Show>
           <Show when="signed-in">
@@ -71,7 +71,7 @@ export function SiteHeader() {
                   <Link href={"/shop/sign-in" as Route}>Đăng nhập</Link>
                 </Button>
                 <Button variant="outline" asChild className="mt-2">
-                  <Link href={"/shop/sign-in" as Route}>Tạo tài khoản</Link>
+                  <Link href={"/onboarding/tenant" as Route}>Tạo tài khoản</Link>
                 </Button>
               </Show>
               <Show when="signed-in">

@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "0a4945d9c73533b480b8ce8135b232748a0b95a9",
+    "baseCommit": "1ca0cf0844a74dd1e133f016dfea2267e5d33554",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2554,7 +2554,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 653563,
-      "sha256": "6b4d842be7d3c15aed0422b16340cced80738662f54c5dc3337f9ad4f1cc7747",
+      "sha256": "71d04f9b1bb90af8b7ebea915e02dad7fda0c9b08aad81aa72dc5fcbe881cffc",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -9196,8 +9196,8 @@
     },
     "src/app/shop/sign-in/page.tsx": {
       "category": "app-route",
-      "bytes": 2402,
-      "sha256": "5c32877a66b4193e58dbd8ec2fc4523f10c59128d602c398a0d9cc817be95953",
+      "bytes": 2322,
+      "sha256": "bd08916f3a1569dead88eb5d45aa344b77684d5034bd8922d4f852ecd3d9b153",
       "summary": "Implements metadata, TenantMasterSignInPage.",
       "route": "/shop/sign-in",
       "analysis": {
@@ -10154,8 +10154,8 @@
     },
     "src/components/site-header.tsx": {
       "category": "component",
-      "bytes": 3755,
-      "sha256": "13757e4ae48a1c1c3ca1798d7dd1ed16cd0e3084d7c6e5e645b16fa3f116a742",
+      "bytes": 3765,
+      "sha256": "d266a020cbc5017f886a920a8e2680e2bab681ee05b2432fb1a9ff8df2e33abb",
       "summary": "Implements SiteHeader.",
       "analysis": {
         "runtime": "client",
