@@ -11,8 +11,11 @@ export default async function SmartTenantPageRedirect() {
   if (context.ownedTenant) {
     redirect(`/shop/${context.ownedTenant.id}` as Route);
   }
-  if (context.memberTenant) {
+  if (context.memberTenant && context.memberTenant.kind === "STANDARD") {
     redirect(`/${context.memberTenant.slug}/app` as Route);
   }
-  redirect("/app" as Route);
+  if (context.persona === "OWNER") {
+    redirect("/app" as Route);
+  }
+  redirect("/onboarding/tenant" as Route);
 }

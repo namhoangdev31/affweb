@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "31d3c40192a9582556501f5c2c0cd882e4e2680b",
+    "baseCommit": "0a4945d9c73533b480b8ce8135b232748a0b95a9",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 653491,
-      "sha256": "2950ace75d1dffed8ee51f9f9e539c68d64098e531858b23e950de94c0a4098e",
+      "bytes": 653563,
+      "sha256": "6b4d842be7d3c15aed0422b16340cced80738662f54c5dc3337f9ad4f1cc7747",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -2802,8 +2802,8 @@
     },
     "scripts/cleanup-all-users.ts": {
       "category": "source",
-      "bytes": 4259,
-      "sha256": "09f206670070d84cd66194e369a2e2cc95ac17311fa6b0e52f0ffe702cfe4f56",
+      "bytes": 4466,
+      "sha256": "759c9b5d9b9ee620631e2942dcd5782db3d35d2a1a9f820c0a334bc25ab3882e",
       "summary": "Implements purgeDb, main.",
       "analysis": {
         "runtime": "node",
@@ -2838,7 +2838,7 @@
           "clerk.users.deleteUser",
           "console.warn",
           "Array.from",
-          "[process.env.DATABASE_URL, process.env.DIRECT_URL, process.env.TEST_DATABASE_URL].filter",
+          "[ process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL, process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL, process.env.DATABASE_URL, process.env.DIRECT_URL, process.env.T",
           "purgeDb",
           "main().catch",
           "main",
@@ -7044,8 +7044,8 @@
     },
     "src/app/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 1510,
-      "sha256": "e38dce5c235b6a2a91dc8a15f9aca74cffd5f63f7afc9a7a4c9bc9f6a98a6e31",
+      "bytes": 1674,
+      "sha256": "1eb55491e5336ad1652bcc06de39a1c08964d32f54240936bfc2ab83934646ca",
       "summary": "Implements metadata, dynamic, DashboardLayout.",
       "analysis": {
         "runtime": "shared",
@@ -9267,8 +9267,8 @@
     },
     "src/app/sign-in/[[...sign-in]]/page.tsx": {
       "category": "app-route",
-      "bytes": 1453,
-      "sha256": "9c485d0e43f82627f29e58a9f78ca8435b99ae856a8a5fac04a7ca2061b1a493",
+      "bytes": 1456,
+      "sha256": "00f03289303fc3ac1366216e2d3d31a5d704e3124a38523867912e083327182d",
       "summary": "Implements metadata, SignInPage.",
       "route": "/sign-in/:[...sign-in]",
       "analysis": {
@@ -9297,8 +9297,8 @@
     },
     "src/app/sign-up/[[...sign-up]]/page.tsx": {
       "category": "app-route",
-      "bytes": 1438,
-      "sha256": "8cb3ac9499f15b5ace7eb2e5bf67e5df58bf3630b83210c807c5a122fee88478",
+      "bytes": 1441,
+      "sha256": "1e9092df31646749836a9469656fc1f3c402a663874d6fd786ff0b616fb5d2bd",
       "summary": "Implements metadata, SignUpPage.",
       "route": "/sign-up/:[...sign-up]",
       "analysis": {
@@ -9423,8 +9423,8 @@
     },
     "src/app/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 595,
-      "sha256": "7c4757915888e9a3961b1edce138f0fb87d50e48153be35c8c8d98c354639891",
+      "bytes": 725,
+      "sha256": "0a7602b78bbdcde432411c3a8026b79408a5ce262dcc7b614b4d93d8cf7da3ec",
       "summary": "Implements dynamic, SmartTenantPageRedirect.",
       "route": "/tenant",
       "analysis": {
@@ -10132,8 +10132,8 @@
     },
     "src/components/site-footer.tsx": {
       "category": "component",
-      "bytes": 1527,
-      "sha256": "df891d0afedca30c0912b34d7a3c1f6b2dd6233168bc0fa0a8281d8b209552fa",
+      "bytes": 1988,
+      "sha256": "566e1cd483f2daab928d4246d1341d0215e3d263f21206e91bc878113c2d09a7",
       "summary": "Implements SiteFooter.",
       "analysis": {
         "runtime": "node",
@@ -10154,8 +10154,8 @@
     },
     "src/components/site-header.tsx": {
       "category": "component",
-      "bytes": 3735,
-      "sha256": "cc4071c8c233e73731001e3d57da6a0228b21fe50fcca08b16b397d4122135ac",
+      "bytes": 3755,
+      "sha256": "13757e4ae48a1c1c3ca1798d7dd1ed16cd0e3084d7c6e5e645b16fa3f116a742",
       "summary": "Implements SiteHeader.",
       "analysis": {
         "runtime": "client",

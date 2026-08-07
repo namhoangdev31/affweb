@@ -21,15 +21,19 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   // Persona-based portal enforcement:
+  // - OWNER → /app ✅ (Platform Owner / Super Admin only)
   // - TENANT_MASTER → /shop/[tenantId] (KOC Owner Portal)
   // - TENANT_USER   → /[slug]/app      (KOC Member Portal)
-  // - OWNER / MASTER_MEMBER → /app ✅
+  // - Regular sign-up user → /onboarding/tenant
   const context = await resolveTenantContext(user.id);
   if (context.persona === "TENANT_MASTER" && context.ownedTenant) {
     redirect(`/shop/${context.ownedTenant.id}` as Route);
   }
-  if (context.persona === "TENANT_USER" && context.memberTenant) {
+  if (context.memberTenant && context.memberTenant.kind === "STANDARD") {
     redirect(`/${context.memberTenant.slug}/app` as Route);
+  }
+  if (context.persona !== "OWNER") {
+    redirect("/onboarding/tenant" as Route);
   }
 
   return <AppShell user={user}>{children}</AppShell>;

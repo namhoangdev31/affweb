@@ -37,10 +37,10 @@ export function SiteHeader() {
         <div className="hidden items-center gap-2 md:flex">
           <Show when="signed-out">
             <Button variant="ghost" asChild>
-              <Link href={"/sign-in" as Route}>Đăng nhập</Link>
+              <Link href={"/shop/sign-in" as Route}>Đăng nhập</Link>
             </Button>
             <Button asChild>
-              <Link href={"/sign-up" as Route}>Bắt đầu nhận tiền</Link>
+              <Link href={"/shop/sign-in" as Route}>Bắt đầu nhận tiền</Link>
             </Button>
           </Show>
           <Show when="signed-in">
@@ -68,10 +68,10 @@ export function SiteHeader() {
               ))}
               <Show when="signed-out">
                 <Button asChild className="mt-4">
-                  <Link href={"/sign-in" as Route}>Đăng nhập</Link>
+                  <Link href={"/shop/sign-in" as Route}>Đăng nhập</Link>
                 </Button>
                 <Button variant="outline" asChild className="mt-2">
-                  <Link href={"/sign-up" as Route}>Tạo tài khoản</Link>
+                  <Link href={"/shop/sign-in" as Route}>Tạo tài khoản</Link>
                 </Button>
               </Show>
               <Show when="signed-in">

@@ -97,22 +97,28 @@ async function main() {
     }
   }
 
-  // 2. Dọn dẹp dữ liệu trong tất cả các DB Postgres (DATABASE_URL, DIRECT_URL, TEST_DATABASE_URL)
+  // 2. Dọn dẹp dữ liệu trong tất cả các DB Postgres
   const dbUrls = Array.from(
     new Set(
-      [process.env.DATABASE_URL, process.env.DIRECT_URL, process.env.TEST_DATABASE_URL].filter(
-        Boolean
-      ) as string[]
+      [
+        process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL,
+        process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL,
+        process.env.DATABASE_URL,
+        process.env.DIRECT_URL,
+        process.env.TEST_DATABASE_URL
+      ].filter(Boolean) as string[]
     )
   );
 
   for (const url of dbUrls) {
     const name =
-      url === process.env.TEST_DATABASE_URL
-        ? "TEST_DATABASE_URL"
-        : url === process.env.DIRECT_URL
-          ? "DIRECT_URL"
-          : "DATABASE_URL";
+      url === process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL
+        ? "NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL"
+        : url === process.env.TEST_DATABASE_URL
+          ? "TEST_DATABASE_URL"
+          : url === process.env.DIRECT_URL
+            ? "DIRECT_URL"
+            : "DATABASE_URL";
     await purgeDb(url, name);
   }
 
