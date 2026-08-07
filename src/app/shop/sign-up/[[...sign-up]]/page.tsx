@@ -1,15 +1,15 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 import Link from "next/link";
 import { ClerkSessionSanitizer } from "@/components/clerk-session-sanitizer";
-import { Store } from "lucide-react";
+import { Store, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = {
-  title: "Đăng nhập KOC Master — Quản trị Kênh Affiliate",
+  title: "Đăng ký KOC Master — Khởi Tạo Kênh Affiliate",
   robots: { index: false, follow: false }
 };
 
-export default function TenantMasterSignInPage() {
+export default function TenantMasterSignUpPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-slate-100 overflow-hidden">
       {/* Glow background effects for KOC Master Portal */}
@@ -20,30 +20,30 @@ export default function TenantMasterSignInPage() {
       <div className="relative z-10 flex flex-col items-center w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 px-3 py-1 font-semibold">
-            <Store className="mr-1.5 size-4 inline" /> KOC Master Portal
+            <Sparkles className="mr-1.5 size-4 inline text-amber-400" /> Đăng ký KOC Master
           </Badge>
           <h1 className="text-2xl font-extrabold tracking-tight text-white">
-            Cổng Quản trị Kênh KOC
+            Tạo Tài Khoản Quản Trị KOC
           </h1>
           <p className="text-sm text-slate-400">
-            Đăng nhập tài khoản Owner để quản lý Quỹ Treasury, duyệt lệnh Rút tiền và cài đặt Shopee
-            Affiliate ID.
+            Tạo tài khoản Owner để sở hữu và vận hành Kênh Affiliate riêng với 14 ngày dùng thử miễn
+            phí.
           </p>
         </div>
 
-        <SignIn
+        <SignUp
           routing="path"
-          path="/shop/sign-in"
-          signUpUrl="/onboarding/tenant"
-          fallbackRedirectUrl="/shop"
+          path="/shop/sign-up"
+          signInUrl="/shop/sign-in"
+          fallbackRedirectUrl="/onboarding/tenant"
         />
 
         <div className="flex items-center justify-center w-full pt-4 border-t border-slate-800/80 text-sm text-slate-400">
           <Link
-            href="/onboarding/tenant"
+            href="/shop/sign-in"
             className="font-bold text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1.5 transition-colors"
           >
-            <Store className="size-4" /> Chưa có Kênh? Đăng ký mở Kênh KOC mới (Dùng thử 14 ngày)
+            <Store className="size-4" /> Đã có tài khoản? Đăng nhập KOC Master
           </Link>
         </div>
       </div>

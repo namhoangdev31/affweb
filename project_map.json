@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "1ca0cf0844a74dd1e133f016dfea2267e5d33554",
+    "baseCommit": "3e4e8fdb137ad96c603ce122efa9c2b9f8249194",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -330,8 +330,8 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 382,
-    "sourceFiles": 272,
+    "mappedFiles": 383,
+    "sourceFiles": 273,
     "tests": 56,
     "prismaModels": 57,
     "prismaEnums": 37
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 653563,
-      "sha256": "71d04f9b1bb90af8b7ebea915e02dad7fda0c9b08aad81aa72dc5fcbe881cffc",
+      "bytes": 654676,
+      "sha256": "9ad30ce7cd008299a2b83c167f59c96f1a5043bf4908c5a761c7e58537edf44c",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -9194,12 +9194,12 @@
         "tests": []
       }
     },
-    "src/app/shop/sign-in/page.tsx": {
+    "src/app/shop/sign-in/[[...sign-in]]/page.tsx": {
       "category": "app-route",
-      "bytes": 2322,
-      "sha256": "bd08916f3a1569dead88eb5d45aa344b77684d5034bd8922d4f852ecd3d9b153",
+      "bytes": 2292,
+      "sha256": "5054ca72d16eca494a3fa1299f6aa3be903fc450f0362164967d77478cb4a53b",
       "summary": "Implements metadata, TenantMasterSignInPage.",
-      "route": "/shop/sign-in",
+      "route": "/shop/sign-in/:[...sign-in]",
       "analysis": {
         "runtime": "shared",
         "imports": [
@@ -9224,6 +9224,42 @@
             "line": 12,
             "exported": true,
             "purpose": "TenantMasterSignInPage."
+          }
+        ],
+        "functionCalls": [],
+        "tests": []
+      }
+    },
+    "src/app/shop/sign-up/[[...sign-up]]/page.tsx": {
+      "category": "app-route",
+      "bytes": 2327,
+      "sha256": "a8698debf248fa15f47acc41978a13848e0a5d9290923609fb39d38dea56afc1",
+      "summary": "Implements metadata, TenantMasterSignUpPage.",
+      "route": "/shop/sign-up/:[...sign-up]",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@clerk/nextjs",
+          "next/link",
+          "@/components/clerk-session-sanitizer",
+          "lucide-react",
+          "@/components/ui/badge"
+        ],
+        "exports": ["metadata", "TenantMasterSignUpPage"],
+        "declarations": [
+          {
+            "name": "metadata",
+            "kind": "variable",
+            "line": 7,
+            "exported": true,
+            "purpose": "metadata."
+          },
+          {
+            "name": "TenantMasterSignUpPage",
+            "kind": "function",
+            "line": 12,
+            "exported": true,
+            "purpose": "TenantMasterSignUpPage."
           }
         ],
         "functionCalls": [],
