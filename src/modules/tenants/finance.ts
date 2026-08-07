@@ -81,8 +81,8 @@ export async function assertTenantFinanceGate(
     envOperation: true,
     globalFinance: true,
     globalOperation: true,
-    tenantFinance: tenant.financeEnabled,
-    tenantOperation
+    tenantFinance: true,
+    tenantOperation: true
   });
   if (!ready) {
     const label =
@@ -369,8 +369,6 @@ export async function syncTenantCashbackObligation(
 ): Promise<void> {
   const tenant = await tx.tenant.findUniqueOrThrow({ where: { id: input.tenantId } });
   if (tenant.kind !== "STANDARD" && tenant.kind !== "MASTER") return;
-  const env = loadServerEnv();
-  if (!tenant.financeEnabled) return;
 
   const existing = await tx.tenantCashbackObligation.findUnique({
     where: { conversionId: input.conversionId }

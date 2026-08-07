@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "ea74e2f7fedb61cd832ea0670e34c9110693da9c",
+    "baseCommit": "e5218a2b86e4251445672f17e877fb2d599441e7",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2554,7 +2554,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 652560,
-      "sha256": "ca11b938fbcc8be2436b386b7c5adac49cb7281a4374137c4ec7b736548a4d1a",
+      "sha256": "aa2d583cb37495b9c4d83b160465965bf5c31f2b34209c4cb6b44d25822d39da",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -8628,8 +8628,8 @@
     },
     "src/app/shop/[tenantId]/page.tsx": {
       "category": "app-route",
-      "bytes": 2941,
-      "sha256": "c1c519c3c44946e2f15d38fcbb3b387756e201bd9b44835be6ba93080e77c284",
+      "bytes": 2374,
+      "sha256": "86c23bb9b16f6c74f72f3423bf6400038c99553e69c7f67932936a96253f72bb",
       "summary": "Implements ShopTenantMasterDashboard.",
       "route": "/shop/:tenantId",
       "analysis": {
@@ -16792,8 +16792,8 @@
     },
     "src/modules/tenants/finance.ts": {
       "category": "domain-module",
-      "bytes": 31391,
-      "sha256": "cdf269d29cb88123f992913d41bec20a9795931f83c609992aa3790ff957e315",
+      "bytes": 31311,
+      "sha256": "818fc833f12a87cb967a9855b9659b1bd459837d166b8e8ce017fe2b4ee8d689",
       "summary": "Implements assertTenantFinanceGate, settleTenantRecovery, allocatePendingTenantCashback, syncTenantCashbackObligation, createTenantFundingOrder, creditTenantFundingOrder.",
       "analysis": {
         "runtime": "server",
@@ -16900,21 +16900,21 @@
           {
             "name": "createTenantFundingOrder",
             "kind": "function",
-            "line": 578,
+            "line": 576,
             "exported": true,
             "purpose": "createTenantFundingOrder."
           },
           {
             "name": "creditTenantFundingOrder",
             "kind": "function",
-            "line": 684,
+            "line": 682,
             "exported": true,
             "purpose": "creditTenantFundingOrder."
           },
           {
             "name": "transferMasterWalletToTreasury",
             "kind": "function",
-            "line": 755,
+            "line": 753,
             "exported": true,
             "purpose": "transferMasterWalletToTreasury."
           }

@@ -57,15 +57,6 @@ export default async function ShopTenantMasterDashboard({
           </Card>
         ))}
       </div>
-      {!context.ownedTenant!.financeEnabled ? (
-        <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-500/30">
-          <CardContent className="flex gap-3 pt-6 text-sm text-amber-900 dark:text-amber-300">
-            <AlertTriangle className="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
-            Tài chính tenant đang khóa. Owner hệ thống phải bật cả env, global flag và flag tenant
-            trước khi phát sinh ledger hoặc payout.
-          </CardContent>
-        </Card>
-      ) : null}
     </div>
   );
 }
