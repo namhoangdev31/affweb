@@ -26,7 +26,7 @@ export function SiteFooter() {
             href="/sign-in"
             className="text-xs text-[#aab9b3] hover:text-[#e6cd83] transition-colors"
           >
-            Đăng nhập Quản trị Owner
+            Đăng nhập Quản trị Hệ thống
           </Link>
         </div>
       </div>
@@ -35,7 +35,7 @@ export function SiteFooter() {
           © {new Date().getFullYear()} Hoàn Tiền. Không liên kết chính thức với các sàn được nêu.
         </p>
         <Link href="/sign-in" className="hover:text-[#e6cd83] transition-colors">
-          Hệ thống Owner
+          Hệ thống
         </Link>
       </div>
     </footer>

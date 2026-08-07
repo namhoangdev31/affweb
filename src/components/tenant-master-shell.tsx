@@ -54,10 +54,10 @@ export function TenantMasterShell({
           </span>
           <span className="truncate">
             <span className="block font-bold text-white truncate">{tenant.name}</span>
-            <span className="block text-xs text-slate-400">Shop Master Portal</span>
+            <span className="block text-xs text-slate-400">Quản lý Kênh</span>
           </span>
         </Link>
-        <nav className="mt-9 grid gap-1.5" aria-label="Shop Master">
+        <nav className="mt-9 grid gap-1.5" aria-label="Quản lý Kênh">
           {navItems.map(({ segment, label, icon: Icon }) => {
             const href = `${root}${segment}`;
             return (

@@ -5,14 +5,14 @@ import { Store, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = {
-  title: "Đăng ký KOC Master — Khởi Tạo Kênh Affiliate",
+  title: "Đăng ký — Khởi Tạo Kênh KOC",
   robots: { index: false, follow: false }
 };
 
 export default function TenantMasterSignUpPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-slate-100 overflow-hidden">
-      {/* Glow background effects for KOC Master Portal */}
+      {/* Glow background effects for KOC Portal */}
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 size-[40rem] rounded-full bg-amber-500/10 blur-[140px]" />
       <div className="pointer-events-none absolute -bottom-40 left-1/2 -translate-x-1/2 size-[32rem] rounded-full bg-emerald-500/10 blur-[120px]" />
 
@@ -20,14 +20,14 @@ export default function TenantMasterSignUpPage() {
       <div className="relative z-10 flex flex-col items-center w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 px-3 py-1 font-semibold">
-            <Sparkles className="mr-1.5 size-4 inline text-amber-400" /> Đăng ký KOC Master
+            <Sparkles className="mr-1.5 size-4 inline text-amber-400" /> Đăng Ký Kênh KOC
           </Badge>
           <h1 className="text-2xl font-extrabold tracking-tight text-white">
             Tạo Tài Khoản Quản Trị KOC
           </h1>
           <p className="text-sm text-slate-400">
-            Tạo tài khoản Owner để sở hữu và vận hành Kênh Affiliate riêng với 14 ngày dùng thử miễn
-            phí.
+            Tạo tài khoản quản trị để sở hữu và vận hành Kênh Affiliate riêng với 14 ngày dùng thử
+            miễn phí.
           </p>
         </div>
 
@@ -43,7 +43,7 @@ export default function TenantMasterSignUpPage() {
             href="/shop/sign-in"
             className="font-bold text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1.5 transition-colors"
           >
-            <Store className="size-4" /> Đã có tài khoản? Đăng nhập KOC Master
+            <Store className="size-4" /> Đã có tài khoản? Đăng nhập ngay
           </Link>
         </div>
       </div>

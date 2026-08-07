@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "3e4e8fdb137ad96c603ce122efa9c2b9f8249194",
+    "baseCommit": "c360902832917d946119a24e69725f261302186d",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -330,8 +330,8 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 383,
-    "sourceFiles": 273,
+    "mappedFiles": 392,
+    "sourceFiles": 282,
     "tests": 56,
     "prismaModels": 57,
     "prismaEnums": 37
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 654676,
-      "sha256": "9ad30ce7cd008299a2b83c167f59c96f1a5043bf4908c5a761c7e58537edf44c",
+      "bytes": 660685,
+      "sha256": "b50410fc2759407863ee5226d55e30484905e5d35fda1832468158f4bb7af799",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -3585,8 +3585,8 @@
     },
     "src/app/[slug]/app/page.tsx": {
       "category": "app-route",
-      "bytes": 2138,
-      "sha256": "ed30e7cc228d64da8c9de02d49b1d2d958e0ba37ccafb87eba6c8f8c545d8916",
+      "bytes": 2155,
+      "sha256": "3229152c2dc82206f5d0277e5c0c810c117c94cb335b3094dbe9ba01129602c8",
       "summary": "Implements TenantUserDashboard.",
       "route": "/:slug/app",
       "analysis": {
@@ -3787,10 +3787,32 @@
         "tests": []
       }
     },
+    "src/app/[slug]/loading.tsx": {
+      "category": "source",
+      "bytes": 278,
+      "sha256": "aed5d0b9745dd292e5d4b45d462678373af34baf78b84114bb66b4da32174fdc",
+      "summary": "Implements TenantMemberPortalLoading.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": ["@/components/loading-screen"],
+        "exports": ["TenantMemberPortalLoading"],
+        "declarations": [
+          {
+            "name": "TenantMemberPortalLoading",
+            "kind": "function",
+            "line": 3,
+            "exported": true,
+            "purpose": "TenantMemberPortalLoading."
+          }
+        ],
+        "functionCalls": [],
+        "tests": []
+      }
+    },
     "src/app/[slug]/page.tsx": {
       "category": "app-route",
-      "bytes": 7518,
-      "sha256": "1031f2c61f53261d4e2a9315473f6b94414e2e37a3056483d19fe6b5baec6eea",
+      "bytes": 7564,
+      "sha256": "63ddc1d3089da0858e645e90fcee1ef7f19bdbae8ac35fd77c9377e37fe82077",
       "summary": "Implements TenantDirectSlugPage.",
       "route": "/:slug",
       "analysis": {
@@ -7223,6 +7245,28 @@
         "tests": []
       }
     },
+    "src/app/app/loading.tsx": {
+      "category": "source",
+      "bytes": 276,
+      "sha256": "59a6cacfa82b59a9dbd84d6a24d89437d725a5588782e8bc6eac49ed459237d6",
+      "summary": "Implements AdminDashboardLoading.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": ["@/components/loading-screen"],
+        "exports": ["AdminDashboardLoading"],
+        "declarations": [
+          {
+            "name": "AdminDashboardLoading",
+            "kind": "function",
+            "line": 3,
+            "exported": true,
+            "purpose": "AdminDashboardLoading."
+          }
+        ],
+        "functionCalls": [],
+        "tests": []
+      }
+    },
     "src/app/app/notifications/actions.ts": {
       "category": "app-route",
       "bytes": 392,
@@ -7954,6 +7998,28 @@
         "tests": []
       }
     },
+    "src/app/loading.tsx": {
+      "category": "source",
+      "bytes": 224,
+      "sha256": "10b210a73447714c44c149d1bd07532c3086eafa25abc0523379eb1ecb0791aa",
+      "summary": "Implements GlobalLoading.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": ["@/components/loading-screen"],
+        "exports": ["GlobalLoading"],
+        "declarations": [
+          {
+            "name": "GlobalLoading",
+            "kind": "function",
+            "line": 3,
+            "exported": true,
+            "purpose": "GlobalLoading."
+          }
+        ],
+        "functionCalls": [],
+        "tests": []
+      }
+    },
     "src/app/login/page.tsx": {
       "category": "app-route",
       "bytes": 159,
@@ -8067,10 +8133,32 @@
         "tests": []
       }
     },
+    "src/app/onboarding/tenant/loading.tsx": {
+      "category": "source",
+      "bytes": 277,
+      "sha256": "f9eab45cdcba532dc372ee51e9191165567cf43de7c9228ab1ecb56edc991736",
+      "summary": "Implements OnboardingLoading.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": ["@/components/loading-screen"],
+        "exports": ["OnboardingLoading"],
+        "declarations": [
+          {
+            "name": "OnboardingLoading",
+            "kind": "function",
+            "line": 3,
+            "exported": true,
+            "purpose": "OnboardingLoading."
+          }
+        ],
+        "functionCalls": [],
+        "tests": []
+      }
+    },
     "src/app/onboarding/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 20607,
-      "sha256": "94a1c561143c5527211fb85b4126e62ae3df027600c9f9b309636dfd9ff4f59c",
+      "bytes": 20235,
+      "sha256": "66125100f4d7960929db9e0bfd25edebe5ffbf5174b65c4f1fdf4684136a8199",
       "summary": "Implements TenantOnboardingPage.",
       "route": "/onboarding/tenant",
       "analysis": {
@@ -8084,11 +8172,11 @@
           "@/lib/tenant",
           "@/lib/utils",
           "@/components/ui/badge",
-          "@/components/ui/button",
           "@/components/ui/card",
           "@/components/ui/input",
           "@/components/ui/label",
-          "lucide-react"
+          "lucide-react",
+          "./submit-button"
         ],
         "exports": ["TenantOnboardingPage"],
         "declarations": [
@@ -8138,6 +8226,28 @@
           "db.tenant.findFirst",
           "getAppHostDisplay"
         ],
+        "tests": []
+      }
+    },
+    "src/app/onboarding/tenant/submit-button.tsx": {
+      "category": "source",
+      "bytes": 962,
+      "sha256": "cd2da3d7768c128686991eb875d7006f867a89d1b1581e545eb772cd290cedb5",
+      "summary": "Implements TenantSubmitButton.",
+      "analysis": {
+        "runtime": "client",
+        "imports": ["react-dom", "lucide-react", "@/components/ui/button"],
+        "exports": ["TenantSubmitButton"],
+        "declarations": [
+          {
+            "name": "TenantSubmitButton",
+            "kind": "function",
+            "line": 7,
+            "exported": true,
+            "purpose": "TenantSubmitButton."
+          }
+        ],
+        "functionCalls": ["useFormStatus"],
         "tests": []
       }
     },
@@ -8418,6 +8528,28 @@
         "tests": []
       }
     },
+    "src/app/shop/[tenantId]/loading.tsx": {
+      "category": "source",
+      "bytes": 287,
+      "sha256": "2e0a80d01c2595d961dec545425107a5a5932ea0bf7980873fed974398e98a28",
+      "summary": "Implements ShopTenantDashboardLoading.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": ["@/components/loading-screen"],
+        "exports": ["ShopTenantDashboardLoading"],
+        "declarations": [
+          {
+            "name": "ShopTenantDashboardLoading",
+            "kind": "function",
+            "line": 3,
+            "exported": true,
+            "purpose": "ShopTenantDashboardLoading."
+          }
+        ],
+        "functionCalls": [],
+        "tests": []
+      }
+    },
     "src/app/shop/[tenantId]/members/page.tsx": {
       "category": "app-route",
       "bytes": 5366,
@@ -8650,8 +8782,8 @@
     },
     "src/app/shop/[tenantId]/page.tsx": {
       "category": "app-route",
-      "bytes": 2374,
-      "sha256": "86c23bb9b16f6c74f72f3423bf6400038c99553e69c7f67932936a96253f72bb",
+      "bytes": 2377,
+      "sha256": "a2da10367be10fb522782399e81afe877af33b564952d67f46ba8e63dd68242a",
       "summary": "Implements ShopTenantMasterDashboard.",
       "route": "/shop/:tenantId",
       "analysis": {
@@ -9164,6 +9296,28 @@
         "tests": []
       }
     },
+    "src/app/shop/loading.tsx": {
+      "category": "source",
+      "bytes": 236,
+      "sha256": "a64c82a665fac89ea23f11bb5c4fd78b9a73d85718c5892d22e9fdf7a1161f4a",
+      "summary": "Implements ShopLoading.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": ["@/components/loading-screen"],
+        "exports": ["ShopLoading"],
+        "declarations": [
+          {
+            "name": "ShopLoading",
+            "kind": "function",
+            "line": 3,
+            "exported": true,
+            "purpose": "ShopLoading."
+          }
+        ],
+        "functionCalls": [],
+        "tests": []
+      }
+    },
     "src/app/shop/page.tsx": {
       "category": "app-route",
       "bytes": 851,
@@ -9196,8 +9350,8 @@
     },
     "src/app/shop/sign-in/[[...sign-in]]/page.tsx": {
       "category": "app-route",
-      "bytes": 2292,
-      "sha256": "5054ca72d16eca494a3fa1299f6aa3be903fc450f0362164967d77478cb4a53b",
+      "bytes": 2282,
+      "sha256": "aa68f35af0d0dc989ebe4052cb72c235e3faae2bfc024a33538865cec00eb192",
       "summary": "Implements metadata, TenantMasterSignInPage.",
       "route": "/shop/sign-in/:[...sign-in]",
       "analysis": {
@@ -9232,8 +9386,8 @@
     },
     "src/app/shop/sign-up/[[...sign-up]]/page.tsx": {
       "category": "app-route",
-      "bytes": 2327,
-      "sha256": "a8698debf248fa15f47acc41978a13848e0a5d9290923609fb39d38dea56afc1",
+      "bytes": 2303,
+      "sha256": "f147e271eea0848fc31361d5c96c173f4c06cbae04ad5321c49d6157f0ff6dd3",
       "summary": "Implements metadata, TenantMasterSignUpPage.",
       "route": "/shop/sign-up/:[...sign-up]",
       "analysis": {
@@ -9454,6 +9608,28 @@
           }
         ],
         "functionCalls": ["redirect"],
+        "tests": []
+      }
+    },
+    "src/app/tenant/loading.tsx": {
+      "category": "source",
+      "bytes": 282,
+      "sha256": "ca930cab25df7a9f70531ca4bb57103351f65c21d1c04082db165981b68fd378",
+      "summary": "Implements TenantSmartRouteLoading.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": ["@/components/loading-screen"],
+        "exports": ["TenantSmartRouteLoading"],
+        "declarations": [
+          {
+            "name": "TenantSmartRouteLoading",
+            "kind": "function",
+            "line": 3,
+            "exported": true,
+            "purpose": "TenantSmartRouteLoading."
+          }
+        ],
+        "functionCalls": [],
         "tests": []
       }
     },
@@ -9952,6 +10128,28 @@
         "tests": []
       }
     },
+    "src/components/loading-screen.tsx": {
+      "category": "component",
+      "bytes": 2041,
+      "sha256": "f154abb1c47210f34a1c3a264c733caec4443fe1e441950b1fa8c3e1bd60e216",
+      "summary": "Implements LoadingScreen.",
+      "analysis": {
+        "runtime": "node",
+        "imports": ["next/image"],
+        "exports": ["LoadingScreen"],
+        "declarations": [
+          {
+            "name": "LoadingScreen",
+            "kind": "function",
+            "line": 3,
+            "exported": true,
+            "purpose": "LoadingScreen."
+          }
+        ],
+        "functionCalls": [],
+        "tests": []
+      }
+    },
     "src/components/pagination-nav.tsx": {
       "category": "component",
       "bytes": 2564,
@@ -10168,8 +10366,8 @@
     },
     "src/components/site-footer.tsx": {
       "category": "component",
-      "bytes": 1988,
-      "sha256": "566e1cd483f2daab928d4246d1341d0215e3d263f21206e91bc878113c2d09a7",
+      "bytes": 1989,
+      "sha256": "3c668eb0d0c4cee1f1e70c852b2a7314325b985cb64a829c769d81d4f935523c",
       "summary": "Implements SiteFooter.",
       "analysis": {
         "runtime": "node",
@@ -10227,8 +10425,8 @@
     },
     "src/components/tenant-master-shell.tsx": {
       "category": "component",
-      "bytes": 6145,
-      "sha256": "9eac0b882f04f27a1e2de4be882158dfca3884b1d6b61b275dd33a42fdcf7c98",
+      "bytes": 6148,
+      "sha256": "714031dff2928333b6bba1ead0c5ea3dfdf325e73cd8c7b2899a2d52e7718afc",
       "summary": "Implements TenantMasterShell.",
       "analysis": {
         "runtime": "node",

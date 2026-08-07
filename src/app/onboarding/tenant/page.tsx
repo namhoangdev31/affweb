@@ -6,11 +6,11 @@ import { db } from "@/lib/db";
 import { registerTenantWithTrial } from "@/lib/tenant";
 import { getAppHostDisplay } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2, CheckCircle2, Crown, Sparkles, Store, Zap } from "lucide-react";
+import { CheckCircle2, Crown, Sparkles, Store, Zap } from "lucide-react";
+import { TenantSubmitButton } from "./submit-button";
 
 async function createTenantAction(formData: FormData) {
   "use server";
@@ -407,13 +407,7 @@ export default async function TenantOnboardingPage({
             </CardContent>
           </Card>
 
-          <Button
-            type="submit"
-            className="w-full h-13 bg-primary text-primary-foreground font-extrabold hover:bg-emerald-600 dark:hover:bg-emerald-500 text-base shadow-xl rounded-2xl transition-all cursor-pointer"
-          >
-            <Building2 className="mr-2 size-5" /> Kích Hoạt Kênh KOC & Bắt Đầu Ngay (Miễn Phí 14
-            Ngày)
-          </Button>
+          <TenantSubmitButton />
         </form>
       </div>
     </div>

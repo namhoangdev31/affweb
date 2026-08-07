@@ -46,7 +46,7 @@ export default async function TenantUserDashboard({
         <CardContent className="flex flex-wrap gap-6 pt-6 text-sm">
           <span>{clicks.toLocaleString("vi-VN")} link đã tạo</span>
           <span>{conversions.toLocaleString("vi-VN")} conversion</span>
-          <span>Owner chịu trách nhiệm cấp vốn treasury trước khi bạn rút.</span>
+          <span>Ban quản trị Kênh chịu trách nhiệm cấp vốn treasury trước khi bạn rút.</span>
         </CardContent>
       </Card>
     </div>

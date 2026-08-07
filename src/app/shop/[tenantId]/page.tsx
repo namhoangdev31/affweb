@@ -43,7 +43,7 @@ export default async function ShopTenantMasterDashboard({
   return (
     <div className="space-y-7">
       <div>
-        <p className="text-sm text-muted-foreground">KOC Master Portal</p>
+        <p className="text-sm text-muted-foreground">Quản lý Kênh KOC</p>
         <h1 className="text-3xl font-bold tracking-tight">{context.ownedTenant!.name}</h1>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
