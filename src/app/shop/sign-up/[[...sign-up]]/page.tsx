@@ -5,14 +5,14 @@ import { Store, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = {
-  title: "Đăng ký — Khởi Tạo Kênh KOC",
+  title: "Đăng ký — Khởi Tạo Kênh Săn Sale",
   robots: { index: false, follow: false }
 };
 
 export default function TenantMasterSignUpPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-slate-100 overflow-hidden">
-      {/* Glow background effects for KOC Portal */}
+      {/* Glow background effects */}
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 size-[40rem] rounded-full bg-amber-500/10 blur-[140px]" />
       <div className="pointer-events-none absolute -bottom-40 left-1/2 -translate-x-1/2 size-[32rem] rounded-full bg-emerald-500/10 blur-[120px]" />
 
@@ -20,14 +20,14 @@ export default function TenantMasterSignUpPage() {
       <div className="relative z-10 flex flex-col items-center w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 px-3 py-1 font-semibold">
-            <Sparkles className="mr-1.5 size-4 inline text-amber-400" /> Đăng Ký Kênh KOC
+            <Sparkles className="mr-1.5 size-4 inline text-amber-400" /> Mở Kênh Săn Sale Riêng
           </Badge>
           <h1 className="text-2xl font-extrabold tracking-tight text-white">
-            Tạo Tài Khoản Quản Trị KOC
+            Tạo Kênh Affiliate Cá Nhân
           </h1>
           <p className="text-sm text-slate-400">
-            Tạo tài khoản quản trị để sở hữu và vận hành Kênh Affiliate riêng với 14 ngày dùng thử
-            miễn phí.
+            Tạo Kênh riêng để chia sẻ link Shopee cho cộng đồng của bạn với 14 ngày dùng thử miễn
+            phí.
           </p>
         </div>
 

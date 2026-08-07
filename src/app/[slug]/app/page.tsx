@@ -21,7 +21,7 @@ export default async function TenantUserDashboard({
     db.affiliateClick.count({ where: { tenantId, userId: user.id } })
   ]);
   const cards = [
-    ["Chờ tenant cấp vốn", wallet?.pendingFundingVnd ?? 0n],
+    ["Chờ Kênh cấp vốn", wallet?.pendingFundingVnd ?? 0n],
     ["Khả dụng", wallet?.availableVnd ?? 0n],
     ["Đang rút", wallet?.reservedVnd ?? 0n],
     ["Đã nhận", wallet?.paidVnd ?? 0n]
@@ -45,8 +45,8 @@ export default async function TenantUserDashboard({
       <Card>
         <CardContent className="flex flex-wrap gap-6 pt-6 text-sm">
           <span>{clicks.toLocaleString("vi-VN")} link đã tạo</span>
-          <span>{conversions.toLocaleString("vi-VN")} conversion</span>
-          <span>Ban quản trị Kênh chịu trách nhiệm cấp vốn treasury trước khi bạn rút.</span>
+          <span>{conversions.toLocaleString("vi-VN")} đơn hoàn tiền</span>
+          <span>Số dư khả dụng sẵn sàng được chuyển khoản theo chính sách Kênh.</span>
         </CardContent>
       </Card>
     </div>

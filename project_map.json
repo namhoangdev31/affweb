@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "37fa72f6ed56c3882b9194ab18daa67c3630b09a",
+    "baseCommit": "64d2457f95c5041071e1d8aafbb7bdce4859d632",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2554,7 +2554,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 660685,
-      "sha256": "7c5f91813f728a4418a00f89c43c2331403f44e39890fedc39adee088cb92004",
+      "sha256": "ec2b2ffb2eabf822512cd712d7be0077ef783e03197d45b1d5f19b8106fb11f4",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -3585,8 +3585,8 @@
     },
     "src/app/[slug]/app/page.tsx": {
       "category": "app-route",
-      "bytes": 2155,
-      "sha256": "3229152c2dc82206f5d0277e5c0c810c117c94cb335b3094dbe9ba01129602c8",
+      "bytes": 2156,
+      "sha256": "414b3bfa1ce1e0b691241c3743ab129686cdc2480c7e1070699f4212a8888a11",
       "summary": "Implements TenantUserDashboard.",
       "route": "/:slug/app",
       "analysis": {
@@ -3811,8 +3811,8 @@
     },
     "src/app/[slug]/page.tsx": {
       "category": "app-route",
-      "bytes": 7577,
-      "sha256": "e1af5d22db6a6a0259638cf1ebfef1d505ebd79527f1fbaadab91b7509f205d8",
+      "bytes": 7445,
+      "sha256": "34f0b6fb4dfde9e2ab6eba9569101df683866b9b755b91ae8844c7fa437bbcdd",
       "summary": "Implements TenantDirectSlugPage.",
       "route": "/:slug",
       "analysis": {
@@ -8157,8 +8157,8 @@
     },
     "src/app/onboarding/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 20235,
-      "sha256": "66125100f4d7960929db9e0bfd25edebe5ffbf5174b65c4f1fdf4684136a8199",
+      "bytes": 20219,
+      "sha256": "bd605f9008be4d82a985d7fd458ffe1fbb5a02855d9f944de8bfe7534bcf16c0",
       "summary": "Implements TenantOnboardingPage.",
       "route": "/onboarding/tenant",
       "analysis": {
@@ -8782,8 +8782,8 @@
     },
     "src/app/shop/[tenantId]/page.tsx": {
       "category": "app-route",
-      "bytes": 2377,
-      "sha256": "a2da10367be10fb522782399e81afe877af33b564952d67f46ba8e63dd68242a",
+      "bytes": 2382,
+      "sha256": "7471e6df674edcf106ed76ae624c34fa1a9b770a49a6060259b6ef2492b21b31",
       "summary": "Implements ShopTenantMasterDashboard.",
       "route": "/shop/:tenantId",
       "analysis": {
@@ -9350,8 +9350,8 @@
     },
     "src/app/shop/sign-in/[[...sign-in]]/page.tsx": {
       "category": "app-route",
-      "bytes": 2282,
-      "sha256": "aa68f35af0d0dc989ebe4052cb72c235e3faae2bfc024a33538865cec00eb192",
+      "bytes": 2204,
+      "sha256": "646d7169cf2e46c78d54b474097a248fd8c0e9d81ea1ca2aec3ef546f13f1445",
       "summary": "Implements metadata, TenantMasterSignInPage.",
       "route": "/shop/sign-in/:[...sign-in]",
       "analysis": {
@@ -9386,8 +9386,8 @@
     },
     "src/app/shop/sign-up/[[...sign-up]]/page.tsx": {
       "category": "app-route",
-      "bytes": 2303,
-      "sha256": "f147e271eea0848fc31361d5c96c173f4c06cbae04ad5321c49d6157f0ff6dd3",
+      "bytes": 2287,
+      "sha256": "cd0a1cd7b194b4c74bc1552b472bfd89c8fb25faa7152c9280bb38d6f4388d7a",
       "summary": "Implements metadata, TenantMasterSignUpPage.",
       "route": "/shop/sign-up/:[...sign-up]",
       "analysis": {
@@ -10366,8 +10366,8 @@
     },
     "src/components/site-footer.tsx": {
       "category": "component",
-      "bytes": 1989,
-      "sha256": "3c668eb0d0c4cee1f1e70c852b2a7314325b985cb64a829c769d81d4f935523c",
+      "bytes": 1950,
+      "sha256": "b24da0dc1d4a5ccbaa92ce67454184c2ca28e3eb23c686fce9a56a932b9744ac",
       "summary": "Implements SiteFooter.",
       "analysis": {
         "runtime": "node",
@@ -10425,8 +10425,8 @@
     },
     "src/components/tenant-master-shell.tsx": {
       "category": "component",
-      "bytes": 6148,
-      "sha256": "714031dff2928333b6bba1ead0c5ea3dfdf325e73cd8c7b2899a2d52e7718afc",
+      "bytes": 6172,
+      "sha256": "d6bc1064facc4eae55ea90eb78ae30b978820bfbecee9753ff1f3e925b24582b",
       "summary": "Implements TenantMasterShell.",
       "analysis": {
         "runtime": "node",

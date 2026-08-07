@@ -28,7 +28,7 @@ export default async function ShopTenantMasterDashboard({
   ]);
   const cards = [
     {
-      label: "Treasury khả dụng",
+      label: "Quỹ khả dụng",
       value: formatVnd(treasury?.availableVnd ?? 0n),
       icon: Landmark
     },
@@ -38,7 +38,7 @@ export default async function ShopTenantMasterDashboard({
       icon: AlertTriangle
     },
     { label: "Thành viên", value: members.toLocaleString("vi-VN"), icon: Users },
-    { label: "Conversion", value: conversions.toLocaleString("vi-VN"), icon: ReceiptText }
+    { label: "Đơn hoàn tiền", value: conversions.toLocaleString("vi-VN"), icon: ReceiptText }
   ];
   return (
     <div className="space-y-7">

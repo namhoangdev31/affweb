@@ -18,9 +18,9 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { segment: "", label: "Tổng quan", icon: Building2 },
-  { segment: "/treasury", label: "Treasury", icon: Landmark },
-  { segment: "/payouts", label: "Payout", icon: CircleDollarSign },
-  { segment: "/conversions", label: "Đơn & nghĩa vụ", icon: ReceiptText },
+  { segment: "/treasury", label: "Quỹ Kênh", icon: Landmark },
+  { segment: "/payouts", label: "Rút tiền & Thưởng", icon: CircleDollarSign },
+  { segment: "/conversions", label: "Đơn hàng & Thưởng", icon: ReceiptText },
   { segment: "/members", label: "Thành viên", icon: Users },
   { segment: "/settings", label: "Cài đặt", icon: Settings }
 ] as const;
@@ -54,7 +54,7 @@ export function TenantMasterShell({
           </span>
           <span className="truncate">
             <span className="block font-bold text-white truncate">{tenant.name}</span>
-            <span className="block text-xs text-slate-400">Quản lý Kênh</span>
+            <span className="block text-xs text-slate-400">Kênh của tôi</span>
           </span>
         </Link>
         <nav className="mt-9 grid gap-1.5" aria-label="Quản lý Kênh">

@@ -18,7 +18,7 @@ export function SiteFooter() {
           <Link href="/faq">Hỏi đáp</Link>
         </div>
         <div className="grid content-start gap-3 text-sm">
-          <p className="font-semibold text-[#e6cd83]">Pháp lý & Hệ thống</p>
+          <p className="font-semibold text-[#e6cd83]">Pháp lý</p>
           <Link href="/terms">Điều khoản</Link>
           <Link href="/privacy">Quyền riêng tư</Link>
           <Link href="/cashback-policy">Chính sách cashback</Link>
@@ -26,7 +26,7 @@ export function SiteFooter() {
             href="/sign-in"
             className="text-xs text-[#aab9b3] hover:text-[#e6cd83] transition-colors"
           >
-            Đăng nhập Quản trị Hệ thống
+            Cổng Admin
           </Link>
         </div>
       </div>
@@ -35,7 +35,7 @@ export function SiteFooter() {
           © {new Date().getFullYear()} Hoàn Tiền. Không liên kết chính thức với các sàn được nêu.
         </p>
         <Link href="/sign-in" className="hover:text-[#e6cd83] transition-colors">
-          Hệ thống
+          Dành cho Admin
         </Link>
       </div>
     </footer>

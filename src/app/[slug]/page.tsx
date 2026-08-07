@@ -119,13 +119,13 @@ export default async function TenantDirectSlugPage({
           <h1 className="display-type text-4xl sm:text-5xl font-extrabold tracking-tight">
             Tạo link mua sắm Shopee. <br />
             <span style={{ color: brandColor === "#173b31" ? "#10b981" : brandColor }}>
-              Tỷ lệ chia được snapshot minh bạch.
+              Tỷ lệ chia được minh bạch.
             </span>
           </h1>
 
           <p className="text-base text-slate-300 max-w-xl mx-auto">
-            Chào mừng bạn đến với kênh của <strong>{tenant.name}</strong>. Cashback của member được
-            ban quản trị đối soát từ report Shopee và thanh toán bên ngoài nền tảng.
+            Chào mừng bạn đến với kênh của <strong>{tenant.name}</strong>. Tự động tạo link mua sắm
+            Shopee và tích điểm hoàn tiền minh bạch.
           </p>
 
           {/* Quick Link Converter Form */}
@@ -167,8 +167,7 @@ export default async function TenantDirectSlugPage({
               <CardTitle className="text-lg">Đối soát bằng report</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-slate-400">
-              Conversion chỉ được ghi nhận sau khi ban quản trị nhập report Shopee hợp lệ; không
-              cộng vào ví nền tảng.
+              Đơn hàng hoàn tiền được xác minh trực tiếp từ báo cáo đơn Shopee.
             </CardContent>
           </Card>
 
@@ -186,11 +185,10 @@ export default async function TenantDirectSlugPage({
           <Card className="border-slate-800 bg-slate-900 text-white">
             <CardHeader className="pb-2">
               <Building2 className="size-8 text-blue-400 mb-2" />
-              <CardTitle className="text-lg">Ban quản trị thanh toán</CardTitle>
+              <CardTitle className="text-lg">Nhận tiền trực tiếp từ Kênh</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-slate-400">
-              Ban quản trị chịu trách nhiệm xác nhận và thanh toán cashback cho member ngoài hệ
-              thống.
+              Kênh chịu trách nhiệm xác nhận và chuyển khoản tiền hoàn cho bạn.
             </CardContent>
           </Card>
         </div>

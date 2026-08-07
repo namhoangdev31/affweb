@@ -106,10 +106,10 @@ export default async function TenantOnboardingPage({
         <div className="text-center space-y-3">
           <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 px-3.5 py-1.5 text-xs font-semibold rounded-full inline-flex items-center">
             <Sparkles className="mr-1.5 size-4 text-emerald-600 dark:text-emerald-400" /> Khởi Tạo
-            Kênh KOC / Affiliate Thương Hiệu Riêng
+            Kênh Săn Sale Riêng
           </Badge>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground font-sans">
-            Khởi Tạo Kênh KOC Đại Lý
+            Tạo Kênh Affiliate Cho Cộng Đồng
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
             Sở hữu kênh Shopee Affiliate riêng với{" "}
@@ -138,17 +138,17 @@ export default async function TenantOnboardingPage({
             <CardHeader className="border-b border-border/80 bg-muted/40 pb-5">
               <CardTitle className="flex items-center gap-2 text-xl font-bold text-foreground">
                 <Store className="size-5 text-emerald-600 dark:text-emerald-400" /> 1. Thiết Lập
-                Thông Tin Kênh KOC
+                Thông Tin Kênh
               </CardTitle>
               <CardDescription className="text-muted-foreground text-sm">
-                Nhập tên đại lý, đường dẫn trực tiếp và màu sắc nhận diện thương hiệu.
+                Nhập tên kênh, đường dẫn trực tiếp và màu sắc nhận diện thương hiệu.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-foreground font-semibold text-sm">
-                    Tên Kênh KOC / Thương hiệu
+                    Tên Kênh / Thương hiệu của bạn
                   </Label>
                   <Input
                     id="name"
