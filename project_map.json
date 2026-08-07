@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "71fcad9fef6eafefd6cf703ac8a24fd04d879fb5",
+    "baseCommit": "ac7f58c081729d9ea227ae26bc28d8e04554132b",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 660793,
-      "sha256": "85ab0ffaf55fa2915828f99a9040e76a6cf8499b9e81c2ca0397151f13ed0544",
+      "bytes": 660761,
+      "sha256": "7fa91d9b364124daf86d69c1f207c8e0ea3bcb9e64c534213f0340c94d574310",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -17973,8 +17973,8 @@
     },
     "src/modules/tenants/persona.ts": {
       "category": "domain-module",
-      "bytes": 9178,
-      "sha256": "4a33db2f13f0efc47f8fd8adb6d9675b6f1b1d9021084c011a8e4c3cd05cc3de",
+      "bytes": 8753,
+      "sha256": "31adda737b18ccc6a18e98dbdcc838c44f7c8ffba237e796c1b1d769f2719881",
       "summary": "Implements TenantPersona, TenantContext, resolveTenantContext, FinancialActorRole, FinancialActorContext, resolveFinancialActorContext.",
       "analysis": {
         "runtime": "server",
@@ -18023,56 +18023,56 @@
           {
             "name": "resolveTenantContext",
             "kind": "function",
-            "line": 54,
+            "line": 39,
             "exported": true,
             "purpose": "resolveTenantContext."
           },
           {
             "name": "FinancialActorRole",
             "kind": "type",
-            "line": 101,
+            "line": 86,
             "exported": true,
             "purpose": "FinancialActorRole."
           },
           {
             "name": "FinancialActorContext",
             "kind": "type",
-            "line": 103,
+            "line": 88,
             "exported": true,
             "purpose": "FinancialActorContext."
           },
           {
             "name": "resolveFinancialActorContext",
             "kind": "function",
-            "line": 115,
+            "line": 100,
             "exported": true,
             "purpose": "resolveFinancialActorContext."
           },
           {
             "name": "revalidateFinancialActorContext",
             "kind": "function",
-            "line": 183,
+            "line": 168,
             "exported": true,
             "purpose": "revalidateFinancialActorContext."
           },
           {
             "name": "requireTenantMasterContext",
             "kind": "function",
-            "line": 213,
+            "line": 198,
             "exported": true,
             "purpose": "requireTenantMasterContext."
           },
           {
             "name": "requireTenantUserContext",
             "kind": "function",
-            "line": 235,
+            "line": 220,
             "exported": true,
             "purpose": "requireTenantUserContext."
           },
           {
             "name": "requireMasterMemberContext",
             "kind": "function",
-            "line": 269,
+            "line": 254,
             "exported": true,
             "purpose": "requireMasterMemberContext."
           }
@@ -18082,7 +18082,6 @@
           "db.tenant.findUnique",
           "[\"TRIAL\", \"ACTIVE\"].includes",
           "db.tenant.findFirst",
-          "db.tenant.upsert",
           "masterTenant",
           "db.user.findUnique",
           "user.roles.some",
