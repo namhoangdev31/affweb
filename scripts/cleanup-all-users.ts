@@ -64,6 +64,12 @@ async function purgeDb(url: string, name: string) {
 }
 
 async function main() {
+  if (process.env.ALLOW_DATABASE_PURGE !== "true") {
+    throw new Error(
+      "An toàn dữ liệu: Bạn phải đặt ALLOW_DATABASE_PURGE=true trong môi trường trước khi chạy script dọn dẹp này."
+    );
+  }
+
   console.log("🚀 Bắt đầu dọn dẹp toàn bộ dữ liệu người dùng, Clerk accounts và các DB...\n");
 
   let deletedClerkCount = 0;
@@ -103,8 +109,10 @@ async function main() {
   for (const url of dbUrls) {
     const name =
       url === process.env.TEST_DATABASE_URL
-        ? "TEST_DATABASE_URL (Neon Production)"
-        : "DATABASE_URL";
+        ? "TEST_DATABASE_URL"
+        : url === process.env.DIRECT_URL
+          ? "DIRECT_URL"
+          : "DATABASE_URL";
     await purgeDb(url, name);
   }
 

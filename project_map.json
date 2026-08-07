@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "04440093354fcc848178d7ceac62e23252094b0b",
+    "baseCommit": "ea74e2f7fedb61cd832ea0670e34c9110693da9c",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -330,7 +330,7 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 386,
+    "mappedFiles": 381,
     "sourceFiles": 271,
     "tests": 56,
     "prismaModels": 57,
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 659127,
-      "sha256": "f1ab00160db07581bdda19392f6d029cab56ab330f2ddd2bc2ffbc021a2eb9ee",
+      "bytes": 652560,
+      "sha256": "ca11b938fbcc8be2436b386b7c5adac49cb7281a4374137c4ec7b736548a4d1a",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -2616,178 +2616,6 @@
       "bytes": 5082,
       "sha256": "fedb7cb882610335737a1db8b3f1f9e767ad47260fec29ea0bfb64ea65060787",
       "summary": "Documents README."
-    },
-    "scratch/debug-video.ts": {
-      "category": "source",
-      "bytes": 632,
-      "sha256": "7bf4268ec8c3a31802fc993dbda7a675a2f49251e0c9565db0efee85f1bf6f4b",
-      "summary": "Implements testService.",
-      "analysis": {
-        "runtime": "node",
-        "imports": ["../src/modules/links/service", "../src/lib/db"],
-        "exports": [],
-        "declarations": [
-          {
-            "name": "testService",
-            "kind": "function",
-            "line": 4,
-            "exported": false,
-            "purpose": "testService."
-          }
-        ],
-        "functionCalls": [
-          "db.user.findFirst",
-          "console.log",
-          "createAffiliateLink",
-          "JSON.stringify",
-          "console.error",
-          "testService"
-        ],
-        "tests": []
-      }
-    },
-    "scratch/test-shopee-shortlink-redirect.ts": {
-      "category": "source",
-      "bytes": 1700,
-      "sha256": "6891defb70dba7a272f191beb61adaac8e42d3ee81c746c746170ce89cd45880",
-      "summary": "Implements resolveShopeeShortUrlWithHtmlFallback.",
-      "analysis": {
-        "runtime": "node",
-        "imports": ["../src/lib/shopee-product"],
-        "exports": ["resolveShopeeShortUrlWithHtmlFallback"],
-        "declarations": [
-          {
-            "name": "resolveShopeeShortUrlWithHtmlFallback",
-            "kind": "function",
-            "line": 3,
-            "exported": true,
-            "purpose": "resolveShopeeShortUrlWithHtmlFallback."
-          },
-          { "name": "run", "kind": "function", "line": 44, "exported": false, "purpose": "run." }
-        ],
-        "functionCalls": [
-          "fetch",
-          "AbortSignal.timeout",
-          "extractShopeeIds",
-          "res.text",
-          "html.match",
-          "configMatch[1].replace(/\\\\u0026/g, \"&\").replace",
-          "configMatch[1].replace",
-          "console.log",
-          "resolveShopeeShortUrlWithHtmlFallback",
-          "run"
-        ],
-        "tests": []
-      }
-    },
-    "scratch/test-video-resolution.ts": {
-      "category": "source",
-      "bytes": 1875,
-      "sha256": "c5dfeb09bf49cff938b990ba008fdb590237500d3b92c857c30a6c4b9c13dae0",
-      "summary": "Implements parseShopeeVideoPage.",
-      "analysis": {
-        "runtime": "node",
-        "imports": ["../src/lib/shopee-product"],
-        "exports": ["parseShopeeVideoPage"],
-        "declarations": [
-          {
-            "name": "parseShopeeVideoPage",
-            "kind": "function",
-            "line": 3,
-            "exported": true,
-            "purpose": "parseShopeeVideoPage."
-          },
-          { "name": "run", "kind": "function", "line": 48, "exported": false, "purpose": "run." }
-        ],
-        "functionCalls": [
-          "fetch",
-          "AbortSignal.timeout",
-          "res.text",
-          "html.match",
-          "rawTitle.replace(/\\|.*$/i, \"\").trim",
-          "rawTitle.replace",
-          "titleMatch[1].includes",
-          "titleMatch[1].replace(\" on Shopee Video\", \"\").trim",
-          "titleMatch[1].replace",
-          "resolveShopeeShortUrl",
-          "console.log",
-          "parseShopeeVideoPage",
-          "JSON.stringify",
-          "run"
-        ],
-        "tests": []
-      }
-    },
-    "scripts/bootstrap-feature-flags.ts": {
-      "category": "source",
-      "bytes": 4935,
-      "sha256": "b8bf01d45d6b17c1fd65f9b56775d4bcb885b3b08d8a215a4d7c5a7c90cd0153",
-      "summary": "Implements bootstrapFeatureFlags.",
-      "analysis": {
-        "runtime": "node",
-        "imports": [
-          "dotenv",
-          "@prisma/adapter-pg",
-          "../src/generated/prisma/client",
-          "../src/lib/tenant-config"
-        ],
-        "exports": ["bootstrapFeatureFlags"],
-        "declarations": [
-          {
-            "name": "rawConnectionString",
-            "kind": "variable",
-            "line": 9,
-            "exported": false,
-            "purpose": "rawConnectionString."
-          },
-          {
-            "name": "connectionString",
-            "kind": "variable",
-            "line": 14,
-            "exported": false,
-            "purpose": "connectionString."
-          },
-          {
-            "name": "prisma",
-            "kind": "variable",
-            "line": 18,
-            "exported": false,
-            "purpose": "prisma."
-          },
-          {
-            "name": "DEFAULT_FLAGS",
-            "kind": "variable",
-            "line": 22,
-            "exported": false,
-            "purpose": "DEFAULT_FLAGS."
-          },
-          {
-            "name": "bootstrapFeatureFlags",
-            "kind": "function",
-            "line": 95,
-            "exported": true,
-            "purpose": "bootstrapFeatureFlags."
-          }
-        ],
-        "functionCalls": [
-          "dotenv.config",
-          "rawConnectionString.includes",
-          "rawConnectionString.replace",
-          "console.log",
-          "prisma.featureFlag.upsert",
-          "Object.entries",
-          "code.endsWith",
-          "BigInt",
-          "prisma.subscriptionPlan.upsert",
-          "bootstrapFeatureFlags() .then(async () => { await prisma.$disconnect(); process.exit(0); }) .catch",
-          "bootstrapFeatureFlags() .then",
-          "bootstrapFeatureFlags",
-          "prisma.$disconnect",
-          "process.exit",
-          "console.error"
-        ],
-        "tests": []
-      }
     },
     "scripts/bootstrap-super-admin.ts": {
       "category": "script",
@@ -2974,8 +2802,8 @@
     },
     "scripts/cleanup-all-users.ts": {
       "category": "source",
-      "bytes": 3981,
-      "sha256": "542a6b501fa9b2bf86b0d883ad435b04cdd6c3df919fcacc8a10b618c2306bd3",
+      "bytes": 4259,
+      "sha256": "09f206670070d84cd66194e369a2e2cc95ac17311fa6b0e52f0ffe702cfe4f56",
       "summary": "Implements purgeDb, main.",
       "analysis": {
         "runtime": "node",
@@ -3111,51 +2939,6 @@
         "tests": []
       }
     },
-    "scripts/manual-test.ts": {
-      "category": "script",
-      "bytes": 2052,
-      "sha256": "1d6b5ae098fe406092085323006988c1d7f0c182d08447930ad423e54c2295cc",
-      "summary": "Implements outputDir, runManualTesting.",
-      "analysis": {
-        "runtime": "node",
-        "imports": ["@playwright/test", "node:fs", "node:path"],
-        "exports": [],
-        "declarations": [
-          {
-            "name": "outputDir",
-            "kind": "variable",
-            "line": 5,
-            "exported": false,
-            "purpose": "outputDir."
-          },
-          {
-            "name": "runManualTesting",
-            "kind": "function",
-            "line": 11,
-            "exported": false,
-            "purpose": "runManualTesting."
-          }
-        ],
-        "functionCalls": [
-          "fs.existsSync",
-          "fs.mkdirSync",
-          "console.log",
-          "chromium.launch",
-          "browser.newContext",
-          "context.newPage",
-          "page.goto",
-          "page.waitForTimeout",
-          "page.screenshot",
-          "path.join",
-          "browser.close",
-          "runManualTesting().catch",
-          "runManualTesting",
-          "console.error",
-          "process.exit"
-        ],
-        "tests": []
-      }
-    },
     "scripts/run-disposable-integration.ts": {
       "category": "source",
       "bytes": 1771,
@@ -3241,8 +3024,8 @@
     },
     "scripts/smoke-production.ts": {
       "category": "script",
-      "bytes": 922,
-      "sha256": "9f972a91b47c04508bfe0afcf472f3e4fbcfe83644396e7a0bd51181300a34a1",
+      "bytes": 1057,
+      "sha256": "5fde3e18b52b5c0a368180c3aa97ffffb3464ec9bb9a646a525b812cb6fa3ea9",
       "summary": "Implements baseUrl, checks.",
       "analysis": {
         "runtime": "node",
@@ -3266,10 +3049,12 @@
         ],
         "functionCalls": [
           "loadServerEnv",
+          "console.log",
+          "Promise.all",
+          "checks.map",
           "fetch",
           "response.text",
-          "body.includes",
-          "console.log"
+          "body.includes"
         ],
         "tests": []
       }

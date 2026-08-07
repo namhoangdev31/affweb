@@ -11,20 +11,24 @@ const checks = [
   ["/sitemap.xml", 200]
 ] as const;
 
-for (const [path, expectedStatus] of checks) {
-  const url = new URL(path, baseUrl);
-  const response = await fetch(url, {
-    redirect: "manual",
-    headers: { "User-Agent": "affweb-production-smoke/1.0" }
-  });
-  if (response.status !== expectedStatus) {
-    throw new Error(`${url} returned ${response.status}; expected ${expectedStatus}.`);
-  }
-  if (path === "/sw.js") {
-    const body = await response.text();
-    if (!body.includes("CACHE_VERSION") || !body.includes("/offline")) {
-      throw new Error("Service worker response is incomplete.");
+console.log(`Starting production smoke check against ${baseUrl.origin}...`);
+
+await Promise.all(
+  checks.map(async ([path, expectedStatus]) => {
+    const url = new URL(path, baseUrl);
+    const response = await fetch(url, {
+      redirect: "manual",
+      headers: { "User-Agent": "affweb-production-smoke/1.0" }
+    });
+    if (response.status !== expectedStatus) {
+      throw new Error(`${url} returned ${response.status}; expected ${expectedStatus}.`);
     }
-  }
-  console.log(`OK ${response.status} ${url}`);
-}
+    if (path === "/sw.js") {
+      const body = await response.text();
+      if (!body.includes("CACHE_VERSION") || !body.includes("/offline")) {
+        throw new Error("Service worker response is incomplete.");
+      }
+    }
+    console.log(`OK ${response.status} ${url}`);
+  })
+);
