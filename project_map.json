@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "9fb90e88e3ab9975d8bb5aca4d5140db6ba9e7a9",
+    "baseCommit": "31d3c40192a9582556501f5c2c0cd882e4e2680b",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -330,8 +330,8 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 381,
-    "sourceFiles": 271,
+    "mappedFiles": 382,
+    "sourceFiles": 272,
     "tests": 56,
     "prismaModels": 57,
     "prismaEnums": 37
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 652590,
-      "sha256": "38818a70c173427a76061c62f8b9d8e854437b6196badd049112e484fcd260ea",
+      "bytes": 653491,
+      "sha256": "2950ace75d1dffed8ee51f9f9e539c68d64098e531858b23e950de94c0a4098e",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -7810,6 +7810,28 @@
           }
         ],
         "functionCalls": ["db.offerSnapshot.findMany", "dbOffers.map", "String"],
+        "tests": []
+      }
+    },
+    "src/app/error.tsx": {
+      "category": "source",
+      "bytes": 1215,
+      "sha256": "01456d7b00ddfa7740598a915c8f902bb0bc811d77907cd724a7898f7ef34d32",
+      "summary": "Implements GlobalErrorPage.",
+      "analysis": {
+        "runtime": "client",
+        "imports": ["react", "lucide-react", "@/components/ui/button"],
+        "exports": ["GlobalErrorPage"],
+        "declarations": [
+          {
+            "name": "GlobalErrorPage",
+            "kind": "function",
+            "line": 7,
+            "exported": true,
+            "purpose": "GlobalErrorPage."
+          }
+        ],
+        "functionCalls": ["useEffect", "console.error", "reset"],
         "tests": []
       }
     },
@@ -17717,8 +17739,8 @@
     },
     "src/modules/tenants/persona.ts": {
       "category": "domain-module",
-      "bytes": 8625,
-      "sha256": "bb8ea2a2e7f57b24b4fd3c21c81232e5434a606b8c61666a1352150ceb2bf59f",
+      "bytes": 9178,
+      "sha256": "4a33db2f13f0efc47f8fd8adb6d9675b6f1b1d9021084c011a8e4c3cd05cc3de",
       "summary": "Implements TenantPersona, TenantContext, resolveTenantContext, FinancialActorRole, FinancialActorContext, resolveFinancialActorContext.",
       "analysis": {
         "runtime": "server",
@@ -17816,7 +17838,7 @@
           {
             "name": "requireMasterMemberContext",
             "kind": "function",
-            "line": 249,
+            "line": 269,
             "exported": true,
             "purpose": "requireMasterMemberContext."
           }
@@ -17834,8 +17856,12 @@
           "Boolean",
           "resolveTenantContext",
           "resolveFinancialActorContext",
-          "expectedSlug.toLowerCase().trim",
-          "expectedSlug.toLowerCase"
+          "expectedSlug?.toLowerCase().trim",
+          "expectedSlug?.toLowerCase",
+          "memberTenant.slug.toLowerCase().trim",
+          "memberTenant.slug.toLowerCase",
+          "context.ownedTenant?.slug.toLowerCase().trim",
+          "context.ownedTenant?.slug.toLowerCase"
         ],
         "tests": []
       }

@@ -237,13 +237,33 @@ export async function requireTenantUserContext(
   expectedSlug?: string
 ): Promise<TenantContext> {
   const context = await resolveTenantContext(userId);
-  if (context.persona !== "TENANT_USER" || !context.memberTenant) {
+  const slug = expectedSlug?.toLowerCase().trim();
+
+  if (context.persona === "OWNER") {
+    let memberTenant = context.masterTenant;
+    if (slug) {
+      const target = await db.tenant.findFirst({
+        where: { OR: [{ slug }, { id: slug }] }
+      });
+      if (target) memberTenant = target;
+    }
+    return { ...context, memberTenant };
+  }
+
+  const memberTenant = context.memberTenant ?? context.ownedTenant ?? context.masterTenant;
+  if (!memberTenant) {
     throw new AppError("FORBIDDEN", "Chỉ tenant user được truy cập portal này.", 403);
   }
-  if (expectedSlug && context.memberTenant.slug !== expectedSlug.toLowerCase().trim()) {
-    throw new AppError("FORBIDDEN", "Tài khoản không thuộc tenant này.", 403);
+
+  if (slug) {
+    const isMemberMatch = memberTenant.slug.toLowerCase().trim() === slug;
+    const isOwnedMatch = context.ownedTenant?.slug.toLowerCase().trim() === slug;
+    if (!isMemberMatch && !isOwnedMatch) {
+      throw new AppError("FORBIDDEN", "Tài khoản không thuộc tenant này.", 403);
+    }
   }
-  return context;
+
+  return { ...context, memberTenant };
 }
 
 export async function requireMasterMemberContext(userId: string): Promise<TenantContext> {
