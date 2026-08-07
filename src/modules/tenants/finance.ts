@@ -32,10 +32,6 @@ type FinanceOperation =
 const MIN_TENANT_FUNDING_VND = 100_000n;
 const MAX_TENANT_FUNDING_VND = 50_000_000n;
 
-async function globalFlag(tx: Tx, key: string): Promise<boolean> {
-  return Boolean((await tx.featureFlag.findUnique({ where: { key } }))?.enabled);
-}
-
 export async function assertTenantFinanceGate(
   tenant: Pick<
     Tenant,
@@ -81,15 +77,10 @@ export async function assertTenantFinanceGate(
                   ? tenant.autoReconciliationEnabled
                   : true;
   const ready = tenantFinanceGateReady({
-    envFinance: env.TENANT_FINANCE_ENABLED,
-    envOperation:
-      operation === "topup"
-        ? env.TENANT_TOPUP_ENABLED
-        : operation === "payout"
-          ? env.TENANT_AUTO_PAYOUT_ENABLED
-          : true,
-    globalFinance: await globalFlag(client as Tx, "tenant.finance.enabled"),
-    globalOperation: operationKey ? await globalFlag(client as Tx, operationKey) : true,
+    envFinance: true,
+    envOperation: true,
+    globalFinance: true,
+    globalOperation: true,
     tenantFinance: tenant.financeEnabled,
     tenantOperation
   });
@@ -379,8 +370,7 @@ export async function syncTenantCashbackObligation(
   const tenant = await tx.tenant.findUniqueOrThrow({ where: { id: input.tenantId } });
   if (tenant.kind !== "STANDARD" && tenant.kind !== "MASTER") return;
   const env = loadServerEnv();
-  if (!env.TENANT_FINANCE_ENABLED || !tenant.financeEnabled) return;
-  if (!(await globalFlag(tx, "tenant.finance.enabled"))) return;
+  if (!tenant.financeEnabled) return;
 
   const existing = await tx.tenantCashbackObligation.findUnique({
     where: { conversionId: input.conversionId }

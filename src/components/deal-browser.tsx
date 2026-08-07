@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Search, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,23 +17,11 @@ type Deal = {
 };
 
 export function DealBrowser({ initialDeals = [] }: { initialDeals?: Deal[] }) {
-  const [deals, setDeals] = useState<Deal[]>(initialDeals);
   const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(initialDeals.length === 0);
-
-  useEffect(() => {
-    if (initialDeals.length > 0) return;
-    const controller = new AbortController();
-    void fetch("/api/v1/public/deals", { signal: controller.signal })
-      .then((response) => response.json() as Promise<{ offers: Deal[] }>)
-      .then((data) => setDeals(data.offers))
-      .finally(() => setLoading(false));
-    return () => controller.abort();
-  }, [initialDeals]);
 
   const filtered = useMemo(
-    () => deals.filter((deal) => deal.title.toLowerCase().includes(query.toLowerCase())),
-    [deals, query]
+    () => initialDeals.filter((deal) => deal.title.toLowerCase().includes(query.toLowerCase())),
+    [initialDeals, query]
   );
 
   return (
@@ -48,13 +36,7 @@ export function DealBrowser({ initialDeals = [] }: { initialDeals?: Deal[] }) {
           className="h-13 rounded-full bg-card pl-12"
         />
       </label>
-      {loading ? (
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {[0, 1, 2].map((item) => (
-            <div key={item} className="h-64 animate-pulse rounded-2xl bg-muted" />
-          ))}
-        </div>
-      ) : filtered.length ? (
+      {filtered.length ? (
         <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((deal) => (
             <Card key={deal.id} className="overflow-hidden">

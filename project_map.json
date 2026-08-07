@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "de59752121d0898efc7de3b2bf1de025db5e2575",
+    "baseCommit": "04440093354fcc848178d7ceac62e23252094b0b",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -330,17 +330,17 @@
     ]
   },
   "statistics": {
-    "mappedFiles": 402,
-    "sourceFiles": 287,
-    "tests": 57,
+    "mappedFiles": 386,
+    "sourceFiles": 271,
+    "tests": 56,
     "prismaModels": 57,
     "prismaEnums": 37
   },
   "files": {
     ".env.example": {
       "category": "configuration",
-      "bytes": 3497,
-      "sha256": "bb8681e9f03e92cc7d8d97523655803b37e2a42d716cb035abb2d49f8fd03213",
+      "bytes": 3513,
+      "sha256": "0af6a80a4ff92e39d58e0e029967c046a43dc3b98bd26ed962d3f3179555e5c5",
       "summary": "Provides .env.example project configuration responsibilities."
     },
     ".gitignore": {
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 675115,
-      "sha256": "73f395308b428ef79793ad2ea81e7296dbfd3e17bdcfb4985861890c7d9e8da2",
+      "bytes": 659127,
+      "sha256": "f1ab00160db07581bdda19392f6d029cab56ab330f2ddd2bc2ffbc021a2eb9ee",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -3549,6 +3549,58 @@
         "exports": [],
         "declarations": [],
         "functionCalls": ["Sentry.init", "Boolean"],
+        "tests": []
+      }
+    },
+    "src/app/[slug]/app/actions.ts": {
+      "category": "source",
+      "bytes": 1447,
+      "sha256": "76b01307cab158d318aeb86e756fe4a7c7f31bfdec47899d61d3f808585dbbb3",
+      "summary": "Implements requestMemberWithdrawalAction.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "zod",
+          "@/lib/authz",
+          "@/lib/errors",
+          "@/lib/json",
+          "@/lib/rate-limit",
+          "@/modules/tenants/payout",
+          "@/modules/tenants/persona"
+        ],
+        "exports": ["requestMemberWithdrawalAction"],
+        "declarations": [
+          {
+            "name": "payoutSchema",
+            "kind": "variable",
+            "line": 11,
+            "exported": false,
+            "purpose": "payoutSchema."
+          },
+          {
+            "name": "requestMemberWithdrawalAction",
+            "kind": "function",
+            "line": 17,
+            "exported": true,
+            "purpose": "requestMemberWithdrawalAction."
+          }
+        ],
+        "functionCalls": [
+          "z.object",
+          "z.string().cuid",
+          "z.string",
+          "z.coerce.bigint().positive",
+          "z.coerce.bigint",
+          "z.string().optional",
+          "requireUser",
+          "rateLimit",
+          "payoutSchema.parse",
+          "crypto.randomUUID",
+          "resolveTenantContext",
+          "resolveFinancialActorContext",
+          "requestMemberWithdrawal",
+          "jsonSafe"
+        ],
         "tests": []
       }
     },
@@ -6006,66 +6058,6 @@
         "tests": []
       }
     },
-    "src/app/api/saas/checkout/route.ts": {
-      "category": "api-route",
-      "bytes": 1938,
-      "sha256": "6f0d956591c1c9c679472f49cc5736060348341dadedf1108b555ab74295789b",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/saas/checkout",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "zod",
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/env",
-          "@/lib/errors",
-          "@/lib/json",
-          "@/lib/rate-limit",
-          "@/lib/request",
-          "@/lib/tenant"
-        ],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 17,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "inputSchema",
-            "kind": "variable",
-            "line": 19,
-            "exported": false,
-            "purpose": "inputSchema."
-          },
-          { "name": "POST", "kind": "function", "line": 31, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z.string().cuid",
-          "z.string",
-          "z.enum",
-          "requestId",
-          "assertTrustedOrigin",
-          "requireApiUser",
-          "inputSchema.parse",
-          "readJson",
-          "requireIdempotencyKey",
-          "rateLimit",
-          "db.tenant.findFirst",
-          "createTenantCheckoutSession",
-          "loadServerEnv",
-          "requestPayloadHash",
-          "Response.json",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
     "src/app/api/saas/payos-redirect/route.ts": {
       "category": "app-route",
       "bytes": 1078,
@@ -6185,8 +6177,8 @@
     },
     "src/app/api/saas/zalo-qr/route.ts": {
       "category": "api-route",
-      "bytes": 518,
-      "sha256": "944372d516f8cff6aa366c5c94bb7ef5f271a1be407e2a0913fe409f8a5cd833",
+      "bytes": 506,
+      "sha256": "e2fa9b8541c6eec42d8400b76d643fd791e42c994df238ce8ec7fc53afc7e963",
       "summary": "Implements runtime, GET, POST.",
       "route": "/api/saas/zalo-qr",
       "analysis": {
@@ -6208,8 +6200,8 @@
             "exported": false,
             "purpose": "retiredResponse."
           },
-          { "name": "GET", "kind": "function", "line": 15, "exported": true, "purpose": "GET." },
-          { "name": "POST", "kind": "function", "line": 19, "exported": true, "purpose": "POST." }
+          { "name": "GET", "kind": "function", "line": 14, "exported": true, "purpose": "GET." },
+          { "name": "POST", "kind": "function", "line": 18, "exported": true, "purpose": "POST." }
         ],
         "functionCalls": ["NextResponse.json", "retiredResponse"],
         "tests": []
@@ -6217,8 +6209,8 @@
     },
     "src/app/api/v1/admin/settlement-batches/route.ts": {
       "category": "api-route",
-      "bytes": 2540,
-      "sha256": "164ef09abddab76384d626b2ea73d20ec39667ee414d6897c5f6f1d5190e5868",
+      "bytes": 2309,
+      "sha256": "adc21ae128eeaabba7aeb7a414d6ccc16f199c20fb6d3bb5eab5e5fb9ca421d8",
       "summary": "Implements runtime, POST.",
       "route": "/api/v1/admin/settlement-batches",
       "analysis": {
@@ -6232,7 +6224,6 @@
           "@/lib/rate-limit",
           "@/lib/request",
           "@/modules/admin/passkey",
-          "@/modules/flags/service",
           "@/modules/settlement/service"
         ],
         "exports": ["runtime", "POST"],
@@ -6240,25 +6231,25 @@
           {
             "name": "runtime",
             "kind": "variable",
-            "line": 18,
+            "line": 17,
             "exported": true,
             "purpose": "runtime."
           },
           {
             "name": "amountSchema",
             "kind": "variable",
-            "line": 20,
+            "line": 19,
             "exported": false,
             "purpose": "amountSchema."
           },
           {
             "name": "inputSchema",
             "kind": "variable",
-            "line": 21,
+            "line": 20,
             "exported": false,
             "purpose": "inputSchema."
           },
-          { "name": "POST", "kind": "function", "line": 39, "exported": true, "purpose": "POST." }
+          { "name": "POST", "kind": "function", "line": 38, "exported": true, "purpose": "POST." }
         ],
         "functionCalls": [
           "z.string().regex",
@@ -6277,7 +6268,6 @@
           "assertTrustedOrigin",
           "requireApiRole",
           "requireRecentFinancePasskey",
-          "featureEnabled",
           "rateLimit",
           "Response.json",
           "inputSchema.parse",
@@ -6329,98 +6319,10 @@
         "tests": []
       }
     },
-    "src/app/api/v1/beneficiaries/route.ts": {
-      "category": "api-route",
-      "bytes": 1589,
-      "sha256": "9b13405ac75e6b52f1be3ed799ec22d0b2231e794a4f231bc32ad4f1b60ba9f5",
-      "summary": "Implements runtime, GET, POST.",
-      "route": "/api/v1/beneficiaries",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "zod",
-          "@/lib/authz",
-          "@/lib/crypto",
-          "@/lib/db",
-          "@/lib/errors",
-          "@/lib/request",
-          "@/modules/beneficiaries/service"
-        ],
-        "exports": ["runtime", "GET", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 9,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "inputSchema",
-            "kind": "variable",
-            "line": 11,
-            "exported": false,
-            "purpose": "inputSchema."
-          },
-          { "name": "GET", "kind": "function", "line": 17, "exported": true, "purpose": "GET." },
-          { "name": "POST", "kind": "function", "line": 36, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z.string().regex",
-          "z.string",
-          "z.string().min(3).max",
-          "z.string().min",
-          "requireApiUser",
-          "db.bankBeneficiary.findMany",
-          "Response.json",
-          "errorResponse",
-          "assertTrustedOrigin",
-          "inputSchema.parse",
-          "readJson",
-          "request.headers.get(\"x-forwarded-for\")?.split(\",\")[0]?.trim",
-          "request.headers.get(\"x-forwarded-for\")?.split",
-          "request.headers.get",
-          "saveBeneficiary",
-          "stableHash"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/conversions/route.ts": {
-      "category": "api-route",
-      "bytes": 786,
-      "sha256": "98328513cfe7b59d3d629688f54f1066dddf8cb735e18bded1a0d12ed026b4a4",
-      "summary": "Implements runtime, GET.",
-      "route": "/api/v1/conversions",
-      "analysis": {
-        "runtime": "shared",
-        "imports": ["@/lib/authz", "@/lib/db", "@/lib/errors", "@/lib/json"],
-        "exports": ["runtime", "GET"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 6,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          { "name": "GET", "kind": "function", "line": 8, "exported": true, "purpose": "GET." }
-        ],
-        "functionCalls": [
-          "requireApiUser",
-          "db.conversion.findMany",
-          "Response.json",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
     "src/app/api/v1/imports/shopee-orders/route.ts": {
       "category": "api-route",
-      "bytes": 4273,
-      "sha256": "c606b4bc3d0833fba28343d0f01f3de619c3fe19ae447d90649c606572c60413",
+      "bytes": 3849,
+      "sha256": "d5976982e6051589dd3df3f671e98a7f45d5835efcf1af368b88641367a2cb11",
       "summary": "Implements runtime, POST.",
       "route": "/api/v1/imports/shopee-orders",
       "analysis": {
@@ -6430,13 +6332,11 @@
           "@/generated/prisma/client",
           "@/lib/authz",
           "@/lib/db",
-          "@/lib/env",
           "@/lib/errors",
           "@/lib/json",
           "@/lib/rate-limit",
           "@/lib/request",
           "@/modules/admin/passkey",
-          "@/modules/flags/service",
           "@/modules/imports/shopee-orders",
           "@/modules/tenants/plans"
         ],
@@ -6445,25 +6345,24 @@
           {
             "name": "runtime",
             "kind": "variable",
-            "line": 15,
+            "line": 13,
             "exported": true,
             "purpose": "runtime."
           },
           {
             "name": "affiliateAccountIdSchema",
             "kind": "variable",
-            "line": 17,
+            "line": 15,
             "exported": false,
             "purpose": "affiliateAccountIdSchema."
           },
-          { "name": "POST", "kind": "function", "line": 19, "exported": true, "purpose": "POST." }
+          { "name": "POST", "kind": "function", "line": 17, "exported": true, "purpose": "POST." }
         ],
         "functionCalls": [
           "z.string().cuid",
           "z.string",
           "requestId",
           "assertTrustedOrigin",
-          "featureEnabled",
           "Number",
           "request.headers.get",
           "Number.isFinite",
@@ -6479,7 +6378,6 @@
           "requireRecentFinancePasskey",
           "tenantSubscriptionIsEffective",
           "requireTenantPlan",
-          "loadServerEnv",
           "plan.allowedConnectors.includes",
           "file.arrayBuffer",
           "new TextDecoder(\"utf-8\", { fatal: true }).decode",
@@ -6488,310 +6386,6 @@
           "jsonSafe",
           "errorResponse"
         ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/imports/shopee-reconciliation-invoices/route.test.ts": {
-      "category": "test",
-      "bytes": 477,
-      "sha256": "1b80f8c102d19e9c0f18a60c980dbb76064ead13806d38be7a56fe45e66ab24c",
-      "summary": "Verifies route behavior.",
-      "analysis": {
-        "runtime": "shared",
-        "imports": ["vitest", "@/app/api/v1/imports/shopee-reconciliation-invoices/route"],
-        "exports": [],
-        "declarations": [],
-        "functionCalls": [
-          "describe",
-          "it",
-          "POST",
-          "response.json",
-          "expect(response.status).toBe",
-          "expect",
-          "expect(body.error?.code).toBe"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/imports/shopee-reconciliation-invoices/route.ts": {
-      "category": "api-route",
-      "bytes": 440,
-      "sha256": "5c075d95dd0086fa41cd0fdc5465afbc5db711c4bbcdc59fc2826dc9f2ca6f50",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/imports/shopee-reconciliation-invoices",
-      "analysis": {
-        "runtime": "shared",
-        "imports": ["@/lib/errors", "@/lib/request"],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 4,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          { "name": "POST", "kind": "function", "line": 6, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": ["requestId", "errorResponse"],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/links/route.ts": {
-      "category": "api-route",
-      "bytes": 1708,
-      "sha256": "5bf462991cbc62a4dcac00ab3829878fdad226fe367d6f4e18cf9f664861349d",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/links",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "zod",
-          "@/lib/authz",
-          "@/lib/errors",
-          "@/lib/json",
-          "@/lib/rate-limit",
-          "@/lib/request",
-          "@/modules/links/service"
-        ],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 15,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "inputSchema",
-            "kind": "variable",
-            "line": 17,
-            "exported": false,
-            "purpose": "inputSchema."
-          },
-          { "name": "POST", "kind": "function", "line": 24, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z.url",
-          "z.string().cuid().optional",
-          "z.string().cuid",
-          "z.string",
-          "z.enum([\"SHOPEE_DIRECT\", \"LAZADA_OPEN_API\", \"ACCESSTRADE_API\"]).optional",
-          "z.enum",
-          "requestId",
-          "assertTrustedOrigin",
-          "requireApiUser",
-          "rateLimit",
-          "Response.json",
-          "String",
-          "Math.ceil",
-          "Date.now",
-          "inputSchema.parse",
-          "readJson",
-          "requireIdempotencyKey",
-          "createAffiliateLink",
-          "requestPayloadHash",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/payout-tickets/route.ts": {
-      "category": "api-route",
-      "bytes": 1015,
-      "sha256": "e1c3dbbd524a3d3562b10e351f7526e1a33c457fda7d3ac1073e9618bea0780f",
-      "summary": "Implements runtime, GET, POST.",
-      "route": "/api/v1/payout-tickets",
-      "analysis": {
-        "runtime": "shared",
-        "imports": ["@/lib/authz", "@/lib/db", "@/lib/errors", "@/lib/json"],
-        "exports": ["runtime", "GET", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 6,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          { "name": "GET", "kind": "function", "line": 8, "exported": true, "purpose": "GET." },
-          { "name": "POST", "kind": "function", "line": 25, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "requireApiUser",
-          "db.payoutTicket.findMany",
-          "Response.json",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/provider-accounts/[id]/credential/route.ts": {
-      "category": "api-route",
-      "bytes": 5617,
-      "sha256": "beee9cf5e2ab157f713a3f9279d5902652018484d132cb906b450ccef1659d13",
-      "summary": "Implements runtime, PUT.",
-      "route": "/api/v1/provider-accounts/:id/credential",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "zod",
-          "@/generated/prisma/client",
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/errors",
-          "@/lib/rate-limit",
-          "@/lib/request",
-          "@/modules/admin/passkey",
-          "@/modules/connectors/provider-credentials",
-          "@/modules/connectors/registry",
-          "@/modules/flags/service",
-          "@/modules/tenants/plans"
-        ],
-        "exports": ["runtime", "PUT"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 17,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          { "name": "PUT", "kind": "function", "line": 19, "exported": true, "purpose": "PUT." }
-        ],
-        "functionCalls": [
-          "requestId",
-          "assertTrustedOrigin",
-          "featureEnabled",
-          "requireApiRecentUser",
-          "rateLimit",
-          "db.affiliateAccount.findUnique",
-          "requireApiRole",
-          "requireRecentFinancePasskey",
-          "tenantSubscriptionIsEffective",
-          "requireTenantPlan",
-          "plan.allowedConnectors.includes",
-          "readJson",
-          "providerCredentialPayloadSchema .and(z.object({ validationHoldDays: z.number().int().min(4).max(60) })) .parse",
-          "providerCredentialPayloadSchema .and",
-          "z.object",
-          "z.number().int().min(4).max",
-          "z.number().int().min",
-          "z.number().int",
-          "z.number",
-          "providerCredentialPayloadSchema.parse",
-          "connectorFor",
-          "connector.healthCheck",
-          "saveVerifiedProviderCredential",
-          "db.$transaction",
-          "tx.affiliateAccount.update",
-          "tx.connectorConfig.upsert",
-          "tx.connectorHealth.upsert",
-          "Response.json",
-          "saved.verifiedAt.toISOString",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/provider-accounts/route.ts": {
-      "category": "api-route",
-      "bytes": 5479,
-      "sha256": "b14cc8424646556778f72a592f2eb377581f6d1997ef08e54d681818ab255021",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/provider-accounts",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "zod",
-          "@/generated/prisma/client",
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/errors",
-          "@/lib/rate-limit",
-          "@/lib/request",
-          "@/modules/flags/service",
-          "@/modules/tenants/plans"
-        ],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 17,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "inputSchema",
-            "kind": "variable",
-            "line": 19,
-            "exported": false,
-            "purpose": "inputSchema."
-          },
-          {
-            "name": "platformOf",
-            "kind": "function",
-            "line": 37,
-            "exported": false,
-            "purpose": "platformOf."
-          },
-          { "name": "POST", "kind": "function", "line": 41, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "z.discriminatedUnion",
-          "z.object",
-          "z.literal",
-          "z.string().trim().min(1).max",
-          "z.string().trim().min",
-          "z.string().trim",
-          "z.string",
-          "z.string().trim().min(2).max",
-          "z .string() .trim() .max(200) .optional() .transform",
-          "z .string() .trim() .max(200) .optional",
-          "z .string() .trim() .max",
-          "z .string() .trim",
-          "z .string",
-          "val?.trim",
-          "requestId",
-          "assertTrustedOrigin",
-          "featureEnabled",
-          "requireApiRecentUser",
-          "rateLimit",
-          "inputSchema.parse",
-          "readJson",
-          "db.tenant.findUnique",
-          "tenantSubscriptionIsEffective",
-          "requireTenantPlan",
-          "plan.allowedConnectors.includes",
-          "platformOf",
-          "db.$transaction",
-          "tx.affiliateAccount.findFirst",
-          "tx.affiliateAccount.findUnique",
-          "tx.affiliateAccount.create",
-          "tx.auditLog.create",
-          "Response.json",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/public/deals/route.ts": {
-      "category": "api-route",
-      "bytes": 56,
-      "sha256": "755b809ba7fa92d93c7a899431cac1cf835e2f3a997ce16a334d8a529777646e",
-      "summary": "Implements GET.",
-      "route": "/api/v1/public/deals",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [],
-        "exports": ["GET"],
-        "declarations": [],
-        "functionCalls": [],
         "tests": []
       }
     },
@@ -6825,321 +6419,31 @@
         "tests": []
       }
     },
-    "src/app/api/v1/push-subscriptions/route.ts": {
-      "category": "api-route",
-      "bytes": 1734,
-      "sha256": "4516c452e39b8e57690fe60e6465c2829fa7ee03b8bdf61b9afe040af500d171",
-      "summary": "Implements runtime, POST, DELETE.",
-      "route": "/api/v1/push-subscriptions",
-      "analysis": {
-        "runtime": "shared",
-        "imports": ["zod", "@/lib/authz", "@/lib/db", "@/lib/errors", "@/lib/request"],
-        "exports": ["runtime", "POST", "DELETE"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 7,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "subscriptionSchema",
-            "kind": "variable",
-            "line": 9,
-            "exported": false,
-            "purpose": "subscriptionSchema."
-          },
-          { "name": "POST", "kind": "function", "line": 17, "exported": true, "purpose": "POST." },
-          {
-            "name": "DELETE",
-            "kind": "function",
-            "line": 44,
-            "exported": true,
-            "purpose": "DELETE."
-          }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z.url().refine",
-          "z.url",
-          "url.startsWith",
-          "z.string().min(16).max",
-          "z.string().min",
-          "z.string",
-          "z.string().min(8).max",
-          "assertTrustedOrigin",
-          "requireApiUser",
-          "subscriptionSchema.parse",
-          "readJson",
-          "db.pushSubscription.upsert",
-          "request.headers.get",
-          "errorResponse",
-          "z.object({ endpoint: z.url() }).parse",
-          "db.pushSubscription.deleteMany"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/shopee/product/route.ts": {
-      "category": "api-route",
-      "bytes": 1182,
-      "sha256": "ce20c054c7a9ee1c80406e8bb5e176f23f7d922fdd46a336362dceebe7d1734e",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/shopee/product",
-      "analysis": {
-        "runtime": "shared",
-        "imports": ["zod", "@/lib/errors", "@/lib/json", "@/lib/request", "@/lib/shopee-product"],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 7,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "inputSchema",
-            "kind": "variable",
-            "line": 9,
-            "exported": false,
-            "purpose": "inputSchema."
-          },
-          { "name": "POST", "kind": "function", "line": 13, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z.string().min",
-          "z.string",
-          "requestId",
-          "readJson",
-          "inputSchema.parse",
-          "fetchShopeeProductData",
-          "Response.json",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
     "src/app/api/v1/tenant/conversion-imports/route.ts": {
       "category": "api-route",
-      "bytes": 1213,
-      "sha256": "3977d94c46e204eb4bf98433ba5922af24771e1f28ec50d8b70186aeb10eb397",
+      "bytes": 867,
+      "sha256": "e277efd8ba5a1a2f9b279d3955778b2f5121bf29ecc909ffa76f6880a0b496e2",
       "summary": "Implements runtime, POST.",
       "route": "/api/v1/tenant/conversion-imports",
       "analysis": {
         "runtime": "shared",
-        "imports": [
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/env",
-          "@/lib/errors",
-          "@/lib/request",
-          "@/modules/flags/service"
-        ],
+        "imports": ["@/lib/authz", "@/lib/db", "@/lib/errors", "@/lib/request"],
         "exports": ["runtime", "POST"],
         "declarations": [
           {
             "name": "runtime",
             "kind": "variable",
-            "line": 8,
+            "line": 6,
             "exported": true,
             "purpose": "runtime."
           },
-          { "name": "POST", "kind": "function", "line": 10, "exported": true, "purpose": "POST." }
+          { "name": "POST", "kind": "function", "line": 8, "exported": true, "purpose": "POST." }
         ],
         "functionCalls": [
           "requestId",
           "assertTrustedOrigin",
           "requireApiUser",
           "db.tenant.findUnique",
-          "loadServerEnv",
-          "featureEnabled",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/tenant/conversions/[id]/external-payment/route.ts": {
-      "category": "api-route",
-      "bytes": 511,
-      "sha256": "33323c32289102988e04e94572bb55626a77c391fa2425d744f4975ca920f1e9",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/tenant/conversions/:id/external-payment",
-      "analysis": {
-        "runtime": "shared",
-        "imports": ["@/lib/request"],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 3,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          { "name": "POST", "kind": "function", "line": 5, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": ["requestId", "Response.json"],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/tenant/funding-orders/route.ts": {
-      "category": "api-route",
-      "bytes": 1476,
-      "sha256": "87309b3ae0c65c0342910ed30c13dff1b54dc93e7345f86de48ba68429365db6",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/tenant/funding-orders",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "zod",
-          "@/lib/authz",
-          "@/lib/env",
-          "@/lib/errors",
-          "@/lib/json",
-          "@/lib/rate-limit",
-          "@/lib/request",
-          "@/modules/tenants/finance"
-        ],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 15,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "schema",
-            "kind": "variable",
-            "line": 17,
-            "exported": false,
-            "purpose": "schema."
-          },
-          { "name": "POST", "kind": "function", "line": 19, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z.coerce.bigint().positive",
-          "z.coerce.bigint",
-          "assertTrustedOrigin",
-          "requireApiRecentUser",
-          "rateLimit",
-          "Response.json",
-          "schema.parse",
-          "readJson",
-          "createTenantFundingOrder",
-          "requireIdempotencyKey",
-          "requestPayloadHash",
-          "loadServerEnv",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/tenant/member-payouts/route.ts": {
-      "category": "api-route",
-      "bytes": 1877,
-      "sha256": "809535a2fcb45121bffb19a2da48266dc1e2b1c2e277cd0c1a08f8b0223ff6d1",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/tenant/member-payouts",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "zod",
-          "@/lib/authz",
-          "@/lib/errors",
-          "@/lib/json",
-          "@/lib/rate-limit",
-          "@/lib/request",
-          "@/modules/tenants/payout",
-          "@/modules/tenants/persona"
-        ],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 15,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "schema",
-            "kind": "variable",
-            "line": 16,
-            "exported": false,
-            "purpose": "schema."
-          },
-          { "name": "POST", "kind": "function", "line": 21, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z.string().cuid",
-          "z.string",
-          "z.coerce.bigint().positive",
-          "z.coerce.bigint",
-          "assertTrustedOrigin",
-          "requireApiRecentUser",
-          "rateLimit",
-          "Response.json",
-          "schema.parse",
-          "readJson",
-          "requestPayloadHash",
-          "resolveTenantContext",
-          "resolveFinancialActorContext",
-          "request.headers.get",
-          "crypto.randomUUID",
-          "requestMemberWithdrawal",
-          "requireIdempotencyKey",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/tenant/member-wallet/route.ts": {
-      "category": "api-route",
-      "bytes": 2341,
-      "sha256": "9f1cd5a2df29e8042884d9a511b703aab7cd5aaa7bc7d62032fe14fb6ecef865",
-      "summary": "Implements runtime, GET.",
-      "route": "/api/v1/tenant/member-wallet",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/errors",
-          "@/lib/json",
-          "@/modules/tenants/persona"
-        ],
-        "exports": ["runtime", "GET"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 7,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          { "name": "GET", "kind": "function", "line": 9, "exported": true, "purpose": "GET." }
-        ],
-        "functionCalls": [
-          "requireApiUser",
-          "resolveTenantContext",
-          "Promise.all",
-          "db.tenantMemberWalletProjection.findUnique",
-          "db.bankBeneficiary.findFirst",
-          "db.tenantPayout.findMany",
-          "db.tenantCashbackObligation.findMany",
-          "availableObligations.reduce",
-          "Response.json",
-          "jsonSafe",
           "errorResponse"
         ],
         "tests": []
@@ -7307,213 +6611,6 @@
         "tests": []
       }
     },
-    "src/app/api/v1/tenant/settings/route.ts": {
-      "category": "api-route",
-      "bytes": 2309,
-      "sha256": "bfc30c067a8577293685878b91033dee3d8e51edfeaf8a8e7a44a0d963d59ec0",
-      "summary": "Implements runtime, PUT.",
-      "route": "/api/v1/tenant/settings",
-      "analysis": {
-        "runtime": "shared",
-        "imports": ["zod", "@/lib/authz", "@/lib/db", "@/lib/errors", "@/lib/request"],
-        "exports": ["runtime", "PUT"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 7,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "inputSchema",
-            "kind": "variable",
-            "line": 9,
-            "exported": false,
-            "purpose": "inputSchema."
-          },
-          { "name": "PUT", "kind": "function", "line": 17, "exported": true, "purpose": "PUT." }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z .string() .trim() .regex",
-          "z .string() .trim",
-          "z .string",
-          "z.number().int().min(1).max",
-          "z.number().int().min",
-          "z.number().int",
-          "z.number",
-          "requestId",
-          "assertTrustedOrigin",
-          "requireApiUser",
-          "inputSchema.parse",
-          "readJson",
-          "db.tenant.findUnique",
-          "db.$transaction",
-          "tx.tenant.update",
-          "tx.auditLog.create",
-          "Response.json",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/tenant/treasury/route.ts": {
-      "category": "api-route",
-      "bytes": 2160,
-      "sha256": "a26a0d7e764824a9c3d029e9b9c28daeea864fec129cfc48f659f3e055a45ff6",
-      "summary": "Implements runtime, GET.",
-      "route": "/api/v1/tenant/treasury",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/errors",
-          "@/lib/json",
-          "@/modules/tenants/persona"
-        ],
-        "exports": ["runtime", "GET"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 7,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          { "name": "GET", "kind": "function", "line": 9, "exported": true, "purpose": "GET." }
-        ],
-        "functionCalls": [
-          "requireApiUser",
-          "requireTenantMasterContext",
-          "Promise.all",
-          "db.tenantTreasuryProjection.findUnique",
-          "db.tenantCashbackObligation.aggregate",
-          "db.tenantFundingOrder.findMany",
-          "db.tenantPayout.findMany",
-          "Response.json",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/tenant/treasury/transfers/from-master-wallet/route.ts": {
-      "category": "api-route",
-      "bytes": 1403,
-      "sha256": "1ea938492f1f8f701174613fa06a2838c23ba7e315c1f199971d3ccef56ed9f9",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/tenant/treasury/transfers/from-master-wallet",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "zod",
-          "@/lib/authz",
-          "@/lib/errors",
-          "@/lib/json",
-          "@/lib/rate-limit",
-          "@/lib/request",
-          "@/modules/tenants/finance"
-        ],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 14,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "schema",
-            "kind": "variable",
-            "line": 15,
-            "exported": false,
-            "purpose": "schema."
-          },
-          { "name": "POST", "kind": "function", "line": 17, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z.coerce.bigint().positive",
-          "z.coerce.bigint",
-          "assertTrustedOrigin",
-          "requireApiRecentUser",
-          "rateLimit",
-          "Response.json",
-          "schema.parse",
-          "readJson",
-          "transferMasterWalletToTreasury",
-          "requireIdempotencyKey",
-          "requestPayloadHash",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/tenant/treasury/withdrawals/route.ts": {
-      "category": "api-route",
-      "bytes": 1901,
-      "sha256": "cbe13bc12d4d123938c21a69f6af9226efa5021027cb2f3d10fac5fc83d5b6c0",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/tenant/treasury/withdrawals",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "zod",
-          "@/lib/authz",
-          "@/lib/errors",
-          "@/lib/json",
-          "@/lib/rate-limit",
-          "@/lib/request",
-          "@/modules/tenants/payout",
-          "@/modules/tenants/persona"
-        ],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 18,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "schema",
-            "kind": "variable",
-            "line": 19,
-            "exported": false,
-            "purpose": "schema."
-          },
-          { "name": "POST", "kind": "function", "line": 24, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z.string().cuid",
-          "z.string",
-          "z.coerce.bigint().positive",
-          "z.coerce.bigint",
-          "assertTrustedOrigin",
-          "requireApiRecentUser",
-          "rateLimit",
-          "Response.json",
-          "schema.parse",
-          "readJson",
-          "requestPayloadHash",
-          "requireTenantMasterContext",
-          "resolveFinancialActorContext",
-          "request.headers.get",
-          "crypto.randomUUID",
-          "requestTreasuryWithdrawal",
-          "requireIdempotencyKey",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
     "src/app/api/v1/tenant/zalo-bindings/[id]/routing/route.ts": {
       "category": "api-route",
       "bytes": 4170,
@@ -7573,49 +6670,6 @@
           "tx.zaloGroupBinding.update",
           "tx.auditLog.create",
           "Response.json",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/tenant/zalo/group-link-codes/route.ts": {
-      "category": "api-route",
-      "bytes": 1421,
-      "sha256": "f53dc15b06d0fb4584cec6ace7a3268b252aab4b57967bc42118d62d83b4d964",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/tenant/zalo/group-link-codes",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "@/lib/authz",
-          "@/lib/db",
-          "@/lib/errors",
-          "@/lib/env",
-          "@/lib/rate-limit",
-          "@/lib/request",
-          "@/lib/zalo"
-        ],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 9,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          { "name": "POST", "kind": "function", "line": 11, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "requestId",
-          "assertTrustedOrigin",
-          "requireApiUser",
-          "rateLimit",
-          "db.tenant.findUnique",
-          "createZaloBindingCode",
-          "Response.json",
-          "result.expiresAt.toISOString",
-          "loadServerEnv",
           "errorResponse"
         ],
         "tests": []
@@ -7714,101 +6768,6 @@
         "tests": []
       }
     },
-    "src/app/api/v1/tools/clean-link/route.ts": {
-      "category": "api-route",
-      "bytes": 1755,
-      "sha256": "3b240e07c64d49a32267ca6850482b328c7c4bbbd9d851945eadf230bec94309",
-      "summary": "Implements runtime, POST.",
-      "route": "/api/v1/tools/clean-link",
-      "analysis": {
-        "runtime": "shared",
-        "imports": [
-          "zod",
-          "@/lib/authz",
-          "@/lib/errors",
-          "@/lib/rate-limit",
-          "@/lib/request",
-          "@/modules/connectors/url-policy",
-          "@/modules/tools/link-inspector"
-        ],
-        "exports": ["runtime", "POST"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 9,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          {
-            "name": "inputSchema",
-            "kind": "variable",
-            "line": 11,
-            "exported": false,
-            "purpose": "inputSchema."
-          },
-          {
-            "name": "SHORT_HOSTS",
-            "kind": "variable",
-            "line": 12,
-            "exported": false,
-            "purpose": "SHORT_HOSTS."
-          },
-          { "name": "POST", "kind": "function", "line": 14, "exported": true, "purpose": "POST." }
-        ],
-        "functionCalls": [
-          "z.object",
-          "z.url().max",
-          "z.url",
-          "requestId",
-          "assertTrustedOrigin",
-          "requireApiUser",
-          "rateLimit",
-          "inputSchema.parse",
-          "readJson",
-          "inferPlatform",
-          "SHORT_HOSTS.has",
-          "original.hostname.toLowerCase",
-          "fetchAllowlistedPlatformUrl",
-          "resolved.response.body?.cancel",
-          "resolved.finalUrl.toString",
-          "Response.json",
-          "cleanProviderUrl",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
-    "src/app/api/v1/wallet/route.ts": {
-      "category": "api-route",
-      "bytes": 704,
-      "sha256": "5f422fc5df6c08ef40d72246dac52e45235d30d880fac46a042c2d930fe97519",
-      "summary": "Implements runtime, GET.",
-      "route": "/api/v1/wallet",
-      "analysis": {
-        "runtime": "shared",
-        "imports": ["@/lib/authz", "@/lib/db", "@/lib/errors", "@/lib/json"],
-        "exports": ["runtime", "GET"],
-        "declarations": [
-          {
-            "name": "runtime",
-            "kind": "variable",
-            "line": 6,
-            "exported": true,
-            "purpose": "runtime."
-          },
-          { "name": "GET", "kind": "function", "line": 8, "exported": true, "purpose": "GET." }
-        ],
-        "functionCalls": [
-          "requireApiUser",
-          "db.walletProjection.findUnique",
-          "Response.json",
-          "jsonSafe",
-          "errorResponse"
-        ],
-        "tests": []
-      }
-    },
     "src/app/api/webhooks/clerk/route.test.ts": {
       "category": "test",
       "bytes": 989,
@@ -7875,8 +6834,8 @@
     },
     "src/app/api/webhooks/lazada/route.ts": {
       "category": "api-route",
-      "bytes": 569,
-      "sha256": "a3a91ee279d639c9725d99cf6bee53f1bf3c38a66dbb96cad498b7d16a9666d2",
+      "bytes": 530,
+      "sha256": "137919294b5f34b1701c0058ecec007bb4698d98700552d1975d16562668c4c3",
       "summary": "Implements runtime, GET, POST.",
       "route": "/api/webhooks/lazada",
       "analysis": {
@@ -7899,7 +6858,7 @@
             "purpose": "disabledResponse."
           },
           { "name": "GET", "kind": "function", "line": 14, "exported": true, "purpose": "GET." },
-          { "name": "POST", "kind": "function", "line": 19, "exported": true, "purpose": "POST." }
+          { "name": "POST", "kind": "function", "line": 18, "exported": true, "purpose": "POST." }
         ],
         "functionCalls": ["NextResponse.json", "disabledResponse"],
         "tests": []
@@ -7907,8 +6866,8 @@
     },
     "src/app/api/webhooks/payos/route.ts": {
       "category": "api-route",
-      "bytes": 5515,
-      "sha256": "40bbb857a86a7b6a89da857c7fdccd5d932f6b51baf76201aff981bf984c843b",
+      "bytes": 5293,
+      "sha256": "229ccebe0c5e40f295eea350fc1989cec15a7140cec84cbec6aeba5068fced63",
       "summary": "Implements runtime, POST.",
       "route": "/api/webhooks/payos",
       "analysis": {
@@ -7919,7 +6878,6 @@
           "@/lib/errors",
           "@/lib/payos",
           "@/lib/request",
-          "@/modules/flags/service",
           "@/modules/tenants/billing-policy"
         ],
         "exports": ["runtime", "POST"],
@@ -7927,15 +6885,14 @@
           {
             "name": "runtime",
             "kind": "variable",
-            "line": 12,
+            "line": 11,
             "exported": true,
             "purpose": "runtime."
           },
-          { "name": "POST", "kind": "function", "line": 14, "exported": true, "purpose": "POST." }
+          { "name": "POST", "kind": "function", "line": 13, "exported": true, "purpose": "POST." }
         ],
         "functionCalls": [
           "requestId",
-          "featureEnabled",
           "readJson",
           "verifyPayOSWebhookSignature",
           "Response.json",
@@ -8091,6 +7048,130 @@
         "tests": []
       }
     },
+    "src/app/app/actions.ts": {
+      "category": "source",
+      "bytes": 3936,
+      "sha256": "bb0720cd320a87b5777571f5f4743de9a743807008b5d814e76a8a4c285b403d",
+      "summary": "Implements createAffiliateLinkAction, fetchShopeeProductAction, cleanLinkAction, savePushSubscriptionAction, deletePushSubscriptionAction.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "zod",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/errors",
+          "@/lib/json",
+          "@/lib/rate-limit",
+          "@/lib/crypto",
+          "@/modules/links/service",
+          "@/lib/shopee-product",
+          "@/modules/connectors/url-policy",
+          "@/modules/tools/link-inspector"
+        ],
+        "exports": [
+          "createAffiliateLinkAction",
+          "fetchShopeeProductAction",
+          "cleanLinkAction",
+          "savePushSubscriptionAction",
+          "deletePushSubscriptionAction"
+        ],
+        "declarations": [
+          {
+            "name": "linkInputSchema",
+            "kind": "variable",
+            "line": 15,
+            "exported": false,
+            "purpose": "linkInputSchema."
+          },
+          {
+            "name": "createAffiliateLinkAction",
+            "kind": "function",
+            "line": 23,
+            "exported": true,
+            "purpose": "createAffiliateLinkAction."
+          },
+          {
+            "name": "fetchShopeeProductAction",
+            "kind": "function",
+            "line": 47,
+            "exported": true,
+            "purpose": "fetchShopeeProductAction."
+          },
+          {
+            "name": "SHORT_HOSTS",
+            "kind": "variable",
+            "line": 60,
+            "exported": false,
+            "purpose": "SHORT_HOSTS."
+          },
+          {
+            "name": "cleanLinkAction",
+            "kind": "function",
+            "line": 62,
+            "exported": true,
+            "purpose": "cleanLinkAction."
+          },
+          {
+            "name": "subscriptionSchema",
+            "kind": "variable",
+            "line": 88,
+            "exported": false,
+            "purpose": "subscriptionSchema."
+          },
+          {
+            "name": "savePushSubscriptionAction",
+            "kind": "function",
+            "line": 96,
+            "exported": true,
+            "purpose": "savePushSubscriptionAction."
+          },
+          {
+            "name": "deletePushSubscriptionAction",
+            "kind": "function",
+            "line": 119,
+            "exported": true,
+            "purpose": "deletePushSubscriptionAction."
+          }
+        ],
+        "functionCalls": [
+          "z.object",
+          "z.url",
+          "z.string().cuid().optional",
+          "z.string().cuid",
+          "z.string",
+          "z.enum([\"SHOPEE_DIRECT\", \"LAZADA_OPEN_API\", \"ACCESSTRADE_API\"]).optional",
+          "z.enum",
+          "z.string().optional",
+          "requireUser",
+          "rateLimit",
+          "linkInputSchema.parse",
+          "crypto.randomUUID",
+          "stableHash",
+          "JSON.stringify",
+          "createAffiliateLink",
+          "jsonSafe",
+          "fetchShopeeProductData",
+          "z.url().max(4096).parse",
+          "z.url().max",
+          "inferPlatform",
+          "SHORT_HOSTS.has",
+          "original.hostname.toLowerCase",
+          "fetchAllowlistedPlatformUrl",
+          "resolved.response.body?.cancel",
+          "resolved.finalUrl.toString",
+          "cleanProviderUrl",
+          "z.url().refine",
+          "val.startsWith",
+          "z.string().min(16).max",
+          "z.string().min",
+          "z.string().min(8).max",
+          "subscriptionSchema.parse",
+          "db.pushSubscription.upsert",
+          "db.pushSubscription.deleteMany"
+        ],
+        "tests": []
+      }
+    },
     "src/app/app/conversions/actions.ts": {
       "category": "app-route",
       "bytes": 2360,
@@ -8128,56 +7209,49 @@
     },
     "src/app/app/conversions/page.tsx": {
       "category": "app-route",
-      "bytes": 15659,
-      "sha256": "8bc1c6b6fd0e9cdba60d97ec31e6d0f413313c5ba10b23a388f5d42e2b94617c",
+      "bytes": 6993,
+      "sha256": "9e3d274dc56df632b543433ef56aa488228bb6bf43fefb414fd66ac94377af35",
       "summary": "Implements ConversionsPage.",
       "route": "/app/conversions",
       "analysis": {
         "runtime": "shared",
         "imports": [
           "@/components/ui/badge",
-          "@/components/ui/button",
           "@/components/ui/card",
           "@/components/pagination-nav",
           "@/components/ui/table",
           "@/lib/authz",
           "@/lib/db",
           "@/lib/pagination",
-          "@/lib/utils",
-          "next/link",
-          "lucide-react",
-          "./actions"
+          "@/lib/utils"
         ],
         "exports": ["ConversionsPage"],
         "declarations": [
           {
             "name": "PAGE_SIZE",
             "kind": "variable",
-            "line": 21,
+            "line": 17,
             "exported": false,
             "purpose": "PAGE_SIZE."
           },
           {
             "name": "ConversionsPage",
             "kind": "function",
-            "line": 23,
+            "line": 19,
             "exported": true,
             "purpose": "ConversionsPage."
           }
         ],
         "functionCalls": [
           "requireUser",
-          "db.tenant.findFirst",
-          "Boolean",
           "db.conversion.count",
           "paginationPage",
           "db.conversion.findMany",
-          "formatVnd",
           "conversions.map",
           "conversion.platform.replaceAll",
           "conversion.purchasedAt.toLocaleDateString",
           "conversion.purchasedAt.toLocaleTimeString",
-          "conversion.tenantPaidAt.toLocaleString",
+          "formatVnd",
           "conversion.purchasedAt.toLocaleString"
         ],
         "tests": []
@@ -8185,8 +7259,8 @@
     },
     "src/app/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 1048,
-      "sha256": "14ef83ea08243b16bb93ca9e5dca0694b095a434dbc277a9cb7733c9736c2fb3",
+      "bytes": 1510,
+      "sha256": "e38dce5c235b6a2a91dc8a15f9aca74cffd5f63f7afc9a7a4c9bc9f6a98a6e31",
       "summary": "Implements metadata, dynamic, DashboardLayout.",
       "analysis": {
         "runtime": "shared",
@@ -8196,8 +7270,8 @@
           "next/navigation",
           "@/components/app-shell",
           "@/lib/authz",
-          "@/lib/db",
-          "@/lib/tenant"
+          "@/lib/tenant",
+          "@/modules/tenants/persona"
         ],
         "exports": ["metadata", "dynamic", "DashboardLayout"],
         "declarations": [
@@ -8229,8 +7303,7 @@
           "headers",
           "getTenantByHost",
           "redirect",
-          "db.tenant.findFirst",
-          "Boolean"
+          "resolveTenantContext"
         ],
         "tests": []
       }
@@ -8452,8 +7525,8 @@
     },
     "src/app/app/page.tsx": {
       "category": "app-route",
-      "bytes": 8907,
-      "sha256": "42bf754e9b945629cc0f1ccb26d9e3f8e5516e4549824857c34f737d4958a44d",
+      "bytes": 4442,
+      "sha256": "b77c442e6d968960e3a451cbcae24c5d4fa6226446c45de43c7e76fb66c0b310",
       "summary": "Implements DashboardPage.",
       "route": "/app",
       "analysis": {
@@ -8473,7 +7546,7 @@
           {
             "name": "DashboardPage",
             "kind": "function",
-            "line": 19,
+            "line": 10,
             "exported": true,
             "purpose": "DashboardPage."
           }
@@ -8484,8 +7557,6 @@
           "db.walletProjection.findUnique",
           "db.conversion.findMany",
           "db.affiliateClick.count",
-          "db.tenant.findFirst",
-          "Boolean",
           "user.name?.split",
           "[ [\"Khả dụng\", balance.availableVnd, CircleDollarSign, \"Có thể tạo payout\"], [\"Đang chờ\", balance.pendingVnd, Clock3, \"Chờ đối tác xác minh\"], [\"Đã khóa\", balan",
           "BigInt",
@@ -8596,9 +7667,9 @@
     },
     "src/app/app/settings/actions.ts": {
       "category": "app-route",
-      "bytes": 1191,
-      "sha256": "7d2aac50c7b0177ed84263eaeb5d4efbcfbe93b534807eb00fd2c95adb6eed80",
-      "summary": "Implements signOutAllSessionsAction, requestAccountDeletionAction.",
+      "bytes": 1822,
+      "sha256": "f3874bfe3326f99c1ffc66c882e4e22e7bcfffa08f376fa723128e14e0139abd",
+      "summary": "Implements signOutAllSessionsAction, requestAccountDeletionAction, saveBeneficiaryAction.",
       "analysis": {
         "runtime": "shared",
         "imports": [
@@ -8609,7 +7680,11 @@
           "@/lib/db",
           "@/modules/identity/deletion"
         ],
-        "exports": ["signOutAllSessionsAction", "requestAccountDeletionAction"],
+        "exports": [
+          "signOutAllSessionsAction",
+          "requestAccountDeletionAction",
+          "saveBeneficiaryAction"
+        ],
         "declarations": [
           {
             "name": "signOutAllSessionsAction",
@@ -8624,6 +7699,20 @@
             "line": 30,
             "exported": true,
             "purpose": "requestAccountDeletionAction."
+          },
+          {
+            "name": "beneficiarySchema",
+            "kind": "variable",
+            "line": 39,
+            "exported": false,
+            "purpose": "beneficiarySchema."
+          },
+          {
+            "name": "saveBeneficiaryAction",
+            "kind": "function",
+            "line": 45,
+            "exported": true,
+            "purpose": "saveBeneficiaryAction."
           }
         ],
         "functionCalls": [
@@ -8642,15 +7731,23 @@
           "z.string().trim",
           "z.string",
           "Object.fromEntries",
-          "requestAccountDeletion"
+          "requestAccountDeletion",
+          "z.object",
+          "z.string().regex",
+          "z.string().min(3).max",
+          "z.string().min",
+          "beneficiarySchema.parse",
+          "import",
+          "saveBeneficiary",
+          "stableHash"
         ],
         "tests": []
       }
     },
     "src/app/app/settings/page.tsx": {
       "category": "app-route",
-      "bytes": 6778,
-      "sha256": "f260acd211b52d7bc19e76c414921f0481434e7ce00f7c373c8044c69bdda9a1",
+      "bytes": 6794,
+      "sha256": "89d625fa61b48b598ad4f476e96058d7393c726ae1d54d9a2ae1f402cfc38eb3",
       "summary": "Implements SettingsPage.",
       "route": "/app/settings",
       "analysis": {
@@ -8695,8 +7792,8 @@
     },
     "src/app/app/settings/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 167,
-      "sha256": "69a96f3a23dc18ea8147d6890dcf49e84c30063552de923f8e600657cc947c05",
+      "bytes": 165,
+      "sha256": "2fc4922c00a92b8dc4f88aa21f02273b2ae6c1208f0085a40b0dfb139951f4d4",
       "summary": "Implements LegacyTenantSettingsPage.",
       "route": "/app/settings/tenant",
       "analysis": {
@@ -8718,8 +7815,8 @@
     },
     "src/app/app/settings/tenant/tenant-settings-client.tsx": {
       "category": "app-route",
-      "bytes": 30447,
-      "sha256": "910cdd96cfe832be23b65db90e42816c066e41ace32144f7769ac68ae82e2124",
+      "bytes": 29948,
+      "sha256": "8030e3bbe4540aed664c7ef8a808c176fd3575f95f1c0e87f420b5b1136ed7b9",
       "summary": "Implements TenantSettingsClient.",
       "analysis": {
         "runtime": "client",
@@ -8732,21 +7829,22 @@
           "@/components/ui/card",
           "@/components/ui/input",
           "@/components/ui/label",
-          "@/components/tenant-provider-credentials"
+          "@/components/tenant-provider-credentials",
+          "@/app/shop/[tenantId]/settings/actions"
         ],
         "exports": ["TenantSettingsClient"],
         "declarations": [
           {
             "name": "TenantSettingsProps",
             "kind": "type",
-            "line": 29,
+            "line": 34,
             "exported": false,
             "purpose": "TenantSettingsProps."
           },
           {
             "name": "TenantSettingsClient",
             "kind": "function",
-            "line": 41,
+            "line": 46,
             "exported": true,
             "purpose": "TenantSettingsClient."
           }
@@ -8757,22 +7855,20 @@
           "basePlanCode.replace(\"_99K\", \"_YEARLY\").replace",
           "basePlanCode.replace",
           "setLoadingPlan",
-          "fetch",
+          "createSaaSCheckoutSessionAction",
           "crypto.randomUUID",
-          "JSON.stringify",
-          "res.json",
           "window.open",
           "alert",
-          "console.error",
           "e.preventDefault",
           "setSavingConfig",
           "setSaveError",
-          "response.json",
+          "updateTenantSettingsAction",
           "setTenant",
           "setSaveSuccess",
           "window.setTimeout",
           "setLoadingZaloCode",
           "setZaloBindingError",
+          "createZaloBindingCodeAction",
           "setZaloBindingCode",
           "navigator.clipboard.writeText",
           "setCopiedCommand",
@@ -9166,8 +8262,8 @@
     },
     "src/app/onboarding/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 20572,
-      "sha256": "bf8618224d9f80ebf52cc5684282155b14c88e024be2d07baa9d0da6e773dbff",
+      "bytes": 20607,
+      "sha256": "94a1c561143c5527211fb85b4126e62ae3df027600c9f9b309636dfd9ff4f59c",
       "summary": "Implements TenantOnboardingPage.",
       "route": "/onboarding/tenant",
       "analysis": {
@@ -9564,6 +8660,187 @@
         "tests": []
       }
     },
+    "src/app/shop/[tenantId]/my-history/page.tsx": {
+      "category": "app-route",
+      "bytes": 6409,
+      "sha256": "590a4c89b1fbed947607da000eea39acedbf2b9f6379055bcf2f7ad153c56463",
+      "summary": "Implements ShopMyHistoryPage.",
+      "route": "/shop/:tenantId/my-history",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@/components/ui/badge",
+          "@/components/ui/card",
+          "@/components/pagination-nav",
+          "@/components/ui/table",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/pagination",
+          "@/lib/utils",
+          "@/modules/tenants/persona"
+        ],
+        "exports": ["ShopMyHistoryPage"],
+        "declarations": [
+          {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 18,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
+            "name": "ShopMyHistoryPage",
+            "kind": "function",
+            "line": 20,
+            "exported": true,
+            "purpose": "ShopMyHistoryPage."
+          }
+        ],
+        "functionCalls": [
+          "requireUser",
+          "db.tenant.findFirst",
+          "paramId.toLowerCase",
+          "requireTenantMasterContext",
+          "db.conversion.count",
+          "paginationPage",
+          "db.conversion.findMany",
+          "conversions.map",
+          "conversion.merchant.platform.replaceAll",
+          "conversion.purchasedAt.toLocaleDateString",
+          "conversion.purchasedAt.toLocaleTimeString",
+          "formatVnd",
+          "conversion.purchasedAt.toLocaleString"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/shop/[tenantId]/my-links/page.tsx": {
+      "category": "app-route",
+      "bytes": 3826,
+      "sha256": "d93238e675f818b2836f22ed880367713969e5b514a48c3680d87daff9fc7687",
+      "summary": "Implements ShopMyLinksPage.",
+      "route": "/shop/:tenantId/my-links",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@/components/links-workspace",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/pagination",
+          "@/modules/tenants/persona"
+        ],
+        "exports": ["ShopMyLinksPage"],
+        "declarations": [
+          {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 7,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
+            "name": "productFromSnapshot",
+            "kind": "function",
+            "line": 9,
+            "exported": false,
+            "purpose": "productFromSnapshot."
+          },
+          {
+            "name": "taxBpsFromSnapshot",
+            "kind": "function",
+            "line": 23,
+            "exported": false,
+            "purpose": "taxBpsFromSnapshot."
+          },
+          {
+            "name": "ShopMyLinksPage",
+            "kind": "function",
+            "line": 29,
+            "exported": true,
+            "purpose": "ShopMyLinksPage."
+          }
+        ],
+        "functionCalls": [
+          "Array.isArray",
+          "Number.isInteger",
+          "requireUser",
+          "db.tenant.findFirst",
+          "paramId.toLowerCase",
+          "requireTenantMasterContext",
+          "Promise.all",
+          "db.campaign.findMany",
+          "db.affiliateClick.count",
+          "paginationPage",
+          "db.affiliateClick.findMany",
+          "campaigns.map",
+          "clicks.map",
+          "click.createdAt.toISOString",
+          "click.clickedAt?.toISOString",
+          "taxBpsFromSnapshot",
+          "productFromSnapshot"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/shop/[tenantId]/my-wallet/page.tsx": {
+      "category": "app-route",
+      "bytes": 6877,
+      "sha256": "7ee617fd73b6e92c8f3898526ef78e57b444c3a601231a3c56e214a2ec451a0f",
+      "summary": "Implements ShopMyWalletPage.",
+      "route": "/shop/:tenantId/my-wallet",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "@/components/tenant-member-payout-form",
+          "@/components/pagination-nav",
+          "@/components/ui/badge",
+          "@/components/ui/card",
+          "@/components/ui/table",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/pagination",
+          "@/lib/utils",
+          "@/modules/tenants/persona"
+        ],
+        "exports": ["ShopMyWalletPage"],
+        "declarations": [
+          {
+            "name": "PAGE_SIZE",
+            "kind": "variable",
+            "line": 19,
+            "exported": false,
+            "purpose": "PAGE_SIZE."
+          },
+          {
+            "name": "ShopMyWalletPage",
+            "kind": "function",
+            "line": 21,
+            "exported": true,
+            "purpose": "ShopMyWalletPage."
+          }
+        ],
+        "functionCalls": [
+          "requireUser",
+          "db.tenant.findFirst",
+          "paramId.toLowerCase",
+          "requireTenantMasterContext",
+          "Promise.all",
+          "db.tenantMemberWalletProjection.findUnique",
+          "db.bankBeneficiary.findFirst",
+          "db.tenantPayout.count",
+          "db.tenantCashbackObligation.findMany",
+          "paginationPage",
+          "db.tenantPayout.findMany",
+          "availableObligations.reduce",
+          "( [ [\"Pending\", value.pendingFundingVnd], [\"Available\", value.availableVnd], [\"Withdrawable\", withdrawableVnd], [\"Reserved\", value.reservedVnd], [\"Paid\", value.",
+          "formatVnd",
+          "withdrawableVnd.toString",
+          "tickets.map",
+          "ticket.createdAt.toLocaleDateString"
+        ],
+        "tests": []
+      }
+    },
     "src/app/shop/[tenantId]/page.tsx": {
       "category": "app-route",
       "bytes": 2941,
@@ -9742,10 +9019,157 @@
         "tests": []
       }
     },
+    "src/app/shop/[tenantId]/settings/actions.ts": {
+      "category": "source",
+      "bytes": 8031,
+      "sha256": "ce06c534fa3d971ef2b4cb6a35feca8e1789cb6e0752552111f15cbf8985f79b",
+      "summary": "Implements updateTenantSettingsAction, createZaloBindingCodeAction, createSaaSCheckoutSessionAction, createProviderAccountAction, updateProviderCredentialAction.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "zod",
+          "@/lib/authz",
+          "@/lib/db",
+          "@/lib/env",
+          "@/lib/errors",
+          "@/lib/json",
+          "@/lib/rate-limit",
+          "@/lib/zalo",
+          "@/lib/tenant",
+          "@/generated/prisma/client",
+          "@/modules/connectors/provider-credentials",
+          "@/lib/crypto"
+        ],
+        "exports": [
+          "updateTenantSettingsAction",
+          "createZaloBindingCodeAction",
+          "createSaaSCheckoutSessionAction",
+          "createProviderAccountAction",
+          "updateProviderCredentialAction"
+        ],
+        "declarations": [
+          {
+            "name": "affiliateConfigSchema",
+            "kind": "variable",
+            "line": 16,
+            "exported": false,
+            "purpose": "affiliateConfigSchema."
+          },
+          {
+            "name": "updateTenantSettingsAction",
+            "kind": "function",
+            "line": 24,
+            "exported": true,
+            "purpose": "updateTenantSettingsAction."
+          },
+          {
+            "name": "createZaloBindingCodeAction",
+            "kind": "function",
+            "line": 80,
+            "exported": true,
+            "purpose": "createZaloBindingCodeAction."
+          },
+          {
+            "name": "checkoutSchema",
+            "kind": "variable",
+            "line": 105,
+            "exported": false,
+            "purpose": "checkoutSchema."
+          },
+          {
+            "name": "createSaaSCheckoutSessionAction",
+            "kind": "function",
+            "line": 118,
+            "exported": true,
+            "purpose": "createSaaSCheckoutSessionAction."
+          },
+          {
+            "name": "providerAccountInputSchema",
+            "kind": "variable",
+            "line": 147,
+            "exported": false,
+            "purpose": "providerAccountInputSchema."
+          },
+          {
+            "name": "createProviderAccountAction",
+            "kind": "function",
+            "line": 153,
+            "exported": true,
+            "purpose": "createProviderAccountAction."
+          },
+          {
+            "name": "credentialInputSchema",
+            "kind": "variable",
+            "line": 197,
+            "exported": false,
+            "purpose": "credentialInputSchema."
+          },
+          {
+            "name": "updateProviderCredentialAction",
+            "kind": "function",
+            "line": 214,
+            "exported": true,
+            "purpose": "updateProviderCredentialAction."
+          }
+        ],
+        "functionCalls": [
+          "z.object",
+          "z .string() .trim() .regex",
+          "z .string() .trim",
+          "z .string",
+          "z.number().int().min(1).max",
+          "z.number().int().min",
+          "z.number().int",
+          "z.number",
+          "requireUser",
+          "affiliateConfigSchema.parse",
+          "db.tenant.findUnique",
+          "db.$transaction",
+          "tx.tenant.update",
+          "tx.auditLog.create",
+          "rateLimit",
+          "createZaloBindingCode",
+          "result.expiresAt.toISOString",
+          "loadServerEnv",
+          "z.string().cuid",
+          "z.string",
+          "z.enum",
+          "z.string().optional",
+          "checkoutSchema.parse",
+          "crypto.randomUUID",
+          "db.tenant.findFirst",
+          "createTenantCheckoutSession",
+          "stableHash",
+          "JSON.stringify",
+          "jsonSafe",
+          "z.string().trim().max",
+          "z.string().trim",
+          "z.string().trim().min(2).max",
+          "z.string().trim().min",
+          "requireApiRecentUser",
+          "providerAccountInputSchema.parse",
+          "db.affiliateAccount.findFirst",
+          "db.affiliateAccount.create",
+          "z.discriminatedUnion",
+          "z.literal",
+          "z.string().trim().min(3).max",
+          "z.string().trim().min(8).max",
+          "z.number().int().min(4).max(60).optional",
+          "z.number().int().min(4).max",
+          "z.string().trim().min(16).max",
+          "z.string().trim().max(120).optional",
+          "credentialInputSchema.parse",
+          "db.affiliateAccount.findUnique",
+          "saveVerifiedProviderCredential",
+          "db.affiliateAccount.update"
+        ],
+        "tests": []
+      }
+    },
     "src/app/shop/[tenantId]/settings/page.tsx": {
       "category": "app-route",
-      "bytes": 2931,
-      "sha256": "513106831649d697bff4b409424942f194d56083945d583dcf72906b77806e6b",
+      "bytes": 2711,
+      "sha256": "654df81701bff5f05832417f9c9a708075cd8e5c88744a57bd7d718595abede9",
       "summary": "Implements ShopTenantSettingsPage.",
       "route": "/shop/:tenantId/settings",
       "analysis": {
@@ -9756,7 +9180,6 @@
           "@/lib/db",
           "@/lib/env",
           "@/lib/tenant",
-          "@/modules/flags/service",
           "@/modules/tenants/plans",
           "@/modules/tenants/persona"
         ],
@@ -9765,7 +9188,7 @@
           {
             "name": "ShopTenantSettingsPage",
             "kind": "function",
-            "line": 10,
+            "line": 9,
             "exported": true,
             "purpose": "ShopTenantSettingsPage."
           }
@@ -9778,12 +9201,94 @@
           "loadServerEnv",
           "Promise.all",
           "requireTenantPlan",
-          "featureEnabled",
           "db.affiliateAccount.findMany",
           "Boolean",
           "canTenantUseZaloBot",
           "providerAccounts.map",
           "tenant.trialEndsAt?.toLocaleDateString"
+        ],
+        "tests": []
+      }
+    },
+    "src/app/shop/[tenantId]/treasury/actions.ts": {
+      "category": "source",
+      "bytes": 3137,
+      "sha256": "70e672766a6f0b7c1d4c4be1c4651a305ee4efdf625cf2bbc2daf4ae268da849",
+      "summary": "Implements createTenantFundingOrderAction, transferMasterWalletToTreasuryAction, requestTreasuryWithdrawalAction.",
+      "analysis": {
+        "runtime": "shared",
+        "imports": [
+          "zod",
+          "@/lib/authz",
+          "@/lib/env",
+          "@/lib/errors",
+          "@/lib/json",
+          "@/lib/rate-limit",
+          "@/modules/tenants/finance",
+          "@/modules/tenants/payout",
+          "@/modules/tenants/persona"
+        ],
+        "exports": [
+          "createTenantFundingOrderAction",
+          "transferMasterWalletToTreasuryAction",
+          "requestTreasuryWithdrawalAction"
+        ],
+        "declarations": [
+          {
+            "name": "fundingSchema",
+            "kind": "variable",
+            "line": 19,
+            "exported": false,
+            "purpose": "fundingSchema."
+          },
+          {
+            "name": "createTenantFundingOrderAction",
+            "kind": "function",
+            "line": 24,
+            "exported": true,
+            "purpose": "createTenantFundingOrderAction."
+          },
+          {
+            "name": "transferMasterWalletToTreasuryAction",
+            "kind": "function",
+            "line": 45,
+            "exported": true,
+            "purpose": "transferMasterWalletToTreasuryAction."
+          },
+          {
+            "name": "withdrawalSchema",
+            "kind": "variable",
+            "line": 66,
+            "exported": false,
+            "purpose": "withdrawalSchema."
+          },
+          {
+            "name": "requestTreasuryWithdrawalAction",
+            "kind": "function",
+            "line": 72,
+            "exported": true,
+            "purpose": "requestTreasuryWithdrawalAction."
+          }
+        ],
+        "functionCalls": [
+          "z.object",
+          "z.coerce.bigint().positive",
+          "z.coerce.bigint",
+          "z.string().optional",
+          "z.string",
+          "requireUser",
+          "rateLimit",
+          "fundingSchema.parse",
+          "crypto.randomUUID",
+          "createTenantFundingOrder",
+          "loadServerEnv",
+          "jsonSafe",
+          "requireTenantMasterContext",
+          "transferMasterWalletToTreasury",
+          "z.string().cuid",
+          "withdrawalSchema.parse",
+          "resolveFinancialActorContext",
+          "requestTreasuryWithdrawal"
         ],
         "tests": []
       }
@@ -9852,10 +9357,40 @@
         "tests": []
       }
     },
+    "src/app/shop/page.tsx": {
+      "category": "app-route",
+      "bytes": 851,
+      "sha256": "15844e2b04e86f160784a6ab7585cf2f67d060f749b14397dccc76b0733f18bf",
+      "summary": "Implements dynamic, ShopSmartRoute.",
+      "route": "/shop",
+      "analysis": {
+        "runtime": "shared",
+        "imports": ["next", "next/navigation", "@/lib/authz", "@/modules/tenants/persona"],
+        "exports": ["dynamic", "ShopSmartRoute"],
+        "declarations": [
+          {
+            "name": "dynamic",
+            "kind": "variable",
+            "line": 6,
+            "exported": true,
+            "purpose": "dynamic."
+          },
+          {
+            "name": "ShopSmartRoute",
+            "kind": "function",
+            "line": 12,
+            "exported": true,
+            "purpose": "ShopSmartRoute."
+          }
+        ],
+        "functionCalls": ["requireUser", "resolveTenantContext", "redirect"],
+        "tests": []
+      }
+    },
     "src/app/shop/sign-in/page.tsx": {
       "category": "app-route",
-      "bytes": 2404,
-      "sha256": "3726062bcafc31635cce3f0aed9d47f1fcc028acdf2ad1aff70632b65354afde",
+      "bytes": 2402,
+      "sha256": "5c32877a66b4193e58dbd8ec2fc4523f10c59128d602c398a0d9cc817be95953",
       "summary": "Implements metadata, TenantMasterSignInPage.",
       "route": "/shop/sign-in",
       "analysis": {
@@ -9955,8 +9490,8 @@
     },
     "src/app/sign-up/[[...sign-up]]/page.tsx": {
       "category": "app-route",
-      "bytes": 1441,
-      "sha256": "1e9092df31646749836a9469656fc1f3c402a663874d6fd786ff0b616fb5d2bd",
+      "bytes": 1438,
+      "sha256": "8cb3ac9499f15b5ace7eb2e5bf67e5df58bf3630b83210c807c5a122fee88478",
       "summary": "Implements metadata, SignUpPage.",
       "route": "/sign-up/:[...sign-up]",
       "analysis": {
@@ -10188,8 +9723,8 @@
     },
     "src/components/admin-shell.tsx": {
       "category": "component",
-      "bytes": 1952,
-      "sha256": "245bf3ceec09ef68ba7cbb2e7d4f72a66910dfad9f1d01b63ed1838564cce450",
+      "bytes": 1949,
+      "sha256": "af5e1a1f1d47d918199367b1643ee23bf701a61ce0a564a8126a5cb13e6b3a5b",
       "summary": "Implements AdminShell.",
       "analysis": {
         "runtime": "node",
@@ -10211,8 +9746,8 @@
     },
     "src/components/app-shell.tsx": {
       "category": "component",
-      "bytes": 7188,
-      "sha256": "5939822388fb966112ba6deace5a5038e0f3a0602ccd4efad3a2c91e541921e4",
+      "bytes": 5418,
+      "sha256": "e8552db49296d767bcdb526a2f3911e52ee119bd8f0bfb03122eb7fbd5c58304",
       "summary": "Implements AppShell.",
       "analysis": {
         "runtime": "node",
@@ -10229,21 +9764,21 @@
           {
             "name": "desktopNav",
             "kind": "variable",
-            "line": 22,
+            "line": 18,
             "exported": false,
             "purpose": "desktopNav."
           },
           {
             "name": "mobileBottomNav",
             "kind": "variable",
-            "line": 34,
+            "line": 30,
             "exported": false,
             "purpose": "mobileBottomNav."
           },
           {
             "name": "AppShell",
             "kind": "function",
-            "line": 42,
+            "line": 38,
             "exported": true,
             "purpose": "AppShell."
           }
@@ -10254,8 +9789,8 @@
     },
     "src/components/beneficiary-form.tsx": {
       "category": "component",
-      "bytes": 2699,
-      "sha256": "48067d16812e73d1104c3f72a807b2162b9236c310696553ec3adf735edd5fa3",
+      "bytes": 2644,
+      "sha256": "3790e7196b9540703f9158582b5f2daad8ba20086c2bbaa9328784d038933c83",
       "summary": "Implements BeneficiaryForm.",
       "analysis": {
         "runtime": "client",
@@ -10265,14 +9800,15 @@
           "@/components/ui/alert",
           "@/components/ui/button",
           "@/components/ui/input",
-          "@/components/ui/label"
+          "@/components/ui/label",
+          "@/app/app/settings/actions"
         ],
         "exports": ["BeneficiaryForm"],
         "declarations": [
           {
             "name": "BeneficiaryForm",
             "kind": "function",
-            "line": 10,
+            "line": 12,
             "exported": true,
             "purpose": "BeneficiaryForm."
           }
@@ -10281,10 +9817,9 @@
           "useState",
           "event.preventDefault",
           "setLoading",
-          "fetch",
-          "JSON.stringify",
+          "saveBeneficiaryAction",
+          "String",
           "form.get",
-          "response.json",
           "setMessage"
         ],
         "tests": []
@@ -10321,8 +9856,8 @@
     },
     "src/components/deal-browser.tsx": {
       "category": "component",
-      "bytes": 3473,
-      "sha256": "5473d82651438a062181516d06e26eaf71afa291ae8b8883d51e4b027ba2ffdb",
+      "bytes": 2721,
+      "sha256": "157b31631d3c702523acd5ebc2b3d1f60ccabda9bde609da514b033945957ade",
       "summary": "Implements DealBrowser.",
       "analysis": {
         "runtime": "client",
@@ -10346,22 +9881,12 @@
         ],
         "functionCalls": [
           "useState",
-          "useEffect",
-          "fetch(\"/api/v1/public/deals\", { signal: controller.signal }) .then((response) => response.json() as Promise<{ offers: Deal[] }>) .then((data) => setDeals(data.o",
-          "fetch(\"/api/v1/public/deals\", { signal: controller.signal }) .then((response) => response.json() as Promise<{ offers: Deal[] }>) .then",
-          "fetch(\"/api/v1/public/deals\", { signal: controller.signal }) .then",
-          "fetch",
-          "response.json",
-          "setDeals",
-          "setLoading",
-          "controller.abort",
           "useMemo",
-          "deals.filter",
+          "initialDeals.filter",
           "deal.title.toLowerCase().includes",
           "deal.title.toLowerCase",
           "query.toLowerCase",
           "setQuery",
-          "[0, 1, 2].map",
           "filtered.map",
           "deal.platform.replaceAll",
           "new Intl.NumberFormat(\"vi-VN\", { style: \"currency\", currency: \"VND\", maximumFractionDigits: 0 }).format",
@@ -10372,8 +9897,8 @@
     },
     "src/components/internal-tools.tsx": {
       "category": "component",
-      "bytes": 11845,
-      "sha256": "e8f063f39881178913baa0884fd46e4c357ef350c563400ab725e45848885704",
+      "bytes": 11565,
+      "sha256": "38c4c8f24d14f7ce3097b5648920814ba1669fec18e8c62bc2d341332c105d2c",
       "summary": "Implements InternalTools.",
       "analysis": {
         "runtime": "client",
@@ -10388,21 +9913,22 @@
           "@/components/ui/tabs",
           "@/lib/utils",
           "@/modules/tools/link-inspector",
-          "@/modules/tools/tax-2026"
+          "@/modules/tools/tax-2026",
+          "@/app/app/actions"
         ],
         "exports": ["InternalTools"],
         "declarations": [
           {
             "name": "parseIntegerVnd",
             "kind": "function",
-            "line": 18,
+            "line": 20,
             "exported": false,
             "purpose": "parseIntegerVnd."
           },
           {
             "name": "InternalTools",
             "kind": "function",
-            "line": 24,
+            "line": 26,
             "exported": true,
             "purpose": "InternalTools."
           }
@@ -10417,10 +9943,8 @@
           "setCleanError",
           "setCleanResult",
           "setCopied",
-          "fetch",
-          "JSON.stringify",
+          "cleanLinkAction",
           "cleanInput.trim",
-          "response.json",
           "setDetectError",
           "setDetectSubmitted",
           "setDetected",
@@ -10467,8 +9991,8 @@
     },
     "src/components/link-builder.tsx": {
       "category": "component",
-      "bytes": 24666,
-      "sha256": "5d89ebfbcf4c14e107df09fc6772bbee55ffb978059fbea65ef56268aa523096",
+      "bytes": 24223,
+      "sha256": "d8e63f43b1df0bf5b1204af95d818bd0d636579b05143c605f0e5c4663c28e8b",
       "summary": "Implements LinkBuilder.",
       "analysis": {
         "runtime": "client",
@@ -10482,21 +10006,22 @@
           "@/components/ui/input",
           "@/components/ui/label",
           "@/components/ui/badge",
-          "@/lib/utils"
+          "@/lib/utils",
+          "@/app/app/actions"
         ],
         "exports": ["LinkBuilder"],
         "declarations": [
           {
             "name": "ProductPreview",
             "kind": "interface",
-            "line": 26,
+            "line": 27,
             "exported": false,
             "purpose": "ProductPreview."
           },
           {
             "name": "LinkBuilder",
             "kind": "function",
-            "line": 47,
+            "line": 48,
             "exported": true,
             "purpose": "LinkBuilder."
           }
@@ -10509,15 +10034,13 @@
           "setLoading",
           "setError",
           "setResult",
-          "fetch",
+          "createAffiliateLinkAction",
           "crypto.randomUUID",
-          "JSON.stringify",
-          "response.json",
           "new URL(body.redirectUrl, window.location.origin).toString",
           "url.toLowerCase",
           "inputLower.includes",
           "/^\\d+$/.test",
-          "productRes.json",
+          "fetchShopeeProductAction",
           "router.refresh",
           "navigator.clipboard.writeText",
           "setCopied",
@@ -10616,47 +10139,6 @@
         "tests": []
       }
     },
-    "src/components/payout-form.tsx": {
-      "category": "component",
-      "bytes": 2376,
-      "sha256": "8dd93c422f50c2d334369fe9d2595e4fdc2c6efdd16061f85313e2adb75db632",
-      "summary": "Implements PayoutForm.",
-      "analysis": {
-        "runtime": "client",
-        "imports": [
-          "react",
-          "lucide-react",
-          "@/components/ui/alert",
-          "@/components/ui/button",
-          "@/components/ui/input",
-          "@/components/ui/label"
-        ],
-        "exports": ["PayoutForm"],
-        "declarations": [
-          {
-            "name": "PayoutForm",
-            "kind": "function",
-            "line": 10,
-            "exported": true,
-            "purpose": "PayoutForm."
-          }
-        ],
-        "functionCalls": [
-          "useState",
-          "event.preventDefault",
-          "setLoading",
-          "fetch",
-          "crypto.randomUUID",
-          "JSON.stringify",
-          "response.json",
-          "setMessage",
-          "setAmount",
-          "new Intl.NumberFormat(\"vi-VN\").format",
-          "Number"
-        ],
-        "tests": []
-      }
-    },
     "src/components/providers.tsx": {
       "category": "component",
       "bytes": 354,
@@ -10703,25 +10185,25 @@
     },
     "src/components/push-toggle.tsx": {
       "category": "component",
-      "bytes": 2459,
-      "sha256": "458fed693e6108013f76e43674a2272724ecc0dfbda317fe9710b5845b650c1c",
+      "bytes": 2441,
+      "sha256": "c1d6b65924bea4e675d4c5c8f47d4b65f42974b969834dda49b563f7168afb06",
       "summary": "Implements PushToggle.",
       "analysis": {
         "runtime": "client",
-        "imports": ["react", "lucide-react", "@/components/ui/button"],
+        "imports": ["react", "lucide-react", "@/components/ui/button", "@/app/app/actions"],
         "exports": ["PushToggle"],
         "declarations": [
           {
             "name": "urlBase64ToUint8Array",
             "kind": "function",
-            "line": 7,
+            "line": 9,
             "exported": false,
             "purpose": "urlBase64ToUint8Array."
           },
           {
             "name": "PushToggle",
             "kind": "function",
-            "line": 14,
+            "line": 16,
             "exported": true,
             "purpose": "PushToggle."
           }
@@ -10739,8 +10221,7 @@
           "Notification.requestPermission",
           "registration.pushManager.subscribe",
           "urlBase64ToUint8Array",
-          "fetch",
-          "JSON.stringify"
+          "savePushSubscriptionAction"
         ],
         "tests": []
       }
@@ -10782,8 +10263,8 @@
     },
     "src/components/shopee-product-lookup.tsx": {
       "category": "component",
-      "bytes": 16227,
-      "sha256": "6a74f589882e26503f38709c63ab7d94ef0decf74e44e026d89e4f5f4729eeeb",
+      "bytes": 15632,
+      "sha256": "b10ad30e1b04ed9ec40bef1d071492faae566d2e312f4d9915a0d1b470689c79",
       "summary": "Implements ShopeeProductLookup.",
       "analysis": {
         "runtime": "client",
@@ -10795,21 +10276,22 @@
           "@/components/ui/input",
           "@/components/ui/card",
           "@/components/ui/badge",
-          "@/lib/utils"
+          "@/lib/utils",
+          "@/app/app/actions"
         ],
         "exports": ["ShopeeProductLookup"],
         "declarations": [
           {
             "name": "ProductData",
             "kind": "interface",
-            "line": 12,
+            "line": 13,
             "exported": false,
             "purpose": "ProductData."
           },
           {
             "name": "ShopeeProductLookup",
             "kind": "function",
-            "line": 37,
+            "line": 38,
             "exported": true,
             "purpose": "ShopeeProductLookup."
           }
@@ -10819,16 +10301,13 @@
           "targetUrl.trim",
           "setLoading",
           "setError",
-          "fetch",
-          "JSON.stringify",
-          "response.json",
+          "fetchShopeeProductAction",
           "setData",
           "useEffect",
           "lookup",
           "setTrackingLoading",
+          "createAffiliateLinkAction",
           "crypto.randomUUID",
-          "window.location.assign",
-          "encodeURIComponent",
           "new URL(body.redirectUrl, window.location.origin).toString",
           "window.open",
           "navigator.clipboard.writeText",
@@ -10868,8 +10347,8 @@
     },
     "src/components/site-header.tsx": {
       "category": "component",
-      "bytes": 3725,
-      "sha256": "ac174f10d9182e09649a80ce38a3f36c98a8b0a4c23904dde735bf7dd1f1bb48",
+      "bytes": 3735,
+      "sha256": "cc4071c8c233e73731001e3d57da6a0228b21fe50fcca08b16b397d4122135ac",
       "summary": "Implements SiteHeader.",
       "analysis": {
         "runtime": "client",
@@ -10905,8 +10384,8 @@
     },
     "src/components/tenant-master-shell.tsx": {
       "category": "component",
-      "bytes": 5417,
-      "sha256": "e80ac6cce1745e68f8a256688c9da7d949910d29243125f20e2351d2978e8f9a",
+      "bytes": 6145,
+      "sha256": "9eac0b882f04f27a1e2de4be882158dfca3884b1d6b61b275dd33a42fdcf7c98",
       "summary": "Implements TenantMasterShell.",
       "analysis": {
         "runtime": "node",
@@ -10916,14 +10395,21 @@
           {
             "name": "navItems",
             "kind": "variable",
-            "line": 16,
+            "line": 19,
             "exported": false,
             "purpose": "navItems."
           },
           {
+            "name": "personalItems",
+            "kind": "variable",
+            "line": 28,
+            "exported": false,
+            "purpose": "personalItems."
+          },
+          {
             "name": "TenantMasterShell",
             "kind": "function",
-            "line": 25,
+            "line": 34,
             "exported": true,
             "purpose": "TenantMasterShell."
           }
@@ -10931,15 +10417,17 @@
         "functionCalls": [
           "tenant.name.charAt(0).toUpperCase",
           "tenant.name.charAt",
-          "navItems.map"
+          "navItems.map",
+          "personalItems.map",
+          "[...navItems, ...personalItems].map"
         ],
         "tests": []
       }
     },
     "src/components/tenant-member-payout-form.tsx": {
       "category": "component",
-      "bytes": 2451,
-      "sha256": "b767bf364715010ef77d7affa85a9d23e18058c7eec9ea084b9bb484cd1f1d21",
+      "bytes": 2374,
+      "sha256": "9393d64da06c85fc85032751e2607567a10c608392e729898a58976b61d27ca4",
       "summary": "Implements TenantMemberPayoutForm.",
       "analysis": {
         "runtime": "client",
@@ -10949,14 +10437,15 @@
           "@/components/ui/alert",
           "@/components/ui/button",
           "@/components/ui/input",
-          "@/components/ui/label"
+          "@/components/ui/label",
+          "@/app/[slug]/app/actions"
         ],
         "exports": ["TenantMemberPayoutForm"],
         "declarations": [
           {
             "name": "TenantMemberPayoutForm",
             "kind": "function",
-            "line": 10,
+            "line": 12,
             "exported": true,
             "purpose": "TenantMemberPayoutForm."
           }
@@ -10965,10 +10454,8 @@
           "useState",
           "event.preventDefault",
           "setLoading",
-          "fetch",
+          "requestMemberWithdrawalAction",
           "crypto.randomUUID",
-          "JSON.stringify",
-          "response.json",
           "setMessage",
           "setAmount",
           "new Intl.NumberFormat(\"vi-VN\").format",
@@ -10979,8 +10466,8 @@
     },
     "src/components/tenant-provider-credentials.tsx": {
       "category": "component",
-      "bytes": 12823,
-      "sha256": "badc0d04ec9c047161453ca814cc737fb074257c7543df9f04106174f141a213",
+      "bytes": 11971,
+      "sha256": "cfb2e62088caaed5d362288e68e652b10bc18ca54d48502399d71a7b8b092254",
       "summary": "Implements TenantProviderAccountView, TenantProviderCredentials.",
       "analysis": {
         "runtime": "client",
@@ -10992,28 +10479,29 @@
           "@/components/ui/button",
           "@/components/ui/card",
           "@/components/ui/input",
-          "@/components/ui/label"
+          "@/components/ui/label",
+          "@/app/shop/[tenantId]/settings/actions"
         ],
         "exports": ["TenantProviderAccountView", "TenantProviderCredentials"],
         "declarations": [
           {
             "name": "Provider",
             "kind": "type",
-            "line": 12,
+            "line": 16,
             "exported": false,
             "purpose": "Provider."
           },
           {
             "name": "TenantProviderAccountView",
             "kind": "type",
-            "line": 14,
+            "line": 18,
             "exported": true,
             "purpose": "TenantProviderAccountView."
           },
           {
             "name": "TenantProviderCredentials",
             "kind": "function",
-            "line": 24,
+            "line": 28,
             "exported": true,
             "purpose": "TenantProviderCredentials."
           }
@@ -11026,14 +10514,10 @@
           "setError",
           "setSuccess",
           "accountIdentity.trim",
-          "fetch",
-          "JSON.stringify",
+          "createProviderAccountAction",
           "label.trim",
-          "createResponse.json",
-          "window.location.assign",
-          "encodeURIComponent",
           "Number",
-          "response.json",
+          "updateProviderCredentialAction",
           "setAccounts",
           "existing.filter",
           "setApiKey",
@@ -11052,8 +10536,8 @@
     },
     "src/components/tenant-treasury-actions.tsx": {
       "category": "component",
-      "bytes": 4022,
-      "sha256": "ff20f0451cf989eedec9499c25e94a3dc243c84dcda55528ffca4f14eac86a17",
+      "bytes": 3783,
+      "sha256": "e828772a3f7b3d88e7a5f21f52487b58f348609c3b1fe2046c76cb5c21f32eea",
       "summary": "Implements TenantTreasuryActions.",
       "analysis": {
         "runtime": "client",
@@ -11063,35 +10547,28 @@
           "@/components/ui/alert",
           "@/components/ui/button",
           "@/components/ui/input",
-          "@/components/ui/label"
+          "@/components/ui/label",
+          "@/app/shop/[tenantId]/treasury/actions"
         ],
         "exports": ["TenantTreasuryActions"],
         "declarations": [
           {
-            "name": "postFinancial",
-            "kind": "function",
-            "line": 10,
-            "exported": false,
-            "purpose": "postFinancial."
-          },
-          {
             "name": "TenantTreasuryActions",
             "kind": "function",
-            "line": 28,
+            "line": 16,
             "exported": true,
             "purpose": "TenantTreasuryActions."
           }
         ],
         "functionCalls": [
-          "fetch",
-          "crypto.randomUUID",
-          "JSON.stringify",
-          "response.json",
           "useState",
           "setLoading",
           "setMessage",
-          "postFinancial",
+          "createTenantFundingOrderAction",
+          "crypto.randomUUID",
           "window.location.assign",
+          "transferMasterWalletToTreasuryAction",
+          "requestTreasuryWithdrawalAction",
           "setAmount",
           "new Intl.NumberFormat(\"vi-VN\").format",
           "Number",
@@ -12519,8 +11996,8 @@
     },
     "src/lib/env.ts": {
       "category": "library",
-      "bytes": 15789,
-      "sha256": "f286459a3ea926caeb3263bdaa07ca4cf50600eccdec15c4abe0b51ffa00b25d",
+      "bytes": 14862,
+      "sha256": "27bf97861a75b9c25786a88b1b76354f4656ea45d462b67fae7ec1f9893114c3",
       "summary": "Implements ServerEnv, loadServerEnv, financeReconciliationDelaysSeconds, assertFinanceRuntimeConfig, hasDatabase, adminEmailAllowlist.",
       "analysis": {
         "runtime": "node",
@@ -12644,7 +12121,7 @@
           {
             "name": "resetEnvCacheForTests",
             "kind": "function",
-            "line": 438,
+            "line": 405,
             "exported": true,
             "purpose": "resetEnvCacheForTests."
           }
@@ -13094,8 +12571,8 @@
     },
     "src/lib/payos.ts": {
       "category": "library",
-      "bytes": 6514,
-      "sha256": "724d9e5c712c027fb618957054c421a6176bd229870d83bcddc5becbf27c9966",
+      "bytes": 6351,
+      "sha256": "bccdc61da38205f1250c751281f2cf17b88ba4dd430fdd375d98f04d50b5c366",
       "summary": "Implements PayOSWebhookPayload, createPayOSPaymentLink, verifyPayOSWebhookSignature, createTenantFundingPaymentLink, queryTenantFundingPaymentLink, verifyTenantFundingWebhookSignature.",
       "analysis": {
         "runtime": "server",
@@ -13140,42 +12617,42 @@
           {
             "name": "providerAmount",
             "kind": "function",
-            "line": 71,
+            "line": 68,
             "exported": false,
             "purpose": "providerAmount."
           },
           {
             "name": "createPayOSPaymentLink",
             "kind": "function",
-            "line": 78,
+            "line": 75,
             "exported": true,
             "purpose": "createPayOSPaymentLink."
           },
           {
             "name": "verifyPayOSWebhookSignature",
             "kind": "function",
-            "line": 124,
+            "line": 121,
             "exported": true,
             "purpose": "verifyPayOSWebhookSignature."
           },
           {
             "name": "createTenantFundingPaymentLink",
             "kind": "function",
-            "line": 135,
+            "line": 132,
             "exported": true,
             "purpose": "createTenantFundingPaymentLink."
           },
           {
             "name": "queryTenantFundingPaymentLink",
             "kind": "function",
-            "line": 186,
+            "line": 183,
             "exported": true,
             "purpose": "queryTenantFundingPaymentLink."
           },
           {
             "name": "verifyTenantFundingWebhookSignature",
             "kind": "function",
-            "line": 213,
+            "line": 210,
             "exported": true,
             "purpose": "verifyTenantFundingWebhookSignature."
           }
@@ -13556,8 +13033,8 @@
     },
     "src/lib/tenant.ts": {
       "category": "library",
-      "bytes": 11360,
-      "sha256": "ad6fcfcf66902f0c5873ad1e7ca923092f9854d081abd7a230d88cdedecd06fd",
+      "bytes": 11144,
+      "sha256": "db82d7432884f4e1a1998549f4205ec20257f4455211970aee796ea0de5b8b84",
       "summary": "Implements * from ./tenant-config, getTenantBySlug, getTenantByHost, registerTenantWithTrial, createTenantCheckoutSession, checkTenantUserQuota.",
       "analysis": {
         "runtime": "node",
@@ -13566,7 +13043,6 @@
           "@/lib/db",
           "@/lib/errors",
           "@/lib/payos",
-          "@/modules/flags/service",
           "@/modules/tenants/plans"
         ],
         "exports": [
@@ -13587,77 +13063,77 @@
           {
             "name": "getTenantBySlug",
             "kind": "function",
-            "line": 13,
+            "line": 12,
             "exported": true,
             "purpose": "getTenantBySlug."
           },
           {
             "name": "getTenantByHost",
             "kind": "function",
-            "line": 23,
+            "line": 22,
             "exported": true,
             "purpose": "getTenantByHost."
           },
           {
             "name": "registerTenantWithTrial",
             "kind": "function",
-            "line": 50,
+            "line": 49,
             "exported": true,
             "purpose": "registerTenantWithTrial."
           },
           {
             "name": "createTenantCheckoutSession",
             "kind": "function",
-            "line": 85,
+            "line": 84,
             "exported": true,
             "purpose": "createTenantCheckoutSession."
           },
           {
             "name": "checkTenantUserQuota",
             "kind": "function",
-            "line": 230,
+            "line": 226,
             "exported": true,
             "purpose": "checkTenantUserQuota."
           },
           {
             "name": "canTenantUseConnector",
             "kind": "function",
-            "line": 255,
+            "line": 251,
             "exported": true,
             "purpose": "canTenantUseConnector."
           },
           {
             "name": "canTenantUseCustomDomain",
             "kind": "function",
-            "line": 272,
+            "line": 268,
             "exported": true,
             "purpose": "canTenantUseCustomDomain."
           },
           {
             "name": "canTenantUseCustomCredentials",
             "kind": "function",
-            "line": 286,
+            "line": 282,
             "exported": true,
             "purpose": "canTenantUseCustomCredentials."
           },
           {
             "name": "canTenantUseZaloBot",
             "kind": "function",
-            "line": 300,
+            "line": 296,
             "exported": true,
             "purpose": "canTenantUseZaloBot."
           },
           {
             "name": "getTenantFeatureSummary",
             "kind": "function",
-            "line": 314,
+            "line": 310,
             "exported": true,
             "purpose": "getTenantFeatureSummary."
           },
           {
             "name": "expireSaaSInvoicesAndTenants",
             "kind": "function",
-            "line": 361,
+            "line": 357,
             "exported": true,
             "purpose": "expireSaaSInvoicesAndTenants."
           }
@@ -13674,7 +13150,6 @@
           "client.tenant.create",
           "params.slug.toLowerCase().trim",
           "params.slug.toLowerCase",
-          "featureEnabled",
           "db.saaSInvoice.findFirst",
           "requireTenantPlan",
           "Date.now",
@@ -13742,8 +13217,8 @@
     },
     "src/lib/zalo.ts": {
       "category": "library",
-      "bytes": 22218,
-      "sha256": "4b7382a6872ff68964aef5995dd44886ff07ea8907103fc31f453d2c0e1d8d3d",
+      "bytes": 21960,
+      "sha256": "aea6e864f015f22c97981e3e720379fb609523ecd1dc5546a3501fcf0bf1d2a8",
       "summary": "Implements createZaloBindingCode, createZaloUserBindingToken, handleZaloBotIncomingUpdate, dispatchZaloOutbox.",
       "analysis": {
         "runtime": "server",
@@ -13757,7 +13232,6 @@
           "@/lib/errors",
           "@/lib/request",
           "@/lib/rate-limit",
-          "@/modules/flags/service",
           "@/modules/links/service",
           "@/modules/tenants/plans",
           "zod"
@@ -13772,98 +13246,97 @@
           {
             "name": "RETRY_DELAYS_MS",
             "kind": "variable",
-            "line": 21,
+            "line": 20,
             "exported": false,
             "purpose": "RETRY_DELAYS_MS."
           },
           {
             "name": "requireZaloEnabled",
             "kind": "function",
-            "line": 23,
+            "line": 22,
             "exported": false,
             "purpose": "requireZaloEnabled."
           },
           {
             "name": "createZaloBindingCode",
             "kind": "function",
-            "line": 36,
+            "line": 34,
             "exported": true,
             "purpose": "createZaloBindingCode."
           },
           {
             "name": "createZaloUserBindingToken",
             "kind": "function",
-            "line": 70,
+            "line": 68,
             "exported": true,
             "purpose": "createZaloUserBindingToken."
           },
           {
             "name": "bindZaloUser",
             "kind": "function",
-            "line": 101,
+            "line": 99,
             "exported": false,
             "purpose": "bindZaloUser."
           },
           {
             "name": "createZaloFinancialPortalGrant",
             "kind": "function",
-            "line": 164,
+            "line": 162,
             "exported": false,
             "purpose": "createZaloFinancialPortalGrant."
           },
           {
             "name": "bindGroup",
             "kind": "function",
-            "line": 193,
+            "line": 191,
             "exported": false,
             "purpose": "bindGroup."
           },
           {
             "name": "queueReply",
             "kind": "function",
-            "line": 270,
+            "line": 268,
             "exported": false,
             "purpose": "queueReply."
           },
           {
             "name": "recordZaloReceipt",
             "kind": "function",
-            "line": 288,
+            "line": 286,
             "exported": false,
             "purpose": "recordZaloReceipt."
           },
           {
             "name": "handleZaloBotIncomingUpdate",
             "kind": "function",
-            "line": 305,
+            "line": 303,
             "exported": true,
             "purpose": "handleZaloBotIncomingUpdate."
           },
           {
             "name": "outboxPayloadSchema",
             "kind": "variable",
-            "line": 546,
+            "line": 542,
             "exported": false,
             "purpose": "outboxPayloadSchema."
           },
           {
             "name": "sendMessage",
             "kind": "function",
-            "line": 551,
+            "line": 547,
             "exported": false,
             "purpose": "sendMessage."
           },
           {
             "name": "dispatchZaloOutbox",
             "kind": "function",
-            "line": 576,
+            "line": 572,
             "exported": true,
             "purpose": "dispatchZaloOutbox."
           }
         ],
         "functionCalls": [
           "loadServerEnv",
-          "featureEnabled",
           "requireZaloEnabled",
           "db.tenant.findFirst",
           "tenantSubscriptionIsEffective",
@@ -16389,8 +15862,8 @@
     },
     "src/modules/jobs/runner.ts": {
       "category": "domain-module",
-      "bytes": 20855,
-      "sha256": "921a8d1f94bd006f5bb02ddd9c1ce32bf5f41107a2ac7555e1878a24e10a9d67",
+      "bytes": 20379,
+      "sha256": "a47723db62921ea00d49c5f92d13e6c0b0636bc3b3a9c4cb5dc12a84126694d9",
       "summary": "Implements syncConversionsJob, syncAddLiveTagClicksJob, reconcileAccessTradeOrdersJob, healthCheckJob, syncOffersJob, payoutReconciliationJob.",
       "analysis": {
         "runtime": "server",
@@ -16409,8 +15882,7 @@
           "@/modules/ledger/service",
           "@/modules/notifications/dispatch",
           "@/lib/tenant",
-          "@/lib/zalo",
-          "@/modules/flags/service"
+          "@/lib/zalo"
         ],
         "exports": [
           "syncConversionsJob",
@@ -16425,83 +15897,82 @@
           {
             "name": "connectorKillSwitchEnabled",
             "kind": "function",
-            "line": 29,
+            "line": 28,
             "exported": false,
             "purpose": "connectorKillSwitchEnabled."
           },
           {
             "name": "syncConnector",
             "kind": "function",
-            "line": 45,
+            "line": 35,
             "exported": false,
             "purpose": "syncConnector."
           },
           {
             "name": "authorityOf",
             "kind": "function",
-            "line": 66,
+            "line": 56,
             "exported": false,
             "purpose": "authorityOf."
           },
           {
             "name": "syncConversionsJob",
             "kind": "function",
-            "line": 80,
+            "line": 70,
             "exported": true,
             "purpose": "syncConversionsJob."
           },
           {
             "name": "syncAddLiveTagClicksJob",
             "kind": "function",
-            "line": 240,
+            "line": 230,
             "exported": true,
             "purpose": "syncAddLiveTagClicksJob."
           },
           {
             "name": "reconcileAccessTradeOrdersJob",
             "kind": "function",
-            "line": 344,
+            "line": 334,
             "exported": true,
             "purpose": "reconcileAccessTradeOrdersJob."
           },
           {
             "name": "syncAddLiveTagJob",
             "kind": "function",
-            "line": 475,
+            "line": 465,
             "exported": false,
             "purpose": "syncAddLiveTagJob."
           },
           {
             "name": "healthCheckJob",
             "kind": "function",
-            "line": 483,
+            "line": 473,
             "exported": true,
             "purpose": "healthCheckJob."
           },
           {
             "name": "syncOffersJob",
             "kind": "function",
-            "line": 519,
+            "line": 509,
             "exported": true,
             "purpose": "syncOffersJob."
           },
           {
             "name": "payoutReconciliationJob",
             "kind": "function",
-            "line": 606,
+            "line": 596,
             "exported": true,
             "purpose": "payoutReconciliationJob."
           },
           {
             "name": "runJob",
             "kind": "function",
-            "line": 615,
+            "line": 605,
             "exported": true,
             "purpose": "runJob."
           }
         ],
         "functionCalls": [
-          "featureEnabled",
           "activeProviderCredential",
           "connectorFor",
           "db.connectorConfig.findMany",
@@ -16698,8 +16169,8 @@
     },
     "src/modules/links/service.ts": {
       "category": "domain-module",
-      "bytes": 21139,
-      "sha256": "c0322c918af7954de6cf075fe6c132a57d1c0a28d04b1e334de17a1c5fc0cbdf",
+      "bytes": 20292,
+      "sha256": "63b45a2784cadda4abfa88429805e4acdeb33cf190b42e88def57b59169b9c97",
       "summary": "Implements createAffiliateLink, resolveClickRedirect.",
       "analysis": {
         "runtime": "server",
@@ -16714,7 +16185,6 @@
           "@/modules/connectors/provider-credentials",
           "@/modules/connectors/url-policy",
           "@/modules/rates/service",
-          "@/modules/flags/service",
           "@/lib/shopee-product",
           "@/lib/money",
           "@/modules/links/tenant-policy",
@@ -16725,70 +16195,70 @@
           {
             "name": "createClickToken",
             "kind": "function",
-            "line": 25,
+            "line": 24,
             "exported": false,
             "purpose": "createClickToken."
           },
           {
             "name": "connectorTypeForPlatform",
             "kind": "function",
-            "line": 29,
+            "line": 28,
             "exported": false,
             "purpose": "connectorTypeForPlatform."
           },
           {
             "name": "connectorEntitlement",
             "kind": "function",
-            "line": 35,
+            "line": 34,
             "exported": false,
             "purpose": "connectorEntitlement."
           },
           {
             "name": "resolveLinkAccount",
             "kind": "function",
-            "line": 41,
+            "line": 40,
             "exported": false,
             "purpose": "resolveLinkAccount."
           },
           {
             "name": "PublicShopeeProduct",
             "kind": "type",
-            "line": 135,
+            "line": 134,
             "exported": false,
             "purpose": "PublicShopeeProduct."
           },
           {
             "name": "ExistingIdempotentClick",
             "kind": "type",
-            "line": 137,
+            "line": 136,
             "exported": false,
             "purpose": "ExistingIdempotentClick."
           },
           {
             "name": "toPublicShopeeProduct",
             "kind": "function",
-            "line": 147,
+            "line": 146,
             "exported": false,
             "purpose": "toPublicShopeeProduct."
           },
           {
             "name": "existingClickResult",
             "kind": "function",
-            "line": 162,
+            "line": 161,
             "exported": false,
             "purpose": "existingClickResult."
           },
           {
             "name": "createAffiliateLink",
             "kind": "function",
-            "line": 183,
+            "line": 182,
             "exported": true,
             "purpose": "createAffiliateLink."
           },
           {
             "name": "resolveClickRedirect",
             "kind": "function",
-            "line": 587,
+            "line": 567,
             "exported": true,
             "purpose": "resolveClickRedirect."
           }
@@ -16805,7 +16275,6 @@
           "existingClickResult",
           "db.campaign.findFirst",
           "inferPlatform",
-          "featureEnabled",
           "db.merchant.findFirst",
           "parseAllowlistedExternalUrl( input.url, campaign?.metadata && typeof campaign.metadata === \"object\" && !Array.isArray(campaign.metadata) && Array.isArray(campai",
           "parseAllowlistedExternalUrl",
@@ -16826,7 +16295,6 @@
           "activeProviderCredential",
           "connectorFor",
           "connector.normalizeUrl",
-          "loadServerEnv",
           "resolveCommissionRate",
           "connector.createTrackingLink",
           "input.url.toLowerCase().includes",
@@ -17539,8 +17007,8 @@
     },
     "src/modules/tenants/finance.ts": {
       "category": "domain-module",
-      "bytes": 31926,
-      "sha256": "0a7646a03bb74157d46add452a333af495af5be7ac2dbab342ad8cb672fddc2d",
+      "bytes": 31391,
+      "sha256": "cdf269d29cb88123f992913d41bec20a9795931f83c609992aa3790ff957e315",
       "summary": "Implements assertTenantFinanceGate, settleTenantRecovery, allocatePendingTenantCashback, syncTenantCashbackObligation, createTenantFundingOrder, creditTenantFundingOrder.",
       "analysis": {
         "runtime": "server",
@@ -17589,96 +17057,86 @@
             "purpose": "MAX_TENANT_FUNDING_VND."
           },
           {
-            "name": "globalFlag",
-            "kind": "function",
-            "line": 35,
-            "exported": false,
-            "purpose": "globalFlag."
-          },
-          {
             "name": "assertTenantFinanceGate",
             "kind": "function",
-            "line": 39,
+            "line": 35,
             "exported": true,
             "purpose": "assertTenantFinanceGate."
           },
           {
             "name": "withSerializable",
             "kind": "function",
-            "line": 103,
+            "line": 94,
             "exported": false,
             "purpose": "withSerializable."
           },
           {
             "name": "ensureTreasury",
             "kind": "function",
-            "line": 122,
+            "line": 113,
             "exported": false,
             "purpose": "ensureTreasury."
           },
           {
             "name": "ensureMemberWallet",
             "kind": "function",
-            "line": 130,
+            "line": 121,
             "exported": false,
             "purpose": "ensureMemberWallet."
           },
           {
             "name": "settleTenantRecovery",
             "kind": "function",
-            "line": 138,
+            "line": 129,
             "exported": true,
             "purpose": "settleTenantRecovery."
           },
           {
             "name": "consumeOtherAvailableCashback",
             "kind": "function",
-            "line": 182,
+            "line": 173,
             "exported": false,
             "purpose": "consumeOtherAvailableCashback."
           },
           {
             "name": "allocatePendingTenantCashback",
             "kind": "function",
-            "line": 233,
+            "line": 224,
             "exported": true,
             "purpose": "allocatePendingTenantCashback."
           },
           {
             "name": "syncTenantCashbackObligation",
             "kind": "function",
-            "line": 367,
+            "line": 358,
             "exported": true,
             "purpose": "syncTenantCashbackObligation."
           },
           {
             "name": "createTenantFundingOrder",
             "kind": "function",
-            "line": 588,
+            "line": 578,
             "exported": true,
             "purpose": "createTenantFundingOrder."
           },
           {
             "name": "creditTenantFundingOrder",
             "kind": "function",
-            "line": 694,
+            "line": 684,
             "exported": true,
             "purpose": "creditTenantFundingOrder."
           },
           {
             "name": "transferMasterWalletToTreasury",
             "kind": "function",
-            "line": 765,
+            "line": 755,
             "exported": true,
             "purpose": "transferMasterWalletToTreasury."
           }
         ],
         "functionCalls": [
-          "Boolean",
-          "tx.featureFlag.findUnique",
           "loadServerEnv",
           "tenantFinanceGateReady",
-          "globalFlag",
           "db.$transaction",
           "String(error.message).includes",
           "String",
@@ -18106,8 +17564,8 @@
     },
     "src/modules/tenants/payout.ts": {
       "category": "domain-module",
-      "bytes": 55500,
-      "sha256": "8bb0e63836ba0a61d56e5abeabd900f17d5b282247bb986d38945498d5faf487",
+      "bytes": 55409,
+      "sha256": "e155c226fcd25a348508d9db236d0af37e34d9ba72f370b4e9aeb4058eb40d94",
       "summary": "Implements requestMemberWithdrawal, requestTreasuryWithdrawal, approvePayout, rejectPayout, cancelPayout, finalizeTenantPayoutSettlement.",
       "analysis": {
         "runtime": "server",
@@ -18197,119 +17655,119 @@
           {
             "name": "mapPayOSState",
             "kind": "function",
-            "line": 156,
+            "line": 155,
             "exported": false,
             "purpose": "mapPayOSState."
           },
           {
             "name": "reserveMemberObligations",
             "kind": "function",
-            "line": 179,
+            "line": 178,
             "exported": false,
             "purpose": "reserveMemberObligations."
           },
           {
             "name": "settlePayoutAllocations",
             "kind": "function",
-            "line": 225,
+            "line": 224,
             "exported": false,
             "purpose": "settlePayoutAllocations."
           },
           {
             "name": "applyTerminalOutcome",
             "kind": "function",
-            "line": 284,
+            "line": 283,
             "exported": false,
             "purpose": "applyTerminalOutcome."
           },
           {
             "name": "reserveTenantPayout",
             "kind": "function",
-            "line": 443,
+            "line": 442,
             "exported": false,
             "purpose": "reserveTenantPayout."
           },
           {
             "name": "requestMemberWithdrawal",
             "kind": "function",
-            "line": 672,
+            "line": 671,
             "exported": true,
             "purpose": "requestMemberWithdrawal."
           },
           {
             "name": "requestTreasuryWithdrawal",
             "kind": "function",
-            "line": 709,
+            "line": 708,
             "exported": true,
             "purpose": "requestTreasuryWithdrawal."
           },
           {
             "name": "approvePayout",
             "kind": "function",
-            "line": 739,
+            "line": 738,
             "exported": true,
             "purpose": "approvePayout."
           },
           {
             "name": "rejectPayout",
             "kind": "function",
-            "line": 882,
+            "line": 881,
             "exported": true,
             "purpose": "rejectPayout."
           },
           {
             "name": "cancelPayout",
             "kind": "function",
-            "line": 951,
+            "line": 950,
             "exported": true,
             "purpose": "cancelPayout."
           },
           {
             "name": "finalizeTenantPayoutSettlement",
             "kind": "function",
-            "line": 1017,
+            "line": 1016,
             "exported": true,
             "purpose": "finalizeTenantPayoutSettlement."
           },
           {
             "name": "executeApprovedPayosPayout",
             "kind": "function",
-            "line": 1146,
+            "line": 1145,
             "exported": true,
             "purpose": "executeApprovedPayosPayout."
           },
           {
             "name": "reconcileTenantPayout",
             "kind": "function",
-            "line": 1290,
+            "line": 1289,
             "exported": true,
             "purpose": "reconcileTenantPayout."
           },
           {
             "name": "requestPayoutReconciliation",
             "kind": "function",
-            "line": 1368,
+            "line": 1367,
             "exported": true,
             "purpose": "requestPayoutReconciliation."
           },
           {
             "name": "resumePayoutExecution",
             "kind": "function",
-            "line": 1393,
+            "line": 1392,
             "exported": true,
             "purpose": "resumePayoutExecution."
           },
           {
             "name": "LegacyPayoutDecision",
             "kind": "type",
-            "line": 1418,
+            "line": 1417,
             "exported": true,
             "purpose": "LegacyPayoutDecision."
           },
           {
             "name": "resolveLegacyPayout",
             "kind": "function",
-            "line": 1421,
+            "line": 1420,
             "exported": true,
             "purpose": "resolveLegacyPayout."
           }

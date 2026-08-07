@@ -35,3 +35,23 @@ export async function requestAccountDeletionAction(formData: FormData) {
   await requestAccountDeletion(user.id, reason);
   redirect("/app/settings?deletion=requested");
 }
+
+const beneficiarySchema = z.object({
+  bankBin: z.string().regex(/^\d{6}$/),
+  accountNumber: z.string().regex(/^\d{6,20}$/),
+  accountName: z.string().min(3).max(120)
+});
+
+export async function saveBeneficiaryAction(rawInput: unknown, ip?: string) {
+  const user = await requireUser();
+  const input = beneficiarySchema.parse(rawInput);
+  const { saveBeneficiary } = await import("@/modules/beneficiaries/service");
+  const { stableHash } = await import("@/lib/crypto");
+
+  const beneficiary = await saveBeneficiary({
+    userId: user.id,
+    ...input,
+    ...(ip ? { ipHash: stableHash(ip) } : {})
+  });
+  return beneficiary;
+}

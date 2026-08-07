@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { formatVnd } from "@/lib/utils";
+import { createAffiliateLinkAction, fetchShopeeProductAction } from "@/app/app/actions";
 
 interface ProductPreview {
   itemId: string;
@@ -73,16 +74,12 @@ export function LinkBuilder({
     setResult(null);
 
     try {
-      // 1. Generate affiliate tracking link
-      const response = await fetch("/api/v1/links", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": crypto.randomUUID()
-        },
-        body: JSON.stringify({ url: url.trim(), ...(campaignId ? { campaignId } : {}) })
-      });
-      const body = (await response.json()) as {
+      // 1. Generate affiliate tracking link via Server Action
+      const body = (await createAffiliateLinkAction({
+        url: url.trim(),
+        ...(campaignId ? { campaignId } : {}),
+        idempotencyKey: crypto.randomUUID()
+      })) as {
         redirectUrl?: string;
         cashbackEnabled?: boolean;
         platform?: string;
@@ -109,11 +106,10 @@ export function LinkBuilder({
           capVnd: string;
           isCapped: boolean;
         };
-        error?: { message?: string };
       };
 
-      if (!response.ok || !body.redirectUrl) {
-        throw new Error(body.error?.message ?? "Không thể tạo link affiliate.");
+      if (!body.redirectUrl) {
+        throw new Error("Không thể tạo link affiliate.");
       }
 
       const generatedUrl = new URL(body.redirectUrl, window.location.origin).toString();
@@ -132,7 +128,7 @@ export function LinkBuilder({
           commission: body.commission
         };
       } else {
-        // Fallback fetch if /api/v1/links didn't include product data
+        // Fallback fetch if links didn't include product data
         const inputLower = url.toLowerCase();
         if (
           inputLower.includes("shopee") ||
@@ -140,30 +136,23 @@ export function LinkBuilder({
           /^\d+$/.test(url.trim())
         ) {
           try {
-            const productRes = await fetch("/api/v1/shopee/product", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ url: url.trim() })
-            });
-            if (productRes.ok) {
-              const productData = (await productRes.json()) as {
-                ok?: boolean;
-                product?: ProductPreview;
-                commission?: ProductPreview["commission"];
+            const productData = (await fetchShopeeProductAction(url.trim())) as {
+              ok?: boolean;
+              product?: ProductPreview;
+              commission?: ProductPreview["commission"];
+            };
+            if (productData.ok && productData.product && productData.commission) {
+              productPreview = {
+                itemId: productData.product.itemId,
+                title: productData.product.title,
+                shopName: productData.product.shopName,
+                priceVnd: productData.product.priceVnd,
+                imageUrl: productData.product.imageUrl,
+                rating: productData.product.rating,
+                salesCount: productData.product.salesCount,
+                isXtra: productData.product.isXtra,
+                commission: productData.commission
               };
-              if (productData.ok && productData.product && productData.commission) {
-                productPreview = {
-                  itemId: productData.product.itemId,
-                  title: productData.product.title,
-                  shopName: productData.product.shopName,
-                  priceVnd: productData.product.priceVnd,
-                  imageUrl: productData.product.imageUrl,
-                  rating: productData.product.rating,
-                  salesCount: productData.product.salesCount,
-                  isXtra: productData.product.isXtra,
-                  commission: productData.commission
-                };
-              }
             }
           } catch {
             // Ignore preview fetch error

@@ -15,6 +15,8 @@ import {
   type PersonalIncomeTaxResult
 } from "@/modules/tools/tax-2026";
 
+import { cleanLinkAction } from "@/app/app/actions";
+
 function parseIntegerVnd(value: string): bigint {
   const normalized = value.replace(/[.\s₫đ]/gi, "");
   if (!/^\d+$/.test(normalized)) throw new Error("Vui lòng nhập số tiền VND nguyên.");
@@ -44,19 +46,11 @@ export function InternalTools() {
     setCleanResult("");
     setCopied(false);
     try {
-      const response = await fetch("/api/v1/tools/clean-link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: cleanInput.trim() })
-      });
-      const body = (await response.json()) as {
-        data?: { cleanUrl?: string };
-        error?: { message?: string };
-      };
-      if (!response.ok || !body.data?.cleanUrl) {
-        throw new Error(body.error?.message ?? "Không thể làm sạch link.");
+      const data = await cleanLinkAction(cleanInput.trim());
+      if (!data?.cleanUrl) {
+        throw new Error("Không thể làm sạch link.");
       }
-      setCleanResult(body.data.cleanUrl);
+      setCleanResult(data.cleanUrl);
     } catch (error) {
       setCleanError(error instanceof Error ? error.message : "Không thể làm sạch link.");
     } finally {

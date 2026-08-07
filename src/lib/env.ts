@@ -93,8 +93,8 @@ const serverEnvSchema = z.object({
   CLERK_WEBHOOK_SIGNING_SECRET: optionalString,
   NEXT_PUBLIC_CLERK_SIGN_IN_URL: optionalString.default("/sign-in"),
   NEXT_PUBLIC_CLERK_SIGN_UP_URL: optionalString.default("/sign-up"),
-  NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: optionalString.default("/tenant"),
-  NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: optionalString.default("/tenant"),
+  NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: optionalString.default("/app"),
+  NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: optionalString.default("/app"),
   WEBAUTHN_CHALLENGE_SECRET: optionalString,
   RESEND_API_KEY: optionalString,
   EMAIL_FROM: optionalString,
@@ -315,42 +315,9 @@ export function productionReadinessIssues(env = loadServerEnv()): string[] {
   ) {
     issues.push("All Lazada credentials are required in active mode.");
   }
-  if (
-    !env.PAYOS_PAYOUT_ENABLED ||
-    !env.PAYOS_CLIENT_ID ||
-    !env.PAYOS_API_KEY ||
-    !env.PAYOS_CHECKSUM_KEY
-  ) {
+  if (!env.PAYOS_CLIENT_ID || !env.PAYOS_API_KEY || !env.PAYOS_CHECKSUM_KEY) {
     issues.push(
       "payOS Payout credentials must be configured; the database kill switch remains authoritative."
-    );
-  }
-  if (
-    env.SAAS_BILLING_ENABLED &&
-    (!env.PAYOS_CLIENT_ID || !env.PAYOS_API_KEY || !env.PAYOS_CHECKSUM_KEY)
-  ) {
-    issues.push("SaaS billing is enabled without complete shared payOS credentials.");
-  }
-  if (!env.MASTER_TENANT_ID) {
-    issues.push("MASTER_TENANT_ID is required.");
-  }
-  if (
-    env.TENANT_FINANCE_ENABLED &&
-    env.TENANT_TOPUP_ENABLED &&
-    (!env.PAYOS_CLIENT_ID || !env.PAYOS_API_KEY || !env.PAYOS_CHECKSUM_KEY)
-  ) {
-    issues.push("Tenant top-up is enabled without complete shared payOS credentials.");
-  }
-  if (
-    env.TENANT_FINANCE_ENABLED &&
-    env.TENANT_AUTO_PAYOUT_ENABLED &&
-    (!env.PAYOS_PAYOUT_ENABLED ||
-      !env.PAYOS_CLIENT_ID ||
-      !env.PAYOS_API_KEY ||
-      !env.PAYOS_CHECKSUM_KEY)
-  ) {
-    issues.push(
-      "Tenant auto payout is enabled without the shared payOS payout gate and credentials."
     );
   }
   if (

@@ -3,7 +3,6 @@ import { requireUser } from "@/lib/authz";
 import { db } from "@/lib/db";
 import { loadServerEnv } from "@/lib/env";
 import { canTenantUseZaloBot } from "@/lib/tenant";
-import { featureEnabled } from "@/modules/flags/service";
 import { requireTenantPlan } from "@/modules/tenants/plans";
 import { requireTenantMasterContext } from "@/modules/tenants/persona";
 
@@ -20,9 +19,8 @@ export default async function ShopTenantSettingsPage({
   const context = await requireTenantMasterContext(user.id, tenantObj?.id);
   const tenant = context.ownedTenant!;
   const env = loadServerEnv();
-  const [plan, credentialFeatureEnabled, providerAccounts] = await Promise.all([
+  const [plan, providerAccounts] = await Promise.all([
     requireTenantPlan(tenant.planCode ?? tenant.planId),
-    featureEnabled("provider.credentials.enabled", false),
     db.affiliateAccount.findMany({
       where: {
         tenantId: tenant.id,
@@ -39,13 +37,12 @@ export default async function ShopTenantSettingsPage({
       env.ZALO_DATA_ENCRYPTION_KEY_V1 &&
       env.NEXT_PUBLIC_ZALO_BOT_GROUP_INVITE_URL
     ) &&
-    (await featureEnabled("zalo.bot.enabled", false)) &&
     (await canTenantUseZaloBot(tenant.id));
   return (
     <TenantSettingsClient
       zaloAvailable={zaloAvailable}
       planAllowsCredentials={plan.allowApiCredentials}
-      credentialFeatureEnabled={credentialFeatureEnabled}
+      credentialFeatureEnabled={true}
       providerAccounts={providerAccounts.map((account) => ({
         id: account.id,
         provider: account.connectorType as "LAZADA_OPEN_API" | "ACCESSTRADE_API",

@@ -35,7 +35,7 @@ export default function TenantMasterSignInPage() {
           routing="path"
           path="/shop/sign-in"
           signUpUrl="/onboarding/tenant"
-          fallbackRedirectUrl="/tenant"
+          fallbackRedirectUrl="/shop"
         />
 
         <div className="flex items-center justify-between w-full pt-4 border-t border-slate-800/80 text-xs text-slate-400">

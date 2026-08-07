@@ -4,12 +4,15 @@ import Link from "next/link";
 import {
   Building2,
   CircleDollarSign,
+  History,
   Landmark,
+  Link2,
   LogOut,
   ReceiptText,
   Settings,
   Store,
-  Users
+  Users,
+  Wallet
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -20,6 +23,12 @@ const navItems = [
   { segment: "/conversions", label: "Đơn & nghĩa vụ", icon: ReceiptText },
   { segment: "/members", label: "Thành viên", icon: Users },
   { segment: "/settings", label: "Cài đặt", icon: Settings }
+] as const;
+
+const personalItems = [
+  { segment: "/my-links", label: "Link cá nhân", icon: Link2 },
+  { segment: "/my-wallet", label: "Ví cá nhân", icon: Wallet },
+  { segment: "/my-history", label: "Lịch sử đơn", icon: History }
 ] as const;
 
 export function TenantMasterShell({
@@ -61,6 +70,22 @@ export function TenantMasterShell({
               </Link>
             );
           })}
+          <div className="my-2 border-t border-slate-800/60" />
+          <p className="px-3.5 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+            Cá nhân
+          </p>
+          {personalItems.map(({ segment, label, icon: Icon }) => {
+            const href = `${root}${segment}`;
+            return (
+              <Link
+                key={segment}
+                href={href as Route}
+                className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all"
+              >
+                <Icon className="size-4 text-amber-400" /> {label}
+              </Link>
+            );
+          })}
         </nav>
         <div className="absolute inset-x-5 bottom-5 border-t border-slate-800/80 pt-4">
           <p className="truncate text-sm font-semibold text-slate-200">
@@ -98,18 +123,12 @@ export function TenantMasterShell({
                 <Store className="mr-1.5 size-4 text-amber-500" /> Xem Kênh Săn Sale
               </Link>
             </Button>
-            <Button asChild variant="ghost" size="sm" className="rounded-xl">
-              <Link href="/app">
-                <CircleDollarSign className="mr-1.5 size-4 text-emerald-600 dark:text-emerald-400" />{" "}
-                Ví B2C
-              </Link>
-            </Button>
             <UserButton userProfileUrl={`${root}/settings`} />
           </div>
         </header>
         <main className="w-full flex-1 p-6 pb-28 lg:p-10">{children}</main>
-        <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-border bg-card px-1 py-2 lg:hidden">
-          {navItems.map(({ segment, label, icon: Icon }) => {
+        <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-9 border-t border-border bg-card px-1 py-2 lg:hidden">
+          {[...navItems, ...personalItems].map(({ segment, label, icon: Icon }) => {
             const href = `${root}${segment}`;
             return (
               <Link

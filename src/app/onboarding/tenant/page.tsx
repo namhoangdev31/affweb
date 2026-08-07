@@ -75,7 +75,7 @@ async function createTenantAction(formData: FormData) {
     });
   });
 
-  redirect("/tenant?onboarding=success" as Route);
+  redirect("/shop?onboarding=success" as Route);
 }
 
 export default async function TenantOnboardingPage({
@@ -92,7 +92,7 @@ export default async function TenantOnboardingPage({
   });
 
   if (existingTenant) {
-    redirect("/tenant" as Route);
+    redirect(`/shop/${existingTenant.id}` as Route);
   }
 
   return (

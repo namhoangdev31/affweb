@@ -13,7 +13,6 @@ import { loadServerEnv } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 import { requestPayloadHash } from "@/lib/request";
 import { rateLimit } from "@/lib/rate-limit";
-import { featureEnabled } from "@/modules/flags/service";
 import { createAffiliateLink } from "@/modules/links/service";
 import { requireTenantPlan, tenantSubscriptionIsEffective } from "@/modules/tenants/plans";
 import { z } from "zod";
@@ -26,8 +25,7 @@ async function requireZaloEnabled(): Promise<void> {
     !env.ZALO_BOT_ENABLED ||
     !env.ZALO_BOT_TOKEN ||
     !env.ZALO_BOT_SECRET_TOKEN ||
-    !env.ZALO_DATA_ENCRYPTION_KEY_V1 ||
-    !(await featureEnabled("zalo.bot.enabled", false))
+    !env.ZALO_DATA_ENCRYPTION_KEY_V1
   ) {
     throw new AppError("CONNECTOR_DISABLED", "Zalo Bot đang tạm dừng.", 503);
   }
@@ -448,10 +446,8 @@ export async function handleZaloBotIncomingUpdate(input: {
     }
     const walletCommand = financialCommand.toLowerCase() === "wallet";
     const commandEnabled = walletCommand
-      ? binding.tenant.zaloWalletEnabled &&
-        (await featureEnabled("tenant.zalo_wallet.enabled", false))
-      : binding.tenant.zaloPayoutEnabled &&
-        (await featureEnabled("tenant.zalo_payout.enabled", false));
+      ? binding.tenant.zaloWalletEnabled
+      : binding.tenant.zaloPayoutEnabled;
     if (!commandEnabled) {
       await queueReply({
         bindingId: binding.id,

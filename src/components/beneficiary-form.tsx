@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { saveBeneficiaryAction } from "@/app/app/settings/actions";
+
 export function BeneficiaryForm({
   current
 }: {
@@ -19,22 +21,18 @@ export function BeneficiaryForm({
     event.preventDefault();
     setLoading(true);
     const form = new FormData(event.currentTarget);
-    const response = await fetch("/api/v1/beneficiaries", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        bankBin: form.get("bankBin"),
-        accountNumber: form.get("accountNumber"),
-        accountName: form.get("accountName")
-      })
-    });
-    const body = (await response.json()) as { error?: { message?: string } };
-    setMessage(
-      response.ok
-        ? "Đã lưu an toàn. Payout tạm khóa theo thời gian bảo vệ sau thay đổi."
-        : (body.error?.message ?? "Không thể lưu tài khoản.")
-    );
-    setLoading(false);
+    try {
+      await saveBeneficiaryAction({
+        bankBin: String(form.get("bankBin") ?? ""),
+        accountNumber: String(form.get("accountNumber") ?? ""),
+        accountName: String(form.get("accountName") ?? "")
+      });
+      setMessage("Đã lưu an toàn. Payout tạm khóa theo thời gian bảo vệ sau thay đổi.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Không thể lưu tài khoản.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

@@ -5,18 +5,16 @@ export const runtime = "nodejs";
 function disabledResponse(): NextResponse {
   return NextResponse.json(
     {
-      error: "Lazada postback is disabled until an authenticated provider contract is configured."
+      error: "Lazada webhook ingestion đã bị tắt. Dùng Lazada Open API sync định kỳ."
     },
     { status: 410, headers: { "Cache-Control": "no-store" } }
   );
 }
 
-export async function GET(request?: Request): Promise<NextResponse> {
-  void request;
+export async function GET(_request?: Request): Promise<Response> {
   return disabledResponse();
 }
 
-export async function POST(request?: Request): Promise<NextResponse> {
-  void request;
+export async function POST(_request?: Request): Promise<Response> {
   return disabledResponse();
 }

@@ -25,6 +25,11 @@ import {
   TenantProviderCredentials,
   type TenantProviderAccountView
 } from "@/components/tenant-provider-credentials";
+import {
+  updateTenantSettingsAction,
+  createZaloBindingCodeAction,
+  createSaaSCheckoutSessionAction
+} from "@/app/shop/[tenantId]/settings/actions";
 
 type TenantSettingsProps = {
   id: string;
@@ -72,25 +77,16 @@ export function TenantSettingsClient({
       : basePlanCode;
     setLoadingPlan(planCode);
     try {
-      const res = await fetch("/api/saas/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": crypto.randomUUID()
-        },
-        body: JSON.stringify({
-          tenantId: tenant.id,
-          planCode
-        })
-      });
-      const data = await res.json();
+      const data = (await createSaaSCheckoutSessionAction({
+        tenantId: tenant.id,
+        planCode,
+        idempotencyKey: crypto.randomUUID()
+      })) as { success?: boolean; data?: { checkoutUrl?: string } };
       if (data.success && data.data?.checkoutUrl) {
         window.open(data.data.checkoutUrl, "_blank", "noopener,noreferrer");
-      } else if (data.error?.message) {
-        alert(data.error.message);
       }
     } catch (err) {
-      console.error(err);
+      if (err instanceof Error) alert(err.message);
     } finally {
       setLoadingPlan(null);
     }
@@ -101,20 +97,12 @@ export function TenantSettingsClient({
     setSavingConfig(true);
     setSaveError(null);
     try {
-      const response = await fetch("/api/v1/tenant/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          shopeeAffiliateId: tenant.shopeeAffiliateId,
-          memberSharePercent: tenant.memberSharePercent
-        })
-      });
-      const body = (await response.json()) as {
-        tenant?: { shopeeAffiliateId: string; memberSharePercent: number };
-        error?: { message?: string };
-      };
-      if (!response.ok || !body.tenant) {
-        throw new Error(body.error?.message ?? "Không thể lưu cấu hình.");
+      const body = (await updateTenantSettingsAction({
+        shopeeAffiliateId: tenant.shopeeAffiliateId,
+        memberSharePercent: tenant.memberSharePercent
+      })) as { tenant?: { shopeeAffiliateId: string; memberSharePercent: number } };
+      if (!body.tenant) {
+        throw new Error("Không thể lưu cấu hình.");
       }
       setTenant((current) => ({ ...current, ...body.tenant }));
       setSaveSuccess(true);
@@ -130,15 +118,9 @@ export function TenantSettingsClient({
     setLoadingZaloCode(true);
     setZaloBindingError(null);
     try {
-      const response = await fetch("/api/v1/tenant/zalo/group-link-codes", {
-        method: "POST"
-      });
-      const body = (await response.json()) as {
-        code?: string;
-        error?: { message?: string };
-      };
-      if (!response.ok || !body.code) {
-        throw new Error(body.error?.message ?? "Không thể tạo mã liên kết Zalo.");
+      const body = await createZaloBindingCodeAction();
+      if (!body.code) {
+        throw new Error("Không thể tạo mã liên kết Zalo.");
       }
       setZaloBindingCode(body.code);
     } catch (error) {

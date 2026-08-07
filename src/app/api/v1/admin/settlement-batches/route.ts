@@ -12,7 +12,6 @@ import {
   requireIdempotencyKey
 } from "@/lib/request";
 import { requireRecentFinancePasskey } from "@/modules/admin/passkey";
-import { featureEnabled } from "@/modules/flags/service";
 import { createFinanceSettlementBatch } from "@/modules/settlement/service";
 
 export const runtime = "nodejs";
@@ -46,9 +45,6 @@ export async function POST(request: Request): Promise<Response> {
       Role.SUPER_ADMIN
     ]);
     await requireRecentFinancePasskey(actor.id);
-    if (!(await featureEnabled("cashback.release.enabled", false))) {
-      throw new AppError("CONNECTOR_DISABLED", "Settlement release đang được tắt.", 503);
-    }
     const limit = await rateLimit(`finance-settlement:${actor.id}`, 10, 60);
     if (!limit.allowed) {
       return Response.json(

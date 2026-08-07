@@ -47,7 +47,7 @@ export function SiteHeader() {
             <Button variant="outline" asChild>
               <Link href="/tenant">Vào Dashboard</Link>
             </Button>
-            <UserButton userProfileUrl="/tenant" />
+            <UserButton userProfileUrl="/app/profile" />
           </Show>
         </div>
         <Sheet>
@@ -80,7 +80,7 @@ export function SiteHeader() {
                 </Button>
                 <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-800">
                   <span className="text-sm font-medium text-muted-foreground">Tài khoản</span>
-                  <UserButton userProfileUrl="/tenant" />
+                  <UserButton userProfileUrl="/app/profile" />
                 </div>
               </Show>
             </nav>

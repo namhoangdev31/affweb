@@ -2,9 +2,7 @@ import { SignOutButton, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowRight,
   Bell,
-  Building2,
   CircleDollarSign,
   LayoutDashboard,
   Link2,
@@ -12,9 +10,7 @@ import {
   ReceiptText,
   Settings,
   Wrench,
-  Sparkles,
-  Trophy,
-  Store
+  Trophy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -41,12 +37,10 @@ const mobileBottomNav = [
 
 export function AppShell({
   children,
-  user,
-  hasTenant
+  user
 }: {
   children: React.ReactNode;
   user: { name?: string | null; email?: string | null; image?: string | null };
-  hasTenant?: boolean;
 }) {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors">
@@ -84,29 +78,6 @@ export function AppShell({
         </div>
       </aside>
       <div className="lg:pl-64 flex flex-col min-h-screen">
-        {/* Global Sticky Banner for Direct Users without KOC Channel */}
-        {!hasTenant ? (
-          <div className="sticky top-0 z-40 bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 px-4 py-2.5 text-white text-xs sm:text-sm font-medium flex flex-wrap items-center justify-between gap-3 shadow-lg border-b border-emerald-700/40">
-            <div className="flex items-center gap-2">
-              <Sparkles className="size-4 text-emerald-400 shrink-0 animate-pulse" />
-              <span>
-                🚀 <strong>Bạn chưa có Kênh KOC riêng?</strong> Dùng thử 14 ngày để quản lý member,
-                link và đối soát tập trung.
-              </span>
-            </div>
-            <Button
-              asChild
-              size="sm"
-              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs h-7 px-3.5 rounded-full shrink-0 shadow-md"
-            >
-              <Link href="/onboarding/tenant">
-                <Building2 className="mr-1 size-3.5" /> Tạo Kênh & Chọn Gói{" "}
-                <ArrowRight className="ml-1 size-3.5" />
-              </Link>
-            </Button>
-          </div>
-        ) : null}
-
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur lg:px-10">
           <Link href="/app" className="flex items-center gap-2 lg:hidden">
             <Image src="/brand-mark.svg" alt="" width={34} height={34} />
@@ -116,18 +87,6 @@ export function AppShell({
             Cashback dashboard
           </p>
           <div className="flex items-center gap-3">
-            {hasTenant ? (
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="rounded-xl border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 font-bold"
-              >
-                <Link href="/tenant">
-                  <Store className="mr-1.5 size-4 text-amber-500" /> Quản trị Kênh KOC
-                </Link>
-              </Button>
-            ) : null}
             <Button
               asChild
               size="sm"

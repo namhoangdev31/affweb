@@ -16,7 +16,6 @@ import { connectorFor } from "@/modules/connectors/registry";
 import { activeProviderCredential } from "@/modules/connectors/provider-credentials";
 import { inferPlatform, parseAllowlistedExternalUrl } from "@/modules/connectors/url-policy";
 import { resolveCommissionRate } from "@/modules/rates/service";
-import { featureEnabled } from "@/modules/flags/service";
 import { fetchShopeeProductData, type ShopeeProductResult } from "@/lib/shopee-product";
 import { cashbackFromCommission, parseVndAmount, tenantCashbackFromCommission } from "@/lib/money";
 import { resolveTenantLinkPolicy } from "@/modules/links/tenant-policy";
@@ -233,16 +232,6 @@ export async function createAffiliateLink(input: {
       400
     );
   }
-  const flagKey = {
-    SHOPEE_MARKETPLACE: "connector.shopee.enabled",
-    SHOPEE_FOOD: "connector.shopee_food.enabled",
-    LAZADA: "connector.lazada.enabled",
-    ACCESSTRADE: "connector.accesstrade.enabled"
-  }[platform];
-  const defaultEnabled = platform === "SHOPEE_MARKETPLACE" || platform === "SHOPEE_FOOD";
-  if (!(await featureEnabled(flagKey, defaultEnabled))) {
-    throw new AppError("CONNECTOR_DISABLED", "Đối tác này đang tạm dừng.", 503);
-  }
   const merchant =
     selectedCampaign?.merchant ??
     (await db.merchant.findFirst({
@@ -399,28 +388,19 @@ export async function createAffiliateLink(input: {
   }
   const connector = connectorFor(platform, credential ?? undefined);
   const target = await connector.normalizeUrl(normalizedInput);
-  const cashbackEnabled =
-    platform !== "SHOPEE_FOOD" ||
-    (loadServerEnv().SHOPEE_FOOD_CASHBACK_ENABLED &&
-      (await featureEnabled("connector.shopee_food_cashback", false)));
-  const rate = cashbackEnabled
-    ? tenantPolicy
-      ? {
-          shareBps: tenantPolicy.shareBps,
-          source: "TENANT_MEMBER_SHARE" as const,
-          ruleVersionId: null
-        }
-      : await resolveCommissionRate({
-          userId: input.userId,
-          merchantId: merchant.id,
-          campaignId: campaign?.id ?? null,
-          merchantDefaultShareBps: merchant.defaultShareBps
-        })
-    : {
-        shareBps: 0,
-        source: "SHOPEE_FOOD_CASHBACK_DISABLED" as const,
+  const cashbackEnabled = true;
+  const rate = tenantPolicy
+    ? {
+        shareBps: tenantPolicy.shareBps,
+        source: "TENANT_MEMBER_SHARE" as const,
         ruleVersionId: null
-      };
+      }
+    : await resolveCommissionRate({
+        userId: input.userId,
+        merchantId: merchant.id,
+        campaignId: campaign?.id ?? null,
+        merchantDefaultShareBps: merchant.defaultShareBps
+      });
   const subIds = [
     "affweb",
     clickToken,

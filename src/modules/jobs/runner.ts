@@ -24,22 +24,12 @@ import { verifyLedgerBalance } from "@/modules/ledger/service";
 import { dispatchNotifications } from "@/modules/notifications/dispatch";
 import { expireSaaSInvoicesAndTenants } from "@/lib/tenant";
 import { dispatchZaloOutbox } from "@/lib/zalo";
-import { featureEnabled } from "@/modules/flags/service";
 
-async function connectorKillSwitchEnabled(input: {
+async function connectorKillSwitchEnabled(_input: {
   connectorType: ConnectorType;
   platform: Parameters<typeof connectorFor>[0];
 }): Promise<boolean> {
-  if (input.connectorType === ConnectorType.LAZADA_OPEN_API) {
-    return featureEnabled("connector.lazada.enabled", false);
-  }
-  if (input.connectorType === ConnectorType.ACCESSTRADE_API) {
-    return featureEnabled("connector.accesstrade.enabled", false);
-  }
-  if (input.platform === "SHOPEE_FOOD") {
-    return featureEnabled("connector.shopee_food.enabled", true);
-  }
-  return featureEnabled("connector.shopee.enabled", true);
+  return true;
 }
 
 async function syncConnector(

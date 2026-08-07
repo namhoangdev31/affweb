@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  createProviderAccountAction,
+  updateProviderCredentialAction
+} from "@/app/shop/[tenantId]/settings/actions";
 
 type Provider = "LAZADA_OPEN_API" | "ACCESSTRADE_API";
 
@@ -57,27 +61,14 @@ export function TenantProviderCredentials({
 
       let accountId = current?.id;
       if (!accountId) {
-        const createResponse = await fetch("/api/v1/provider-accounts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            provider,
-            externalAccountId: effectiveIdentity,
-            label: label.trim()
-          })
-        });
-        const created = (await createResponse.json()) as {
-          data?: { id?: string };
-          error?: { message?: string };
-        };
-        if (!createResponse.ok || !created.data?.id) {
-          if (createResponse.status === 401) {
-            window.location.assign(
-              `/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`
-            );
-            return;
-          }
-          throw new Error(created.error?.message ?? "Không thể tạo provider account.");
+        const created = (await createProviderAccountAction({
+          provider,
+          externalAccountId: effectiveIdentity,
+          label: label.trim()
+        })) as { data?: { id?: string } };
+
+        if (!created.data?.id) {
+          throw new Error("Không thể tạo provider account.");
         }
         accountId = created.data.id;
       }
@@ -98,27 +89,17 @@ export function TenantProviderCredentials({
               affiliateId: effectiveIdentity,
               validationHoldDays: Number(validationHoldDays)
             };
-      const response = await fetch(`/api/v1/provider-accounts/${accountId}/credential`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credential)
-      });
-      const body = (await response.json()) as {
+
+      const body = (await updateProviderCredentialAction(accountId, credential)) as {
         data?: {
           fingerprint?: string;
           status?: "ACTIVE";
           validationHoldDays?: number;
         };
-        error?: { message?: string };
       };
-      if (!response.ok || !body.data?.fingerprint || body.data.status !== "ACTIVE") {
-        if (response.status === 401) {
-          window.location.assign(
-            `/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`
-          );
-          return;
-        }
-        throw new Error(body.error?.message ?? "Credential preflight không thành công.");
+
+      if (!body.data?.fingerprint || body.data.status !== "ACTIVE") {
+        throw new Error("Credential preflight không thành công.");
       }
       setAccounts((existing) => {
         const next: TenantProviderAccountView = {

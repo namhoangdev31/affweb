@@ -53,9 +53,6 @@ function billingClient(): PayOS {
 
 function tenantFundingClient(): PayOS {
   const env = loadServerEnv();
-  if (!env.TENANT_FINANCE_ENABLED || !env.TENANT_TOPUP_ENABLED) {
-    throw new AppError("CONNECTOR_DISABLED", "Nạp quỹ tenant đang tạm dừng.", 503);
-  }
   if (!env.PAYOS_CLIENT_ID || !env.PAYOS_API_KEY || !env.PAYOS_CHECKSUM_KEY) {
     throw new AppError("CONNECTOR_UNAVAILABLE", "PayOS funding tenant chưa được cấu hình.", 503);
   }

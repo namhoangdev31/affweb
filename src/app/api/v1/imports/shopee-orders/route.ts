@@ -2,13 +2,11 @@ import { z } from "zod";
 import { Role, ProviderAccountScope } from "@/generated/prisma/client";
 import { requireApiRecentUser, requireApiRole } from "@/lib/authz";
 import { db } from "@/lib/db";
-import { loadServerEnv } from "@/lib/env";
 import { AppError, errorResponse } from "@/lib/errors";
 import { jsonSafe } from "@/lib/json";
 import { rateLimit } from "@/lib/rate-limit";
 import { assertTrustedOrigin, requestId } from "@/lib/request";
 import { requireRecentFinancePasskey } from "@/modules/admin/passkey";
-import { featureEnabled } from "@/modules/flags/service";
 import { importShopeeOrders } from "@/modules/imports/shopee-orders";
 import { requireTenantPlan, tenantSubscriptionIsEffective } from "@/modules/tenants/plans";
 
@@ -20,9 +18,6 @@ export async function POST(request: Request): Promise<Response> {
   const id = await requestId();
   try {
     assertTrustedOrigin(request);
-    if (!(await featureEnabled("shopee.orders_import.enabled", false))) {
-      throw new AppError("CONNECTOR_DISABLED", "Shopee Orders import đang được tắt.", 503);
-    }
     const contentLength = Number(request.headers.get("content-length") ?? "0");
     if (!Number.isFinite(contentLength) || contentLength > 5 * 1024 * 1024) {
       throw new AppError("VALIDATION_ERROR", "Multipart body vượt giới hạn.", 413);
@@ -75,11 +70,7 @@ export async function POST(request: Request): Promise<Response> {
         throw new AppError("FORBIDDEN", "Bạn không quản lý provider account này.", 403);
       }
       const plan = await requireTenantPlan(account.tenant.planCode ?? account.tenant.planId);
-      if (
-        !loadServerEnv().TENANT_IMPORT_ENABLED ||
-        !(await featureEnabled("tenant.conversion_import.enabled", false)) ||
-        !plan.allowedConnectors.includes("SHOPEE_DIRECT")
-      ) {
+      if (!plan.allowedConnectors.includes("SHOPEE_DIRECT")) {
         throw new AppError("CONNECTOR_DISABLED", "Tenant Shopee import đang được tắt.", 503);
       }
     }

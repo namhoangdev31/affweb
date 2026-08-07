@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Bell, BellOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import { savePushSubscriptionAction } from "@/app/app/actions";
+
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replaceAll("-", "+").replaceAll("_", "/");
@@ -30,12 +32,12 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(publicKey)
     });
-    const response = await fetch("/api/v1/push-subscriptions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(subscription)
-    });
-    setState(response.ok ? "enabled" : "idle");
+    try {
+      await savePushSubscriptionAction(subscription, navigator.userAgent);
+      setState("enabled");
+    } catch {
+      setState("idle");
+    }
   }
 
   return (

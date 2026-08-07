@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatVnd } from "@/lib/utils";
+import { createAffiliateLinkAction, fetchShopeeProductAction } from "@/app/app/actions";
 
 interface ProductData {
   product: {
@@ -53,14 +54,9 @@ export function ShopeeProductLookup({
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/v1/shopee/product", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: targetUrl.trim() })
-      });
-      const body = (await response.json()) as ProductData & { error?: { message?: string } };
-      if (!response.ok || !body.product) {
-        throw new Error(body.error?.message ?? "Không tìm thấy sản phẩm Shopee này.");
+      const body = (await fetchShopeeProductAction(targetUrl.trim())) as ProductData;
+      if (!body.product) {
+        throw new Error("Không tìm thấy sản phẩm Shopee này.");
       }
       setData(body);
     } catch (cause) {
@@ -83,24 +79,14 @@ export function ShopeeProductLookup({
     setTrackingLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/v1/links", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": crypto.randomUUID()
-        },
-        body: JSON.stringify({ url: data.product.canonicalUrl })
-      });
-      const body = (await response.json()) as {
+      const body = (await createAffiliateLinkAction({
+        url: data.product.canonicalUrl,
+        idempotencyKey: crypto.randomUUID()
+      })) as {
         redirectUrl?: string;
-        error?: { code?: string; message?: string };
       };
-      if (response.status === 401) {
-        window.location.assign(`/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`);
-        return;
-      }
-      if (!response.ok || !body.redirectUrl) {
-        throw new Error(body.error?.message ?? "Không thể tạo link tracking.");
+      if (!body.redirectUrl) {
+        throw new Error("Không thể tạo link tracking.");
       }
       const trackingUrl = new URL(body.redirectUrl, window.location.origin).toString();
       if (openInNewTab) {

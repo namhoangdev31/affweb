@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { requestMemberWithdrawalAction } from "@/app/[slug]/app/actions";
+
 export function TenantMemberPayoutForm({
   beneficiaryId,
   availableVnd
@@ -17,28 +19,23 @@ export function TenantMemberPayoutForm({
   const [amount, setAmount] = useState("100000");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!beneficiaryId) return;
     setLoading(true);
-    const response = await fetch("/api/v1/tenant/member-payouts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Idempotency-Key": crypto.randomUUID()
-      },
-      body: JSON.stringify({ beneficiaryId, amountVnd: amount })
-    });
-    const body = (await response.json()) as {
-      payout?: { reference?: string };
-      error?: { message?: string };
-    };
-    setMessage(
-      response.ok
-        ? `Đã gửi ${body.payout?.reference ?? "yêu cầu payout"}.`
-        : (body.error?.message ?? "Không thể gửi yêu cầu rút tiền.")
-    );
-    setLoading(false);
+    try {
+      const result = (await requestMemberWithdrawalAction({
+        beneficiaryId,
+        amountVnd: amount,
+        idempotencyKey: crypto.randomUUID()
+      })) as { payout?: { reference?: string } };
+      setMessage(`Đã gửi ${result.payout?.reference ?? "yêu cầu payout"}.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Không thể gửi yêu cầu rút tiền.");
+    } finally {
+      setLoading(false);
+    }
   }
   return (
     <form onSubmit={submit} className="space-y-4">

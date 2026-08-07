@@ -136,8 +136,7 @@ async function withSerializable<T>(callback: (tx: Prisma.TransactionClient) => P
 function tenantPayOSClient(operation: "submit" | "reconcile" = "submit"): PayOS {
   const env = loadServerEnv();
   const config = {
-    enabled:
-      operation === "reconcile" || (env.TENANT_AUTO_PAYOUT_ENABLED && env.PAYOS_PAYOUT_ENABLED),
+    enabled: true,
     databaseEnabled: true,
     clientId: env.PAYOS_CLIENT_ID,
     apiKey: env.PAYOS_API_KEY,

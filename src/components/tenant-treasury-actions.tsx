@@ -7,23 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-async function postFinancial(path: string, payload: Record<string, string>) {
-  const response = await fetch(path, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Idempotency-Key": crypto.randomUUID()
-    },
-    body: JSON.stringify(payload)
-  });
-  const body = (await response.json()) as {
-    order?: { checkoutUrl?: string; reference?: string };
-    payout?: { reference?: string };
-    error?: { message?: string };
-  };
-  if (!response.ok) throw new Error(body.error?.message ?? "Giao dịch không thành công.");
-  return body;
-}
+import {
+  createTenantFundingOrderAction,
+  transferMasterWalletToTreasuryAction,
+  requestTreasuryWithdrawalAction
+} from "@/app/shop/[tenantId]/treasury/actions";
 
 export function TenantTreasuryActions({
   beneficiaryId,
@@ -41,20 +29,25 @@ export function TenantTreasuryActions({
     setMessage(null);
     try {
       if (kind === "fund") {
-        const body = await postFinancial("/api/v1/tenant/funding-orders", { amountVnd: amount });
+        const body = (await createTenantFundingOrderAction({
+          amountVnd: amount,
+          idempotencyKey: crypto.randomUUID()
+        })) as { order?: { checkoutUrl?: string } };
         if (body.order?.checkoutUrl) window.location.assign(body.order.checkoutUrl);
         else setMessage("Funding order đã được tạo.");
       } else if (kind === "transfer") {
-        await postFinancial("/api/v1/tenant/treasury/transfers/from-master-wallet", {
-          amountVnd: amount
+        await transferMasterWalletToTreasuryAction({
+          amountVnd: amount,
+          idempotencyKey: crypto.randomUUID()
         });
         setMessage("Đã chuyển từ ví master sang treasury.");
       } else {
         if (!beneficiaryId) throw new Error("Hãy cấu hình tài khoản ngân hàng trước.");
-        const body = await postFinancial("/api/v1/tenant/treasury/withdrawals", {
+        const body = (await requestTreasuryWithdrawalAction({
           amountVnd: amount,
-          beneficiaryId
-        });
+          beneficiaryId,
+          idempotencyKey: crypto.randomUUID()
+        })) as { payout?: { reference?: string } };
         setMessage(`Đã gửi ${body.payout?.reference ?? "yêu cầu rút quỹ"}.`);
       }
     } catch (error) {

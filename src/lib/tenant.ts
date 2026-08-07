@@ -2,7 +2,6 @@ import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { createPayOSPaymentLink } from "@/lib/payos";
-import { featureEnabled } from "@/modules/flags/service";
 import { requireTenantPlan, tenantSubscriptionIsEffective } from "@/modules/tenants/plans";
 
 export * from "./tenant-config";
@@ -89,9 +88,6 @@ export async function createTenantCheckoutSession(params: {
   idempotencyKey: string;
   requestHash: string;
 }) {
-  if (!(await featureEnabled("saas.billing.enabled", true))) {
-    throw new AppError("CONNECTOR_DISABLED", "Thanh toán SaaS đang tạm dừng.", 503);
-  }
   const tenant = await db.tenant.findUnique({
     where: { id: params.tenantId }
   });

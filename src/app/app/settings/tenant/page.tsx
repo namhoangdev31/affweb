@@ -2,5 +2,5 @@ import type { Route } from "next";
 import { redirect } from "next/navigation";
 
 export default function LegacyTenantSettingsPage() {
-  redirect("/tenant" as Route);
+  redirect("/shop" as Route);
 }
