@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "c360902832917d946119a24e69725f261302186d",
+    "baseCommit": "37fa72f6ed56c3882b9194ab18daa67c3630b09a",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2554,7 +2554,7 @@
     "project_map.json": {
       "category": "documentation",
       "bytes": 660685,
-      "sha256": "b50410fc2759407863ee5226d55e30484905e5d35fda1832468158f4bb7af799",
+      "sha256": "7c5f91813f728a4418a00f89c43c2331403f44e39890fedc39adee088cb92004",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -3811,8 +3811,8 @@
     },
     "src/app/[slug]/page.tsx": {
       "category": "app-route",
-      "bytes": 7564,
-      "sha256": "63ddc1d3089da0858e645e90fcee1ef7f19bdbae8ac35fd77c9377e37fe82077",
+      "bytes": 7577,
+      "sha256": "e1af5d22db6a6a0259638cf1ebfef1d505ebd79527f1fbaadab91b7509f205d8",
       "summary": "Implements TenantDirectSlugPage.",
       "route": "/:slug",
       "analysis": {

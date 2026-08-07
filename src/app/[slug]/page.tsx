@@ -92,9 +92,8 @@ export default async function TenantDirectSlugPage({
           <div className="flex items-center gap-3">
             <Button
               asChild
-              variant="outline"
               size="sm"
-              className="border-slate-700 text-slate-200 hover:bg-slate-800"
+              className="border border-slate-700 bg-slate-800 text-white hover:bg-slate-700 hover:text-white font-medium"
             >
               <Link href={`/${tenant.slug}/sign-in`}>Đăng nhập</Link>
             </Button>
