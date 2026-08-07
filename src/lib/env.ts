@@ -67,23 +67,23 @@ const serverEnvSchema = z.object({
 
   DATABASE_URL: z.preprocess(
     (val) =>
-      emptyToUndefined(val) ??
       emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL) ??
-      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL),
+      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL) ??
+      emptyToUndefined(val),
     z.string().min(1).optional()
   ),
   DIRECT_URL: z.preprocess(
     (val) =>
-      emptyToUndefined(val) ??
+      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL) ??
       emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL) ??
-      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL),
+      emptyToUndefined(val),
     z.string().min(1).optional()
   ),
   DATABASE_URL_UNPOOLED: z.preprocess(
     (val) =>
-      emptyToUndefined(val) ??
+      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL) ??
       emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL) ??
-      emptyToUndefined(process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL),
+      emptyToUndefined(val),
     z.string().min(1).optional()
   ),
 

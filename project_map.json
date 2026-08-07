@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "e5218a2b86e4251445672f17e877fb2d599441e7",
+    "baseCommit": "9fb90e88e3ab9975d8bb5aca4d5140db6ba9e7a9",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -1063,7 +1063,7 @@
     "prisma.config.ts": {
       "category": "configuration",
       "bytes": 626,
-      "sha256": "29ea4fe22ebbdb29547271b5e94d2b9c8a20f0bb85d2bd88e1ee0608674e1514",
+      "sha256": "ed13a738ad26dbdf92ad63a2e93636dc8d4351cf0f57203c1a5466c0b72ff241",
       "summary": "Provides prisma.config.ts project configuration responsibilities.",
       "analysis": {
         "runtime": "node",
@@ -2498,7 +2498,7 @@
     "prisma/seed.ts": {
       "category": "database",
       "bytes": 7664,
-      "sha256": "ddcacb285060e2ae990847465d06d49d72e51abeed2ad48ed40b0aa7e0814aa2",
+      "sha256": "b1e1bf85f20c584d5051df7cbf863cf333ddb2189dd6ef2d101e78c416c40a9b",
       "summary": "Implements connectionString, prisma, merchants, flags.",
       "analysis": {
         "runtime": "node",
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 652560,
-      "sha256": "aa2d583cb37495b9c4d83b160465965bf5c31f2b34209c4cb6b44d25822d39da",
+      "bytes": 652590,
+      "sha256": "38818a70c173427a76061c62f8b9d8e854437b6196badd049112e484fcd260ea",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -11675,8 +11675,8 @@
     },
     "src/lib/db.ts": {
       "category": "library",
-      "bytes": 762,
-      "sha256": "533ad91286fb6d9623da2fd70a6eeb0599329e85552aa649f3f1784c1024d8db",
+      "bytes": 867,
+      "sha256": "3c8a88f246256422b3ddfa79ae99953b47bb16593261aa84cfd0ac1ff4a94732",
       "summary": "Implements db.",
       "analysis": {
         "runtime": "server",
@@ -11701,11 +11701,11 @@
           {
             "name": "connectionString",
             "kind": "variable",
-            "line": 15,
+            "line": 18,
             "exported": false,
             "purpose": "connectionString."
           },
-          { "name": "db", "kind": "variable", "line": 19, "exported": true, "purpose": "db." }
+          { "name": "db", "kind": "variable", "line": 22, "exported": true, "purpose": "db." }
         ],
         "functionCalls": [
           "loadServerEnv",
@@ -11782,7 +11782,7 @@
     "src/lib/env.ts": {
       "category": "library",
       "bytes": 14862,
-      "sha256": "27bf97861a75b9c25786a88b1b76354f4656ea45d462b67fae7ec1f9893114c3",
+      "sha256": "7b46a829560ba685bddd1d9e6498026fcc2bdd6ab2e4643f57ef0f6d55296a8a",
       "summary": "Implements ServerEnv, loadServerEnv, financeReconciliationDelaysSeconds, assertFinanceRuntimeConfig, hasDatabase, adminEmailAllowlist.",
       "analysis": {
         "runtime": "node",
@@ -18625,8 +18625,8 @@
     },
     "tests/integration/database-guard.ts": {
       "category": "test",
-      "bytes": 3442,
-      "sha256": "e4fb1d1dd09af5125a28e77b037c9d48581d3990e2cef1f8df8bbf8508ae1c19",
+      "bytes": 3452,
+      "sha256": "4af0a11e82ff68f3ea011fa02688d3c824d7ac16010e11964d9415474c312572",
       "summary": "Verifies database-guard.ts behavior.",
       "analysis": {
         "runtime": "node",
@@ -18674,9 +18674,9 @@
           "parsed.hostname.toLowerCase().replace",
           "parsed.hostname.toLowerCase",
           "new URL(url).hostname.toLowerCase",
-          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"neon.tech\") .split(\",\") .map((entry) => entry.trim().toLowerCase()) .filter",
-          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"neon.tech\") .split(\",\") .map",
-          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"neon.tech\") .split",
+          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"prisma.io,neon.tech\") .split(\",\") .map((entry) => entry.trim().toLowerCase()) .filter",
+          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"prisma.io,neon.tech\") .split(\",\") .map",
+          "(process.env.TEST_DATABASE_HOST_ALLOWLIST ?? \"prisma.io,neon.tech\") .split",
           "entry.trim().toLowerCase",
           "entry.trim",
           "allowlist.some",

@@ -20,7 +20,7 @@ export function canonicalDatabaseIdentity(value: string): string {
 function assertTestHostAllowed(url: string): void {
   const hostname = new URL(url).hostname.toLowerCase();
   if (hostname === "127.0.0.1" || hostname === "localhost" || hostname === "postgres") return;
-  const allowlist = (process.env.TEST_DATABASE_HOST_ALLOWLIST ?? "neon.tech")
+  const allowlist = (process.env.TEST_DATABASE_HOST_ALLOWLIST ?? "prisma.io,neon.tech")
     .split(",")
     .map((entry) => entry.trim().toLowerCase())
     .filter(Boolean);

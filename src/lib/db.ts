@@ -10,7 +10,10 @@ const globalForPrisma = globalThis as unknown as {
 
 const env = loadServerEnv();
 const rawConnectionString =
-  env.DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:5432/affweb";
+  process.env.NEXT_JS_DB_PRISMA_PRISMA_DATABASE_URL ??
+  process.env.NEXT_JS_DB_PRISMA_POSTGRES_URL ??
+  env.DATABASE_URL ??
+  "postgresql://postgres:postgres@127.0.0.1:5432/affweb";
 
 const connectionString = rawConnectionString.includes("sslmode=require")
   ? rawConnectionString.replace(/sslmode=require/g, "sslmode=verify-full")
