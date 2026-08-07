@@ -102,7 +102,7 @@ export default async function ShopMyHistoryPage({
                         {formatVnd(conversion.cashbackVnd)}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {`${conversion.shareBps / 100}% chia lại`}
+                        {`${conversion.shareBps / 100}% hoàn tiền`}
                       </p>
                     </TableCell>
                   </TableRow>

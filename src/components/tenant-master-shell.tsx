@@ -89,7 +89,7 @@ export function TenantMasterShell({
         </nav>
         <div className="absolute inset-x-5 bottom-5 border-t border-slate-800/80 pt-4">
           <p className="truncate text-sm font-semibold text-slate-200">
-            {user.name ?? "Shop Master"}
+            {user.name ?? "Quản lý Kênh"}
           </p>
           <p className="truncate text-xs text-slate-400">{user.email}</p>
           <SignOutButton redirectUrl="/">

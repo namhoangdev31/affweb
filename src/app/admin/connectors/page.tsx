@@ -30,17 +30,17 @@ export default async function ConnectorsPage({
   });
   return (
     <div>
-      <h1 className="display-type text-4xl">Connector health.</h1>
+      <h1 className="display-type text-4xl">Trạng thái kết nối hệ thống.</h1>
       <div className="mt-8 space-y-3">
         <Card className="hidden overflow-hidden py-0 md:block">
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead className="pl-5">Nền tảng</TableHead>
-                <TableHead>Connector / Account</TableHead>
+                <TableHead>Cổng kết nối / Tài khoản</TableHead>
                 <TableHead>Chế độ</TableHead>
                 <TableHead>Độ trễ</TableHead>
-                <TableHead className="pr-5 text-right">Lần sync cuối</TableHead>
+                <TableHead className="pr-5 text-right">Lần đồng bộ cuối</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -48,16 +48,17 @@ export default async function ConnectorsPage({
                 <TableRow key={config.id}>
                   <TableCell className="pl-5 font-medium">{config.platform}</TableCell>
                   <TableCell>
-                    {config.connectorType} · {config.affiliateAccount?.label ?? "No account"}
+                    {config.connectorType} ·{" "}
+                    {config.affiliateAccount?.label ?? "Chưa gắn tài khoản"}
                   </TableCell>
                   <TableCell>
                     <Badge variant={config.enabled ? "default" : "secondary"}>
-                      {config.enabled ? config.mode : "DISABLED"}
+                      {config.enabled ? config.mode : "Tắt kết nối"}
                     </Badge>
                   </TableCell>
                   <TableCell>{config.health?.lagSeconds ?? "—"}s</TableCell>
                   <TableCell className="pr-5 text-right text-muted-foreground">
-                    {config.health?.lastSuccessAt?.toLocaleString("vi-VN") ?? "Chưa sync"}
+                    {config.health?.lastSuccessAt?.toLocaleString("vi-VN") ?? "Chưa đồng bộ"}
                   </TableCell>
                 </TableRow>
               ))}
@@ -71,15 +72,16 @@ export default async function ConnectorsPage({
                 <div>
                   <p className="font-semibold">{config.platform}</p>
                   <p className="text-sm text-muted-foreground">
-                    {config.connectorType} · {config.affiliateAccount?.label ?? "No account"}
+                    {config.connectorType} ·{" "}
+                    {config.affiliateAccount?.label ?? "Chưa gắn tài khoản"}
                   </p>
                 </div>
                 <Badge variant={config.enabled ? "default" : "secondary"}>
-                  {config.enabled ? config.mode : "DISABLED"}
+                  {config.enabled ? config.mode : "Tắt kết nối"}
                 </Badge>
-                <p className="text-sm">{config.health?.lagSeconds ?? "—"}s lag</p>
+                <p className="text-sm">{config.health?.lagSeconds ?? "—"}s độ trễ</p>
                 <p className="text-xs text-muted-foreground">
-                  {config.health?.lastSuccessAt?.toLocaleString("vi-VN") ?? "Chưa sync"}
+                  {config.health?.lastSuccessAt?.toLocaleString("vi-VN") ?? "Chưa đồng bộ"}
                 </p>
               </CardContent>
             </Card>
@@ -87,7 +89,7 @@ export default async function ConnectorsPage({
         </div>
         {!configs.length ? (
           <p className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">
-            Chạy seed để tạo connector config ban đầu.
+            Chưa có cấu hình cổng kết nối.
           </p>
         ) : (
           <PaginationNav
@@ -95,7 +97,7 @@ export default async function ConnectorsPage({
             totalItems={totalConfigs}
             pageSize={PAGE_SIZE}
             pathname="/admin/connectors"
-            itemLabel="connector"
+            itemLabel="cổng kết nối"
           />
         )}
       </div>

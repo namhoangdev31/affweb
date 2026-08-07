@@ -64,7 +64,7 @@ export default async function ShopMyLinksPage({
     <div className="space-y-6">
       <div>
         <p className="text-sm text-muted-foreground">
-          Link tạo bởi bạn với tư cách Owner kênh{" "}
+          Link cá nhân được tạo trong Kênh{" "}
           <strong className="text-foreground">/{tenant.slug}</strong>
         </p>
         <h1 className="display-type mt-1 text-4xl">Link cá nhân.</h1>

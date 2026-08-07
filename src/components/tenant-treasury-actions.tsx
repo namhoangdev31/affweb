@@ -34,13 +34,13 @@ export function TenantTreasuryActions({
           idempotencyKey: crypto.randomUUID()
         })) as { order?: { checkoutUrl?: string } };
         if (body.order?.checkoutUrl) window.location.assign(body.order.checkoutUrl);
-        else setMessage("Funding order đã được tạo.");
+        else setMessage("Đã tạo lệnh nạp tiền.");
       } else if (kind === "transfer") {
         await transferMasterWalletToTreasuryAction({
           amountVnd: amount,
           idempotencyKey: crypto.randomUUID()
         });
-        setMessage("Đã chuyển từ ví master sang treasury.");
+        setMessage("Đã chuyển từ ví cá nhân vào Quỹ Kênh.");
       } else {
         if (!beneficiaryId) throw new Error("Hãy cấu hình tài khoản ngân hàng trước.");
         const body = (await requestTreasuryWithdrawalAction({
@@ -48,7 +48,7 @@ export function TenantTreasuryActions({
           beneficiaryId,
           idempotencyKey: crypto.randomUUID()
         })) as { payout?: { reference?: string } };
-        setMessage(`Đã gửi ${body.payout?.reference ?? "yêu cầu rút quỹ"}.`);
+        setMessage(`Đã gửi thành công ${body.payout?.reference ?? "yêu cầu rút quỹ"}.`);
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Giao dịch thất bại.");
@@ -71,7 +71,7 @@ export function TenantTreasuryActions({
           onChange={(event) => setAmount(event.target.value)}
         />
         <p className="text-xs text-muted-foreground">
-          Ví master khả dụng:{" "}
+          Ví cá nhân khả dụng:{" "}
           {new Intl.NumberFormat("vi-VN").format(Number(masterWalletAvailableVnd))} ₫
         </p>
       </div>
@@ -85,8 +85,8 @@ export function TenantTreasuryActions({
           onClick={() => run("transfer")}
           disabled={loading !== null}
         >
-          {loading === "transfer" ? <Loader2 className="animate-spin" /> : <ArrowRightLeft />} Từ ví
-          master
+          {loading === "transfer" ? <Loader2 className="animate-spin" /> : <ArrowRightLeft />} Nạp
+          từ ví cá nhân
         </Button>
         <Button
           type="button"
@@ -95,7 +95,7 @@ export function TenantTreasuryActions({
           disabled={loading !== null || !beneficiaryId}
         >
           {loading === "withdraw" ? <Loader2 className="animate-spin" /> : <Landmark />} Gửi yêu cầu
-          Owner duyệt
+          rút quỹ
         </Button>
       </div>
       {message ? (

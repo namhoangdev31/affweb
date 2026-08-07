@@ -253,12 +253,12 @@ export default async function TenantOnboardingPage({
           <Card className="border border-border bg-card text-card-foreground shadow-2xl rounded-2xl overflow-hidden">
             <CardHeader className="border-b border-border/80 bg-muted/40 pb-5">
               <CardTitle className="flex items-center gap-2 text-xl font-bold text-foreground">
-                <Crown className="size-5 text-amber-500 dark:text-amber-400" /> 2. Chọn Gói Dịch Vụ
-                SaaS KOC (Miễn Phí 14 Ngày Đầu)
+                <Crown className="size-5 text-amber-500 dark:text-amber-400" /> 2. Chọn Gói Kênh
+                (Miễn Phí 14 Ngày Đầu)
               </CardTitle>
               <CardDescription className="text-muted-foreground text-sm">
-                Tenant mới khởi tạo với gói Trial 14 ngày. Hết hạn dùng thử mới tính cước theo gói
-                đã chọn.
+                Kênh mới khởi tạo được tặng 14 ngày dùng thử. Hết hạn dùng thử mới bắt đầu tính cước
+                theo gói đã chọn.
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">

@@ -41,9 +41,9 @@ export default async function TenantUserConversionsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Đơn hàng tenant</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Đơn hoàn tiền Kênh</h1>
         <p className="text-muted-foreground">
-          Chỉ hiển thị conversion thuộc kênh {context.memberTenant!.name}.
+          Danh sách các đơn hàng phát sinh hoàn tiền thuộc Kênh {context.memberTenant!.name}.
         </p>
       </div>
       <Card className="hidden overflow-hidden py-0 md:block">
@@ -104,7 +104,9 @@ export default async function TenantUserConversionsPage({
             </CardContent>
           </Card>
         ))}
-        {!conversions.length ? <p className="text-muted-foreground">Chưa có conversion.</p> : null}
+        {!conversions.length ? (
+          <p className="text-muted-foreground">Chưa có đơn hoàn tiền.</p>
+        ) : null}
       </div>
       <PaginationNav
         currentPage={currentPage}

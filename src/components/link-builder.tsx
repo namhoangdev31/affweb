@@ -193,7 +193,7 @@ export function LinkBuilder({
             <span className="flex size-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20 shrink-0">
               <Link2 className="size-5" />
             </span>
-            Tạo tracking link & Tra cứu hoa hồng
+            Tạo link giới thiệu & Tra cứu hoa hồng
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 sm:p-7 space-y-5">
@@ -412,8 +412,8 @@ export function LinkBuilder({
                       </div>
                       {result.withholdingTaxBps > 0 ? (
                         <p className="mt-2 text-xs text-white/60">
-                          Đây là số ước tính sau thuế; admin nhóm sẽ đối soát và chi trả ngoài ví
-                          nền tảng khi đơn được Shopee duyệt.
+                          Đây là số tiền ước tính sau thuế; Quản lý Kênh sẽ chi trả cho bạn khi đơn
+                          hàng được sàn đối tác xác nhận thành công.
                         </p>
                       ) : null}
                     </div>

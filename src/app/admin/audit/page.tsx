@@ -30,14 +30,14 @@ export default async function AuditPage({
   });
   return (
     <div>
-      <h1 className="display-type text-4xl">Audit log.</h1>
+      <h1 className="display-type text-4xl">Nhật ký hệ thống.</h1>
       <div className="mt-8 space-y-4">
         <Card className="hidden overflow-hidden py-0 md:block">
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead className="pl-5">Hành động</TableHead>
-                <TableHead>Actor</TableHead>
+                <TableHead>Người thực hiện</TableHead>
                 <TableHead>Đối tượng</TableHead>
                 <TableHead className="pr-5 text-right">Thời gian</TableHead>
               </TableRow>

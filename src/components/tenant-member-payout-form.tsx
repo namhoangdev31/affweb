@@ -30,7 +30,7 @@ export function TenantMemberPayoutForm({
         amountVnd: amount,
         idempotencyKey: crypto.randomUUID()
       })) as { payout?: { reference?: string } };
-      setMessage(`Đã gửi ${result.payout?.reference ?? "yêu cầu payout"}.`);
+      setMessage(`Đã gửi thành công ${result.payout?.reference ?? "yêu cầu rút tiền"}.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Không thể gửi yêu cầu rút tiền.");
     } finally {

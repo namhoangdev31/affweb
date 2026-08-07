@@ -106,7 +106,7 @@ export default async function ConversionsPage({
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {isTenantChannel
-                            ? "Cashback member bằng 0"
+                            ? "Trực thuộc Kênh Săn Sale"
                             : `${conversion.shareBps / 100}% chia lại`}
                         </p>
                       </TableCell>

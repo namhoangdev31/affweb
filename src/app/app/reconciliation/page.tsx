@@ -74,20 +74,20 @@ export default async function ReconciliationPage({
     <div className="space-y-6">
       <div>
         <p className="text-sm text-muted-foreground">
-          Orders xác nhận conversion; chỉ Hóa đơn đối soát/Finance evidence mới xác nhận settlement
+          Xác nhận đơn hàng & dữ liệu thanh toán đối soát từ hệ thống
         </p>
         <h1 className="display-type mt-1 text-4xl">Hóa đơn đối soát.</h1>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Nguyên tắc authority</CardTitle>
+          <CardTitle>Quy định đối soát</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>“Đã đóng” là kết thúc đối soát, không phải xác nhận tiền đã vào ngân hàng.</p>
           <p>
-            Shopee chỉ release khi file chi tiết tie-out line-level; trang tổng hợp, ảnh chụp và
-            Payment History không đủ authority.
+            Shopee chỉ phát hành khi file chi tiết đối soát khớp khớp dòng đơn; các ảnh chụp không
+            có hiệu lực xác nhận.
           </p>
         </CardContent>
       </Card>
@@ -95,11 +95,11 @@ export default async function ReconciliationPage({
       {tenant ? (
         <Card>
           <CardHeader>
-            <CardTitle>Import Shopee Orders của tenant</CardTitle>
+            <CardTitle>Lịch sử nhập danh sách đơn Shopee của Kênh</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {imports.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Chưa có import.</p>
+              <p className="text-sm text-muted-foreground">Chưa có dữ liệu nhập.</p>
             ) : (
               <>
                 <div className="hidden md:block">
@@ -107,9 +107,9 @@ export default async function ReconciliationPage({
                     <TableHeader>
                       <TableRow>
                         <TableHead>Trạng thái</TableHead>
-                        <TableHead className="text-right">Accepted</TableHead>
-                        <TableHead className="text-right">Duplicate</TableHead>
-                        <TableHead className="text-right">Quarantine</TableHead>
+                        <TableHead className="text-right">Hợp lệ</TableHead>
+                        <TableHead className="text-right">Trùng lặp</TableHead>
+                        <TableHead className="text-right">Cần xem xét</TableHead>
                         <TableHead className="text-right">Thời gian</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -138,8 +138,8 @@ export default async function ReconciliationPage({
                     >
                       <Badge variant="outline">{item.status}</Badge>
                       <p className="text-sm">
-                        {item.acceptedRows} accepted · {item.duplicateRows} duplicate ·{" "}
-                        {item.quarantinedRows} quarantine
+                        {item.acceptedRows} hợp lệ · {item.duplicateRows} trùng ·{" "}
+                        {item.quarantinedRows} xem xét
                       </p>
                       <p className="ml-auto text-xs text-muted-foreground">
                         {item.createdAt.toLocaleString("vi-VN")}
@@ -154,7 +154,7 @@ export default async function ReconciliationPage({
                   pathname="/app/reconciliation"
                   query={{ page: params.page, batchPage: params.batchPage }}
                   pageParam="importPage"
-                  itemLabel="import"
+                  itemLabel="dữ liệu nhập"
                 />
               </>
             )}
@@ -165,7 +165,7 @@ export default async function ReconciliationPage({
       {batches.length > 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>Settlement batches</CardTitle>
+            <CardTitle>Đợt thanh toán đối soát</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="hidden md:block">
@@ -173,7 +173,7 @@ export default async function ReconciliationPage({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Trạng thái</TableHead>
-                    <TableHead>Account</TableHead>
+                    <TableHead>Tài khoản</TableHead>
                     <TableHead className="text-right">Tổng tiền</TableHead>
                     <TableHead className="text-right">Thời gian</TableHead>
                   </TableRow>
@@ -218,7 +218,7 @@ export default async function ReconciliationPage({
               pathname="/app/reconciliation"
               query={{ page: params.page, importPage: params.importPage }}
               pageParam="batchPage"
-              itemLabel="settlement batch"
+              itemLabel="đợt đối soát"
             />
           </CardContent>
         </Card>
@@ -226,20 +226,20 @@ export default async function ReconciliationPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Conversion settlement gần đây</CardTitle>
+          <CardTitle>Thanh toán đơn hàng gần đây</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {conversions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Chưa có conversion.</p>
+            <p className="text-sm text-muted-foreground">Chưa có đơn hàng nào.</p>
           ) : (
             <>
               <div className="hidden md:block">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Settlement</TableHead>
+                      <TableHead>Trạng thái thanh toán</TableHead>
                       <TableHead>Nền tảng</TableHead>
-                      <TableHead className="text-right">Net commission</TableHead>
+                      <TableHead className="text-right">Hoa hồng thực nhận</TableHead>
                       <TableHead className="text-right">Cashback</TableHead>
                       <TableHead className="text-right">Ngày mua</TableHead>
                     </TableRow>
@@ -286,7 +286,7 @@ export default async function ReconciliationPage({
                 pageSize={PAGE_SIZE}
                 pathname="/app/reconciliation"
                 query={{ importPage: params.importPage, batchPage: params.batchPage }}
-                itemLabel="conversion"
+                itemLabel="đơn hàng"
               />
             </>
           )}

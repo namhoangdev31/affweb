@@ -22,8 +22,8 @@ export default async function ZaloConfirmPage({
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">
-          Link chỉ dùng một lần và không tự tạo payout. Sau xác nhận, bạn vẫn phải kiểm tra số tiền
-          và gửi yêu cầu trong portal.
+          Link chỉ dùng một lần và không tự động gửi tiền. Sau khi xác nhận, bạn có thể kiểm tra số
+          dư và gửi yêu cầu rút tiền tại trang Ví cá nhân.
         </p>
         <form action={consumeZaloFinancialGrantAction} className="mt-5">
           <input type="hidden" name="slug" value={slug} />

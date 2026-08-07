@@ -40,7 +40,7 @@ export default async function RulesPage({
   });
   return (
     <div>
-      <h1 className="display-type text-4xl">Tỷ lệ chia.</h1>
+      <h1 className="display-type text-4xl">Quy tắc tỷ lệ chia cashback.</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Version cũ không bị sửa; click luôn giữ snapshot ban đầu.
       </p>
@@ -50,12 +50,12 @@ export default async function RulesPage({
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
-                  <TableHead className="pl-5">Scope</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Merchant</TableHead>
-                  <TableHead>Campaign</TableHead>
+                  <TableHead className="pl-5">Phạm vi áp dụng</TableHead>
+                  <TableHead>Tài khoản</TableHead>
+                  <TableHead>Đối tác</TableHead>
+                  <TableHead>Chiến dịch</TableHead>
                   <TableHead className="text-right">Tỷ lệ</TableHead>
-                  <TableHead className="pr-5 text-right">Version</TableHead>
+                  <TableHead className="pr-5 text-right">Phiên bản</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -98,18 +98,18 @@ export default async function RulesPage({
               totalItems={totalRules}
               pageSize={PAGE_SIZE}
               pathname="/admin/rules"
-              itemLabel="rule"
+              itemLabel="quy tắc"
             />
           ) : null}
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>Tạo version mới</CardTitle>
+            <CardTitle>Tạo phiên bản tỷ lệ mới</CardTitle>
           </CardHeader>
           <CardContent>
             <form action={createRuleAction} className="space-y-4">
               <div>
-                <Label htmlFor="scope">Scope</Label>
+                <Label htmlFor="scope">Phạm vi áp dụng (Scope)</Label>
                 <select
                   id="scope"
                   name="scope"
@@ -121,11 +121,11 @@ export default async function RulesPage({
                 </select>
               </div>
               <div>
-                <Label htmlFor="shareBps">Basis points</Label>
+                <Label htmlFor="shareBps">Tỷ lệ cơ bản (Basis points)</Label>
                 <Input id="shareBps" name="shareBps" type="number" min="0" max="10000" required />
               </div>
               <div>
-                <Label htmlFor="userId">User (tùy scope)</Label>
+                <Label htmlFor="userId">Tài khoản áp dụng (nếu có)</Label>
                 <select
                   id="userId"
                   name="userId"
@@ -140,7 +140,7 @@ export default async function RulesPage({
                 </select>
               </div>
               <div>
-                <Label htmlFor="merchantId">Merchant</Label>
+                <Label htmlFor="merchantId">Đối tác</Label>
                 <select
                   id="merchantId"
                   name="merchantId"
@@ -155,7 +155,7 @@ export default async function RulesPage({
                 </select>
               </div>
               <div>
-                <Label htmlFor="campaignId">Campaign</Label>
+                <Label htmlFor="campaignId">Chiến dịch</Label>
                 <select
                   id="campaignId"
                   name="campaignId"
@@ -173,7 +173,7 @@ export default async function RulesPage({
                 <Label htmlFor="reason">Lý do</Label>
                 <Input id="reason" name="reason" minLength={8} required />
               </div>
-              <Button type="submit">Tạo version</Button>
+              <Button type="submit">Lưu phiên bản mới</Button>
             </form>
           </CardContent>
         </Card>

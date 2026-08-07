@@ -9,8 +9,8 @@ export default function OfflinePage() {
         <WifiOff className="mx-auto mt-8 size-8 text-muted-foreground" />
         <h1 className="display-type mt-4 text-5xl">Bạn đang ngoại tuyến.</h1>
         <p className="mx-auto mt-4 max-w-md text-muted-foreground">
-          Nội dung tài chính không được cache. Hãy kết nối mạng để xem số dư, đơn hàng hoặc tạo
-          payout.
+          Dữ liệu tài khoản được bảo mật và luôn đồng bộ trực tiếp. Vui lòng kết nối mạng để xem số
+          dư, đơn hàng hoặc tạo yêu cầu rút tiền.
         </p>
       </div>
     </main>

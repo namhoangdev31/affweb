@@ -53,9 +53,10 @@ export default async function FlagsPage() {
   const budgetAmount = /^\d+$/.test(budgetRaw) ? BigInt(budgetRaw) : 5_000_000n;
   return (
     <div>
-      <h1 className="display-type text-4xl">Kill switches.</h1>
+      <h1 className="display-type text-4xl">Cấu hình an toàn & Công tắc khẩn cấp.</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Tắt connector không xóa conversion cũ. Tắt release chỉ đóng băng tiền mới.
+        Tắt kết nối không làm mất dữ liệu đơn hàng cũ. Tắt phát hành cashback chỉ tạm dừng số dư
+        mới.
       </p>
       <div className="mt-8 space-y-3">
         <Card className="hidden overflow-hidden py-0 md:block">

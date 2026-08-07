@@ -31,7 +31,7 @@ export default async function LedgerPage({
   });
   return (
     <div>
-      <h1 className="display-type text-4xl">Ledger explorer.</h1>
+      <h1 className="display-type text-4xl">Sổ kế toán hệ thống.</h1>
       <div className="mt-8 space-y-4">
         <Card className="hidden overflow-hidden py-0 md:block">
           <Table className="min-w-[900px]">

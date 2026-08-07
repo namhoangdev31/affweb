@@ -99,11 +99,11 @@ function TenantControls({ tenant, plans }: { tenant: TenantRow; plans: TenantPla
             <input type="hidden" name="tenantId" value={tenant.id} />
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" name="financeEnabled" defaultChecked={tenant.financeEnabled} />{" "}
-              Finance
+              Tính năng tài chính (Finance)
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="topupEnabled" defaultChecked={tenant.topupEnabled} />{" "}
-              Top-up
+              <input type="checkbox" name="topupEnabled" defaultChecked={tenant.topupEnabled} /> Nạp
+              quỹ (Top-up)
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -111,16 +111,16 @@ function TenantControls({ tenant, plans }: { tenant: TenantRow; plans: TenantPla
                 name="autoPayoutEnabled"
                 defaultChecked={tenant.autoPayoutEnabled}
               />{" "}
-              Auto payout
+              Tự động chi trả (Auto payout)
             </label>
             <Input
               name="reason"
               minLength={12}
-              placeholder="Lý do thay đổi finance flags"
+              placeholder="Lý do thay đổi cấu hình tài chính"
               required
             />
             <Button type="submit" variant="outline" className="md:col-span-4">
-              Lưu finance flags
+              Lưu cấu hình tài chính
             </Button>
           </form>
         ) : null}
@@ -141,7 +141,11 @@ function TenantControls({ tenant, plans }: { tenant: TenantRow; plans: TenantPla
                 variant={action === "CLOSE" ? "destructive" : "outline"}
                 className="w-full"
               >
-                {action}
+                {action === "SUSPEND"
+                  ? "Tạm khóa Kênh"
+                  : action === "RESTORE"
+                    ? "Khôi phục Kênh"
+                    : "Đóng Kênh vĩnh viễn"}
               </Button>
             </form>
           ))}
@@ -234,9 +238,9 @@ export default async function AdminTenantsPage({
   return (
     <div className="w-full space-y-6 p-6 lg:p-10">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Quản lý Tenants</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Quản lý Các Kênh Săn Sale</h1>
         <p className="text-muted-foreground">
-          Dữ liệu PostgreSQL thật. Mọi mutation yêu cầu fresh admin session, passkey và lý do.
+          Quản trị Kênh trên hệ thống. Mọi thao tác thay đổi cần xác thực passkey và ghi lý do.
         </p>
       </div>
       <AdminPasskey />
@@ -244,37 +248,37 @@ export default async function AdminTenantsPage({
       <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Tổng tenant</CardTitle>
+            <CardTitle className="text-sm">Tổng số Kênh</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">{totalCount}</CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Active</CardTitle>
+            <CardTitle className="text-sm">Đang hoạt động</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">{activeCount}</CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Trial</CardTitle>
+            <CardTitle className="text-sm">Đang dùng thử</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">{trialCount}</CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Past due</CardTitle>
+            <CardTitle className="text-sm">Quá hạn thanh toán</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">{pastDueCount}</CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Suspended</CardTitle>
+            <CardTitle className="text-sm">Đang bị khóa</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">{suspendedCount}</CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">PayOS tháng này</CardTitle>
+            <CardTitle className="text-sm">Doanh thu tháng này</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">
             {money(monthlyRevenue._sum.amountVnd ?? 0n)}
@@ -284,7 +288,7 @@ export default async function AdminTenantsPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Tạo tenant dùng thử</CardTitle>
+          <CardTitle>Tạo Kênh Săn Sale dùng thử</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={createTenantAdminAction} className="grid gap-3 md:grid-cols-3">
@@ -293,15 +297,15 @@ export default async function AdminTenantsPage({
               required
               className="h-10 rounded-md border bg-background px-3"
             >
-              <option value="">Chọn owner đã verified</option>
+              <option value="">Chọn tài khoản Quản lý (Đã xác minh email)</option>
               {ownerCandidates.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.email ?? user.name ?? user.id}
                 </option>
               ))}
             </select>
-            <Input name="name" required placeholder="Tên tenant" />
-            <Input name="slug" required placeholder="slug-tenant" />
+            <Input name="name" required placeholder="Tên Kênh Săn Sale" />
+            <Input name="slug" required placeholder="slug-kenh-san-sale" />
             <Input name="shopeeAffiliateId" required placeholder="Shopee Affiliate ID" />
             <Input
               name="memberShareBps"
@@ -309,11 +313,16 @@ export default async function AdminTenantsPage({
               type="number"
               min="100"
               max="10000"
-              placeholder="Share bps"
+              placeholder="Tỷ lệ cashback cho member (bps 100-10000)"
             />
-            <Input name="reason" required minLength={12} placeholder="Lý do tạo tenant" />
+            <Input
+              name="reason"
+              required
+              minLength={12}
+              placeholder="Lý do khởi tạo Kênh Săn Sale"
+            />
             <Button type="submit" className="md:col-span-3">
-              Tạo tenant
+              Tạo Kênh Săn Sale
             </Button>
           </form>
         </CardContent>
@@ -323,7 +332,7 @@ export default async function AdminTenantsPage({
         <Input
           name="q"
           defaultValue={q}
-          placeholder="Tên, slug hoặc owner email"
+          placeholder="Tên Kênh, đường dẫn slug hoặc email Quản lý"
           className="max-w-sm"
         />
         <select
@@ -343,12 +352,12 @@ export default async function AdminTenantsPage({
         <Table className="min-w-[1500px]">
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead className="pl-5">Tenant</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead>Trạng thái / Plan</TableHead>
+              <TableHead className="pl-5">Kênh Săn Sale</TableHead>
+              <TableHead>Quản lý Kênh</TableHead>
+              <TableHead>Trạng thái / Gói Dịch Vụ</TableHead>
               <TableHead>Thành viên</TableHead>
               <TableHead>Click</TableHead>
-              <TableHead>Conversion</TableHead>
+              <TableHead>Đơn hàng</TableHead>
               <TableHead>Hết hạn</TableHead>
               <TableHead className="pr-5">Quản trị</TableHead>
             </TableRow>
@@ -362,7 +371,7 @@ export default async function AdminTenantsPage({
                     {tenant.slug}.{getAppHostDisplay()}
                   </p>
                 </TableCell>
-                <TableCell>{tenant.owner?.email ?? "Chưa có owner"}</TableCell>
+                <TableCell>{tenant.owner?.email ?? "Chưa có Quản lý"}</TableCell>
                 <TableCell>
                   <Badge>{tenant.status}</Badge>
                   <p className="mt-1 text-xs">{tenant.planCode ?? tenant.planId}</p>
@@ -390,16 +399,16 @@ export default async function AdminTenantsPage({
                 <Badge variant="outline">{tenant.planCode ?? tenant.planId}</Badge>
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                {tenant.slug}.{getAppHostDisplay()} · {tenant.owner?.email ?? "Chưa có owner"} · hết
-                hạn {tenant.planExpiresAt.toLocaleDateString("vi-VN")}
+                {tenant.slug}.{getAppHostDisplay()} · {tenant.owner?.email ?? "Chưa có Quản lý"} ·
+                hết hạn {tenant.planExpiresAt.toLocaleDateString("vi-VN")}
               </p>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="grid gap-2 text-sm md:grid-cols-4">
                 <span>{tenant._count.users} thành viên</span>
                 <span>{tenant._count.clicks} click</span>
-                <span>{tenant._count.conversions} conversion</span>
-                <span>{tenant.invoices.length} invoice gần nhất</span>
+                <span>{tenant._count.conversions} đơn hàng</span>
+                <span>{tenant.invoices.length} hóa đơn gần nhất</span>
               </div>
 
               <TenantControls tenant={tenant} plans={plans} />
@@ -415,7 +424,9 @@ export default async function AdminTenantsPage({
             </CardContent>
           </Card>
         ))}
-        {tenants.length === 0 && <p className="text-muted-foreground">Không có tenant phù hợp.</p>}
+        {tenants.length === 0 && (
+          <p className="text-muted-foreground">Không có Kênh Săn Sale nào phù hợp.</p>
+        )}
       </div>
 
       {tenants.length ? (
@@ -425,7 +436,7 @@ export default async function AdminTenantsPage({
           pageSize={PAGE_SIZE}
           pathname="/admin/tenants"
           query={{ q: q || undefined, status }}
-          itemLabel="tenant"
+          itemLabel="Kênh"
         />
       ) : null}
     </div>

@@ -130,7 +130,7 @@ export default async function LeaderboardPage({
             <h1 className="display-type text-3xl sm:text-4xl">Bảng xếp hạng hoàn tiền.</h1>
             <p className="max-w-xl text-sm text-emerald-100/70">
               Vinh danh những KOC và mua sắm có tổng tiền hoàn thực nhận cao nhất hệ thống. Cập nhật
-              theo thời gian thực từ Ledger Kế toán.
+              liên tục theo số dư tài khoản thực nhận.
             </p>
           </div>
 

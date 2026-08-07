@@ -64,7 +64,7 @@ export default async function ShopTenantMembersPage({
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Thành viên</h1>
         <p className="text-muted-foreground">
-          Thông tin ngân hàng luôn được che, không giải mã cho owner.
+          Thông tin ngân hàng của thành viên luôn được bảo mật và ẩn số tài khoản.
         </p>
       </div>
       <Card className="hidden overflow-hidden py-0 md:block">
@@ -134,7 +134,7 @@ export default async function ShopTenantMembersPage({
           );
         })}
         {!members.length ? (
-          <p className="text-muted-foreground">Tenant chưa có thành viên.</p>
+          <p className="text-muted-foreground">Kênh Săn Sale chưa có thành viên.</p>
         ) : null}
       </div>
       <PaginationNav

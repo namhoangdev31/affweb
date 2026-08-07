@@ -81,11 +81,11 @@ export default async function ShopMyWalletPage({
       <div className="mt-8 grid gap-4 md:grid-cols-4">
         {(
           [
-            ["Pending", value.pendingFundingVnd],
-            ["Available", value.availableVnd],
-            ["Withdrawable", withdrawableVnd],
-            ["Reserved", value.reservedVnd],
-            ["Paid", value.paidVnd]
+            ["Chờ xử lý", value.pendingFundingVnd],
+            ["Khả dụng", value.availableVnd],
+            ["Có thể rút", withdrawableVnd],
+            ["Đang rút", value.reservedVnd],
+            ["Đã nhận", value.paidVnd]
           ] as const
         ).map(([label, amount]) => (
           <Card key={label}>
@@ -99,7 +99,7 @@ export default async function ShopMyWalletPage({
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(300px,0.7fr)_minmax(0,1.3fr)]">
         <Card>
           <CardHeader>
-            <CardTitle>Tạo payout</CardTitle>
+            <CardTitle>Tạo yêu cầu rút tiền</CardTitle>
           </CardHeader>
           <CardContent>
             <TenantMemberPayoutForm
@@ -110,7 +110,7 @@ export default async function ShopMyWalletPage({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Lịch sử payout</CardTitle>
+            <CardTitle>Lịch sử rút tiền</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="hidden md:block">
@@ -163,7 +163,7 @@ export default async function ShopMyWalletPage({
             </div>
             {!tickets.length ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                Chưa có payout ticket.
+                Chưa có yêu cầu rút tiền.
               </p>
             ) : (
               <PaginationNav
@@ -171,7 +171,7 @@ export default async function ShopMyWalletPage({
                 totalItems={totalTickets}
                 pageSize={PAGE_SIZE}
                 pathname={`/shop/${tenantId}/my-wallet`}
-                itemLabel="payout"
+                itemLabel="yêu cầu"
               />
             )}
           </CardContent>

@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Đối tác",
-  description: "Các connector đang được công bố trên Hoàn Tiền."
+  description: "Các sàn thương mại điện tử và đối tác uy tín liên kết tích điểm hoàn tiền."
 };
 
 const partners = [
@@ -16,7 +16,8 @@ const partners = [
     slug: "shopee",
     status: "Đang hoạt động",
     icon: "S",
-    description: "Marketplace, tracking trực tiếp và conversion qua AddLiveTag.",
+    description:
+      "Mua sắm Shopee Marketplace, tự động ghi nhận đơn và tích điểm hoàn tiền trực tiếp.",
     active: true
   },
   {
@@ -24,7 +25,7 @@ const partners = [
     slug: "shopeefood",
     status: "Link sẵn sàng",
     icon: "F",
-    description: "Attribution riêng cho nhà hàng, món ăn và ShopeeFood Home.",
+    description: "Đặt đồ ăn ShopeeFood với hệ thống ghi nhận hoa hồng và hoàn tiền tự động.",
     active: true
   },
   {
@@ -32,7 +33,7 @@ const partners = [
     slug: "accesstrade",
     status: "Đang hoạt động",
     icon: "A",
-    description: "Ưu đãi đa ngành với conversion incremental và đối soát.",
+    description: "Mạng lưới đối tác đa dạng ngành hàng với hệ thống ghi nhận và chi trả minh bạch.",
     active: true
   }
 ];

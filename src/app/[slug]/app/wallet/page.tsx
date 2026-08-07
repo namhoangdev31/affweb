@@ -67,7 +67,9 @@ export default async function TenantUserWalletPage({
     <div className="space-y-7">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Ví {context.memberTenant!.name}</h1>
-        <p className="text-muted-foreground">Ví này độc lập hoàn toàn với master wallet.</p>
+        <p className="text-muted-foreground">
+          Ví cá nhân tích điểm riêng cho Kênh {context.memberTenant!.name}.
+        </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
@@ -95,7 +97,7 @@ export default async function TenantUserWalletPage({
             availableVnd={withdrawableVnd.toString()}
           />
           <p className="mt-4 text-xs text-muted-foreground">
-            Yêu cầu sẽ được Tenant Master duyệt trước khi thanh toán.{" "}
+            Yêu cầu rút tiền sẽ được Kênh xử lý và chuyển khoản cho bạn.{" "}
             {beneficiary
               ? `Tài khoản ${beneficiary.bankBin} ••••${beneficiary.accountLast4}.`
               : "Hãy cấu hình tài khoản tại Cài đặt."}
@@ -111,7 +113,7 @@ export default async function TenantUserWalletPage({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Mã payout</TableHead>
+                  <TableHead>Mã yêu cầu</TableHead>
                   <TableHead>Thời gian</TableHead>
                   <TableHead>Tài khoản</TableHead>
                   <TableHead className="text-right">Số tiền</TableHead>

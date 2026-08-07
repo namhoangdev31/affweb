@@ -27,7 +27,9 @@ export function BeneficiaryForm({
         accountNumber: String(form.get("accountNumber") ?? ""),
         accountName: String(form.get("accountName") ?? "")
       });
-      setMessage("Đã lưu an toàn. Payout tạm khóa theo thời gian bảo vệ sau thay đổi.");
+      setMessage(
+        "Đã lưu an toàn. Tính năng rút tiền tạm khóa trong thời gian bảo vệ sau khi thay đổi thông tin."
+      );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Không thể lưu tài khoản.");
     } finally {

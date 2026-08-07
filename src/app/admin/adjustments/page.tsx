@@ -42,7 +42,7 @@ export default async function AdjustmentsPage({
   });
   return (
     <div>
-      <h1 className="display-type text-4xl">Balance adjustments.</h1>
+      <h1 className="display-type text-4xl">Điều chỉnh số dư.</h1>
       <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_380px]">
         <div className="space-y-3">
           <Card className="hidden overflow-hidden py-0 md:block">
@@ -50,7 +50,7 @@ export default async function AdjustmentsPage({
               <TableHeader className="bg-muted/50">
                 <TableRow>
                   <TableHead className="pl-5">Trạng thái</TableHead>
-                  <TableHead>User</TableHead>
+                  <TableHead>Người dùng</TableHead>
                   <TableHead>Lý do / Người tạo</TableHead>
                   <TableHead className="text-right">Số tiền</TableHead>
                   <TableHead className="pr-5">Thao tác</TableHead>
@@ -80,7 +80,7 @@ export default async function AdjustmentsPage({
                         <form action={reviewAdjustmentAction}>
                           <input type="hidden" name="adjustmentId" value={item.id} />
                           <Button size="sm" type="submit">
-                            Review
+                            Kiểm duyệt
                           </Button>
                         </form>
                       ) : null}
@@ -88,7 +88,7 @@ export default async function AdjustmentsPage({
                         <form action={approveAdjustmentAction}>
                           <input type="hidden" name="adjustmentId" value={item.id} />
                           <Button size="sm" type="submit">
-                            Approve & post
+                            Duyệt & Ghi sổ
                           </Button>
                         </form>
                       ) : null}
@@ -123,7 +123,7 @@ export default async function AdjustmentsPage({
                       <form action={reviewAdjustmentAction}>
                         <input type="hidden" name="adjustmentId" value={item.id} />
                         <Button size="sm" type="submit">
-                          Review
+                          Kiểm duyệt
                         </Button>
                       </form>
                     ) : null}
@@ -131,7 +131,7 @@ export default async function AdjustmentsPage({
                       <form action={approveAdjustmentAction}>
                         <input type="hidden" name="adjustmentId" value={item.id} />
                         <Button size="sm" type="submit">
-                          Approve & post
+                          Duyệt & Ghi sổ
                         </Button>
                       </form>
                     ) : null}
@@ -157,7 +157,7 @@ export default async function AdjustmentsPage({
           <CardContent>
             <form action={createAdjustmentAction} className="space-y-4">
               <div>
-                <Label htmlFor="targetUserId">User</Label>
+                <Label htmlFor="targetUserId">Tài khoản nhận</Label>
                 <select
                   id="targetUserId"
                   name="targetUserId"
@@ -172,14 +172,14 @@ export default async function AdjustmentsPage({
                 </select>
               </div>
               <div>
-                <Label htmlFor="amountVnd">Số tiền signed VND</Label>
+                <Label htmlFor="amountVnd">Số tiền VND (+ / -)</Label>
                 <Input id="amountVnd" name="amountVnd" type="number" step="1000" required />
               </div>
               <div>
                 <Label htmlFor="reason">Lý do</Label>
                 <Input id="reason" name="reason" minLength={12} required />
               </div>
-              <Button type="submit">Tạo draft</Button>
+              <Button type="submit">Tạo bản nháp</Button>
             </form>
           </CardContent>
         </Card>

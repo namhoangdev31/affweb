@@ -84,7 +84,7 @@ export function AppShell({
             <span className="font-bold">Hoàn Tiền</span>
           </Link>
           <p className="hidden text-sm font-medium text-muted-foreground lg:block">
-            Cashback dashboard
+            Trang hoàn tiền cá nhân
           </p>
           <div className="flex items-center gap-3">
             <Button

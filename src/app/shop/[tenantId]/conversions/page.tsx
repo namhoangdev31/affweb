@@ -51,7 +51,7 @@ export default async function ShopTenantConversionsPage({
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Đơn và nghĩa vụ cashback</h1>
         <p className="text-muted-foreground">
-          FIFO cấp vốn; lịch sử trước cutover không được backfill.
+          Tự động phân bổ quỹ hoàn tiền theo thứ tự thời gian phát sinh đơn hàng.
         </p>
       </div>
       <Card className="hidden overflow-hidden py-0 md:block">
@@ -61,9 +61,9 @@ export default async function ShopTenantConversionsPage({
               <TableHead>Thành viên</TableHead>
               <TableHead>Đơn hàng</TableHead>
               <TableHead>Trạng thái</TableHead>
-              <TableHead className="text-right">Nghĩa vụ</TableHead>
+              <TableHead className="text-right">Cần hoàn tiền</TableHead>
               <TableHead className="text-right">Đã cấp vốn</TableHead>
-              <TableHead className="text-right">Recovery</TableHead>
+              <TableHead className="text-right">Cần thu hồi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -107,14 +107,14 @@ export default async function ShopTenantConversionsPage({
               <Badge>{obligation.status}</Badge>
             </CardHeader>
             <CardContent className="grid gap-2 text-sm sm:grid-cols-3">
-              <span>Nghĩa vụ: {formatVnd(obligation.amountVnd)}</span>
+              <span>Cần hoàn tiền: {formatVnd(obligation.amountVnd)}</span>
               <span>Đã cấp vốn: {formatVnd(obligation.fundedVnd)}</span>
-              <span>Recovery: {formatVnd(obligation.recoveryRequiredVnd)}</span>
+              <span>Cần thu hồi: {formatVnd(obligation.recoveryRequiredVnd)}</span>
             </CardContent>
           </Card>
         ))}
         {!obligations.length ? (
-          <p className="text-muted-foreground">Chưa có nghĩa vụ sau cutover.</p>
+          <p className="text-muted-foreground">Chưa có dữ liệu hoàn tiền.</p>
         ) : null}
       </div>
       <PaginationNav

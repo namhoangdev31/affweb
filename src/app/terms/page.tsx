@@ -5,7 +5,7 @@ export default function TermsPage() {
     <LegalPage title="Điều khoản sử dụng" updated="24/07/2026">
       <h2>1. Phạm vi dịch vụ</h2>
       <p>
-        Hoàn Tiền cung cấp công cụ tạo liên kết affiliate, theo dõi conversion và chia lại một phần
+        Hoàn Tiền cung cấp công cụ tạo liên kết affiliate, theo dõi đơn hàng và chia lại một phần
         hoa hồng đã được đối tác xác minh.
       </p>
       <h2>2. Số tiền ước tính</h2>

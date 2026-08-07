@@ -158,18 +158,16 @@ export function TenantSettingsClient({
       {/* Header */}
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Quản lý Không gian làm việc (SaaS Tenant)
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Cài đặt Kênh Săn Sale</h1>
           <p className="text-muted-foreground">
-            Cấu hình Shopee Affiliate ID, Zalo Bot theo entitlement và gói cước SaaS.
+            Cấu hình Mã Shopee Affiliate ID, Zalo Bot và gói cước Dịch vụ Kênh.
           </p>
         </div>
         <Badge
           variant="outline"
           className="w-fit gap-1.5 px-3 py-1 text-sm border-primary text-primary"
         >
-          <Building2 className="size-4" /> Tenant: {getAppHostDisplay()}/{tenant.slug}
+          <Building2 className="size-4" /> Kênh: {getAppHostDisplay()}/{tenant.slug}
         </Badge>
       </div>
 
@@ -206,12 +204,12 @@ export function TenantSettingsClient({
           <ShieldCheck className="size-6 text-emerald-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="font-semibold text-emerald-900 dark:text-emerald-300">
-              Hoa hồng Shopee về tài khoản Affiliate của owner
+              Hoa hồng Shopee về tài khoản Affiliate của bạn
             </p>
             <p className="text-sm text-emerald-800/80 dark:text-emerald-400">
-              Hoa hồng tenant phát sinh từ Shopee được thanh toán vào tài khoản Affiliate của bạn.
-              Bạn tự đối soát report và thanh toán phần của member bên ngoài nền tảng; conversion
-              tenant không đi qua ví hoặc payout của nền tảng.
+              Hoa hồng Kênh phát sinh từ Shopee được chuyển trực tiếp vào tài khoản Affiliate của
+              bạn. Bạn chủ động đối soát báo cáo và chi trả cashback cho thành viên; giao dịch Kênh
+              không đi qua ví nền tảng.
             </p>
           </div>
         </CardContent>
@@ -221,7 +219,7 @@ export function TenantSettingsClient({
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            <Crown className="size-5 text-amber-500" /> Bảng Gói cước SaaS & Gia hạn tự động
+            <Crown className="size-5 text-amber-500" /> Bảng Gói Dịch Vụ Kênh & Gia hạn tự động
           </h2>
 
           {/* Billing Cycle Switcher */}
@@ -382,8 +380,8 @@ export function TenantSettingsClient({
                 </div>
               ) : null}
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-emerald-500" /> Định tuyến Kênh KOC
-                Multi-Tenant Path (/t/[slug])
+                <CheckCircle2 className="size-4 text-emerald-500" /> Định tuyến Kênh KOC Riêng
+                (/[slug])
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-emerald-500" /> Màu sắc và tên thương hiệu
@@ -554,8 +552,7 @@ export function TenantSettingsClient({
                 <div className="text-xs space-y-1">
                   <p className="font-semibold text-foreground">Tự động 100%</p>
                   <p className="text-muted-foreground">
-                    Bot chuyển link Shopee thành tracking link cấp tenant, không tạo cashback
-                    member.
+                    Bot tự động chuyển link Shopee thành link hoàn tiền của Kênh.
                   </p>
                 </div>
               </div>
@@ -575,7 +572,8 @@ export function TenantSettingsClient({
                 <div className="text-xs space-y-1">
                   <p className="font-semibold text-foreground">Đối soát bên ngoài</p>
                   <p className="text-muted-foreground">
-                    Hoa hồng về Affiliate owner; tenant conversion không đi qua ví nền tảng.
+                    Hoa hồng về thẳng tài khoản Shopee của bạn; đơn hàng trong Kênh được quản lý
+                    minh bạch.
                   </p>
                 </div>
               </div>

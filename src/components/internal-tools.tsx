@@ -214,7 +214,7 @@ export function InternalTools() {
             <CardTitle>Ước tính thuế TNCN 2026</CardTitle>
             <CardDescription>
               Rule VN-PIT-109-2025-QH15-2026 cho thu nhập tiền lương/công; tách biệt hoàn toàn khỏi
-              rule khấu trừ cashback tenant.
+              quy tắc khấu trừ cashback Kênh.
             </CardDescription>
           </CardHeader>
           <CardContent>

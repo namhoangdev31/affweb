@@ -5,7 +5,7 @@
     "purpose": "Vietnam affiliate cashback web app/PWA with master-member and standard-tenant portals, independent financial aggregates, and approval-gated payouts.",
     "repositoryRoot": ".",
     "branch": "main",
-    "baseCommit": "64d2457f95c5041071e1d8aafbb7bdce4859d632",
+    "baseCommit": "71fcad9fef6eafefd6cf703ac8a24fd04d879fb5",
     "packageManager": "pnpm@10.5.2",
     "node": "22.x",
     "framework": "Next.js 16 App Router + React 19",
@@ -2553,8 +2553,8 @@
     },
     "project_map.json": {
       "category": "documentation",
-      "bytes": 660685,
-      "sha256": "ec2b2ffb2eabf822512cd712d7be0077ef783e03197d45b1d5f19b8106fb11f4",
+      "bytes": 660793,
+      "sha256": "85ab0ffaf55fa2915828f99a9040e76a6cf8499b9e81c2ca0397151f13ed0544",
       "summary": "Maps repository files, architecture, invariants, routes, symbols, and hashes."
     },
     "public/apple-touch-icon.png": {
@@ -3391,8 +3391,8 @@
     },
     "src/app/[slug]/app/conversions/page.tsx": {
       "category": "app-route",
-      "bytes": 4705,
-      "sha256": "21e8ccfbe7228899dc7c6f5f99e1539807626541f088da8d41dcce966f6b3949",
+      "bytes": 4763,
+      "sha256": "dd3b7a56c9cf90070af97efe99609b2812bfbb95632c59c9711e3be08c6b1380",
       "summary": "Implements TenantUserConversionsPage.",
       "route": "/:slug/app/conversions",
       "analysis": {
@@ -3481,8 +3481,8 @@
     },
     "src/app/[slug]/app/links/page.tsx": {
       "category": "app-route",
-      "bytes": 3135,
-      "sha256": "3f4445e0feb57ff33d67d74e1b653961467e769072197f1f9957fcede1cd14b9",
+      "bytes": 3191,
+      "sha256": "811b51a21cb710ce0090c4d6c8810c345d8308fb486444ff16f261c92033fe69",
       "summary": "Implements TenantLinksPage.",
       "route": "/:slug/app/links",
       "analysis": {
@@ -3625,8 +3625,8 @@
     },
     "src/app/[slug]/app/settings/page.tsx": {
       "category": "app-route",
-      "bytes": 1406,
-      "sha256": "ab589ab9734e399539da96bc4407f10a6bfb6db315f322a1d2e7c27133e24257",
+      "bytes": 1570,
+      "sha256": "9fcc318e57568c313f2ae16792721fffe5e72fb401b0f00fe4653f6f50c3f2e1",
       "summary": "Implements TenantUserSettingsPage.",
       "route": "/:slug/app/settings",
       "analysis": {
@@ -3658,8 +3658,8 @@
     },
     "src/app/[slug]/app/wallet/page.tsx": {
       "category": "app-route",
-      "bytes": 6553,
-      "sha256": "5982daddfb3d7659ab8515c24b16b4c8d78be53beffba5fc60fd8305a40fd5b0",
+      "bytes": 6608,
+      "sha256": "f5fa20fb5be1f88e191dff62ce729b87588af80d8cde7fe2d2af7c6fccb60d6d",
       "summary": "Implements TenantUserWalletPage.",
       "route": "/:slug/app/wallet",
       "analysis": {
@@ -3716,8 +3716,8 @@
     },
     "src/app/[slug]/app/zalo-confirm/actions.ts": {
       "category": "source",
-      "bytes": 2045,
-      "sha256": "0f52e5bb780262231458967366aed3473b09cafe85e62f53eb1af414f65e4ccc",
+      "bytes": 2120,
+      "sha256": "3c6cd1308e4426dd4eb988c05b63c11031096975c630306a0519b98c8f57c158",
       "summary": "Implements consumeZaloFinancialGrantAction.",
       "analysis": {
         "runtime": "shared",
@@ -3760,8 +3760,8 @@
     },
     "src/app/[slug]/app/zalo-confirm/page.tsx": {
       "category": "app-route",
-      "bytes": 1408,
-      "sha256": "ff24c9899289b64878fde1cdbf2b0f0a9ba47e6fe65de4c31ac7d85b26ae5981",
+      "bytes": 1439,
+      "sha256": "14aa3171340bb7bec601c2c80a03d9ab3e0f58334215482d65022d5714309374",
       "summary": "Implements ZaloConfirmPage.",
       "route": "/:slug/app/zalo-confirm",
       "analysis": {
@@ -3811,8 +3811,8 @@
     },
     "src/app/[slug]/page.tsx": {
       "category": "app-route",
-      "bytes": 7445,
-      "sha256": "34f0b6fb4dfde9e2ab6eba9569101df683866b9b755b91ae8844c7fa437bbcdd",
+      "bytes": 7462,
+      "sha256": "824b3b6286beb83627ad11211b45b6aaa3c990e9518512a532f9d27333794b0f",
       "summary": "Implements TenantDirectSlugPage.",
       "route": "/:slug",
       "analysis": {
@@ -3997,8 +3997,8 @@
     },
     "src/app/admin/adjustments/page.tsx": {
       "category": "app-route",
-      "bytes": 7464,
-      "sha256": "7cd52da5809e6ecc9181bca2a6972225b0ace26a4aa6eaf11e17fc55490cd00c",
+      "bytes": 7525,
+      "sha256": "afde02c341d2fe49b96f4a39c1d01842b94917abbd6d468f5b6f2091039b94f3",
       "summary": "Implements AdjustmentsPage.",
       "route": "/admin/adjustments",
       "analysis": {
@@ -4048,8 +4048,8 @@
     },
     "src/app/admin/audit/page.tsx": {
       "category": "app-route",
-      "bytes": 3158,
-      "sha256": "134896e10a5f5baa838422a381a337c6e724e4d442bc8838c1e1762d18610298",
+      "bytes": 3189,
+      "sha256": "5566a4c483c8eb7fbb5a1d6d34d61eb88cac9fcd1cb13ff6b6500859c46bc44b",
       "summary": "Implements AuditPage.",
       "route": "/admin/audit",
       "analysis": {
@@ -4173,8 +4173,8 @@
     },
     "src/app/admin/catalog/page.tsx": {
       "category": "app-route",
-      "bytes": 14993,
-      "sha256": "d57fa0ac66e3feb4f47e4c295288c2e90ea63d96009eb7aa9e894fcd4be04880",
+      "bytes": 15261,
+      "sha256": "c9a67cdaa7c7c85c1ebb299ac4d8edcf53d7e2e3ad57ba58efe9f27e1e439276",
       "summary": "Implements CatalogPage.",
       "route": "/admin/catalog",
       "analysis": {
@@ -4239,8 +4239,8 @@
     },
     "src/app/admin/connectors/page.tsx": {
       "category": "app-route",
-      "bytes": 4026,
-      "sha256": "506b9bdf74f588b2e177bc38a7888f702ca7d5eead13c623510439b956a7ebbc",
+      "bytes": 4188,
+      "sha256": "289b0148e674844eb57c1440b999a4e690d00262c1b56c9450dbcc6b8322b0d0",
       "summary": "Implements ConnectorsPage.",
       "route": "/admin/connectors",
       "analysis": {
@@ -4282,8 +4282,8 @@
     },
     "src/app/admin/finance/health/page.tsx": {
       "category": "app-route",
-      "bytes": 5281,
-      "sha256": "35d60e18696682185033f1cfde76f7a06f45b58bd8cf0b3fc7e8c61f2719fb5a",
+      "bytes": 5352,
+      "sha256": "54d1e1bd118fa3cc15360c79a6c95352da518e44d63ebdf3edb16bd6a0cd1cb1",
       "summary": "Implements FinanceHealthPage.",
       "route": "/admin/finance/health",
       "analysis": {
@@ -4323,7 +4323,7 @@
           "db.tenantPayout.findMany",
           "Promise.all",
           "db.tenantPayoutExecutionIntent.count",
-          "[ [\"UNKNOWN\", unknown], [\"Manual review\", manualReview], [\"Dispatch failed\", pendingQStash] ].map",
+          "[ [\"Cần xác minh (UNKNOWN)\", unknown], [\"Cần duyệt tay\", manualReview], [\"Gửi lệnh thất bại\", pendingQStash] ].map",
           "String",
           "records.map",
           "record.updatedAt.toLocaleString"
@@ -4392,8 +4392,8 @@
     },
     "src/app/admin/flags/page.tsx": {
       "category": "app-route",
-      "bytes": 6446,
-      "sha256": "606a85da6aa27bab8b474aadf4373d450a5ec06faa564d61b368260a7f955f1b",
+      "bytes": 6524,
+      "sha256": "3c70d45eb4e4c40f56829a7cbdef50fa362af732811d8677f4885e9411734bad",
       "summary": "Implements FlagsPage.",
       "route": "/admin/flags",
       "analysis": {
@@ -4472,8 +4472,8 @@
     },
     "src/app/admin/ledger/page.tsx": {
       "category": "app-route",
-      "bytes": 4221,
-      "sha256": "9d89d1abfcef7ef5178404094469ba1c6d4c048baac69299d96bcf6440eb61a2",
+      "bytes": 4234,
+      "sha256": "036257595f13a311514107d3fdd370078fba737b88cf42518f6b0560a3f9b892",
       "summary": "Implements LedgerPage.",
       "route": "/admin/ledger",
       "analysis": {
@@ -4518,8 +4518,8 @@
     },
     "src/app/admin/page.tsx": {
       "category": "app-route",
-      "bytes": 3411,
-      "sha256": "3833ddc569ff1ed888d9288233b52767b378e383711728f7a864584dff2e1066",
+      "bytes": 3519,
+      "sha256": "375858ddb6621d62ba53d5c662ecc2bb986127409beb96042de72e4b3a786322",
       "summary": "Implements AdminPage.",
       "route": "/admin",
       "analysis": {
@@ -4549,7 +4549,7 @@
           "db.user.count",
           "db.reconciliationCase.count",
           "db.connectorHealth.count",
-          "[ [\"Gross commission\", formatVnd(commission._sum.grossCommissionVnd ?? 0n), ArrowUpRight], [\"Cashback liability\", formatVnd(liability), ArrowDownRight], [\"Payou",
+          "[ [\"Tổng hoa hồng nhận\", formatVnd(commission._sum.grossCommissionVnd ?? 0n), ArrowUpRight], [\"Nghĩa vụ cashback\", formatVnd(liability), ArrowDownRight], [\"Đã c",
           "formatVnd",
           "String"
         ],
@@ -4681,8 +4681,8 @@
     },
     "src/app/admin/payouts/page.tsx": {
       "category": "app-route",
-      "bytes": 16697,
-      "sha256": "683800d0b48f2e230c9a4b0720e9731c5c0f5476682dd64b1eeb8c8d4ec34026",
+      "bytes": 16821,
+      "sha256": "2f5ae409d5ec3a0b361fab74e513e47232f514c016605cf3bb23bc99b683d5b9",
       "summary": "Implements PayoutsPage.",
       "route": "/admin/payouts",
       "analysis": {
@@ -4832,8 +4832,8 @@
     },
     "src/app/admin/reconciliation/page.tsx": {
       "category": "app-route",
-      "bytes": 14363,
-      "sha256": "3e706f0fc35b76f9ceabc42670b75ef08a4f88b2ec58bdaff1be535e6ff5adc2",
+      "bytes": 14633,
+      "sha256": "ba1a3477c85179bd1d31394268a19c5398919da1c620d1edc640db36bc8b85ac",
       "summary": "Implements ReconciliationPage.",
       "route": "/admin/reconciliation",
       "analysis": {
@@ -4931,8 +4931,8 @@
     },
     "src/app/admin/rules/page.tsx": {
       "category": "app-route",
-      "bytes": 7241,
-      "sha256": "58f6fa37d55aab9a9e9e8837849ebd71d49074ab1e2d821d2e43cbf3e4461a46",
+      "bytes": 7399,
+      "sha256": "e074a28c1417574dc9a14a93924f1de074bd17607be8eeea90e9299eec366077",
       "summary": "Implements RulesPage.",
       "route": "/admin/rules",
       "analysis": {
@@ -5117,8 +5117,8 @@
     },
     "src/app/admin/tenants/page.tsx": {
       "category": "app-route",
-      "bytes": 15776,
-      "sha256": "8d7a10342ad1924b872d8d51ac3e2877f02d684d4fbc7eef1c056693b88ca8bf",
+      "bytes": 16413,
+      "sha256": "21bcb696bf896d7b9a12e45420cd3363093aefa78a8978f166dac644e0a52ff6",
       "summary": "Implements AdminTenantsPage.",
       "route": "/admin/tenants",
       "analysis": {
@@ -5185,7 +5185,7 @@
           {
             "name": "AdminTenantsPage",
             "kind": "function",
-            "line": 154,
+            "line": 158,
             "exported": true,
             "purpose": "AdminTenantsPage."
           }
@@ -5361,8 +5361,8 @@
     },
     "src/app/admin/users/page.tsx": {
       "category": "app-route",
-      "bytes": 17120,
-      "sha256": "4175df34d219013c47be9acdfff2c78b7210f24876d3e79e30505ba2894e4a14",
+      "bytes": 17312,
+      "sha256": "59dc9abf2838f00467196ef9399ed044a1cc4f2a719ead84a55472c8becdd3d6",
       "summary": "Implements AdminUsersPage.",
       "route": "/admin/users",
       "analysis": {
@@ -7016,8 +7016,8 @@
     },
     "src/app/app/conversions/page.tsx": {
       "category": "app-route",
-      "bytes": 6993,
-      "sha256": "9e3d274dc56df632b543433ef56aa488228bb6bf43fefb414fd66ac94377af35",
+      "bytes": 6999,
+      "sha256": "9ba99e74f44573b76da75917371426cebf4a20f9039ad90f62b27f899984116c",
       "summary": "Implements ConversionsPage.",
       "route": "/app/conversions",
       "analysis": {
@@ -7117,8 +7117,8 @@
     },
     "src/app/app/leaderboard/page.tsx": {
       "category": "app-route",
-      "bytes": 16963,
-      "sha256": "faf7a8e347ab3e78c1f82dde2fe21de006127af4085ce2a959da2fb20d80942e",
+      "bytes": 16969,
+      "sha256": "f088b2b1bc3010cb09826ef8dad6025f8e4f9410ed21ee33d289e31cd1ea18c4",
       "summary": "Implements LeaderboardPage.",
       "route": "/app/leaderboard",
       "analysis": {
@@ -7188,8 +7188,8 @@
     },
     "src/app/app/links/page.tsx": {
       "category": "app-route",
-      "bytes": 3303,
-      "sha256": "986536aa9da05280dc0103a79c8f64886746b7c1759481c430fb771cdb3df015",
+      "bytes": 3315,
+      "sha256": "839656fe0fc7382d2e6828df1df592e310a33956ddbfadf260647f9d7f4afab7",
       "summary": "Implements LinksPage.",
       "route": "/app/links",
       "analysis": {
@@ -7291,8 +7291,8 @@
     },
     "src/app/app/notifications/page.tsx": {
       "category": "app-route",
-      "bytes": 4674,
-      "sha256": "031cdb75d94bd10ee3ca6543158b7e30dba7d01f9801717423d07373e31b930b",
+      "bytes": 4732,
+      "sha256": "b3ece6dd7e1e586654bed62fe1cb1499c969f99aa22e47b416fc9b0e65b22484",
       "summary": "Implements NotificationsPage.",
       "route": "/app/notifications",
       "analysis": {
@@ -7354,8 +7354,8 @@
     },
     "src/app/app/page.tsx": {
       "category": "app-route",
-      "bytes": 4442,
-      "sha256": "b77c442e6d968960e3a451cbcae24c5d4fa6226446c45de43c7e76fb66c0b310",
+      "bytes": 4473,
+      "sha256": "1382b4313ffcf8e88c5aa1e40751ef8b50425ef010bb9fa4745539a2f976f104",
       "summary": "Implements DashboardPage.",
       "route": "/app",
       "analysis": {
@@ -7387,7 +7387,7 @@
           "db.conversion.findMany",
           "db.affiliateClick.count",
           "user.name?.split",
-          "[ [\"Khả dụng\", balance.availableVnd, CircleDollarSign, \"Có thể tạo payout\"], [\"Đang chờ\", balance.pendingVnd, Clock3, \"Chờ đối tác xác minh\"], [\"Đã khóa\", balan",
+          "[ [\"Khả dụng\", balance.availableVnd, CircleDollarSign, \"Có thể tạo yêu cầu rút tiền\"], [\"Đang chờ\", balance.pendingVnd, Clock3, \"Chờ đối tác xác minh\"], [\"Đã kh",
           "BigInt",
           "String",
           "value?.toString",
@@ -7401,8 +7401,8 @@
     },
     "src/app/app/profile/[[...user-profile]]/page.tsx": {
       "category": "app-route",
-      "bytes": 556,
-      "sha256": "88a56a4e62cdf3186c851cbbeae8985896b82fb22fc83dfde07e419b8a1ab210",
+      "bytes": 605,
+      "sha256": "18c9d6f138ce50e4473a5d1d1ff1f2bbc58145f4a9b2e61f2df48c79745c6792",
       "summary": "Implements metadata, ProfilePage.",
       "route": "/app/profile/:[...user-profile]",
       "analysis": {
@@ -7431,8 +7431,8 @@
     },
     "src/app/app/reconciliation/page.tsx": {
       "category": "app-route",
-      "bytes": 12159,
-      "sha256": "5c9ffb207df73a0b78b3da435bd538323f09140501c7a62f5aaca4e0d3f1567c",
+      "bytes": 12242,
+      "sha256": "76c869398f3162add5f2e507679dc03b2c91460405ab09aeaa272c494a07aa21",
       "summary": "Implements ReconciliationPage.",
       "route": "/app/reconciliation",
       "analysis": {
@@ -7644,8 +7644,8 @@
     },
     "src/app/app/settings/tenant/tenant-settings-client.tsx": {
       "category": "app-route",
-      "bytes": 29948,
-      "sha256": "8030e3bbe4540aed664c7ef8a808c176fd3575f95f1c0e87f420b5b1136ed7b9",
+      "bytes": 29891,
+      "sha256": "8508635283ec455bae9dc39d4b697c4a7042adc7ed537c1d8374748e902c806a",
       "summary": "Implements TenantSettingsClient.",
       "analysis": {
         "runtime": "client",
@@ -7718,8 +7718,8 @@
     },
     "src/app/app/tools/page.tsx": {
       "category": "app-route",
-      "bytes": 423,
-      "sha256": "300a81f0a859c28e784c5623dec459b032a5d7ce956d19a2471f0fbd9c0b1dca",
+      "bytes": 419,
+      "sha256": "1c458fcc1a2ba3dfef194f574c80a582609d27956d6483e9a83043572959fc66",
       "summary": "Implements ToolsPage.",
       "route": "/app/tools",
       "analysis": {
@@ -7741,8 +7741,8 @@
     },
     "src/app/app/wallet/page.tsx": {
       "category": "app-route",
-      "bytes": 6499,
-      "sha256": "6aaff46521cad40eee0fdc620da92a5ed7092e78d4caa48e94cb050474410a83",
+      "bytes": 6574,
+      "sha256": "bbe43fae70ba3846f7a0379baac8ae01f02081aaa841b719fb48d7e443ec63bf",
       "summary": "Implements WalletPage.",
       "route": "/app/wallet",
       "analysis": {
@@ -7787,7 +7787,7 @@
           "paginationPage",
           "db.tenantPayout.findMany",
           "availableObligations.reduce",
-          "[ [\"Pending\", value.pendingFundingVnd], [\"Available\", value.availableVnd], [\"Withdrawable\", withdrawableVnd], [\"Reserved\", value.reservedVnd], [\"Paid\", value.pa",
+          "[ [\"Chờ cấp vốn\", value.pendingFundingVnd], [\"Khả dụng\", value.availableVnd], [\"Có thể rút\", withdrawableVnd], [\"Đang rút\", value.reservedVnd], [\"Đã nhận\", valu",
           "String",
           "formatVnd",
           "withdrawableVnd.toString",
@@ -7799,8 +7799,8 @@
     },
     "src/app/cashback-policy/page.tsx": {
       "category": "app-route",
-      "bytes": 1051,
-      "sha256": "0a52bf1caefaf6f4b576266d816fb9ca91875c25199d5a596d95c50cfa39a64d",
+      "bytes": 1279,
+      "sha256": "4a6c28cc3c0a5820a597c7aa9835c2fd3009555966c49cf686813658ec13e733",
       "summary": "Implements CashbackPolicyPage.",
       "route": "/cashback-policy",
       "analysis": {
@@ -7822,8 +7822,8 @@
     },
     "src/app/deals/page.tsx": {
       "category": "app-route",
-      "bytes": 1970,
-      "sha256": "6e502d0885807f94701a8bab278c1ed78b771f9154a7f692bb5a2956c881bb5a",
+      "bytes": 1992,
+      "sha256": "2c3ff22e97df65af0c7d1be1d264f0934a00ffe0ed92db74f5db0f3ead3f7fbb",
       "summary": "Implements metadata, revalidate, DealsPage.",
       "route": "/deals",
       "analysis": {
@@ -7881,8 +7881,8 @@
     },
     "src/app/faq/page.tsx": {
       "category": "app-route",
-      "bytes": 1779,
-      "sha256": "45985b9f28c0aaab2cdedf7cedc31242084bc749759dcedf52e215e046290ea8",
+      "bytes": 2023,
+      "sha256": "40e15f0d3a71a68b036f1944e8488202d24728abbc0911cfac97fbbcc1aa9f63",
       "summary": "Implements metadata, FaqPage.",
       "route": "/faq",
       "analysis": {
@@ -7950,8 +7950,8 @@
     },
     "src/app/layout.tsx": {
       "category": "app-route",
-      "bytes": 4013,
-      "sha256": "6f6f53e9d30ecd762bb5eac82856aa32e4bf9e3cb6059aad24d7329b6254ace9",
+      "bytes": 4016,
+      "sha256": "396e6ebfd5f792618bc3cb6d6f92faef26fac30844d13d61bab5846e3851c773",
       "summary": "Implements metadata, viewport, RootLayout.",
       "analysis": {
         "runtime": "shared",
@@ -8112,8 +8112,8 @@
     },
     "src/app/offline/page.tsx": {
       "category": "app-route",
-      "bytes": 718,
-      "sha256": "b2e847ac8886b4932f8f2e26880034ed81c0860bfdc8eaea117bc770aa52b540",
+      "bytes": 777,
+      "sha256": "16f83eea0f156c4aec22c723ceab0d109e363badde417324e53c7de1b7246bc7",
       "summary": "Implements OfflinePage.",
       "route": "/offline",
       "analysis": {
@@ -8157,8 +8157,8 @@
     },
     "src/app/onboarding/tenant/page.tsx": {
       "category": "app-route",
-      "bytes": 20219,
-      "sha256": "bd605f9008be4d82a985d7fd458ffe1fbb5a02855d9f944de8bfe7534bcf16c0",
+      "bytes": 20227,
+      "sha256": "858040be664673348bcef9b732a81308998ad0094d76903459b1400c6c173605",
       "summary": "Implements TenantOnboardingPage.",
       "route": "/onboarding/tenant",
       "analysis": {
@@ -8253,8 +8253,8 @@
     },
     "src/app/page.tsx": {
       "category": "app-route",
-      "bytes": 10547,
-      "sha256": "d255b7ddacb7cc990caec3a169fbc5cd5506c8a8cd6fac30dbbd4fc07eaca16c",
+      "bytes": 10727,
+      "sha256": "d20e23081dbfc63d4f276718d7bfd0455102d70c5ad2bcc8e67e2b3f50327f59",
       "summary": "Implements HomePage.",
       "route": "/",
       "analysis": {
@@ -8289,9 +8289,9 @@
           "[ [\"Shopee\", \"Tai nghe không dây\", \"+ 48.600 ₫\", \"Đã duyệt\"], [\"ShopeeFood\", \"Bữa trưa thứ Sáu\", \"+ 21.350 ₫\", \"Đang chờ\"], [\"Shopee\", \"Đồ gia dụng\", \"+ 116.250",
           "brand?.charAt",
           "partners.map",
-          "[ [ Link2, \"01\", \"Tạo liên kết\", \"Dán URL sản phẩm, nhà hàng hoặc ưu đãi. Hệ thống tạo link có attribution riêng cho bạn.\" ], [ ReceiptText, \"02\", \"Mua và theo ",
+          "[ [ Link2, \"01\", \"Tạo liên kết\", \"Dán liên kết sản phẩm Shopee, Lazada hoặc ưu đãi. Hệ thống tự động tạo link hoàn tiền cá nhân cho bạn.\" ], [ ReceiptText, \"02\"",
           "String",
-          "[ [ \"Tỷ lệ được chụp tại lúc click\", \"Thay đổi chính sách sau đó không làm mất phần chia đã hứa cho click cũ.\" ], [ \"Ledger kép, append-only\", \"Số dư trên màn h"
+          "[ [ \"Tỷ lệ hoàn tiền được cố định khi tạo link\", \"Thay đổi tỷ lệ sau này không làm ảnh hưởng đến hoa hồng đã ghi nhận của link cũ.\" ], [ \"Hệ thống kế toán tiêu "
         ],
         "tests": []
       }
@@ -8341,8 +8341,8 @@
     },
     "src/app/partners/page.tsx": {
       "category": "app-route",
-      "bytes": 2778,
-      "sha256": "83445d7ffadd7a8622a854e08bd129d2e08035e58cbbe41b46c754c3388e4cb9",
+      "bytes": 2939,
+      "sha256": "b55620d446485d6024589ea038c192ba38ac133ee8b9bb11f3d7a2f0de24c2ae",
       "summary": "Implements metadata, PartnersPage.",
       "route": "/partners",
       "analysis": {
@@ -8374,7 +8374,7 @@
           {
             "name": "PartnersPage",
             "kind": "function",
-            "line": 40,
+            "line": 41,
             "exported": true,
             "purpose": "PartnersPage."
           }
@@ -8385,8 +8385,8 @@
     },
     "src/app/privacy/page.tsx": {
       "category": "app-route",
-      "bytes": 1096,
-      "sha256": "647cad53d28ffc7cb6943a4f01ff1732653307e15c158471c50ed4d9f4a3bda7",
+      "bytes": 1136,
+      "sha256": "1cd2b610d8c13cc846a9c41e5b0d7fb73f0ae334759a00d9d27dd4187afe8b57",
       "summary": "Implements PrivacyPage.",
       "route": "/privacy",
       "analysis": {
@@ -8430,8 +8430,8 @@
     },
     "src/app/shop/[tenantId]/conversions/page.tsx": {
       "category": "app-route",
-      "bytes": 5015,
-      "sha256": "7e6d82e878ca2e722a5bdc77066047313b67f3c5fccfac58d6ecb704c4b2c1ac",
+      "bytes": 5066,
+      "sha256": "6eee00e7fe50f0e88edb8d96cef3eea9c03de7dd4317491e6cd5fc0ce9b1f087",
       "summary": "Implements ShopTenantConversionsPage.",
       "route": "/shop/:tenantId/conversions",
       "analysis": {
@@ -8552,8 +8552,8 @@
     },
     "src/app/shop/[tenantId]/members/page.tsx": {
       "category": "app-route",
-      "bytes": 5366,
-      "sha256": "5551b96ee474f9209a6f237880ea67f94f3db3a02efb9b8965120c60f49c1732",
+      "bytes": 5400,
+      "sha256": "c5d87eca2e7772ad7e3e434c2ec4053baf0670503ebd1319769ede1bbabc3825",
       "summary": "Implements ShopTenantMembersPage.",
       "route": "/shop/:tenantId/members",
       "analysis": {
@@ -8601,8 +8601,8 @@
     },
     "src/app/shop/[tenantId]/my-history/page.tsx": {
       "category": "app-route",
-      "bytes": 6409,
-      "sha256": "590a4c89b1fbed947607da000eea39acedbf2b9f6379055bcf2f7ad153c56463",
+      "bytes": 6411,
+      "sha256": "8e93c40132e666b39e9e07315096f8ba1d8deccb8eb97780485e6323810fd4da",
       "summary": "Implements ShopMyHistoryPage.",
       "route": "/shop/:tenantId/my-history",
       "analysis": {
@@ -8655,8 +8655,8 @@
     },
     "src/app/shop/[tenantId]/my-links/page.tsx": {
       "category": "app-route",
-      "bytes": 3826,
-      "sha256": "d93238e675f818b2836f22ed880367713969e5b514a48c3680d87daff9fc7687",
+      "bytes": 3817,
+      "sha256": "41587e7e6f10ad9047bd3b1047f3f4226e32c7c55fc1176731916ceca5e0d027",
       "summary": "Implements ShopMyLinksPage.",
       "route": "/shop/:tenantId/my-links",
       "analysis": {
@@ -8723,8 +8723,8 @@
     },
     "src/app/shop/[tenantId]/my-wallet/page.tsx": {
       "category": "app-route",
-      "bytes": 6877,
-      "sha256": "7ee617fd73b6e92c8f3898526ef78e57b444c3a601231a3c56e214a2ec451a0f",
+      "bytes": 6932,
+      "sha256": "7b7f9cbe9f4b767411246b1379c686dd2fb8c0f14cac2e811c07d49273232452",
       "summary": "Implements ShopMyWalletPage.",
       "route": "/shop/:tenantId/my-wallet",
       "analysis": {
@@ -8771,7 +8771,7 @@
           "paginationPage",
           "db.tenantPayout.findMany",
           "availableObligations.reduce",
-          "( [ [\"Pending\", value.pendingFundingVnd], [\"Available\", value.availableVnd], [\"Withdrawable\", withdrawableVnd], [\"Reserved\", value.reservedVnd], [\"Paid\", value.",
+          "( [ [\"Chờ xử lý\", value.pendingFundingVnd], [\"Khả dụng\", value.availableVnd], [\"Có thể rút\", withdrawableVnd], [\"Đang rút\", value.reservedVnd], [\"Đã nhận\", valu",
           "formatVnd",
           "withdrawableVnd.toString",
           "tickets.map",
@@ -8900,8 +8900,8 @@
     },
     "src/app/shop/[tenantId]/payouts/page.tsx": {
       "category": "app-route",
-      "bytes": 8241,
-      "sha256": "440130bbe552477fa4bacf3d2cb135252027663b2755457d1cfd36d3b51171df",
+      "bytes": 8405,
+      "sha256": "0028f9a538f642d496dac7ffaeb55ac2ce6485bebf131058e30ceb9db2794146",
       "summary": "Implements ShopTenantPayoutQueue.",
       "route": "/shop/:tenantId/payouts",
       "analysis": {
@@ -9234,8 +9234,8 @@
     },
     "src/app/shop/[tenantId]/treasury/page.tsx": {
       "category": "app-route",
-      "bytes": 8902,
-      "sha256": "0ae86e3c5c8e3264b139f8f7e953d3938d0073a0a94d775e0cb217b8a5552fcb",
+      "bytes": 8962,
+      "sha256": "c7e9ded89dda410b68654b256cf3b35e090be15484e3970caf0531ac6301e622",
       "summary": "Implements ShopTenantTreasuryPage.",
       "route": "/shop/:tenantId/treasury",
       "analysis": {
@@ -9284,7 +9284,7 @@
           "db.bankBeneficiary.findFirst",
           "db.tenantFundingOrder.findMany",
           "db.tenantPayout.findMany",
-          "[ [\"Khả dụng\", value.availableVnd], [\"Đang reserve\", value.reservedVnd], [\"Đã chi member\", value.paidVnd], [\"Đã rút\", value.withdrawnVnd] ].map",
+          "[ [\"Khả dụng\", value.availableVnd], [\"Đang xử lý\", value.reservedVnd], [\"Đã chi member\", value.paidVnd], [\"Đã rút\", value.withdrawnVnd] ].map",
           "String",
           "formatVnd",
           "(masterWallet?.availableVnd ?? 0n).toString",
@@ -9665,8 +9665,8 @@
     },
     "src/app/terms/page.tsx": {
       "category": "app-route",
-      "bytes": 1148,
-      "sha256": "aac26ff95fc7f97a1c6cff1eba409342232b8a4bd0485f86915a42e64cfbb39f",
+      "bytes": 1149,
+      "sha256": "d584869de1c70b76d1bced6d9a3fba85f61be48764839da2ed436673338d5bb9",
       "summary": "Implements TermsPage.",
       "route": "/terms",
       "analysis": {
@@ -9711,8 +9711,8 @@
     },
     "src/components/admin-passkey.tsx": {
       "category": "component",
-      "bytes": 3059,
-      "sha256": "a8b21e669ee7928f72cb06cf097b68ec939e46410cdf3e4c3dfd404a2ad7e114",
+      "bytes": 3204,
+      "sha256": "872791e482af31ba8b8ecea929c73b083c8f673733c71d5d02bc80d0b8e335bf",
       "summary": "Implements AdminPasskey.",
       "analysis": {
         "runtime": "client",
@@ -9742,8 +9742,8 @@
     },
     "src/components/admin-shell.tsx": {
       "category": "component",
-      "bytes": 1949,
-      "sha256": "af5e1a1f1d47d918199367b1643ee23bf701a61ce0a564a8126a5cb13e6b3a5b",
+      "bytes": 2063,
+      "sha256": "302c7658ea9a68c783d5da26c8d57a4e114a4355289728ee0c5e555f5770522f",
       "summary": "Implements AdminShell.",
       "analysis": {
         "runtime": "node",
@@ -9765,8 +9765,8 @@
     },
     "src/components/app-shell.tsx": {
       "category": "component",
-      "bytes": 5418,
-      "sha256": "e8552db49296d767bcdb526a2f3911e52ee119bd8f0bfb03122eb7fbd5c58304",
+      "bytes": 5428,
+      "sha256": "e607e9ecdd05e85ca21a8a3b820abe7769e973f0a225769512fb687c2e3a3510",
       "summary": "Implements AppShell.",
       "analysis": {
         "runtime": "node",
@@ -9808,8 +9808,8 @@
     },
     "src/components/beneficiary-form.tsx": {
       "category": "component",
-      "bytes": 2644,
-      "sha256": "3790e7196b9540703f9158582b5f2daad8ba20086c2bbaa9328784d038933c83",
+      "bytes": 2693,
+      "sha256": "9cefd082589c9b2cbb4708c20fe939e2cf757bf12bd4846b7b90791a5cc21d1d",
       "summary": "Implements BeneficiaryForm.",
       "analysis": {
         "runtime": "client",
@@ -9916,8 +9916,8 @@
     },
     "src/components/internal-tools.tsx": {
       "category": "component",
-      "bytes": 11565,
-      "sha256": "38c4c8f24d14f7ce3097b5648920814ba1669fec18e8c62bc2d341332c105d2c",
+      "bytes": 11569,
+      "sha256": "7209fc1531eb97e59a84d334540144d79c3bd85d3bb5e873e92ba7dd409a0d90",
       "summary": "Implements InternalTools.",
       "analysis": {
         "runtime": "client",
@@ -10010,8 +10010,8 @@
     },
     "src/components/link-builder.tsx": {
       "category": "component",
-      "bytes": 24223,
-      "sha256": "d8e63f43b1df0bf5b1204af95d818bd0d636579b05143c605f0e5c4663c28e8b",
+      "bytes": 24243,
+      "sha256": "071597c09eccb338e9461727d365b20369df07cfec8ec9b1bc31adf1a393e1bb",
       "summary": "Implements LinkBuilder.",
       "analysis": {
         "runtime": "client",
@@ -10076,8 +10076,8 @@
     },
     "src/components/links-workspace.tsx": {
       "category": "component",
-      "bytes": 8528,
-      "sha256": "43e0c8895447cadad58e119e4cd69374b5a321c24233f3203d32bc0f5c2b1599",
+      "bytes": 8533,
+      "sha256": "b3867769699f4bcb5d4969f12ba58f594b7337671842ba9cb5c3b93142333544",
       "summary": "Implements LinkHistoryItem, LinksWorkspace.",
       "analysis": {
         "runtime": "client",
@@ -10425,8 +10425,8 @@
     },
     "src/components/tenant-master-shell.tsx": {
       "category": "component",
-      "bytes": 6172,
-      "sha256": "d6bc1064facc4eae55ea90eb78ae30b978820bfbecee9753ff1f3e925b24582b",
+      "bytes": 6177,
+      "sha256": "dbb9a2eca81d7c27602dcac2d8685bc84a5db22e797e2acee91646a815c2fdd3",
       "summary": "Implements TenantMasterShell.",
       "analysis": {
         "runtime": "node",
@@ -10467,8 +10467,8 @@
     },
     "src/components/tenant-member-payout-form.tsx": {
       "category": "component",
-      "bytes": 2374,
-      "sha256": "9393d64da06c85fc85032751e2607567a10c608392e729898a58976b61d27ca4",
+      "bytes": 2392,
+      "sha256": "32b9fc73b790cca0eb9b49850098ba6a6696bfcb22bf9063b9a9b97dd15db68e",
       "summary": "Implements TenantMemberPayoutForm.",
       "analysis": {
         "runtime": "client",
@@ -10507,8 +10507,8 @@
     },
     "src/components/tenant-provider-credentials.tsx": {
       "category": "component",
-      "bytes": 11971,
-      "sha256": "cfb2e62088caaed5d362288e68e652b10bc18ca54d48502399d71a7b8b092254",
+      "bytes": 11964,
+      "sha256": "0ebfce3205bee35bebacdc3014f2754c6530e953f45f9ab0bc6dc201bffebcdd",
       "summary": "Implements TenantProviderAccountView, TenantProviderCredentials.",
       "analysis": {
         "runtime": "client",
@@ -10577,8 +10577,8 @@
     },
     "src/components/tenant-treasury-actions.tsx": {
       "category": "component",
-      "bytes": 3783,
-      "sha256": "e828772a3f7b3d88e7a5f21f52487b58f348609c3b1fe2046c76cb5c21f32eea",
+      "bytes": 3808,
+      "sha256": "a210166c3d2ca5f6523b5fbe0449d15a4a7f714acf33431a3d29d2bca8dc9965",
       "summary": "Implements TenantTreasuryActions.",
       "analysis": {
         "runtime": "client",
@@ -10620,8 +10620,8 @@
     },
     "src/components/tenant-user-shell.tsx": {
       "category": "component",
-      "bytes": 4533,
-      "sha256": "543927052cc8981806603fb1abdbd19638196cda14dea7bd1929b2024250838f",
+      "bytes": 4546,
+      "sha256": "d3cc56afc898b57f0d9549327c003e1f8045e72098b2bf3afc2c3ee1909fdee3",
       "summary": "Implements TenantUserShell.",
       "analysis": {
         "runtime": "node",

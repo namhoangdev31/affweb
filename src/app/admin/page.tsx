@@ -29,14 +29,14 @@ export default async function AdminPage() {
     (cashback._sum.reservedVnd ?? 0n);
   return (
     <div>
-      <p className="text-sm text-muted-foreground">Production operations</p>
+      <p className="text-sm text-muted-foreground">Tổng quan vận hành hệ thống</p>
       <h1 className="display-type mt-1 text-4xl">Dòng tiền hôm nay.</h1>
       <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          ["Gross commission", formatVnd(commission._sum.grossCommissionVnd ?? 0n), ArrowUpRight],
-          ["Cashback liability", formatVnd(liability), ArrowDownRight],
-          ["Payout đã trả", formatVnd(payout._sum.amountVnd ?? 0n), CircleDollarSign],
-          ["Active users", String(users), ShoppingBag]
+          ["Tổng hoa hồng nhận", formatVnd(commission._sum.grossCommissionVnd ?? 0n), ArrowUpRight],
+          ["Nghĩa vụ cashback", formatVnd(liability), ArrowDownRight],
+          ["Đã chi trả rút tiền", formatVnd(payout._sum.amountVnd ?? 0n), CircleDollarSign],
+          ["Người dùng hoạt động", String(users), ShoppingBag]
         ].map(([label, value, Icon]) => {
           const ItemIcon = Icon as typeof ArrowUpRight;
           return (
@@ -55,26 +55,26 @@ export default async function AdminPage() {
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Reconciliation</CardTitle>
+            <CardTitle>Đối soát phát sinh</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center gap-4">
             <AlertTriangle className={openCases ? "text-destructive" : "text-primary"} />
             <div>
               <p className="text-2xl font-semibold">{openCases}</p>
-              <p className="text-sm text-muted-foreground">case đang mở</p>
+              <p className="text-sm text-muted-foreground">vấn đề cần xử lý</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Connector health</CardTitle>
+            <CardTitle>Trạng thái kết nối hệ thống</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center gap-4">
             <AlertTriangle className={connectorLag ? "text-destructive" : "text-primary"} />
             <div>
               <p className="text-2xl font-semibold">{connectorLag}</p>
               <p className="text-sm text-muted-foreground">
-                connector degraded hoặc lag &gt; 30 phút
+                kết nối tạm gián đoạn hoặc trễ &gt; 30 phút
               </p>
             </div>
           </CardContent>

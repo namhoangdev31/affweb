@@ -5,23 +5,23 @@ export default function CashbackPolicyPage() {
     <LegalPage title="Chính sách cashback" updated="24/07/2026">
       <h2>Trạng thái số dư</h2>
       <p>
-        Pending là tiền chờ đối tác xác minh; available có thể tạo payout; reserved đã khóa cho
-        ticket; paid đã hoàn tất qua payOS.
+        Chờ xử lý là tiền chờ đối tác đối soát xác minh; Khả dụng là số dư có thể tạo yêu cầu rút
+        tiền; Đang xử lý là số dư đang được xử lý rút; Đã nhận là tiền đã thanh toán hoàn tất.
       </p>
       <h2>Tỷ lệ chia</h2>
       <p>
-        Tỷ lệ được snapshot lúc tạo click theo ưu tiên user × campaign, user × merchant, user
-        global, merchant default rồi system default.
+        Tỷ lệ hoàn tiền được ghi nhận cố định ngay tại thời điểm bạn bấm vào link mua hàng theo thứ
+        tự ưu tiên cấu hình của hệ thống.
       </p>
       <h2>Điều chỉnh và từ chối</h2>
       <p>
-        Đơn hủy, hoàn, gian lận hoặc provider correction có thể tạo bút toán đối ứng. Ledger cũ
-        không bị sửa hoặc xóa.
+        Đơn hủy, hoàn, gian lận hoặc sai lệch dữ liệu đối tác có thể tạo bút toán đối ứng. Lịch sử
+        sổ kế toán không bị sửa hoặc xóa.
       </p>
-      <h2>Payout beta</h2>
+      <h2>Quy định rút tiền</h2>
       <p>
-        Tối thiểu 100.000 ₫, tối đa 500.000 ₫ mỗi ticket/ngày. Mọi payout cần reviewer và approver
-        khác nhau.
+        Hạn mức rút tiền tối thiểu 100.000 ₫, tối đa 500.000 ₫ cho mỗi yêu cầu/ngày. Mọi yêu cầu rút
+        tiền đều được kiểm duyệt bảo đảm an toàn.
       </p>
     </LegalPage>
   );

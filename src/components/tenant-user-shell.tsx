@@ -44,7 +44,7 @@ export function TenantUserShell({
           </span>
           <span className="truncate">
             <span className="block font-bold text-white truncate">{tenant.name}</span>
-            <span className="block text-xs text-slate-400">Member cashback</span>
+            <span className="block text-xs text-slate-400">Tích điểm & Hoàn tiền</span>
           </span>
         </Link>
         <nav className="mt-9 grid gap-1.5" aria-label="Tenant member">

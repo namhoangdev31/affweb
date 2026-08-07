@@ -139,7 +139,7 @@ export function TenantProviderCredentials({
         </div>
         <CardDescription>
           Credential được nhập một lần, mã hóa phía server và chỉ hiển thị fingerprint/trạng thái.
-          Order API chỉ validate; settlement vẫn cần Finance hoặc đối soát tenant bên ngoài.
+          Order API chỉ để xác thực đơn hàng; chi trả vẫn cần đối soát từ Quản lý Kênh.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -150,10 +150,9 @@ export function TenantProviderCredentials({
         ) : !credentialFeatureEnabled ? (
           <Alert>
             <ShieldCheck />
-            <AlertTitle>Đang khóa bằng kill switch</AlertTitle>
+            <AlertTitle>Tính năng đang tạm khóa</AlertTitle>
             <AlertDescription>
-              Admin phải bật provider credential management sau khi encryption key và provider
-              contract sẵn sàng.
+              Hệ thống quản trị sẽ kích hoạt tính năng kết nối này khi có thông báo chính thức.
             </AlertDescription>
           </Alert>
         ) : (

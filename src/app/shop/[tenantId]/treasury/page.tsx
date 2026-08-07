@@ -70,15 +70,15 @@ export default async function ShopTenantTreasuryPage({
   return (
     <div className="space-y-7">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Tenant treasury</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Quỹ Kênh Săn Sale</h1>
         <p className="text-muted-foreground">
-          Chỉ số dư chưa reserve mới có thể gửi yêu cầu rút; Owner phải duyệt trước khi payout.
+          Số dư khả dụng có thể gửi yêu cầu rút tiền; yêu cầu sẽ được xử lý theo quy định bảo mật.
         </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
           ["Khả dụng", value.availableVnd],
-          ["Đang reserve", value.reservedVnd],
+          ["Đang xử lý", value.reservedVnd],
           ["Đã chi member", value.paidVnd],
           ["Đã rút", value.withdrawnVnd]
         ].map(([label, amount]) => (
@@ -110,12 +110,12 @@ export default async function ShopTenantTreasuryPage({
       </Card>
       <AdminPasskey
         apiBase="/api/v1/tenant/passkeys"
-        description="Bắt buộc trước khi Tenant Master gửi yêu cầu rút treasury. Step-up có hiệu lực 10 phút."
+        description="Xác thực khóa bảo mật trước khi gửi yêu cầu rút tiền Quỹ Kênh. Phiên xác thực có hiệu lực 10 phút."
       />
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Funding gần đây</CardTitle>
+            <CardTitle>Lịch sử nạp quỹ</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="hidden md:block">
@@ -153,7 +153,7 @@ export default async function ShopTenantTreasuryPage({
                 </div>
               ))}
               {!orders.length ? (
-                <p className="text-sm text-muted-foreground">Chưa có funding order.</p>
+                <p className="text-sm text-muted-foreground">Chưa có lệnh nạp quỹ.</p>
               ) : null}
             </div>
             <div className="mt-4">
@@ -164,7 +164,7 @@ export default async function ShopTenantTreasuryPage({
                 pathname={pathname}
                 query={{ withdrawalPage: String(withdrawalPage) }}
                 pageParam="fundingPage"
-                itemLabel="funding order"
+                itemLabel="lệnh nạp"
               />
             </div>
           </CardContent>
@@ -178,7 +178,7 @@ export default async function ShopTenantTreasuryPage({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Mã payout</TableHead>
+                    <TableHead>Mã giao dịch</TableHead>
                     <TableHead>Thời gian</TableHead>
                     <TableHead className="text-right">Số tiền</TableHead>
                     <TableHead>Trạng thái</TableHead>

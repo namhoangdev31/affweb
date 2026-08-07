@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Ưu đãi cashback | Affiliate Cashback",
-  description: "Tìm deal và mức cashback dự kiến từ các connector đang được công bố."
+  description: "Tìm deal HOT và nhận hoa hồng hoàn tiền hấp dẫn từ các sàn thương mại điện tử."
 };
 
 export const revalidate = 300; // SSR with SWR revalidation every 5 mins
@@ -48,8 +48,8 @@ export default async function DealsPage() {
         </p>
         <h1 className="display-type mt-4 text-6xl">Tìm món đáng mua.</h1>
         <p className="mt-5 max-w-2xl text-muted-foreground">
-          Giá và cashback được pre-render trực tiếp bằng Server-Side Rendering (SSR). Hãy kiểm tra
-          lại trên trang đối tác trước khi thanh toán.
+          Giá và mức hoàn tiền được tự động cập nhật liên tục. Vui lòng kiểm tra lại giá cuối cùng
+          tại trang sàn trước khi đặt hàng.
         </p>
         <div className="mt-10">
           <DealBrowser initialDeals={initialDeals} />

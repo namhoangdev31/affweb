@@ -50,9 +50,9 @@ export default async function TenantLinksPage({
     <div className="space-y-6">
       <div>
         <p className="text-sm text-muted-foreground">
-          Affiliate ID và tỷ lệ của tenant được snapshot tại link time.
+          Mã giới thiệu và tỷ lệ hoàn tiền của Kênh được ghi nhận tự động khi bạn tạo link.
         </p>
-        <h1 className="text-3xl font-bold tracking-tight">Link tenant</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Tạo link hoàn tiền Kênh</h1>
       </div>
       <LinksWorkspace
         campaigns={campaigns.map((campaign) => ({

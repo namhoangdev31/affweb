@@ -26,7 +26,7 @@ export default function HomePage() {
           <div className="mx-auto grid min-h-[720px] max-w-7xl items-center gap-12 px-5 py-20 lg:grid-cols-[1.08fr_.92fr] lg:px-8">
             <div>
               <Badge variant="secondary" className="mb-7 gap-2 rounded-full px-3 py-1.5">
-                <Sparkles className="size-3.5" /> Beta tiền thật theo lời mời
+                <Sparkles className="size-3.5" /> Nền tảng tích điểm & hoàn tiền mua sắm
               </Badge>
               <h1 className="display-type max-w-4xl text-6xl leading-[.94] sm:text-7xl lg:text-[5.7rem]">
                 Mua như cũ.
@@ -49,10 +49,10 @@ export default function HomePage() {
               </div>
               <div className="mt-12 flex flex-wrap gap-x-7 gap-y-3 text-sm text-muted-foreground">
                 <span className="flex items-center gap-2">
-                  <ShieldCheck className="size-4 text-primary" /> Ledger minh bạch
+                  <ShieldCheck className="size-4 text-primary" /> Sổ kế toán minh bạch
                 </span>
                 <span className="flex items-center gap-2">
-                  <BadgeCheck className="size-4 text-primary" /> Payout hai cấp duyệt
+                  <BadgeCheck className="size-4 text-primary" /> Rút tiền duyệt an toàn
                 </span>
                 <span className="flex items-center gap-2">
                   <Clock3 className="size-4 text-primary" /> Theo dõi trạng thái
@@ -141,7 +141,7 @@ export default function HomePage() {
                 Link2,
                 "01",
                 "Tạo liên kết",
-                "Dán URL sản phẩm, nhà hàng hoặc ưu đãi. Hệ thống tạo link có attribution riêng cho bạn."
+                "Dán liên kết sản phẩm Shopee, Lazada hoặc ưu đãi. Hệ thống tự động tạo link hoàn tiền cá nhân cho bạn."
               ],
               [
                 ReceiptText,
@@ -153,7 +153,7 @@ export default function HomePage() {
                 CircleDollarSign,
                 "03",
                 "Nhận cashback",
-                "Sau xác minh và safety hold, tiền chuyển sang khả dụng để tạo yêu cầu payout."
+                "Sau khi sàn đối tác xác nhận đơn thành công, tiền hoàn sẽ chuyển sang khả dụng để bạn rút về ngân hàng."
               ]
             ].map(([Icon, number, title, body]) => {
               const StepIcon = Icon as typeof Link2;
@@ -186,16 +186,16 @@ export default function HomePage() {
             <div className="grid gap-6">
               {[
                 [
-                  "Tỷ lệ được chụp tại lúc click",
-                  "Thay đổi chính sách sau đó không làm mất phần chia đã hứa cho click cũ."
+                  "Tỷ lệ hoàn tiền được cố định khi tạo link",
+                  "Thay đổi tỷ lệ sau này không làm ảnh hưởng đến hoa hồng đã ghi nhận của link cũ."
                 ],
                 [
-                  "Ledger kép, append-only",
-                  "Số dư trên màn hình là projection; journal tài chính mới là nguồn sự thật."
+                  "Hệ thống kế toán tiêu chuẩn",
+                  "Số dư hiển thị được kiểm soát chặt chẽ và ghi nhận chính xác theo từng giao dịch."
                 ],
                 [
-                  "Payout cần hai người duyệt",
-                  "Reviewer và approver luôn khác nhau, mọi hành động đều có audit log."
+                  "Quy trình chi trả an toàn 2 lớp",
+                  "Hệ thống tự động kiểm tra và bảo mật tuyệt đối cho mọi yêu cầu rút tiền của bạn."
                 ]
               ].map(([title, body]) => (
                 <div key={title} className="border-b border-black/15 pb-6">
@@ -212,11 +212,11 @@ export default function HomePage() {
         <section className="mx-auto max-w-5xl px-5 py-24 text-center lg:py-32">
           <h2 className="display-type text-5xl sm:text-6xl">Đừng để hoa hồng trôi qua.</h2>
           <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
-            Beta hiện mở theo lời mời để đảm bảo đối soát và payout vận hành an toàn.
+            Trải nghiệm mua sắm thông minh và tích lũy hoàn tiền ngay hôm nay.
           </p>
           <Button size="lg" asChild className="mt-8 rounded-full px-8">
             <Link href="/login">
-              Tham gia beta <ArrowRight />
+              Bắt đầu ngay <ArrowRight />
             </Link>
           </Button>
         </section>

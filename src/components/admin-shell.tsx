@@ -18,16 +18,16 @@ import {
 const nav = [
   ["/admin", "Điều hành", Gauge],
   ["/admin/users", "Người dùng", Users],
-  ["/admin/catalog", "Đối tác & campaign", Store],
-  ["/admin/rules", "Tỷ lệ chia", SlidersHorizontal],
-  ["/admin/connectors", "Connectors", Activity],
+  ["/admin/catalog", "Đối tác & chiến dịch", Store],
+  ["/admin/rules", "Quy tắc tỷ lệ chia", SlidersHorizontal],
+  ["/admin/connectors", "Kết nối hệ thống", Activity],
   ["/admin/reconciliation", "Đối soát", FileSearch2],
-  ["/admin/ledger", "Ledger", BookOpen],
-  ["/admin/payouts", "Payout", CircleDollarSign],
-  ["/admin/finance/health", "Finance health", Activity],
-  ["/admin/adjustments", "Adjustments", Scale],
-  ["/admin/audit", "Audit log", ReceiptText],
-  ["/admin/flags", "Kill switches", Settings2]
+  ["/admin/ledger", "Sổ kế toán", BookOpen],
+  ["/admin/payouts", "Chi trả & Rút tiền", CircleDollarSign],
+  ["/admin/finance/health", "Sức khỏe tài chính", Activity],
+  ["/admin/adjustments", "Điều chỉnh số dư", Scale],
+  ["/admin/audit", "Nhật ký hệ thống", ReceiptText],
+  ["/admin/flags", "Cấu hình an toàn", Settings2]
 ] as const;
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -35,7 +35,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[#f3f1ea] lg:grid lg:grid-cols-[250px_1fr]">
       <aside className="border-r bg-[#161d1a] p-5 text-white">
         <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#d8bd6e]">
-          Admin control plane
+          Cổng Quản Trị Hệ Thống
         </p>
         <nav className="mt-8 grid gap-1">
           {nav.map(([href, label, Icon]) => (
@@ -52,7 +52,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           href="/app"
           className="mt-10 flex items-center gap-2 px-3 text-sm text-white/45 hover:text-white"
         >
-          <ArrowLeft className="size-4" /> User dashboard
+          <ArrowLeft className="size-4" /> Trang cá nhân
         </Link>
       </aside>
       <main className="min-w-0 p-5 lg:p-8">{children}</main>

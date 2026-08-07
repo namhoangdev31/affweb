@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 export function AdminPasskey({
   apiBase = "/api/admin/passkeys",
-  description = "Bắt buộc trước review, approve và adjustment."
+  description = "Xác thực bảo mật trước khi thực hiện phê duyệt hoặc điều chỉnh tài chính."
 }: {
   apiBase?: string;
   description?: string;
@@ -31,7 +31,7 @@ export function AdminPasskey({
         body: JSON.stringify(response)
       });
       if (!verification.ok) throw new Error("Không thể đăng ký passkey.");
-      setMessage("Passkey đã đăng ký và step-up có hiệu lực 10 phút.");
+      setMessage("Khóa bảo mật đã được xác thực, phiên có hiệu lực 10 phút.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Passkey thất bại.");
     } finally {
@@ -55,7 +55,7 @@ export function AdminPasskey({
         body: JSON.stringify(response)
       });
       if (!verification.ok) throw new Error("Không thể xác minh passkey.");
-      setMessage("Đã step-up. Finance actions mở trong 10 phút.");
+      setMessage("Xác thực thành công. Các thao tác tài chính đã được mở trong 10 phút.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Passkey thất bại.");
     } finally {
@@ -67,14 +67,14 @@ export function AdminPasskey({
     <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-5">
       <Fingerprint className="size-6 text-primary" />
       <div className="min-w-0 flex-1">
-        <p className="font-medium">Finance passkey</p>
+        <p className="font-medium">Khóa bảo mật tài chính (Passkey)</p>
         <p className="text-sm text-muted-foreground">{message ?? description}</p>
       </div>
       <Button type="button" variant="outline" onClick={register} disabled={loading}>
         Đăng ký
       </Button>
       <Button type="button" onClick={stepUp} disabled={loading}>
-        {loading ? <Loader2 className="animate-spin" /> : <Fingerprint />} Step-up
+        {loading ? <Loader2 className="animate-spin" /> : <Fingerprint />} Xác thực sinh trắc học
       </Button>
     </div>
   );

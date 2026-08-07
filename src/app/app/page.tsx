@@ -34,10 +34,10 @@ export default async function DashboardPage() {
       </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
-          ["Khả dụng", balance.availableVnd, CircleDollarSign, "Có thể tạo payout"],
+          ["Khả dụng", balance.availableVnd, CircleDollarSign, "Có thể tạo yêu cầu rút tiền"],
           ["Đang chờ", balance.pendingVnd, Clock3, "Chờ đối tác xác minh"],
-          ["Đã khóa", balance.reservedVnd, ReceiptText, "Payout đang xử lý"],
-          ["Link đã tạo", BigInt(clickCount), Link2, "Tổng số tracking link"]
+          ["Đã khóa", balance.reservedVnd, ReceiptText, "Yêu cầu rút đang xử lý"],
+          ["Link đã tạo", BigInt(clickCount), Link2, "Tổng số link giới thiệu"]
         ].map(([label, value, Icon, note]) => {
           const StatIcon = Icon as typeof CircleDollarSign;
           return (

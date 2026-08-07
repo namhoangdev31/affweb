@@ -62,8 +62,8 @@ export default async function TenantDirectSlugPage({
           <CardHeader>
             <CardTitle>Kênh {tenant.name} đang tạm dừng</CardTitle>
             <CardDescription>
-              Tenant đã hết hạn hoặc bị đình chỉ. Hệ thống không tạo link và không tự fallback sang
-              Affiliate ID nền tảng.
+              Kênh đã hết hạn hoặc tạm dừng hoạt động. Hệ thống không tạo link và không tự động
+              chuyển sang Affiliate ID nền tảng.
             </CardDescription>
           </CardHeader>
         </Card>

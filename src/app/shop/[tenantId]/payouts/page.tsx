@@ -57,19 +57,19 @@ export default async function ShopTenantPayoutQueue({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Member withdrawal</h1>
+        <h1 className="text-3xl font-bold">Yêu cầu rút tiền từ thành viên</h1>
         <p className="text-muted-foreground">
-          Duyệt, chuyển khoản và đối soát trong đúng tenant scope.
+          Duyệt, chuyển khoản và đối soát yêu cầu rút tiền của thành viên trong Kênh.
         </p>
       </div>
       <Card className="hidden overflow-hidden py-0 md:block">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User</TableHead>
+              <TableHead>Thành viên</TableHead>
               <TableHead>Số tiền</TableHead>
-              <TableHead>Approval</TableHead>
-              <TableHead>Settlement</TableHead>
+              <TableHead>Phê duyệt</TableHead>
+              <TableHead>Thanh toán</TableHead>
               <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
@@ -116,7 +116,7 @@ export default async function ShopTenantPayoutQueue({
         totalItems={total}
         pageSize={PAGE_SIZE}
         pathname={`/shop/${tenant.id}/payouts`}
-        itemLabel="payout"
+        itemLabel="yêu cầu"
       />
     </div>
   );
@@ -134,7 +134,7 @@ function PayoutActions({
           <input type="hidden" name="payoutId" value={payout.id} />
           <select name="method" className="h-9 rounded-md border bg-background px-2 text-sm">
             <option value="PAYOS">PayOS</option>
-            <option value="MANUAL_BANK_TRANSFER">Manual</option>
+            <option value="MANUAL_BANK_TRANSFER">Chuyển khoản thủ công</option>
           </select>
           <Input name="note" placeholder="Ghi chú" className="w-28" />
           <Button size="sm">Duyệt</Button>
@@ -157,23 +157,23 @@ function PayoutActions({
           target="_blank"
           rel="noreferrer"
         >
-          Mở beneficiary
+          Xem tài khoản nhận
         </a>
         <form action={tenantPayoutOperationAction} className="flex flex-wrap gap-2">
           <input type="hidden" name="payoutId" value={payout.id} />
           <input type="hidden" name="operation" value="manual-complete" />
           <Input name="transferReference" required placeholder="Mã GD" className="w-28" />
-          <Input name="evidenceReference" required placeholder="Evidence" className="w-28" />
+          <Input name="evidenceReference" required placeholder="Bằng chứng" className="w-28" />
           <Input name="note" required placeholder="Ghi chú" className="w-28" />
           <Button size="sm">Hoàn tất</Button>
         </form>
         <form action={tenantPayoutOperationAction} className="flex flex-wrap gap-2">
           <input type="hidden" name="payoutId" value={payout.id} />
           <input type="hidden" name="operation" value="manual-unknown" />
-          <Input name="evidenceReference" required placeholder="Evidence" className="w-28" />
+          <Input name="evidenceReference" required placeholder="Bằng chứng" className="w-28" />
           <Input name="note" required placeholder="Lý do" className="w-28" />
           <Button size="sm" variant="outline">
-            UNKNOWN
+            Cần đối soát (UNKNOWN)
           </Button>
         </form>
       </div>
@@ -184,14 +184,14 @@ function PayoutActions({
         <input type="hidden" name="payoutId" value={payout.id} />
         <input type="hidden" name="operation" value="manual-resolve" />
         <select name="resolution" className="h-9 rounded-md border bg-background px-2 text-sm">
-          <option value="REMAIN_UNKNOWN">Giữ UNKNOWN</option>
+          <option value="REMAIN_UNKNOWN">Giữ Cần đối soát</option>
           <option value="CONFIRMED_PAID">Đã trả</option>
           <option value="CONFIRMED_NOT_SENT">Chưa gửi</option>
         </select>
-        <Input name="evidenceReference" required placeholder="Evidence" className="w-28" />
+        <Input name="evidenceReference" required placeholder="Bằng chứng" className="w-28" />
         <Input name="note" required placeholder="Lý do" className="w-28" />
         <Button size="sm" variant="outline">
-          Resolve
+          Xác nhận đối soát
         </Button>
       </form>
     );

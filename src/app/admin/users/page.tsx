@@ -61,7 +61,7 @@ export default async function AdminUsersPage({
 
   return (
     <div>
-      <h1 className="display-type text-4xl">Người dùng.</h1>
+      <h1 className="display-type text-4xl">Quản lý người dùng hệ thống.</h1>
       <Card className="mt-8">
         <CardContent className="p-5">
           <form action={inviteUserAction} className="flex flex-col gap-3 sm:flex-row">
@@ -72,10 +72,10 @@ export default async function AdminUsersPage({
               placeholder="email@congty.vn"
               aria-label="Email người được mời"
             />
-            <Button type="submit">Mời vào beta</Button>
+            <Button type="submit">Gửi lời mời tham gia</Button>
           </form>
           <p className="mt-2 text-xs text-muted-foreground">
-            Clerk gửi lời mời beta; người dùng đăng nhập bằng Google hoặc email OTP.
+            Hệ thống gửi thư mời xác thực qua email cho người dùng.
           </p>
         </CardContent>
       </Card>
@@ -85,9 +85,9 @@ export default async function AdminUsersPage({
             <TableRow>
               <TableHead className="pl-5">Người dùng</TableHead>
               <TableHead>Trạng thái</TableHead>
-              <TableHead>Roles</TableHead>
-              <TableHead className="text-right">Available</TableHead>
-              <TableHead>Identity</TableHead>
+              <TableHead>Quyền hạn (Roles)</TableHead>
+              <TableHead className="text-right">Ví khả dụng</TableHead>
+              <TableHead>Xác thực (Identity)</TableHead>
               <TableHead className="pr-5">Quản trị</TableHead>
             </TableRow>
           </TableHeader>
@@ -128,9 +128,11 @@ export default async function AdminUsersPage({
                           })
                         : "Chưa đăng nhập"}
                     </p>
-                    {invitation ? <p className="text-xs">Invite: {invitation.status}</p> : null}
+                    {invitation ? <p className="text-xs">Lời mời: {invitation.status}</p> : null}
                     {deletion ? (
-                      <p className="text-xs text-destructive">Xóa: {deletion.status}</p>
+                      <p className="text-xs text-destructive">
+                        Yêu cầu xóa tài khoản: {deletion.status}
+                      </p>
                     ) : null}
                   </TableCell>
                   <TableCell className="pr-5">
@@ -189,7 +191,7 @@ export default async function AdminUsersPage({
                           <form action={revokeUserSessionsAction}>
                             <input type="hidden" name="userId" value={user.id} />
                             <Button type="submit" size="sm" variant="ghost">
-                              Thu hồi session
+                              Đăng xuất khỏi mọi thiết bị
                             </Button>
                           </form>
                         ) : null}
@@ -198,14 +200,14 @@ export default async function AdminUsersPage({
                             <form action={resendInvitationAction}>
                               <input type="hidden" name="invitationId" value={invitation.id} />
                               <Button type="submit" size="sm" variant="outline">
-                                Gửi lại invite
+                                Gửi lại lời mời
                               </Button>
                             </form>
                             {invitation.status === IdentityInvitationStatus.SENT ? (
                               <form action={revokeInvitationAction}>
                                 <input type="hidden" name="invitationId" value={invitation.id} />
                                 <Button type="submit" size="sm" variant="ghost">
-                                  Thu hồi invite
+                                  Thu hồi lời mời
                                 </Button>
                               </form>
                             ) : null}
@@ -264,7 +266,7 @@ export default async function AdminUsersPage({
                   </p>
                   {invitation ? (
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <Badge variant="secondary">Invite: {invitation.status}</Badge>
+                      <Badge variant="secondary">Lời mời: {invitation.status}</Badge>
                       {invitation.status !== IdentityInvitationStatus.ACCEPTED ? (
                         <>
                           <form action={resendInvitationAction}>
@@ -330,16 +332,16 @@ export default async function AdminUsersPage({
                       ))}
                     </select>
                     <Button name="assigned" value="true" type="submit" size="sm" variant="outline">
-                      Cấp role
+                      Cấp quyền
                     </Button>
                     <Button name="assigned" value="false" type="submit" size="sm" variant="ghost">
-                      Gỡ role
+                      Gỡ quyền
                     </Button>
                   </form>
                 </div>
                 <div className="xl:text-right">
                   <p className="font-semibold">{formatVnd(user.wallet?.availableVnd ?? 0n)}</p>
-                  <p className="text-xs text-muted-foreground">available</p>
+                  <p className="text-xs text-muted-foreground">khả dụng</p>
                   <form action={updateUserStatusAction} className="mt-3 flex gap-2">
                     <input type="hidden" name="userId" value={user.id} />
                     <select
@@ -361,7 +363,7 @@ export default async function AdminUsersPage({
                     <form action={revokeUserSessionsAction} className="mt-2">
                       <input type="hidden" name="userId" value={user.id} />
                       <Button type="submit" size="sm" variant="ghost">
-                        Thu hồi mọi session
+                        Đăng xuất khỏi mọi thiết bị
                       </Button>
                     </form>
                   ) : null}

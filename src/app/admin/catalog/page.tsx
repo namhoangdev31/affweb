@@ -63,19 +63,19 @@ export default async function CatalogPage({
   ]);
   return (
     <div>
-      <h1 className="display-type text-4xl">Đối tác & campaign.</h1>
+      <h1 className="display-type text-4xl">Danh mục đối tác & chiến dịch.</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Chỉ lưu ID công khai và policy. API key/token luôn nằm trong environment.
+        Cấu hình thông tin đối tác và mã chiến dịch liên kết.
       </p>
       <div className="mt-8 space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Merchant</CardTitle>
+            <CardTitle>Thêm/Sửa đối tác (Merchant)</CardTitle>
           </CardHeader>
           <CardContent>
             <form action={upsertMerchantAction} className="space-y-4">
               <div>
-                <Label htmlFor="platform">Platform</Label>
+                <Label htmlFor="platform">Nền tảng</Label>
                 <select id="platform" name="platform" className={selectClass}>
                   {Object.values(Platform).map((value) => (
                     <option key={value}>{value}</option>
@@ -110,18 +110,18 @@ export default async function CatalogPage({
                   required
                 />
               </div>
-              <Button type="submit">Lưu merchant</Button>
+              <Button type="submit">Lưu đối tác</Button>
             </form>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Campaign</CardTitle>
+            <CardTitle>Thêm/Sửa chiến dịch (Campaign)</CardTitle>
           </CardHeader>
           <CardContent>
             <form action={upsertCampaignAction} className="space-y-4">
               <div>
-                <Label htmlFor="merchantId">Merchant</Label>
+                <Label htmlFor="merchantId">Đối tác liên kết</Label>
                 <select id="merchantId" name="merchantId" className={selectClass} required>
                   {merchantOptions.map((merchant) => (
                     <option key={merchant.id} value={merchant.id}>
@@ -131,7 +131,7 @@ export default async function CatalogPage({
                 </select>
               </div>
               <div>
-                <Label htmlFor="externalId">External campaign ID</Label>
+                <Label htmlFor="externalId">Mã chiến dịch đối tác</Label>
                 <Input id="externalId" name="externalId" required />
               </div>
               <div>
@@ -143,7 +143,7 @@ export default async function CatalogPage({
                 <Input id="campaignName" name="name" required />
               </div>
               <div>
-                <Label htmlFor="allowedHosts">Allowed hosts</Label>
+                <Label htmlFor="allowedHosts">Tên miền cho phép (Hosts)</Label>
                 <Input
                   id="allowedHosts"
                   name="allowedHosts"
@@ -151,21 +151,21 @@ export default async function CatalogPage({
                   required
                 />
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Phân cách bằng dấu phẩy; chống open redirect/SSRF.
+                  Phân cách bằng dấu phẩy; tăng cường bảo mật chuyển hướng.
                 </p>
               </div>
-              <Button type="submit">Lưu campaign</Button>
+              <Button type="submit">Lưu chiến dịch</Button>
             </form>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Affiliate account</CardTitle>
+            <CardTitle>Tài khoản Affiliate</CardTitle>
           </CardHeader>
           <CardContent>
             <form action={upsertAffiliateAccountAction} className="space-y-4">
               <div>
-                <Label htmlFor="connectorType">Connector</Label>
+                <Label htmlFor="connectorType">Loại cổng kết nối</Label>
                 <select id="connectorType" name="connectorType" className={selectClass}>
                   {Object.values(ConnectorType).map((value) => (
                     <option key={value}>{value}</option>
@@ -173,7 +173,7 @@ export default async function CatalogPage({
                 </select>
               </div>
               <div>
-                <Label htmlFor="accountPlatform">Platform</Label>
+                <Label htmlFor="accountPlatform">Nền tảng</Label>
                 <select id="accountPlatform" name="platform" className={selectClass}>
                   {Object.values(Platform).map((value) => (
                     <option key={value}>{value}</option>
@@ -181,7 +181,7 @@ export default async function CatalogPage({
                 </select>
               </div>
               <div>
-                <Label htmlFor="externalAccountId">External account ID</Label>
+                <Label htmlFor="externalAccountId">Mã tài khoản đối tác</Label>
                 <Input id="externalAccountId" name="externalAccountId" required />
               </div>
               <div>
@@ -189,7 +189,7 @@ export default async function CatalogPage({
                 <Input id="label" name="label" required />
               </div>
               <div>
-                <Label htmlFor="mode">Mode</Label>
+                <Label htmlFor="mode">Chế độ vận hành</Label>
                 <select id="mode" name="mode" className={selectClass}>
                   {Object.values(ConnectorMode).map((value) => (
                     <option key={value}>{value}</option>
@@ -199,11 +199,11 @@ export default async function CatalogPage({
               <div>
                 <Label htmlFor="enabled">Trạng thái</Label>
                 <select id="enabled" name="enabled" className={selectClass}>
-                  <option value="false">Disabled</option>
-                  <option value="true">Enabled</option>
+                  <option value="false">Tắt</option>
+                  <option value="true">Bật</option>
                 </select>
               </div>
-              <Button type="submit">Lưu account</Button>
+              <Button type="submit">Lưu tài khoản</Button>
             </form>
           </CardContent>
         </Card>
@@ -211,7 +211,7 @@ export default async function CatalogPage({
       <div className="mt-8 grid gap-6 xl:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Merchants</CardTitle>
+            <CardTitle>Danh sách đối tác</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="hidden md:block">
@@ -219,7 +219,7 @@ export default async function CatalogPage({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Tên</TableHead>
-                    <TableHead>Platform</TableHead>
+                    <TableHead>Nền tảng</TableHead>
                     <TableHead>Code</TableHead>
                     <TableHead className="text-right">Tỷ lệ mặc định</TableHead>
                   </TableRow>
@@ -261,14 +261,14 @@ export default async function CatalogPage({
                 pathname="/admin/catalog"
                 query={{ campaignPage: params.campaignPage, accountPage: params.accountPage }}
                 pageParam="merchantPage"
-                itemLabel="merchant"
+                itemLabel="đối tác"
               />
             ) : null}
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Campaigns</CardTitle>
+            <CardTitle>Danh sách chiến dịch</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="hidden md:block">
@@ -309,14 +309,14 @@ export default async function CatalogPage({
                 pathname="/admin/catalog"
                 query={{ merchantPage: params.merchantPage, accountPage: params.accountPage }}
                 pageParam="campaignPage"
-                itemLabel="campaign"
+                itemLabel="chiến dịch"
               />
             ) : null}
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Accounts</CardTitle>
+            <CardTitle>Danh sách tài khoản</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="hidden md:block">
@@ -324,9 +324,9 @@ export default async function CatalogPage({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nhãn</TableHead>
-                    <TableHead>Connector</TableHead>
-                    <TableHead>Platform</TableHead>
-                    <TableHead className="text-right">Mode</TableHead>
+                    <TableHead>Cổng kết nối</TableHead>
+                    <TableHead>Nền tảng</TableHead>
+                    <TableHead className="text-right">Chế độ</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -368,7 +368,7 @@ export default async function CatalogPage({
                 pathname="/admin/catalog"
                 query={{ merchantPage: params.merchantPage, campaignPage: params.campaignPage }}
                 pageParam="accountPage"
-                itemLabel="account"
+                itemLabel="tài khoản"
               />
             ) : null}
           </CardContent>

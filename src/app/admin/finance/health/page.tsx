@@ -62,16 +62,16 @@ export default async function FinanceHealthPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="display-type text-4xl">Finance health.</h1>
+        <h1 className="display-type text-4xl">Sức khỏe tài chính.</h1>
         <p className="text-muted-foreground">
-          On-demand, index-bounded view; provider không được gọi khi mở trang.
+          Theo dõi trạng thái lệnh chi trả và cảnh báo bất thường.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         {[
-          ["UNKNOWN", unknown],
-          ["Manual review", manualReview],
-          ["Dispatch failed", pendingQStash]
+          ["Cần xác minh (UNKNOWN)", unknown],
+          ["Cần duyệt tay", manualReview],
+          ["Gửi lệnh thất bại", pendingQStash]
         ].map(([label, value]) => (
           <Card key={String(label)}>
             <CardHeader>
@@ -85,12 +85,12 @@ export default async function FinanceHealthPage({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Tenant</TableHead>
-              <TableHead>Reference</TableHead>
-              <TableHead>Approval</TableHead>
-              <TableHead>Settlement</TableHead>
-              <TableHead>Review</TableHead>
-              <TableHead>Updated</TableHead>
+              <TableHead>Kênh</TableHead>
+              <TableHead>Mã tham chiếu</TableHead>
+              <TableHead>Phê duyệt</TableHead>
+              <TableHead>Chi trả</TableHead>
+              <TableHead>Lý do kiểm tra</TableHead>
+              <TableHead>Cập nhật</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -122,7 +122,7 @@ export default async function FinanceHealthPage({
                 <Badge variant="outline">{record.settlementStatus}</Badge>
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                {record.reviewReason ?? "Không có review reason"}
+                {record.reviewReason ?? "Không có lý do cảnh báo"}
               </p>
             </CardContent>
           </Card>
@@ -133,7 +133,7 @@ export default async function FinanceHealthPage({
         totalItems={total}
         pageSize={PAGE_SIZE}
         pathname="/admin/finance/health"
-        itemLabel="record"
+        itemLabel="bản ghi"
       />
     </div>
   );

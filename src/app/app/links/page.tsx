@@ -53,7 +53,7 @@ export default async function LinksPage({
     <div className="space-y-6">
       <div>
         <p className="text-sm text-muted-foreground">
-          Tỷ lệ và nguồn Affiliate được snapshot ngay lúc tạo
+          Tạo link mua sắm cá nhân và tự động tính hoa hồng hoàn tiền
         </p>
         <h1 className="display-type mt-1 text-4xl">Link cashback.</h1>
       </div>

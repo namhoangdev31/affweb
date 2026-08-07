@@ -37,7 +37,9 @@ export default async function NotificationsPage({
   });
   return (
     <div>
-      <p className="text-sm text-muted-foreground">Đơn, tiền và payout</p>
+      <p className="text-sm text-muted-foreground">
+        Cập nhật về đơn hàng, số dư và yêu cầu rút tiền
+      </p>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <h1 className="display-type mt-1 text-4xl">Thông báo.</h1>
         {unreadNotifications > 0 ? (

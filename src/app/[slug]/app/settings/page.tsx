@@ -21,14 +21,16 @@ export default async function TenantUserSettingsPage({
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Cài đặt nhận tiền</h1>
         <p className="text-muted-foreground">
-          Kênh {context.memberTenant!.name} không thể xem dữ liệu plaintext này.
+          Thông tin cá nhân của bạn được bảo mật tuyệt đối và ẩn số tài khoản với Kênh{" "}
+          {context.memberTenant!.name}.
         </p>
       </div>
       <Card>
         <CardHeader>
           <CardTitle>Tài khoản ngân hàng</CardTitle>
           <CardDescription>
-            Thông tin được mã hóa; thay đổi sẽ áp dụng thời gian bảo vệ payout.
+            Thông tin tài khoản được mã hóa an toàn; thay đổi thông tin sẽ áp dụng thời gian bảo vệ
+            để bảo đảm an toàn cho số dư của bạn.
           </CardDescription>
         </CardHeader>
         <CardContent>

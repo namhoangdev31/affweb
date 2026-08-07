@@ -5,7 +5,7 @@ export default function ToolsPage() {
     <div className="space-y-6">
       <div>
         <p className="text-sm text-muted-foreground">
-          Công cụ nội bộ, không gọi private API của bên thứ ba
+          Các công cụ hỗ trợ tra cứu và tính toán hoa hồng
         </p>
         <h1 className="display-type mt-1 text-4xl">Công cụ.</h1>
       </div>

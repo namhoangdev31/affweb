@@ -201,7 +201,7 @@ export function LinksWorkspace({
             <History className="mx-auto size-10 text-muted-foreground" />
             <p className="mt-3 font-semibold">Bạn chưa tạo link nào.</p>
             <p className="text-sm text-muted-foreground">
-              Link mới sẽ xuất hiện ở đây cùng tỷ lệ đã snapshot.
+              Link mới tạo và tỷ lệ hoàn tiền sẽ xuất hiện tại đây.
             </p>
           </div>
         ) : (

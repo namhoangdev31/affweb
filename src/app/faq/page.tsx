@@ -6,23 +6,23 @@ export const metadata: Metadata = { title: "Hỏi đáp" };
 const faqs = [
   [
     "Cashback có được đảm bảo không?",
-    "Không. Số tiền ban đầu là ước tính. Cashback chỉ trở thành khả dụng sau khi đối tác xác minh và qua safety hold."
+    "Số tiền hiển thị ban đầu là mức dự kiến. Tiền hoàn sẽ chuyển thành khả dụng ngay sau khi sàn đối tác xác nhận đơn hàng thành công và qua thời gian chờ bảo vệ an toàn."
   ],
   [
     "Bao lâu tôi thấy đơn?",
-    "Thông thường 10–30 phút, nhưng một số đối tác có thể chậm hơn. Connector lag quá 30 phút sẽ tự đóng băng release mới."
+    "Thông thường hệ thống ghi nhận đơn trong vòng 10–30 phút. Một số trường hợp sàn cập nhật chậm hơn, hệ thống sẽ tự động đồng bộ ngay khi nhận dữ liệu từ đối tác."
   ],
   [
     "Khi nào có thể rút?",
-    "Khi số dư khả dụng từ 100.000 ₫. Beta giới hạn tối đa 500.000 ₫ mỗi ticket và mỗi người mỗi ngày."
+    "Bạn có thể tạo yêu cầu rút tiền khi số dư khả dụng đạt từ 100.000 ₫ trở lên."
   ],
   [
-    "Vì sao đổi tài khoản ngân hàng tạm khóa payout?",
-    "Đây là khoảng bảo vệ chống chiếm đoạt tài khoản. Không ai, kể cả admin, có thể bỏ qua mà không để lại audit."
+    "Vì sao đổi tài khoản ngân hàng tạm thời không thể rút tiền?",
+    "Đây là tính năng bảo mật tuyệt đối nhằm bảo vệ tài sản của bạn tránh bị kẻ gian chiếm đoạt tài khoản. Yêu cầu rút tiền sẽ mở lại tự động sau thời gian bảo vệ an toàn."
   ],
   [
-    "ShopeeFood đã có cashback chưa?",
-    "Link và attribution ShopeeFood đã tách riêng. Cashback chỉ bật khi round-trip click/SubID → order trên production đạt yêu cầu."
+    "ShopeeFood có được tích điểm hoàn tiền không?",
+    "Hệ thống hỗ trợ tạo link và ghi nhận đơn ShopeeFood hoàn toàn tự động khi phát sinh đơn hàng thành công."
   ]
 ];
 

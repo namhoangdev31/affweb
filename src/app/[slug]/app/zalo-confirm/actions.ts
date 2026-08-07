@@ -26,7 +26,11 @@ export async function consumeZaloFinancialGrantAction(formData: FormData) {
       current.tenantId !== tenant.id ||
       current.userId !== user.id
     ) {
-      throw new AppError("CONFLICT", "Link xác nhận đã dùng, hết hạn hoặc sai tenant.", 409);
+      throw new AppError(
+        "CONFLICT",
+        "Link xác nhận đã được sử dụng, đã hết hạn hoặc không thuộc Kênh hiện tại.",
+        409
+      );
     }
     await tx.zaloFinancialGrant.update({
       where: { id: current.id },

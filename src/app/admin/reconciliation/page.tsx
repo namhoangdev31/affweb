@@ -62,7 +62,7 @@ export default async function ReconciliationPage({
 
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle>Import conversion CSV</CardTitle>
+          <CardTitle>Nhập danh sách đơn hàng từ file CSV</CardTitle>
         </CardHeader>
         <CardContent>
           <form
@@ -74,7 +74,7 @@ export default async function ReconciliationPage({
               name="affiliateAccountId"
               className="h-10 rounded-md border bg-background px-3 text-sm"
             >
-              <option value="">Chọn affiliate account</option>
+              <option value="">Chọn tài khoản Affiliate</option>
               {accounts.map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.platform} · {account.label}
@@ -82,7 +82,7 @@ export default async function ReconciliationPage({
               ))}
             </select>
             <Input required type="file" name="file" accept=".csv,text/csv" />
-            <Button type="submit">Import có passkey</Button>
+            <Button type="submit">Nhập dữ liệu (Yêu cầu chìa khóa)</Button>
           </form>
           <p className="mt-3 text-xs text-muted-foreground">
             Cột bắt buộc: externalOrderId, externalItemKey, purchasedAt ISO, grossCommissionVnd,
@@ -93,7 +93,7 @@ export default async function ReconciliationPage({
       </Card>
 
       <section className="mt-8">
-        <h2 className="text-xl font-semibold">Cases</h2>
+        <h2 className="text-xl font-semibold">Vấn đề sai lệch đối soát</h2>
         <div className="mt-3 space-y-3">
           <Card className="hidden overflow-hidden py-0 lg:block">
             <Table className="min-w-[1000px]">
@@ -101,7 +101,7 @@ export default async function ReconciliationPage({
                 <TableRow>
                   <TableHead className="pl-5">Trạng thái</TableHead>
                   <TableHead>Platform / Severity</TableHead>
-                  <TableHead>Order</TableHead>
+                  <TableHead>Đơn hàng</TableHead>
                   <TableHead>Lý do</TableHead>
                   <TableHead className="pr-5">Xử lý</TableHead>
                 </TableRow>
@@ -133,9 +133,9 @@ export default async function ReconciliationPage({
                             name="status"
                             className="h-9 rounded-md border bg-background px-2 text-sm"
                           >
-                            <option value="MATCHED">MATCHED</option>
-                            <option value="ADJUSTED">ADJUSTED</option>
-                            <option value="DISMISSED">DISMISSED</option>
+                            <option value="MATCHED">Đã khớp (MATCHED)</option>
+                            <option value="ADJUSTED">Đã điều chỉnh (ADJUSTED)</option>
+                            <option value="DISMISSED">Bỏ qua (DISMISSED)</option>
                           </select>
                           <Input
                             name="resolution"
@@ -144,7 +144,7 @@ export default async function ReconciliationPage({
                             placeholder="Kết quả điều tra"
                           />
                           <Button type="submit" size="sm" variant="outline">
-                            Đóng case
+                            Đóng vấn đề
                           </Button>
                         </form>
                       ) : (
@@ -184,9 +184,9 @@ export default async function ReconciliationPage({
                         name="status"
                         className="h-9 rounded-md border bg-background px-2 text-sm"
                       >
-                        <option value="MATCHED">MATCHED</option>
-                        <option value="ADJUSTED">ADJUSTED</option>
-                        <option value="DISMISSED">DISMISSED</option>
+                        <option value="MATCHED">Đã khớp (MATCHED)</option>
+                        <option value="ADJUSTED">Đã điều chỉnh (ADJUSTED)</option>
+                        <option value="DISMISSED">Bỏ qua (DISMISSED)</option>
                       </select>
                       <Input
                         name="resolution"
@@ -195,7 +195,7 @@ export default async function ReconciliationPage({
                         placeholder="Kết quả điều tra và bằng chứng"
                       />
                       <Button type="submit" size="sm" variant="outline">
-                        Đóng case
+                        Đóng vấn đề
                       </Button>
                     </form>
                   ) : null}
@@ -205,7 +205,7 @@ export default async function ReconciliationPage({
           </div>
           {!cases.length ? (
             <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-              Không có case đối soát.
+              Không có vấn đề sai lệch đối soát nào.
             </p>
           ) : (
             <PaginationNav
@@ -213,7 +213,7 @@ export default async function ReconciliationPage({
               totalItems={totalCases}
               pageSize={PAGE_SIZE}
               pathname="/admin/reconciliation"
-              itemLabel="case"
+              itemLabel="vấn đề"
             />
           )}
         </div>
@@ -222,7 +222,7 @@ export default async function ReconciliationPage({
       <div className="mt-8 grid gap-6 xl:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Sync runs gần nhất</CardTitle>
+            <CardTitle>Lượt đồng bộ gần đây</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="hidden md:block">
@@ -280,14 +280,14 @@ export default async function ReconciliationPage({
                 pathname="/admin/reconciliation"
                 query={{ page: params.page, evidencePage: params.evidencePage }}
                 pageParam="runPage"
-                itemLabel="sync run"
+                itemLabel="lượt đồng bộ"
               />
             ) : null}
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Raw evidence gần nhất</CardTitle>
+            <CardTitle>Bằng chứng dữ liệu đối soát</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="hidden md:block">
@@ -339,7 +339,7 @@ export default async function ReconciliationPage({
                 pathname="/admin/reconciliation"
                 query={{ page: params.page, runPage: params.runPage }}
                 pageParam="evidencePage"
-                itemLabel="evidence"
+                itemLabel="bằng chứng"
               />
             ) : null}
           </CardContent>

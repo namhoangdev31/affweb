@@ -51,9 +51,9 @@ export default async function PayoutsPage({
 
   return (
     <div>
-      <h1 className="display-type text-4xl">Platform Payout Queue.</h1>
+      <h1 className="display-type text-4xl">Hàng chờ chi trả & Rút tiền.</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Tài chính phân cấp Owner → Tenant Master → Tenant User. Thao tác duyệt yêu cầu passkey.
+        Phê duyệt và chuyển khoản rút tiền. Thao tác duyệt yêu cầu chìa khóa bảo mật.
       </p>
       <div className="mt-8 space-y-4">
         <Card className="hidden overflow-hidden py-0 lg:block">
@@ -61,11 +61,11 @@ export default async function PayoutsPage({
             <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead className="pl-5">Tham chiếu</TableHead>
-                <TableHead>Tenant / User</TableHead>
+                <TableHead>Kênh / Tài khoản</TableHead>
                 <TableHead>Ngân hàng</TableHead>
                 <TableHead className="text-right">Số tiền</TableHead>
-                <TableHead>Approval</TableHead>
-                <TableHead>Settlement</TableHead>
+                <TableHead>Phê duyệt</TableHead>
+                <TableHead>Chi trả</TableHead>
                 <TableHead className="pr-5">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
@@ -140,7 +140,7 @@ export default async function PayoutsPage({
                         <input type="hidden" name="payoutId" value={ticket.id} />
                         <input type="hidden" name="targetTenantId" value={ticket.tenantId} />
                         <Button size="sm" variant="outline" type="submit">
-                          Resume
+                          Tiếp tục gửi PayOS
                         </Button>
                       </form>
                     ) : null}
@@ -202,7 +202,7 @@ export default async function PayoutsPage({
                             className="w-32"
                           />
                           <Button size="sm" variant="outline" type="submit">
-                            Đánh dấu UNKNOWN
+                            Đánh dấu Cần đối soát (UNKNOWN)
                           </Button>
                         </form>
                       </div>
@@ -228,7 +228,7 @@ export default async function PayoutsPage({
                         />
                         <Input name="note" required placeholder="Lý do" className="w-28" />
                         <Button size="sm" variant="outline" type="submit">
-                          Resolve
+                          Xác nhận xử lý
                         </Button>
                       </form>
                     ) : null}
@@ -259,7 +259,7 @@ export default async function PayoutsPage({
                         />
                         <Input name="reason" required placeholder="Lý do" className="w-28" />
                         <Button size="sm" variant="outline" type="submit">
-                          Resolve legacy
+                          Xử lý lịch sử
                         </Button>
                       </form>
                     ) : null}
@@ -330,7 +330,7 @@ export default async function PayoutsPage({
         </div>
         {!tickets.length ? (
           <p className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">
-            Queue trống.
+            Hàng chờ rỗng, không có yêu cầu rút tiền.
           </p>
         ) : (
           <PaginationNav
@@ -338,7 +338,7 @@ export default async function PayoutsPage({
             totalItems={totalTickets}
             pageSize={PAGE_SIZE}
             pathname="/admin/payouts"
-            itemLabel="payout"
+            itemLabel="yêu cầu"
           />
         )}
       </div>
