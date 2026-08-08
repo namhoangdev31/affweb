@@ -18,6 +18,27 @@ import { requireTenantMasterContext } from "@/modules/tenants/persona";
 
 const PAGE_SIZE = 10;
 
+function formatApprovalStatus(status: string): string {
+  const map: Record<string, string> = {
+    PENDING: "Chờ duyệt",
+    APPROVED: "Đã duyệt",
+    REJECTED: "Từ chối",
+    CANCELLED: "Đã hủy"
+  };
+  return map[status] ?? status;
+}
+
+function formatSettlementStatus(status: string): string {
+  const map: Record<string, string> = {
+    NOT_STARTED: "Chưa chuyển",
+    PROCESSING: "Đang xử lý",
+    PAID: "Đã chi trả",
+    FAILED: "Thất bại",
+    UNKNOWN: "Cần đối soát"
+  };
+  return map[status] ?? status;
+}
+
 export default async function ShopMyWalletPage({
   params,
   searchParams
@@ -130,8 +151,8 @@ export default async function ShopMyWalletPage({
                       <TableCell>{ticket.createdAt.toLocaleDateString("vi-VN")}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          <Badge variant="secondary">{ticket.approvalStatus}</Badge>
-                          <Badge variant="outline">{ticket.settlementStatus}</Badge>
+                          <Badge variant="secondary">{formatApprovalStatus(ticket.approvalStatus)}</Badge>
+                          <Badge variant="outline">{formatSettlementStatus(ticket.settlementStatus)}</Badge>
                         </div>
                       </TableCell>
                       <TableCell className="text-right font-semibold">
@@ -154,8 +175,8 @@ export default async function ShopMyWalletPage({
                   <div className="text-right">
                     <p className="text-sm font-semibold">{formatVnd(ticket.amountVnd)}</p>
                     <div className="flex gap-1">
-                      <Badge variant="secondary">{ticket.approvalStatus}</Badge>
-                      <Badge variant="outline">{ticket.settlementStatus}</Badge>
+                      <Badge variant="secondary">{formatApprovalStatus(ticket.approvalStatus)}</Badge>
+                      <Badge variant="outline">{formatSettlementStatus(ticket.settlementStatus)}</Badge>
                     </div>
                   </div>
                 </div>

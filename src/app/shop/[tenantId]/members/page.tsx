@@ -16,6 +16,15 @@ import { requireTenantMasterContext } from "@/modules/tenants/persona";
 
 const PAGE_SIZE = 20;
 
+function formatMemberStatus(status: string): string {
+  const map: Record<string, string> = {
+    ACTIVE: "Hoạt động",
+    SUSPENDED: "Tạm dừng",
+    INACTIVE: "Chưa kích hoạt"
+  };
+  return map[status] ?? status;
+}
+
 export default async function ShopTenantMembersPage({
   params,
   searchParams
@@ -89,7 +98,7 @@ export default async function ShopTenantMembersPage({
                     <p>{member.name ?? "Thành viên"}</p>
                     <p className="text-xs text-muted-foreground">{member.email}</p>
                   </TableCell>
-                  <TableCell>{member.status}</TableCell>
+                  <TableCell>{formatMemberStatus(member.status)}</TableCell>
                   <TableCell className="text-right">
                     {formatVnd(wallet?.availableVnd ?? 0n)}
                   </TableCell>

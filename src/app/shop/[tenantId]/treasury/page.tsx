@@ -19,6 +19,31 @@ import { requireTenantMasterContext } from "@/modules/tenants/persona";
 
 const PAGE_SIZE = 10;
 
+function formatOrderStatus(status: string): string {
+  const map: Record<string, string> = {
+    PENDING: "Chờ thanh toán",
+    PAID: "Đã nạp thành công",
+    EXPIRED: "Đã hết hạn",
+    CANCELLED: "Đã hủy",
+    UNKNOWN: "Cần kiểm tra"
+  };
+  return map[status] ?? status;
+}
+
+function formatPayoutStatus(status: string): string {
+  const map: Record<string, string> = {
+    PENDING: "Chờ duyệt",
+    APPROVED: "Đã duyệt",
+    REJECTED: "Từ chối",
+    CANCELLED: "Đã hủy",
+    RESERVED: "Đang xử lý",
+    PAID: "Đã rút thành công",
+    FAILED: "Thất bại",
+    UNKNOWN: "Cần kiểm tra"
+  };
+  return map[status] ?? status;
+}
+
 export default async function ShopTenantTreasuryPage({
   params,
   searchParams
@@ -79,7 +104,7 @@ export default async function ShopTenantTreasuryPage({
         {[
           ["Khả dụng", value.availableVnd],
           ["Đang xử lý", value.reservedVnd],
-          ["Đã chi member", value.paidVnd],
+          ["Đã chi cho thành viên", value.paidVnd],
           ["Đã rút", value.withdrawnVnd]
         ].map(([label, amount]) => (
           <Card key={String(label)}>
@@ -123,7 +148,7 @@ export default async function ShopTenantTreasuryPage({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Order</TableHead>
+                    <TableHead>Mã lệnh</TableHead>
                     <TableHead>Thời gian</TableHead>
                     <TableHead className="text-right">Số tiền</TableHead>
                     <TableHead>Trạng thái</TableHead>
@@ -136,7 +161,7 @@ export default async function ShopTenantTreasuryPage({
                       <TableCell>{order.createdAt.toLocaleString("vi-VN")}</TableCell>
                       <TableCell className="text-right">{formatVnd(order.amountVnd)}</TableCell>
                       <TableCell>
-                        <Badge>{order.status}</Badge>
+                        <Badge>{formatOrderStatus(order.status)}</Badge>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -150,7 +175,7 @@ export default async function ShopTenantTreasuryPage({
                   className="flex items-center justify-between border-b pb-3 text-sm"
                 >
                   <span>{formatVnd(order.amountVnd)}</span>
-                  <Badge>{order.status}</Badge>
+                  <Badge>{formatOrderStatus(order.status)}</Badge>
                 </div>
               ))}
               {!orders.length ? (
@@ -192,7 +217,7 @@ export default async function ShopTenantTreasuryPage({
                       <TableCell>{payout.createdAt.toLocaleString("vi-VN")}</TableCell>
                       <TableCell className="text-right">{formatVnd(payout.amountVnd)}</TableCell>
                       <TableCell>
-                        <Badge>{payout.status}</Badge>
+                        <Badge>{formatPayoutStatus(payout.status)}</Badge>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -206,7 +231,7 @@ export default async function ShopTenantTreasuryPage({
                   className="flex items-center justify-between border-b pb-3 text-sm"
                 >
                   <span>{formatVnd(payout.amountVnd)}</span>
-                  <Badge>{payout.status}</Badge>
+                  <Badge>{formatPayoutStatus(payout.status)}</Badge>
                 </div>
               ))}
               {!payouts.length ? (

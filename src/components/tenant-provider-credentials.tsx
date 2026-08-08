@@ -278,25 +278,31 @@ export function TenantProviderCredentials({
             </div>
             {current ? (
               <p className="text-xs text-muted-foreground">
-                Trạng thái: {current.status} · fingerprint:{" "}
+                Trạng thái:{" "}
+                {current.status === "ACTIVE" ? "Đang hoạt động" : "Cần cấu hình thông tin xác thực"}{" "}
+                · Mã vân tay bảo mật:{" "}
                 <span className="font-mono">{current.fingerprint ?? "chưa có"}</span>
               </p>
             ) : null}
             {error ? (
               <Alert variant="destructive">
-                <AlertTitle>Không thể lưu credential</AlertTitle>
+                <AlertTitle>Không thể lưu thông tin xác thực</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             ) : null}
             {success ? (
               <Alert>
                 <ShieldCheck />
-                <AlertTitle>Preflight thành công</AlertTitle>
+                <AlertTitle>Xác thực kết nối thành công</AlertTitle>
                 <AlertDescription>{success}</AlertDescription>
               </Alert>
             ) : null}
             <Button type="submit" disabled={saving}>
-              {saving ? "Đang preflight…" : current ? "Rotate credential" : "Lưu và preflight"}
+              {saving
+                ? "Đang kiểm tra kết nối…"
+                : current
+                  ? "Cập nhật thông tin xác thực"
+                  : "Lưu và kiểm tra kết nối"}
             </Button>
           </form>
         )}

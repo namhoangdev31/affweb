@@ -17,6 +17,17 @@ import { requireTenantMasterContext } from "@/modules/tenants/persona";
 
 const PAGE_SIZE = 20;
 
+function formatConversionStatus(status: string): string {
+  const map: Record<string, string> = {
+    DISCOVERED: "Ghi nhận",
+    PENDING: "Chờ đối soát",
+    VALIDATED: "Đã xác nhận",
+    CANCELLED: "Đã hủy",
+    REJECTED: "Từ chối"
+  };
+  return map[status] ?? status;
+}
+
 export default async function ShopMyHistoryPage({
   params,
   searchParams
@@ -94,7 +105,7 @@ export default async function ShopMyHistoryPage({
                     </TableCell>
                     <TableCell>
                       <Badge variant={conversion.status === "VALIDATED" ? "default" : "secondary"}>
-                        {conversion.status}
+                        {formatConversionStatus(conversion.status)}
                       </Badge>
                     </TableCell>
                     <TableCell className="pr-5 text-right">
@@ -123,7 +134,7 @@ export default async function ShopMyHistoryPage({
                       </p>
                     </div>
                     <Badge variant={conversion.status === "VALIDATED" ? "default" : "secondary"}>
-                      {conversion.status}
+                      {formatConversionStatus(conversion.status)}
                     </Badge>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">

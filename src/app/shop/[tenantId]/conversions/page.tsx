@@ -17,6 +17,15 @@ import { requireTenantMasterContext } from "@/modules/tenants/persona";
 
 const PAGE_SIZE = 20;
 
+function formatObligationStatus(status: string): string {
+  const map: Record<string, string> = {
+    PENDING_FUNDING: "Chờ cấp vốn",
+    AVAILABLE: "Khả dụng",
+    CANCELLED: "Đã hủy"
+  };
+  return map[status] ?? status;
+}
+
 export default async function ShopTenantConversionsPage({
   params,
   searchParams
@@ -38,9 +47,7 @@ export default async function ShopTenantConversionsPage({
     where,
     include: {
       user: { select: { name: true, email: true } },
-      conversion: {
-        select: { platform: true, purchasedAt: true, status: true, rawOrderStatus: true }
-      }
+      conversion: { select: { platform: true, purchasedAt: true } }
     },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     skip: (currentPage - 1) * PAGE_SIZE,
@@ -49,9 +56,9 @@ export default async function ShopTenantConversionsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Đơn và nghĩa vụ cashback</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Đơn hàng & Thưởng thành viên</h1>
         <p className="text-muted-foreground">
-          Tự động phân bổ quỹ hoàn tiền theo thứ tự thời gian phát sinh đơn hàng.
+          Ghi nhận nghĩa vụ cashback của Kênh cho thành viên khi chuyển đổi được đối soát.
         </p>
       </div>
       <Card className="hidden overflow-hidden py-0 md:block">
@@ -79,7 +86,7 @@ export default async function ShopTenantConversionsPage({
                   </p>
                 </TableCell>
                 <TableCell>
-                  <Badge>{obligation.status}</Badge>
+                  <Badge>{formatObligationStatus(obligation.status)}</Badge>
                 </TableCell>
                 <TableCell className="text-right">{formatVnd(obligation.amountVnd)}</TableCell>
                 <TableCell className="text-right">{formatVnd(obligation.fundedVnd)}</TableCell>
@@ -104,7 +111,7 @@ export default async function ShopTenantConversionsPage({
                   {obligation.conversion.purchasedAt.toLocaleString("vi-VN")}
                 </p>
               </div>
-              <Badge>{obligation.status}</Badge>
+              <Badge>{formatObligationStatus(obligation.status)}</Badge>
             </CardHeader>
             <CardContent className="grid gap-2 text-sm sm:grid-cols-3">
               <span>Cần hoàn tiền: {formatVnd(obligation.amountVnd)}</span>

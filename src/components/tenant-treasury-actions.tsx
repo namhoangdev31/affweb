@@ -94,7 +94,7 @@ export function TenantTreasuryActions({
       </div>
       <div className="flex flex-wrap gap-2">
         <Button type="button" onClick={() => run("fund")} disabled={loading !== null}>
-          {loading === "fund" ? <Loader2 className="animate-spin" /> : <QrCode />} Nạp PayOS
+          {loading === "fund" ? <Loader2 className="animate-spin" /> : <QrCode />} Nạp quét mã QR
         </Button>
         <Button
           type="button"

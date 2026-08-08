@@ -24,6 +24,27 @@ import {
 
 const PAGE_SIZE = 20;
 
+function formatApprovalStatus(status: string): string {
+  const map: Record<string, string> = {
+    PENDING: "Chờ duyệt",
+    APPROVED: "Đã duyệt",
+    REJECTED: "Từ chối",
+    CANCELLED: "Đã hủy"
+  };
+  return map[status] ?? status;
+}
+
+function formatSettlementStatus(status: string): string {
+  const map: Record<string, string> = {
+    NOT_STARTED: "Chưa tạo lệnh",
+    PROCESSING: "Đang chuyển",
+    PAID: "Đã thanh toán",
+    FAILED: "Thất bại",
+    UNKNOWN: "Cần đối soát"
+  };
+  return map[status] ?? status;
+}
+
 export default async function ShopTenantPayoutQueue({
   params,
   searchParams
@@ -79,10 +100,10 @@ export default async function ShopTenantPayoutQueue({
                 <TableCell>{payout.user.email}</TableCell>
                 <TableCell>{formatVnd(payout.amountVnd)}</TableCell>
                 <TableCell>
-                  <Badge>{payout.approvalStatus}</Badge>
+                  <Badge>{formatApprovalStatus(payout.approvalStatus)}</Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{payout.settlementStatus}</Badge>
+                  <Badge variant="outline">{formatSettlementStatus(payout.settlementStatus)}</Badge>
                 </TableCell>
                 <TableCell>
                   <PayoutActions payout={payout} />
@@ -101,9 +122,9 @@ export default async function ShopTenantPayoutQueue({
                   <p className="font-medium">{payout.user.email}</p>
                   <p>{formatVnd(payout.amountVnd)}</p>
                 </div>
-                <div className="space-y-1">
-                  <Badge>{payout.approvalStatus}</Badge>
-                  <Badge variant="outline">{payout.settlementStatus}</Badge>
+                <div className="space-y-1 flex flex-col items-end">
+                  <Badge>{formatApprovalStatus(payout.approvalStatus)}</Badge>
+                  <Badge variant="outline">{formatSettlementStatus(payout.settlementStatus)}</Badge>
                 </div>
               </div>
               <PayoutActions payout={payout} />
@@ -133,7 +154,7 @@ function PayoutActions({
         <form action={tenantApprovePayoutAction} className="flex gap-2">
           <input type="hidden" name="payoutId" value={payout.id} />
           <select name="method" className="h-9 rounded-md border bg-background px-2 text-sm">
-            <option value="PAYOS">PayOS</option>
+            <option value="PAYOS">Chi tự động</option>
             <option value="MANUAL_BANK_TRANSFER">Chuyển khoản thủ công</option>
           </select>
           <Input name="note" placeholder="Ghi chú" className="w-28" />
@@ -173,7 +194,7 @@ function PayoutActions({
           <Input name="evidenceReference" required placeholder="Bằng chứng" className="w-28" />
           <Input name="note" required placeholder="Lý do" className="w-28" />
           <Button size="sm" variant="outline">
-            Cần đối soát (UNKNOWN)
+            Báo cần đối soát
           </Button>
         </form>
       </div>
@@ -205,12 +226,19 @@ function PayoutActions({
       : payout.settlementStatus === "NOT_STARTED"
         ? "manual-start"
         : null;
+
+  const operationLabels: Record<string, string> = {
+    resume: "Tiếp tục chuyển",
+    reconcile: "Đối soát tự động",
+    "manual-start": "Bắt đầu chuyển"
+  };
+
   return operation ? (
     <form action={tenantPayoutOperationAction}>
       <input type="hidden" name="payoutId" value={payout.id} />
       <input type="hidden" name="operation" value={operation} />
       <Button size="sm" variant="outline">
-        {operation}
+        {operationLabels[operation] ?? operation}
       </Button>
     </form>
   ) : (
