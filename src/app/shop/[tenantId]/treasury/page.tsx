@@ -96,6 +96,7 @@ export default async function ShopTenantTreasuryPage({
         </CardHeader>
         <CardContent>
           <TenantTreasuryActions
+            tenantId={tenantId}
             beneficiaryId={beneficiary?.id ?? null}
             masterWalletAvailableVnd={(masterWallet?.availableVnd ?? 0n).toString()}
           />

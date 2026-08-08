@@ -76,13 +76,32 @@ export async function assertTenantFinanceGate(
                 : operation === "reconciliation"
                   ? tenant.autoReconciliationEnabled
                   : true;
+  const envFinance = env.TENANT_FINANCE_ENABLED;
+  const envOperation =
+    operation === "topup"
+      ? env.TENANT_TOPUP_ENABLED
+      : operation === "payout"
+        ? env.TENANT_AUTO_PAYOUT_ENABLED
+        : true;
+
+  const globalFinanceFlag = await client.featureFlag.findUnique({
+    where: { key: "tenant.finance.enabled" },
+    select: { enabled: true }
+  });
+  const globalOperationFlag = operationKey
+    ? await client.featureFlag.findUnique({
+        where: { key: operationKey },
+        select: { enabled: true }
+      })
+    : null;
+
   const ready = tenantFinanceGateReady({
-    envFinance: true,
-    envOperation: true,
-    globalFinance: true,
-    globalOperation: true,
-    tenantFinance: true,
-    tenantOperation: true
+    envFinance,
+    envOperation,
+    globalFinance: globalFinanceFlag?.enabled ?? true,
+    globalOperation: globalOperationFlag?.enabled ?? true,
+    tenantFinance: tenant.financeEnabled,
+    tenantOperation
   });
   if (!ready) {
     const label =
@@ -575,6 +594,7 @@ export async function syncTenantCashbackObligation(
 
 export async function createTenantFundingOrder(input: {
   actorUserId: string;
+  tenantId?: string | undefined;
   amountVnd: bigint;
   idempotencyKey: string;
   requestHash: string;
@@ -587,8 +607,11 @@ export async function createTenantFundingOrder(input: {
       400
     );
   }
-  const context = await requireTenantMasterContext(input.actorUserId);
-  const tenant = context.ownedTenant!;
+  const context = await requireTenantMasterContext(input.actorUserId, input.tenantId);
+  const tenant = context.ownedTenant;
+  if (!tenant) {
+    throw new AppError("VALIDATION_ERROR", "Không xác định được tenant.", 400);
+  }
   await assertTenantFinanceGate(tenant, "topup");
   const existing = await db.tenantFundingOrder.findUnique({
     where: {
@@ -752,6 +775,7 @@ export async function creditTenantFundingOrder(input: {
 
 export async function transferMasterWalletToTreasury(input: {
   actorUserId: string;
+  tenantId?: string | undefined;
   amountVnd: bigint;
   idempotencyKey: string;
   requestHash: string;
@@ -759,8 +783,11 @@ export async function transferMasterWalletToTreasury(input: {
   if (input.amountVnd <= 0n) {
     throw new AppError("VALIDATION_ERROR", "Số tiền chuyển phải lớn hơn 0.", 400);
   }
-  const context = await requireTenantMasterContext(input.actorUserId);
-  const tenant = context.ownedTenant!;
+  const context = await requireTenantMasterContext(input.actorUserId, input.tenantId);
+  const tenant = context.ownedTenant;
+  if (!tenant) {
+    throw new AppError("VALIDATION_ERROR", "Không xác định được tenant.", 400);
+  }
   await assertTenantFinanceGate(tenant, "finance");
   return withSerializable(async (tx) => {
     const journalKey = `tenant-transfer:${tenant.id}:${input.idempotencyKey}`;

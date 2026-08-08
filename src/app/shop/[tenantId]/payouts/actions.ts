@@ -21,12 +21,13 @@ import {
   resolveFinancialActorContext
 } from "@/modules/tenants/persona";
 
-async function tenantMasterActor() {
+async function tenantMasterActor(tenantId?: string) {
   const user = await requireUser();
-  const tenant = (await requireTenantMasterContext(user.id)).ownedTenant!;
+  const context = await requireTenantMasterContext(user.id, tenantId);
+  const targetTenant = context.ownedTenant ?? context.masterTenant;
   return resolveFinancialActorContext({
     actorUserId: user.id,
-    targetTenantId: tenant.id,
+    targetTenantId: targetTenant.id,
     source: "HTTP",
     requestId: await requestId()
   });

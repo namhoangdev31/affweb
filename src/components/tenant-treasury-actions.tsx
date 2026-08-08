@@ -14,9 +14,11 @@ import {
 } from "@/app/shop/[tenantId]/treasury/actions";
 
 export function TenantTreasuryActions({
+  tenantId,
   beneficiaryId,
   masterWalletAvailableVnd
 }: {
+  tenantId: string;
   beneficiaryId: string | null;
   masterWalletAvailableVnd: string;
 }) {
@@ -30,24 +32,39 @@ export function TenantTreasuryActions({
     try {
       if (kind === "fund") {
         const body = (await createTenantFundingOrderAction({
+          tenantId,
           amountVnd: amount,
           idempotencyKey: crypto.randomUUID()
-        })) as { order?: { checkoutUrl?: string } };
+        })) as { order?: { checkoutUrl?: string }; error?: string };
+        if (body.error) {
+          setMessage(body.error);
+          return;
+        }
         if (body.order?.checkoutUrl) window.location.assign(body.order.checkoutUrl);
         else setMessage("Đã tạo lệnh nạp tiền.");
       } else if (kind === "transfer") {
-        await transferMasterWalletToTreasuryAction({
+        const body = (await transferMasterWalletToTreasuryAction({
+          tenantId,
           amountVnd: amount,
           idempotencyKey: crypto.randomUUID()
-        });
+        })) as { error?: string };
+        if (body.error) {
+          setMessage(body.error);
+          return;
+        }
         setMessage("Đã chuyển từ ví cá nhân vào Quỹ Kênh.");
       } else {
         if (!beneficiaryId) throw new Error("Hãy cấu hình tài khoản ngân hàng trước.");
         const body = (await requestTreasuryWithdrawalAction({
+          tenantId,
           amountVnd: amount,
           beneficiaryId,
           idempotencyKey: crypto.randomUUID()
-        })) as { payout?: { reference?: string } };
+        })) as { payout?: { reference?: string }; error?: string };
+        if (body.error) {
+          setMessage(body.error);
+          return;
+        }
         setMessage(`Đã gửi thành công ${body.payout?.reference ?? "yêu cầu rút quỹ"}.`);
       }
     } catch (error) {

@@ -8826,8 +8826,8 @@
     },
     "src/app/shop/[tenantId]/payouts/actions.ts": {
       "category": "source",
-      "bytes": 3090,
-      "sha256": "1aa6895089afd12cdb23a4fc69e592192a7fda15fa5d9e8e56d6ca21a8f712bb",
+      "bytes": 3177,
+      "sha256": "82850d4d8a727b229f472752f229768353a41a376c916dcf73dca01e3a222cf4",
       "summary": "Implements tenantApprovePayoutAction, tenantRejectPayoutAction, tenantPayoutOperationAction.",
       "analysis": {
         "runtime": "shared",
@@ -9151,8 +9151,8 @@
     },
     "src/app/shop/[tenantId]/treasury/actions.ts": {
       "category": "source",
-      "bytes": 3137,
-      "sha256": "70e672766a6f0b7c1d4c4be1c4651a305ee4efdf625cf2bbc2daf4ae268da849",
+      "bytes": 3757,
+      "sha256": "7728bb96a4311d4c2a35988b423fb0eb7efaa37d1c383605e5865c85cc1a94d3",
       "summary": "Implements createTenantFundingOrderAction, transferMasterWalletToTreasuryAction, requestTreasuryWithdrawalAction.",
       "analysis": {
         "runtime": "shared",
@@ -9234,8 +9234,8 @@
     },
     "src/app/shop/[tenantId]/treasury/page.tsx": {
       "category": "app-route",
-      "bytes": 8962,
-      "sha256": "c7e9ded89dda410b68654b256cf3b35e090be15484e3970caf0531ac6301e622",
+      "bytes": 8994,
+      "sha256": "c3fdff40bb04176dfd6ce6e6ccab1d4f5cefe2121c4732ed7f3837f65a5a5430",
       "summary": "Implements ShopTenantTreasuryPage.",
       "route": "/shop/:tenantId/treasury",
       "analysis": {
@@ -10577,8 +10577,8 @@
     },
     "src/components/tenant-treasury-actions.tsx": {
       "category": "component",
-      "bytes": 3808,
-      "sha256": "a210166c3d2ca5f6523b5fbe0449d15a4a7f714acf33431a3d29d2bca8dc9965",
+      "bytes": 4233,
+      "sha256": "45fce38c80371fc1249a6f5bec2e72fee7f3a5a2bdda4a4a939fed89393b7ab1",
       "summary": "Implements TenantTreasuryActions.",
       "analysis": {
         "runtime": "client",
@@ -17048,8 +17048,8 @@
     },
     "src/modules/tenants/finance.ts": {
       "category": "domain-module",
-      "bytes": 31311,
-      "sha256": "818fc833f12a87cb967a9855b9659b1bd459837d166b8e8ce017fe2b4ee8d689",
+      "bytes": 32237,
+      "sha256": "e9a9fe5fba9e2d8944a2f3eea48078ee7fe0d90fcfe5c4190202877893f23777",
       "summary": "Implements assertTenantFinanceGate, settleTenantRecovery, allocatePendingTenantCashback, syncTenantCashbackObligation, createTenantFundingOrder, creditTenantFundingOrder.",
       "analysis": {
         "runtime": "server",
